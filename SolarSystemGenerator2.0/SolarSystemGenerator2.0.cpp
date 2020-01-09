@@ -1635,6 +1635,8 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 			WS_CHILD | WS_BORDER,
 			490, 180, 130, 30,
 			hWnd, (HMENU)BUTTON_NAME_SIMPLE, NULL, NULL);
+
+		// hello testing changes
 		
 
 		// Info buttons for the pre/post/number mods, which are the same for

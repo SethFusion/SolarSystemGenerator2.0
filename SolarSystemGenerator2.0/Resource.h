@@ -129,6 +129,8 @@
 #define NVCB_NAMETERRADWARFMOONS	1614
 #define NVCB_NAMEGASDWARFMOONS		1615
 
+#define NewResource					13000
+
 
 
 
