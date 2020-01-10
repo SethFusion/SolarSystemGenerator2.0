@@ -193,7 +193,16 @@ struct Preset
 
 struct NameVariables
 {
-	/*#####################################################
+	/*=====================================================
+		*/	std::vector<std::wstring> usedNames;	/*
+		This vector fills up with names as the program
+		generates them. Every time a new name is
+		generated, it checks the vector to see if that
+		name has already been used. This ensures every
+		name is unique.
+	=====================================================*/
+
+	/*=====================================================
 		*/	var PreMod_INFO,
 			PostMod_INFO,
 			NumberMod_INFO, 
@@ -206,7 +215,7 @@ struct NameVariables
 		to send a message to the window procedure.
 
 		Vissually, their position is inside the group. 
-	#####################################################*/
+	=====================================================*/
 
 	/*#####################################################
 		*/	HWND GROUP_STAR; /*
@@ -275,58 +284,114 @@ struct NameVariables
 	std::vector<std::wstring> DwarfMoonPreMods, DwarfMoonPostMods;
 
 	/*#####################################################
-		*/	HWND GROUP_SHIP; /*
+		*/	HWND GROUP_ALL_SHIP; /*
 	#####################################################*/
+		
+	bool useShipPreMods_All, useShipPostMods_All;
+	HWND useShipPreMods_AllH, useShipPostMods_AllH;
+	HWND useShipMods_All_DESC;
+
+	int probShipPreMod_All, probShipPostMod_All;
+	HWND probShipPreMod_AllH, probShipPostMod_AllH;
+	HWND shipModsProb_All_DESC;
+
+	HWND shipPreModList_All, shipPostModList_All;
+	std::vector<std::wstring> ShipPreMods_All, ShipPostMods_All;
+
+	/*#####################################################
+		*/	HWND GROUP_COLONY_SHIP, 
+				BUTTON_COLONY; /*
+	#####################################################*/
+
+	bool useShipPreMods_Colony, useShipPostMods_Colony, useShipNumberMods_Colony;
+	HWND useShipPreMods_ColonyH, useShipPostMods_ColonyH, useShipNumberMods_ColonyH;
+	HWND useShipMods_Colony_DESC;
+
+	int probShipPreMod_Colony, probShipPostMod_Colony, probShipNumberMod_Colony;
+	HWND probShipPreMod_ColonyH, probShipPostMod_ColonyH, probShipNumberMod_ColonyH;
+	HWND shipModsProb_Colony_DESC;
+
+	HWND shipPreModList_Colony, shipPostModList_Colony;
+	std::vector<std::wstring> ShipPreMods_Colony, ShipPostMods_Colony;
+
+	/*#####################################################
+	*/	HWND GROUP_INSTRUMENT_SHIP, 
+			BUTTON_INSTRUMENT; /*
+	#####################################################*/
+
+	bool useShipPreMods_Instrument, useShipPostMods_Instrument, useShipNumberMods_Instrument;
+	HWND useShipPreMods_InstrumentH, useShipPostMods_InstrumentH, useShipNumberMods_InstrumentH;
+	HWND useShipMods_Instrument_DESC;
+
+	int probShipPreMod_Instrument, probShipPostMod_Instrument, probShipNumberMod_Instrument;
+	HWND probShipPreMod_InstrumentH, probShipPostMod_InstrumentH, probShipNumberMod_InstrumentH;
+	HWND shipModsProb_Instrument_DESC;
+
+	HWND shipPreModList_Instrument, shipPostModList_Instrument;
+	std::vector<std::wstring> ShipPreMods_Instrument, ShipPostMods_Instrument;
+
+	/*#####################################################
+	*/	HWND GROUP_SATELLITE_SHIP, 
+			BUTTON_SATELLITE; /*
+	#####################################################*/
+
+	bool useShipPreMods_Satellite, useShipPostMods_Satellite, useShipNumberMods_Satellite;
+	HWND useShipPreMods_SatelliteH, useShipPostMods_SatelliteH, useShipNumberMods_SatelliteH;
+	HWND useShipMods_Satellite_DESC;
+
+	int probShipPreMod_Satellite, probShipPostMod_Satellite, probShipNumberMod_Satellite;
+	HWND probShipPreMod_SatelliteH, probShipPostMod_SatelliteH, probShipNumberMod_SatelliteH;
+	HWND shipModsProb_Satellite_DESC;
+
+	HWND shipPreModList_Satellite, shipPostModList_Satellite;
+	std::vector<std::wstring> ShipPreMods_Satellite, ShipPostMods_Satellite;
+
+	/*#####################################################
+	*/	HWND GROUP_STATION_SHIP, 
+			BUTTON_STATION; /*
+	#####################################################*/
+
+	bool useShipPreMods_Station, useShipPostMods_Station, useShipNumberMods_Station;
+	HWND useShipPreMods_StationH, useShipPostMods_StationH, useShipNumberMods_StationH;
+	HWND useShipMods_Station_DESC;
+
+	int probShipPreMod_Station, probShipPostMod_Station, probShipNumberMod_Station;
+	HWND probShipPreMod_StationH, probShipPostMod_StationH, probShipNumberMod_StationH;
+	HWND shipModsProb_Station_DESC;
+
+	HWND shipPreModList_Station, shipPostModList_Station;
+	std::vector<std::wstring> ShipPreMods_Station, ShipPostMods_Station;
 
 	/*#####################################################
 		*/	HWND GROUP_DATASET; /*
 	#####################################################*/
 
-	/*#####################################################
-	*/	HWND GROUP_SIMPLE; /*
-	#####################################################*/
+	HWND Markov_INFO;
 
-	bool useSimpleGenerator;
-	std::vector<std::wstring> PrefixList, SuffixList;
-	
-	
+	int order, wordVarience, max_length, min_length;
+	HWND orderH, wordVarienceH, max_lengthH, min_lengthH;
+	HWND orderDESC, wordVarienceDESC, max_lengthDESC, min_lengthDESC;
 
-
-
-
-
-
-	// Terra moon names are for moons around small planets, Giant moon names are for moons around gas/ice giants
-	bool useTerraMoonNames, useTerraDMoonNames, useGiantMoonNames, useGiantDMoonNames;
-
-	// Ship name stuff
-	bool useShipPreMods_All, useShipPostMods_All,
-		useShipPreMods_Colony, useShipPostMods_Colony, useShipNumberMods_Colony,
-		useShipPreMods_Instrument, useShipPostMods_Instrument, useShipNumberMods_Instrument,
-		useShipPreMods_Satellite, useShipPostMods_Satellite, useShipNumberMods_Satellite,
-		useShipPreMods_Station, useShipPostMods_Station, useShipNumberMods_Station;
-	int probShipPreMod_All, probShipPostMod_All,
-		probShipPreMod_Colony, probShipPostMod_Colony, probShipNumberMod_Colony,
-		probShipPreMod_Instrument, probShipPostMod_Instrument, probShipNumberMod_Instrument,
-		probShipPreMod_Satellite, probShipPostMod_Satellite, probShipNumberMod_Satellite,
-		probShipPreMod_Station, probShipPostMod_Station, probShipNumberMod_Station;
-	std::vector<std::wstring> ShipPreMods_All, ShipPostMods_All,
-		ShipPreMods_Colony, ShipPostMods_Colony,
-		ShipPreMods_Instrument, ShipPostMods_Instrument,
-		ShipPreMods_Satellite, ShipPostMods_Satellite,
-		ShipPreMods_Station, ShipPostMods_Station;
+	HWND Markov_RawDatasetH, Markov_RawDatasetDESC;
+	std::vector<std::wstring> Markov_RawDataset;
 
 	struct NGRAMS
 	{
 		std::vector<std::wstring> ngrams;
 		std::vector<std::wstring> nextCharList;
 	};
-
-	
-	std::vector<std::wstring> MarkovData_vector;
 	NGRAMS main_ngrams, twogram_list;
-	int wordVarience, max_length, min_length;
-	const int ORDER = 3;
+		
+	/*#####################################################
+	*/	HWND GROUP_SIMPLE; /*
+	#####################################################*/
 
-	std::vector<std::wstring> usedNames;
+	HWND SimpleGenerator_INFO;
+
+	bool useSimpleGenerator;
+	HWND useSimpleGeneratorDESC, useSimpleGeneratorH;
+
+	HWND PrefixListDESC, PrefixListH, SuffixListDESC, SuffixListH;
+	std::vector<std::wstring> PrefixList, SuffixList;
+	
 };

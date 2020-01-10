@@ -62,7 +62,13 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 	void Load_Name_Planet();
 	void Load_Name_Moon();
 	void Load_Name_DwarfMoon();
-	void Load_Name_Ship();
+	void Load_Name_All_Ship();
+	void Load_Name_Colony_Ship();
+	void Load_Name_Instrument_Ship();
+	void Load_Name_Satellite_Ship();
+	void Load_Name_Station_Ship();
+
+
 	void Load_Name_Dataset();
 	void Load_Name_Simple();
 
@@ -257,9 +263,25 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 				Clear_Advanced();
 				Load_Name_DwarfMoon();
 				break;
-			case BUTTON_NAME_SHIP:
+			case BUTTON_NAME_SHIP_ALL:
 				Clear_Advanced();
-				Load_Name_Ship();
+				Load_Name_All_Ship();
+				break;
+			case BUTTON_NAME_SHIP_COLONY:
+				Clear_Advanced();
+				Load_Name_Colony_Ship();
+				break;
+			case BUTTON_NAME_SHIP_INSTRUMENT:
+				Clear_Advanced();
+				Load_Name_Instrument_Ship();
+				break;
+			case BUTTON_NAME_SHIP_SATELLITE:
+				Clear_Advanced();
+				Load_Name_Satellite_Ship();
+				break;
+			case BUTTON_NAME_SHIP_STATION:
+				Clear_Advanced();
+				Load_Name_Station_Ship();
 				break;
 			case BUTTON_NAME_DATASET:
 				Clear_Advanced();
@@ -1177,7 +1199,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 		/*###############################################################################
 			System and Planet Screen Handles */ {
-			//###############################################################################
+		//###############################################################################
 			CONFIG.HEADER_SYSTEMPLANET = CreateWindowW(L"static", L"System and Planet Variables",
 				WS_CHILD | WS_BORDER | ES_CENTER, //Effects
 				350, 60, 664, 30, //X, Y, Width & Height
@@ -1386,81 +1408,80 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 		/*###############################################################################
 			Life Screen Handles  */ 
 		//###############################################################################
+			CONFIG.HEADER_LIFE = CreateWindowW(L"static", L"Life Variables",
+				WS_CHILD | WS_BORDER | ES_CENTER, //Effects
+				350, 60, 664, 30, //X, Y, Width & Height
+				hWnd, NULL, NULL, NULL); //Parent
 
-		CONFIG.HEADER_LIFE = CreateWindowW(L"static", L"Life Variables",
-			WS_CHILD | WS_BORDER | ES_CENTER, //Effects
-			350, 60, 664, 30, //X, Y, Width & Height
-			hWnd, NULL, NULL, NULL); //Parent
+			//Organic Chance
+			CONFIG.life_OrganicChanceH.DESC = CreateWindowW(L"static", L"% Chance for Organic Life:",
+				WS_CHILD | WS_BORDER,
+				370, 100, 230, 20,
+				hWnd, NULL, NULL, NULL);
+			CONFIG.life_OrganicChanceH.HANDLE = CreateWindowW(L"edit", L"",
+				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+				600, 100, 100, 20,
+				hWnd, NULL, NULL, NULL);
+			CONFIG.life_OrganicChanceH.INFOBUTTON = CreateWindowW(L"button", L"I",
+				WS_CHILD | WS_BORDER,
+				702, 102, 16, 16,
+				hWnd, (HMENU)IB_LIFEORGANICCHANCE, NULL, NULL);
 
-		//Organic Chance
-		CONFIG.life_OrganicChanceH.DESC = CreateWindowW(L"static", L"% Chance for Organic Life:",
-			WS_CHILD | WS_BORDER,
-			370, 100, 230, 20,
-			hWnd, NULL, NULL, NULL);
-		CONFIG.life_OrganicChanceH.HANDLE = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-			600, 100, 100, 20,
-			hWnd, NULL, NULL, NULL);
-		CONFIG.life_OrganicChanceH.INFOBUTTON = CreateWindowW(L"button", L"I",
-			WS_CHILD | WS_BORDER,
-			702, 102, 16, 16,
-			hWnd, (HMENU)IB_LIFEORGANICCHANCE, NULL, NULL);
+			//Exotic Chance
+			CONFIG.life_ExoticChanceH.DESC = CreateWindowW(L"static", L"% Chance for Exotic Life:",
+				WS_CHILD | WS_BORDER,
+				370, 120, 230, 20,
+				hWnd, NULL, NULL, NULL);
+			CONFIG.life_ExoticChanceH.HANDLE = CreateWindowW(L"edit", L"",
+				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+				600, 120, 100, 20,
+				hWnd, NULL, NULL, NULL);
+			CONFIG.life_ExoticChanceH.INFOBUTTON = CreateWindowW(L"button", L"I",
+				WS_CHILD | WS_BORDER,
+				702, 122, 16, 16,
+				hWnd, (HMENU)IB_LIFEEXOTICCHANCE, NULL, NULL);
 
-		//Exotic Chance
-		CONFIG.life_ExoticChanceH.DESC = CreateWindowW(L"static", L"% Chance for Exotic Life:",
-			WS_CHILD | WS_BORDER,
-			370, 120, 230, 20,
-			hWnd, NULL, NULL, NULL);
-		CONFIG.life_ExoticChanceH.HANDLE = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-			600, 120, 100, 20,
-			hWnd, NULL, NULL, NULL);
-		CONFIG.life_ExoticChanceH.INFOBUTTON = CreateWindowW(L"button", L"I",
-			WS_CHILD | WS_BORDER,
-			702, 122, 16, 16,
-			hWnd, (HMENU)IB_LIFEEXOTICCHANCE, NULL, NULL);
+			//MultiCell Chance
+			CONFIG.life_MulticellChanceH.DESC = CreateWindowW(L"static", L"% Chance for Multicellular Life:",
+				WS_CHILD | WS_BORDER,
+				370, 140, 230, 20,
+				hWnd, NULL, NULL, NULL);
+			CONFIG.life_MulticellChanceH.HANDLE = CreateWindowW(L"edit", L"",
+				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+				600, 140, 100, 20,
+				hWnd, NULL, NULL, NULL);
+			CONFIG.life_MulticellChanceH.INFOBUTTON = CreateWindowW(L"button", L"I",
+				WS_CHILD | WS_BORDER,
+				702, 142, 16, 16,
+				hWnd, (HMENU)IB_LIFEMULTICHANCE, NULL, NULL);
 
-		//MultiCell Chance
-		CONFIG.life_MulticellChanceH.DESC = CreateWindowW(L"static", L"% Chance for Multicellular Life:",
-			WS_CHILD | WS_BORDER,
-			370, 140, 230, 20,
-			hWnd, NULL, NULL, NULL);
-		CONFIG.life_MulticellChanceH.HANDLE = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-			600, 140, 100, 20,
-			hWnd, NULL, NULL, NULL);
-		CONFIG.life_MulticellChanceH.INFOBUTTON = CreateWindowW(L"button", L"I",
-			WS_CHILD | WS_BORDER,
-			702, 142, 16, 16,
-			hWnd, (HMENU)IB_LIFEMULTICHANCE, NULL, NULL);
+			//Traditional Life
+			CONFIG.traditionalLifeH.DESC = CreateWindowW(L"static", L"Traditional Life:",
+				WS_CHILD | WS_BORDER,
+				370, 160, 230, 20,
+				hWnd, NULL, NULL, NULL);
+			CONFIG.traditionalLifeH.HANDLE = CreateWindowW(L"button", L"",
+				WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
+				600, 160, 100, 20,
+				hWnd, (HMENU)CB_TRADITIONALLIFE, NULL, NULL);
+			CONFIG.traditionalLifeH.INFOBUTTON = CreateWindowW(L"button", L"I",
+				WS_CHILD | WS_BORDER,
+				702, 162, 16, 16,
+				hWnd, (HMENU)IB_TRADITIONALLIFE, NULL, NULL);
 
-		//Traditional Life
-		CONFIG.traditionalLifeH.DESC = CreateWindowW(L"static", L"Traditional Life:",
-			WS_CHILD | WS_BORDER,
-			370, 160, 230, 20,
-			hWnd, NULL, NULL, NULL);
-		CONFIG.traditionalLifeH.HANDLE = CreateWindowW(L"button", L"",
-			WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
-			600, 160, 100, 20,
-			hWnd, (HMENU)CB_TRADITIONALLIFE, NULL, NULL);
-		CONFIG.traditionalLifeH.INFOBUTTON = CreateWindowW(L"button", L"I",
-			WS_CHILD | WS_BORDER,
-			702, 162, 16, 16,
-			hWnd, (HMENU)IB_TRADITIONALLIFE, NULL, NULL);
-
-		//Force Life
-		CONFIG.forceLifeH.DESC = CreateWindowW(L"static", L"Force Life:",
-			WS_CHILD | WS_BORDER,
-			370, 180, 230, 20,
-			hWnd, NULL, NULL, NULL);
-		CONFIG.forceLifeH.HANDLE = CreateWindowW(L"button", L"",
-			WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
-			600, 180, 100, 20,
-			hWnd, (HMENU)CB_FORCELIFE, NULL, NULL);
-		CONFIG.forceLifeH.INFOBUTTON = CreateWindowW(L"button", L"I",
-			WS_CHILD | WS_BORDER,
-			702, 182, 16, 16,
-			hWnd, (HMENU)IB_FORCELIFE, NULL, NULL);
+			//Force Life
+			CONFIG.forceLifeH.DESC = CreateWindowW(L"static", L"Force Life:",
+				WS_CHILD | WS_BORDER,
+				370, 180, 230, 20,
+				hWnd, NULL, NULL, NULL);
+			CONFIG.forceLifeH.HANDLE = CreateWindowW(L"button", L"",
+				WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
+				600, 180, 100, 20,
+				hWnd, (HMENU)CB_FORCELIFE, NULL, NULL);
+			CONFIG.forceLifeH.INFOBUTTON = CreateWindowW(L"button", L"I",
+				WS_CHILD | WS_BORDER,
+				702, 182, 16, 16,
+				hWnd, (HMENU)IB_FORCELIFE, NULL, NULL);
 		
 		//###############################################################################
 
@@ -1588,351 +1609,731 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 			Advanced Screen Handles */ {
 		//###############################################################################
 
-		CONFIG.HEADER_ADVANCED = CreateWindowW(L"static", L"Advanced Variables:",
-			WS_CHILD | WS_BORDER | ES_CENTER, //Effects
-			350, 60, 664, 30, //X, Y, Width & Height
-			hWnd, NULL, NULL, NULL); //Parent
+			CONFIG.HEADER_ADVANCED = CreateWindowW(L"static", L"Advanced Variables:",
+				WS_CHILD | WS_BORDER | ES_CENTER, //Effects
+				350, 60, 664, 30, //X, Y, Width & Height
+				hWnd, NULL, NULL, NULL); //Parent
 
-		// groupbox to hold the buttons
-		CONFIG.advNameGroup.EXTRA = CreateWindowW(L"button", L"Name Variables:",
-			WS_CHILD | WS_GROUP | BS_GROUPBOX,
-			370, 100, 260, 130,
-			hWnd, NULL, hInst, NULL);
+			/*###############################################################################
+				Name Stuff */
+			//###############################################################################
+			{
+				// groupbox to hold the buttons
+				CONFIG.advNameGroup.EXTRA = CreateWindowW(L"button", L"Name Variables:",
+					WS_CHILD | WS_GROUP | BS_GROUPBOX,
+					370, 100, 260, 130,
+					hWnd, NULL, hInst, NULL);
 
-		// all of the buttons for the name groups
-		// the buttons are only VISUALLY inside the groupbox, but their
-		// parent is still hWnd because they send messages to the
-		// window procedure
-		CONFIG.buttonUpdate = CreateWindowW(L"button", L"Update Names",
-			WS_CHILD | WS_BORDER | BS_MULTILINE,
-			550, 120, 70, 50,
-			hWnd, (HMENU)BUTTON_NAME_UPDATE, NULL, NULL);
-		CONFIG.buttonStar = CreateWindowW(L"button", L"Star",
-			WS_CHILD | WS_BORDER,
-			380, 120, 50, 30,
-			hWnd, (HMENU)BUTTON_NAME_STAR, NULL, NULL);
-		CONFIG.buttonPlanet = CreateWindowW(L"button", L"Planet",
-			WS_CHILD | WS_BORDER,
-			430, 120, 50, 30,
-			hWnd, (HMENU)BUTTON_NAME_PLANET, NULL, NULL);
-		CONFIG.buttonMoon = CreateWindowW(L"button", L"Moon",
-			WS_CHILD | WS_BORDER,
-			480, 120, 50, 30,
-			hWnd, (HMENU)BUTTON_NAME_MOON, NULL, NULL);
-		CONFIG.buttonDwarfMoon = CreateWindowW(L"button", L"Dwarf Moon",
-			WS_CHILD | WS_BORDER,
-			380, 150, 90, 30,
-			hWnd, (HMENU)BUTTON_NAME_DWARFMOON, NULL, NULL);
-		CONFIG.buttonShip = CreateWindowW(L"button", L"Ship",
-			WS_CHILD | WS_BORDER,
-			470, 150, 50, 30,
-			hWnd, (HMENU)BUTTON_NAME_SHIP, NULL, NULL);
-		CONFIG.buttonDataset = CreateWindowW(L"button", L"Name Dataset",
-			WS_CHILD | WS_BORDER,
-			380, 180, 110, 30,
-			hWnd, (HMENU)BUTTON_NAME_DATASET, NULL, NULL);
-		CONFIG.buttonSimple = CreateWindowW(L"button", L"Simple Generator",
-			WS_CHILD | WS_BORDER,
-			490, 180, 130, 30,
-			hWnd, (HMENU)BUTTON_NAME_SIMPLE, NULL, NULL);
+				// all of the buttons for the name groups
+				// the buttons are only VISUALLY inside the groupbox, but their
+				// parent is still hWnd because they send messages to the
+				// window procedure
+				CONFIG.buttonUpdate = CreateWindowW(L"button", L"Update Names",
+					WS_CHILD | WS_BORDER | BS_MULTILINE,
+					550, 120, 70, 50,
+					hWnd, (HMENU)BUTTON_NAME_UPDATE, NULL, NULL);
+				CONFIG.buttonStar = CreateWindowW(L"button", L"Star",
+					WS_CHILD | WS_BORDER,
+					380, 120, 50, 30,
+					hWnd, (HMENU)BUTTON_NAME_STAR, NULL, NULL);
+				CONFIG.buttonPlanet = CreateWindowW(L"button", L"Planet",
+					WS_CHILD | WS_BORDER,
+					430, 120, 50, 30,
+					hWnd, (HMENU)BUTTON_NAME_PLANET, NULL, NULL);
+				CONFIG.buttonMoon = CreateWindowW(L"button", L"Moon",
+					WS_CHILD | WS_BORDER,
+					480, 120, 50, 30,
+					hWnd, (HMENU)BUTTON_NAME_MOON, NULL, NULL);
+				CONFIG.buttonDwarfMoon = CreateWindowW(L"button", L"Dwarf Moon",
+					WS_CHILD | WS_BORDER,
+					380, 150, 90, 30,
+					hWnd, (HMENU)BUTTON_NAME_DWARFMOON, NULL, NULL);
+				CONFIG.buttonShip = CreateWindowW(L"button", L"Ship",
+					WS_CHILD | WS_BORDER,
+					470, 150, 50, 30,
+					hWnd, (HMENU)BUTTON_NAME_SHIP_ALL, NULL, NULL);
+				CONFIG.buttonDataset = CreateWindowW(L"button", L"Name Dataset",
+					WS_CHILD | WS_BORDER,
+					380, 180, 110, 30,
+					hWnd, (HMENU)BUTTON_NAME_DATASET, NULL, NULL);
+				CONFIG.buttonSimple = CreateWindowW(L"button", L"Simple Generator",
+					WS_CHILD | WS_BORDER,
+					490, 180, 130, 30,
+					hWnd, (HMENU)BUTTON_NAME_SIMPLE, NULL, NULL);
 
-		// hello testing changes
-		
+				// Info buttons for the pre/post/number mods, which are the same for
+				// each name group
+				NV.PreMod_INFO.DESC = CreateWindowW(L"static", L"Pre Modification Description:",
+					WS_CHILD | WS_BORDER,
+					760, 260, 220, 20,
+					hWnd, NULL, NULL, NULL);
+				NV.PreMod_INFO.INFOBUTTON = CreateWindowW(L"button", L"I",
+					WS_CHILD | WS_BORDER,
+					962, 262, 16, 16,
+					hWnd, (HMENU)IB_NAMEPREMODS, NULL, NULL);
+				NV.PostMod_INFO.DESC = CreateWindowW(L"static", L"Post Modification Description:",
+					WS_CHILD | WS_BORDER,
+					760, 280, 220, 20,
+					hWnd, NULL, NULL, NULL);
+				NV.PostMod_INFO.INFOBUTTON = CreateWindowW(L"button", L"I",
+					WS_CHILD | WS_BORDER,
+					962, 282, 16, 16,
+					hWnd, (HMENU)IB_NAMEPOSTMODS, NULL, NULL);
+				NV.NumberMod_INFO.DESC = CreateWindowW(L"static", L"Num Modification Description:",
+					WS_CHILD | WS_BORDER,
+					760, 300, 220, 20,
+					hWnd, NULL, NULL, NULL);
+				NV.NumberMod_INFO.INFOBUTTON = CreateWindowW(L"button", L"I",
+					WS_CHILD | WS_BORDER,
+					962, 302, 16, 16,
+					hWnd, (HMENU)IB_NAMENUMBERMODS, NULL, NULL);
 
-		// Info buttons for the pre/post/number mods, which are the same for
-		// each name group
-		NV.PreMod_INFO.DESC = CreateWindowW(L"static", L"Pre Modification Description:",
-			WS_CHILD | WS_BORDER,
-			760, 260, 220, 20,
-			hWnd, NULL, NULL, NULL);
-		NV.PreMod_INFO.INFOBUTTON = CreateWindowW(L"button", L"I",
-			WS_CHILD | WS_BORDER,
-			962, 262, 16, 16,
-			hWnd, (HMENU)IB_NAMEPREMODS, NULL, NULL);
-		NV.PostMod_INFO.DESC = CreateWindowW(L"static", L"Post Modification Description:",
-			WS_CHILD | WS_BORDER,
-			760, 280, 220, 20,
-			hWnd, NULL, NULL, NULL);
-		NV.PostMod_INFO.INFOBUTTON = CreateWindowW(L"button", L"I",
-			WS_CHILD | WS_BORDER,
-			962, 282, 16, 16,
-			hWnd, (HMENU)IB_NAMEPOSTMODS, NULL, NULL);
-		NV.NumberMod_INFO.DESC = CreateWindowW(L"static", L"Num Modification Description:",
-			WS_CHILD | WS_BORDER,
-			760, 300, 220, 20,
-			hWnd, NULL, NULL, NULL);
-		NV.NumberMod_INFO.INFOBUTTON = CreateWindowW(L"button", L"I",
-			WS_CHILD | WS_BORDER,
-			962, 302, 16, 16,
-			hWnd, (HMENU)IB_NAMENUMBERMODS, NULL, NULL);
+				// Info buttons for the pre / post name lists, which are the same for
+				// each name group
+				NV.PreMods_List.DESC = CreateWindowW(L"static", L"Pre Modification List:",
+					WS_CHILD | WS_BORDER | SS_CENTER,
+					380, 350, 300, 20,
+					hWnd, NULL, NULL, NULL);
+				NV.PreMods_List.INFOBUTTON = CreateWindowW(L"button", L"I",
+					WS_CHILD | WS_BORDER,
+					662, 352, 16, 16,
+					hWnd, (HMENU)IB_NAMEPREMODLIST, NULL, NULL);
+				NV.PostMods_List.DESC = CreateWindowW(L"static", L"Post Modification List:",
+					WS_CHILD | WS_BORDER | SS_CENTER,
+					680, 350, 300, 20,
+					hWnd, NULL, NULL, NULL);
+				NV.PostMods_List.INFOBUTTON = CreateWindowW(L"button", L"I",
+					WS_CHILD | WS_BORDER,
+					962, 352, 16, 16,
+					hWnd, (HMENU)IB_NAMEPOSTMODLIST, NULL, NULL);
 
-		// Info buttons for the pre / post name lists, which are the same for
-		// each name group
-		NV.PreMods_List.DESC = CreateWindowW(L"static", L"Pre Modification List:",
-			WS_CHILD | WS_BORDER | SS_CENTER,
-			380, 350, 300, 20,
-			hWnd, NULL, NULL, NULL);
-		NV.PreMods_List.INFOBUTTON = CreateWindowW(L"button", L"I",
-			WS_CHILD | WS_BORDER,
-			662, 352, 16, 16,
-			hWnd, (HMENU)IB_NAMEPREMODLIST, NULL, NULL);
-		NV.PostMods_List.DESC = CreateWindowW(L"static", L"Post Modification List:",
-			WS_CHILD | WS_BORDER | SS_CENTER,
-			680, 350, 300, 20,
-			hWnd, NULL, NULL, NULL);
-		NV.PostMods_List.INFOBUTTON = CreateWindowW(L"button", L"I",
-			WS_CHILD | WS_BORDER,
-			962, 352, 16, 16,
-			hWnd, (HMENU)IB_NAMEPOSTMODLIST, NULL, NULL);
+				/*###############################################################################
+					Star Group
+				###############################################################################*/
+				{
+					NV.GROUP_STAR = CreateWindowW(L"button", L"Star Name Variables:",
+						WS_CHILD | WS_GROUP | BS_GROUPBOX,
+						370, 240, 620, 410,
+						hWnd, NULL, NULL, NULL);
 
-		/*###############################################################################
-			Star Group 
-		###############################################################################*/
-		
-		NV.GROUP_STAR = CreateWindowW(L"button", L"Star Name Variables:",
-			WS_CHILD | WS_GROUP| BS_GROUPBOX,
-			370, 240, 620, 410,
-			hWnd, NULL, NULL, NULL);
+					// These handes are initialized as visible because they are
+					// shown/hiden with the group
+					NV.useStarModsDESC = CreateWindowW(L"static", L"Use Star Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 40, 300, 20,
+						NV.GROUP_STAR, NULL, NULL, NULL);
+					NV.useStarPreModsH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
+						310, 40, 20, 20,
+						NV.GROUP_STAR, (HMENU)NVCB_STARPREMOD, NULL, NULL);
+					NV.useStarPostModsH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+						330, 40, 20, 20,
+						NV.GROUP_STAR, (HMENU)NVCB_STARPOSTMOD, NULL, NULL);
+					NV.useStarNumberModsH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+						350, 40, 20, 20,
+						NV.GROUP_STAR, (HMENU)NVCB_STARNUMBERMOD, NULL, NULL);
 
-		// These handes are initialized as visible because they are
-		// shown/hiden with the group
-		NV.useStarModsDESC = CreateWindowW(L"static", L"Use Star Pre / Post / Number Mods:",
-			WS_CHILD | WS_VISIBLE | WS_BORDER,
-			10, 40, 300, 20, 
-			NV.GROUP_STAR, NULL, NULL, NULL);
-		NV.useStarPreModsH = CreateWindowW(L"button", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-			310, 40, 20, 20,
-			NV.GROUP_STAR, (HMENU)NVCB_STARPREMOD, NULL, NULL);
-		NV.useStarPostModsH = CreateWindowW(L"button", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-			330, 40, 20, 20,
-			NV.GROUP_STAR, (HMENU)NVCB_STARPOSTMOD, NULL, NULL);
-		NV.useStarNumberModsH = CreateWindowW(L"button", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-			350, 40, 20, 20,
-			NV.GROUP_STAR, (HMENU)NVCB_STARNUMBERMOD, NULL, NULL);
+					NV.starModsProbDESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 60, 300, 20,
+						NV.GROUP_STAR, NULL, NULL, NULL);
+					NV.probStarPreModH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						10, 80, 40, 20,
+						NV.GROUP_STAR, NULL, NULL, NULL);
+					NV.probStarPostModH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						50, 80, 40, 20,
+						NV.GROUP_STAR, NULL, NULL, NULL);
+					NV.probStarNumberModH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						90, 80, 40, 20,
+						NV.GROUP_STAR, NULL, NULL, NULL);
 
-		NV.starModsProbDESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
-			WS_CHILD | WS_VISIBLE | WS_BORDER,
-			10, 60, 300, 20,
-			NV.GROUP_STAR, NULL, NULL, NULL);
-		NV.probStarPreModH = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-			10, 80, 40, 20,
-			NV.GROUP_STAR, NULL, NULL, NULL);
-		NV.probStarPostModH = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-			50, 80, 40, 20,
-			NV.GROUP_STAR, NULL, NULL, NULL);
-		NV.probStarNumberModH = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-			90, 80, 40, 20,
-			NV.GROUP_STAR, NULL, NULL, NULL);
+					NV.starPreModList = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						12, 130, 296, 266,
+						NV.GROUP_STAR, NULL, NULL, NULL);
+					NV.starPostModList = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						312, 130, 296, 266,
+						NV.GROUP_STAR, NULL, NULL, NULL);
+				}
+				/*###############################################################################
+					Planet Group
+				###############################################################################*/
+				{
+					NV.GROUP_PLANET = CreateWindowW(L"button", L"Planet Name Variables:",
+						WS_CHILD | WS_GROUP | BS_GROUPBOX,
+						370, 240, 620, 410,
+						hWnd, NULL, NULL, NULL);
 
-		NV.starPreModList = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
-			12, 130, 296, 266,
-			NV.GROUP_STAR, NULL, NULL, NULL);
-		NV.starPostModList = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
-			312, 130, 296, 266,
-			NV.GROUP_STAR, NULL, NULL, NULL);
+					// These handes are initialized as visible because they are
+					// shown/hiden with the group
+					NV.usePlanetModsDESC = CreateWindowW(L"static", L"Use Planet Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 40, 300, 20,
+						NV.GROUP_PLANET, NULL, NULL, NULL);
+					NV.usePlanetPreModsH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
+						310, 40, 20, 20,
+						NV.GROUP_PLANET, (HMENU)NVCB_PLANETPREMOD, NULL, NULL);
+					NV.usePlanetPostModsH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+						330, 40, 20, 20,
+						NV.GROUP_PLANET, (HMENU)NVCB_PLANETPOSTMOD, NULL, NULL);
+					NV.usePlanetNumberModsH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+						350, 40, 20, 20,
+						NV.GROUP_PLANET, (HMENU)NVCB_PLANETNUMBERMOD, NULL, NULL);
 
-		/*###############################################################################
-			Planet Group
-		###############################################################################*/
+					NV.planetModsProbDESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 60, 300, 20,
+						NV.GROUP_PLANET, NULL, NULL, NULL);
+					NV.probPlanetPreModH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						10, 80, 40, 20,
+						NV.GROUP_PLANET, NULL, NULL, NULL);
+					NV.probPlanetPostModH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						50, 80, 40, 20,
+						NV.GROUP_PLANET, NULL, NULL, NULL);
+					NV.probPlanetNumberModH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						90, 80, 40, 20,
+						NV.GROUP_PLANET, NULL, NULL, NULL);
 
-		NV.GROUP_PLANET = CreateWindowW(L"button", L"Planet Name Variables:",
-			WS_CHILD | WS_GROUP | BS_GROUPBOX,
-			370, 240, 620, 410,
-			hWnd, NULL, NULL, NULL);
+					NV.planetPreModList = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						12, 130, 296, 266,
+						NV.GROUP_PLANET, NULL, NULL, NULL);
+					NV.planetPostModList = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						312, 130, 296, 266,
+						NV.GROUP_PLANET, NULL, NULL, NULL);
+				}
+				/*###############################################################################
+					Moon Group
+				###############################################################################*/
+				{
+					NV.GROUP_MOON = CreateWindowW(L"button", L"Moon Name Variables:",
+						WS_CHILD | WS_GROUP | BS_GROUPBOX,
+						370, 240, 620, 410,
+						hWnd, NULL, NULL, NULL);
 
-		// These handes are initialized as visible because they are
-		// shown/hiden with the group
-		NV.usePlanetModsDESC = CreateWindowW(L"static", L"Use Planet Pre / Post / Number Mods:",
-			WS_CHILD | WS_VISIBLE | WS_BORDER,
-			10, 40, 300, 20,
-			NV.GROUP_PLANET, NULL, NULL, NULL);
-		NV.usePlanetPreModsH = CreateWindowW(L"button", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-			310, 40, 20, 20,
-			NV.GROUP_PLANET, (HMENU)NVCB_PLANETPREMOD, NULL, NULL);
-		NV.usePlanetPostModsH = CreateWindowW(L"button", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-			330, 40, 20, 20,
-			NV.GROUP_PLANET, (HMENU)NVCB_PLANETPOSTMOD, NULL, NULL);
-		NV.usePlanetNumberModsH = CreateWindowW(L"button", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-			350, 40, 20, 20,
-			NV.GROUP_PLANET, (HMENU)NVCB_PLANETNUMBERMOD, NULL, NULL);
+					NV.nameMoonsH.DESC = CreateWindowW(L"static", L"Name Terra / Gas Giant Moons:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 20, 300, 20,
+						NV.GROUP_MOON, NULL, NULL, NULL);
+					NV.nameMoonsH.HANDLE = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
+						310, 20, 20, 20,
+						NV.GROUP_MOON, (HMENU)NVCB_NAMETERRAMOONS, NULL, NULL);
+					NV.nameMoonsH.EXTRA = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
+						330, 20, 20, 20,
+						NV.GROUP_MOON, (HMENU)NVCB_NAMEGASMOONS, NULL, NULL);
 
-		NV.planetModsProbDESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
-			WS_CHILD | WS_VISIBLE | WS_BORDER,
-			10, 60, 300, 20,
-			NV.GROUP_PLANET, NULL, NULL, NULL);
-		NV.probPlanetPreModH = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-			10, 80, 40, 20,
-			NV.GROUP_PLANET, NULL, NULL, NULL);
-		NV.probPlanetPostModH = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-			50, 80, 40, 20,
-			NV.GROUP_PLANET, NULL, NULL, NULL);
-		NV.probPlanetNumberModH = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-			90, 80, 40, 20,
-			NV.GROUP_PLANET, NULL, NULL, NULL);
+					// These handes are initialized as visible because they are
+					// shown/hiden with the group
+					NV.useMoonModsDESC = CreateWindowW(L"static", L"Use Moon Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 40, 300, 20,
+						NV.GROUP_MOON, NULL, NULL, NULL);
+					NV.useMoonPreModsH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
+						310, 40, 20, 20,
+						NV.GROUP_MOON, (HMENU)NVCB_MOONPREMOD, NULL, NULL);
+					NV.useMoonPostModsH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+						330, 40, 20, 20,
+						NV.GROUP_MOON, (HMENU)NVCB_MOONPOSTMOD, NULL, NULL);
+					NV.useMoonNumberModsH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+						350, 40, 20, 20,
+						NV.GROUP_MOON, (HMENU)NVCB_MOONNUMBERMOD, NULL, NULL);
 
-		NV.planetPreModList = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
-			12, 130, 296, 266,
-			NV.GROUP_PLANET, NULL, NULL, NULL);
-		NV.planetPostModList = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
-			312, 130, 296, 266,
-			NV.GROUP_PLANET, NULL, NULL, NULL);
+					NV.moonModsProbDESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 60, 300, 20,
+						NV.GROUP_MOON, NULL, NULL, NULL);
+					NV.probMoonPreModH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						10, 80, 40, 20,
+						NV.GROUP_MOON, NULL, NULL, NULL);
+					NV.probMoonPostModH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						50, 80, 40, 20,
+						NV.GROUP_MOON, NULL, NULL, NULL);
+					NV.probMoonNumberModH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						90, 80, 40, 20,
+						NV.GROUP_MOON, NULL, NULL, NULL);
 
-		/*###############################################################################
-			Moon Group
-		###############################################################################*/
+					NV.moonPreModList = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						12, 130, 296, 266,
+						NV.GROUP_MOON, NULL, NULL, NULL);
+					NV.moonPostModList = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						312, 130, 296, 266,
+						NV.GROUP_MOON, NULL, NULL, NULL);
+				}
+				/*###############################################################################
+					Dwarf Moon Group
+				###############################################################################*/
+				{
+					NV.GROUP_DWARFMOON = CreateWindowW(L"button", L"Dwarf Moon Name Variables:",
+						WS_CHILD | WS_GROUP | BS_GROUPBOX,
+						370, 240, 620, 410,
+						hWnd, NULL, NULL, NULL);
 
-		NV.GROUP_MOON = CreateWindowW(L"button", L"Moon Name Variables:",
-			WS_CHILD | WS_GROUP | BS_GROUPBOX,
-			370, 240, 620, 410,
-			hWnd, NULL, NULL, NULL);
+					NV.nameDwarfMoonsH.DESC = CreateWindowW(L"static", L"Name Terra / Gas Giant Dwarf Moons:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 20, 300, 20,
+						NV.GROUP_DWARFMOON, NULL, NULL, NULL);
+					NV.nameDwarfMoonsH.HANDLE = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
+						310, 20, 20, 20,
+						NV.GROUP_DWARFMOON, (HMENU)NVCB_NAMETERRADWARFMOONS, NULL, NULL);
+					NV.nameDwarfMoonsH.EXTRA = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
+						330, 20, 20, 20,
+						NV.GROUP_DWARFMOON, (HMENU)NVCB_NAMEGASDWARFMOONS, NULL, NULL);
+					NV.nameMoonsH.INFOBUTTON = CreateWindowW(L"button", L"I",
+						WS_CHILD | WS_BORDER,
+						662, 262, 16, 16,
+						hWnd, (HMENU)IB_NAMEMOONS, NULL, NULL);
 
-		NV.nameMoonsH.DESC = CreateWindowW(L"static", L"Name Terra / Gas Giant Moons:",
-			WS_CHILD | WS_VISIBLE | WS_BORDER,
-			10, 20, 300, 20,
-			NV.GROUP_MOON, NULL, NULL, NULL);
-		NV.nameMoonsH.HANDLE = CreateWindowW(L"button", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-			310, 20, 20, 20,
-			NV.GROUP_MOON, (HMENU)NVCB_NAMETERRAMOONS, NULL, NULL);
-		NV.nameMoonsH.EXTRA = CreateWindowW(L"button", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-			330, 20, 20, 20,
-			NV.GROUP_MOON, (HMENU)NVCB_NAMEGASMOONS, NULL, NULL);
+					// These handes are initialized as visible because they are
+					// shown/hiden with the group
+					NV.useDwarfMoonModsDESC = CreateWindowW(L"static", L"Use Dwarf Moon Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 40, 300, 20,
+						NV.GROUP_DWARFMOON, NULL, NULL, NULL);
+					NV.useDwarfMoonPreModsH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
+						310, 40, 20, 20,
+						NV.GROUP_DWARFMOON, (HMENU)NVCB_DWARFMOONPREMOD, NULL, NULL);
+					NV.useDwarfMoonPostModsH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+						330, 40, 20, 20,
+						NV.GROUP_DWARFMOON, (HMENU)NVCB_DWARFMOONPOSTMOD, NULL, NULL);
+					NV.useDwarfMoonNumberModsH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+						350, 40, 20, 20,
+						NV.GROUP_DWARFMOON, (HMENU)NVCB_DWARFMOONNUMBERMOD, NULL, NULL);
 
-		// These handes are initialized as visible because they are
-		// shown/hiden with the group
-		NV.useMoonModsDESC = CreateWindowW(L"static", L"Use Moon Pre / Post / Number Mods:",
-			WS_CHILD | WS_VISIBLE | WS_BORDER,
-			10, 40, 300, 20,
-			NV.GROUP_MOON, NULL, NULL, NULL);
-		NV.useMoonPreModsH = CreateWindowW(L"button", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-			310, 40, 20, 20,
-			NV.GROUP_MOON, (HMENU)NVCB_MOONPREMOD, NULL, NULL);
-		NV.useMoonPostModsH = CreateWindowW(L"button", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-			330, 40, 20, 20,
-			NV.GROUP_MOON, (HMENU)NVCB_MOONPOSTMOD, NULL, NULL);
-		NV.useMoonNumberModsH = CreateWindowW(L"button", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-			350, 40, 20, 20,
-			NV.GROUP_MOON, (HMENU)NVCB_MOONNUMBERMOD, NULL, NULL);
+					NV.dwarfMoonModsProbDESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 60, 300, 20,
+						NV.GROUP_DWARFMOON, NULL, NULL, NULL);
+					NV.probDwarfMoonPreModH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						10, 80, 40, 20,
+						NV.GROUP_DWARFMOON, NULL, NULL, NULL);
+					NV.probDwarfMoonPostModH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						50, 80, 40, 20,
+						NV.GROUP_DWARFMOON, NULL, NULL, NULL);
+					NV.probDwarfMoonNumberModH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						90, 80, 40, 20,
+						NV.GROUP_DWARFMOON, NULL, NULL, NULL);
 
-		NV.moonModsProbDESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
-			WS_CHILD | WS_VISIBLE | WS_BORDER,
-			10, 60, 300, 20,
-			NV.GROUP_MOON, NULL, NULL, NULL);
-		NV.probMoonPreModH = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-			10, 80, 40, 20,
-			NV.GROUP_MOON, NULL, NULL, NULL);
-		NV.probMoonPostModH = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-			50, 80, 40, 20,
-			NV.GROUP_MOON, NULL, NULL, NULL);
-		NV.probMoonNumberModH = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-			90, 80, 40, 20,
-			NV.GROUP_MOON, NULL, NULL, NULL);
+					NV.dwarfMoonPreModList = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						12, 130, 296, 266,
+						NV.GROUP_DWARFMOON, NULL, NULL, NULL);
+					NV.dwarfMoonPostModList = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						312, 130, 296, 266,
+						NV.GROUP_DWARFMOON, NULL, NULL, NULL);
+				}
+				/*###############################################################################
+					Ship_All Group
+				###############################################################################*/
+				{
+					NV.GROUP_ALL_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
+						WS_CHILD | WS_GROUP | BS_GROUPBOX,
+						370, 240, 620, 410,
+						hWnd, NULL, NULL, NULL);
 
-		NV.moonPreModList = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
-			12, 130, 296, 266,
-			NV.GROUP_MOON, NULL, NULL, NULL);
-		NV.moonPostModList = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
-			312, 130, 296, 266,
-			NV.GROUP_MOON, NULL, NULL, NULL);
+					// These handes are initialized as visible because they are
+					// shown/hiden with the group
+					NV.useShipMods_All_DESC = CreateWindowW(L"static", L"Use Pre / Post Mods for All Ships:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 40, 300, 20,
+						NV.GROUP_ALL_SHIP, NULL, NULL, NULL);
+					NV.useShipPreMods_AllH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
+						310, 40, 20, 20,
+						NV.GROUP_ALL_SHIP, (HMENU)NVCB_SHIPALLPREMOD, NULL, NULL);
+					NV.useShipPostMods_AllH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+						330, 40, 20, 20,
+						NV.GROUP_ALL_SHIP, (HMENU)NVCB_SHIPALLPOSTMOD, NULL, NULL);
 
-		/*###############################################################################
-			Dwarf Moon Group
-		###############################################################################*/
+					NV.shipModsProb_All_DESC = CreateWindowW(L"static", L"Probability for Pre / Post Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 60, 300, 20,
+						NV.GROUP_ALL_SHIP, NULL, NULL, NULL);
+					NV.probShipPreMod_AllH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						10, 80, 40, 20,
+						NV.GROUP_ALL_SHIP, NULL, NULL, NULL);
+					NV.probShipPostMod_AllH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						50, 80, 40, 20,
+						NV.GROUP_ALL_SHIP, NULL, NULL, NULL);
 
-		NV.GROUP_DWARFMOON = CreateWindowW(L"button", L"Dwarf Moon Name Variables:",
-			WS_CHILD | WS_GROUP | BS_GROUPBOX,
-			370, 240, 620, 410,
-			hWnd, NULL, NULL, NULL);
+					NV.shipPreModList_All = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						12, 130, 296, 266,
+						NV.GROUP_ALL_SHIP, NULL, NULL, NULL);
+					NV.shipPostModList_All = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						312, 130, 296, 266,
+						NV.GROUP_ALL_SHIP, NULL, NULL, NULL);
+				}
+				/*###############################################################################
+					Ship_Colony Group
+				###############################################################################*/
+				{
+					NV.GROUP_COLONY_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
+						WS_CHILD | WS_GROUP | BS_GROUPBOX,
+						370, 240, 620, 410,
+						hWnd, NULL, NULL, NULL);
 
-		NV.nameDwarfMoonsH.DESC = CreateWindowW(L"static", L"Name Terra / Gas Giant Dwarf Moons:",
-			WS_CHILD | WS_VISIBLE | WS_BORDER,
-			10, 20, 300, 20,
-			NV.GROUP_DWARFMOON, NULL, NULL, NULL);
-		NV.nameDwarfMoonsH.HANDLE = CreateWindowW(L"button", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-			310, 20, 20, 20,
-			NV.GROUP_DWARFMOON, (HMENU)NVCB_NAMETERRADWARFMOONS, NULL, NULL);
-		NV.nameDwarfMoonsH.EXTRA = CreateWindowW(L"button", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-			330, 20, 20, 20,
-			NV.GROUP_DWARFMOON, (HMENU)NVCB_NAMEGASDWARFMOONS, NULL, NULL);
-		NV.nameMoonsH.INFOBUTTON = CreateWindowW(L"button", L"I",
-			WS_CHILD | WS_BORDER,
-			662, 262, 16, 16,
-			hWnd, (HMENU)IB_NAMEMOONS, NULL, NULL);
+					// These handes are initialized as visible because they are
+					// shown/hiden with the group
+					NV.useShipMods_Colony_DESC = CreateWindowW(L"static", L"Use Colony Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 40, 300, 20,
+						NV.GROUP_COLONY_SHIP, NULL, NULL, NULL);
+					NV.useShipPreMods_ColonyH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
+						310, 40, 20, 20,
+						NV.GROUP_COLONY_SHIP, (HMENU)NVCB_SHIPCOLONYPREMOD, NULL, NULL);
+					NV.useShipPostMods_ColonyH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+						330, 40, 20, 20,
+						NV.GROUP_COLONY_SHIP, (HMENU)NVCB_SHIPCOLONYPOSTMOD, NULL, NULL);
+					NV.useShipNumberMods_ColonyH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+						350, 40, 20, 20,
+						NV.GROUP_COLONY_SHIP, (HMENU)NVCB_SHIPCOLONYNUMBERMOD, NULL, NULL);
 
-		// These handes are initialized as visible because they are
-		// shown/hiden with the group
-		NV.useDwarfMoonModsDESC = CreateWindowW(L"static", L"Use Dwarf Moon Pre / Post / Number Mods:",
-			WS_CHILD | WS_VISIBLE | WS_BORDER,
-			10, 40, 300, 20,
-			NV.GROUP_DWARFMOON, NULL, NULL, NULL);
-		NV.useDwarfMoonPreModsH = CreateWindowW(L"button", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-			310, 40, 20, 20,
-			NV.GROUP_DWARFMOON, (HMENU)NVCB_DWARFMOONPREMOD, NULL, NULL);
-		NV.useDwarfMoonPostModsH = CreateWindowW(L"button", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-			330, 40, 20, 20,
-			NV.GROUP_DWARFMOON, (HMENU)NVCB_DWARFMOONPOSTMOD, NULL, NULL);
-		NV.useDwarfMoonNumberModsH = CreateWindowW(L"button", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-			350, 40, 20, 20,
-			NV.GROUP_DWARFMOON, (HMENU)NVCB_DWARFMOONNUMBERMOD, NULL, NULL);
+					NV.shipModsProb_Colony_DESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 60, 300, 20,
+						NV.GROUP_COLONY_SHIP, NULL, NULL, NULL);
+					NV.probShipPreMod_ColonyH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						10, 80, 40, 20,
+						NV.GROUP_COLONY_SHIP, NULL, NULL, NULL);
+					NV.probShipPostMod_ColonyH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						50, 80, 40, 20,
+						NV.GROUP_COLONY_SHIP, NULL, NULL, NULL);
+					NV.probShipNumberMod_ColonyH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						90, 80, 40, 20,
+						NV.GROUP_COLONY_SHIP, NULL, NULL, NULL);
 
-		NV.dwarfMoonModsProbDESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
-			WS_CHILD | WS_VISIBLE | WS_BORDER,
-			10, 60, 300, 20,
-			NV.GROUP_DWARFMOON, NULL, NULL, NULL);
-		NV.probDwarfMoonPreModH = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-			10, 80, 40, 20,
-			NV.GROUP_DWARFMOON, NULL, NULL, NULL);
-		NV.probDwarfMoonPostModH = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-			50, 80, 40, 20,
-			NV.GROUP_DWARFMOON, NULL, NULL, NULL);
-		NV.probDwarfMoonNumberModH = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-			90, 80, 40, 20,
-			NV.GROUP_DWARFMOON, NULL, NULL, NULL);
+					NV.shipPreModList_Colony = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						12, 130, 296, 266,
+						NV.GROUP_COLONY_SHIP, NULL, NULL, NULL);
+					NV.shipPostModList_Colony = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						312, 130, 296, 266,
+						NV.GROUP_COLONY_SHIP, NULL, NULL, NULL);
+				}
+				/*###############################################################################
+					Ship_Instrument Group
+				###############################################################################*/
+				{
+					NV.GROUP_INSTRUMENT_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
+						WS_CHILD | WS_GROUP | BS_GROUPBOX,
+						370, 240, 620, 410,
+						hWnd, NULL, NULL, NULL);
 
-		NV.dwarfMoonPreModList = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
-			12, 130, 296, 266,
-			NV.GROUP_DWARFMOON, NULL, NULL, NULL);
-		NV.dwarfMoonPostModList = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
-			312, 130, 296, 266,
-			NV.GROUP_DWARFMOON, NULL, NULL, NULL);
-		
+					// These handes are initialized as visible because they are
+					// shown/hiden with the group
+					NV.useShipMods_Instrument_DESC = CreateWindowW(L"static", L"Use Instrument Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 40, 300, 20,
+						NV.GROUP_INSTRUMENT_SHIP, NULL, NULL, NULL);
+					NV.useShipPreMods_InstrumentH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
+						310, 40, 20, 20,
+						NV.GROUP_INSTRUMENT_SHIP, (HMENU)NVCB_SHIPINSTRUMENTPREMOD, NULL, NULL);
+					NV.useShipPostMods_InstrumentH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+						330, 40, 20, 20,
+						NV.GROUP_INSTRUMENT_SHIP, (HMENU)NVCB_SHIPINSTRUMENTPOSTMOD, NULL, NULL);
+					NV.useShipNumberMods_InstrumentH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+						350, 40, 20, 20,
+						NV.GROUP_INSTRUMENT_SHIP, (HMENU)NVCB_SHIPINSTRUMENTNUMBERMOD, NULL, NULL);
 
+					NV.shipModsProb_Instrument_DESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 60, 300, 20,
+						NV.GROUP_INSTRUMENT_SHIP, NULL, NULL, NULL);
+					NV.probShipPreMod_InstrumentH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						10, 80, 40, 20,
+						NV.GROUP_INSTRUMENT_SHIP, NULL, NULL, NULL);
+					NV.probShipPostMod_InstrumentH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						50, 80, 40, 20,
+						NV.GROUP_INSTRUMENT_SHIP, NULL, NULL, NULL);
+					NV.probShipNumberMod_InstrumentH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						90, 80, 40, 20,
+						NV.GROUP_INSTRUMENT_SHIP, NULL, NULL, NULL);
 
+					NV.shipPreModList_Instrument = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						12, 130, 296, 266,
+						NV.GROUP_INSTRUMENT_SHIP, NULL, NULL, NULL);
+					NV.shipPostModList_Instrument = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						312, 130, 296, 266,
+						NV.GROUP_INSTRUMENT_SHIP, NULL, NULL, NULL);
+				}
+				/*###############################################################################
+					Ship_Satellite Group
+				###############################################################################*/
+				{
+					NV.GROUP_SATELLITE_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
+						WS_CHILD | WS_GROUP | BS_GROUPBOX,
+						370, 240, 620, 410,
+						hWnd, NULL, NULL, NULL);
+
+					// These handes are initialized as visible because they are
+					// shown/hiden with the group
+					NV.useShipMods_Satellite_DESC = CreateWindowW(L"static", L"Use Satellite Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 40, 300, 20,
+						NV.GROUP_SATELLITE_SHIP, NULL, NULL, NULL);
+					NV.useShipPreMods_SatelliteH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
+						310, 40, 20, 20,
+						NV.GROUP_SATELLITE_SHIP, (HMENU)NVCB_SHIPSATELLITEPREMOD, NULL, NULL);
+					NV.useShipPostMods_SatelliteH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+						330, 40, 20, 20,
+						NV.GROUP_SATELLITE_SHIP, (HMENU)NVCB_SHIPSATELLITEPOSTMOD, NULL, NULL);
+					NV.useShipNumberMods_SatelliteH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+						350, 40, 20, 20,
+						NV.GROUP_SATELLITE_SHIP, (HMENU)NVCB_SHIPSATELLITENUMBERMOD, NULL, NULL);
+
+					NV.shipModsProb_Satellite_DESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 60, 300, 20,
+						NV.GROUP_SATELLITE_SHIP, NULL, NULL, NULL);
+					NV.probShipPreMod_SatelliteH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						10, 80, 40, 20,
+						NV.GROUP_SATELLITE_SHIP, NULL, NULL, NULL);
+					NV.probShipPostMod_SatelliteH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						50, 80, 40, 20,
+						NV.GROUP_SATELLITE_SHIP, NULL, NULL, NULL);
+					NV.probShipNumberMod_SatelliteH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						90, 80, 40, 20,
+						NV.GROUP_SATELLITE_SHIP, NULL, NULL, NULL);
+
+					NV.shipPreModList_Satellite = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						12, 130, 296, 266,
+						NV.GROUP_SATELLITE_SHIP, NULL, NULL, NULL);
+					NV.shipPostModList_Satellite = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						312, 130, 296, 266,
+						NV.GROUP_SATELLITE_SHIP, NULL, NULL, NULL);
+				}
+				/*###############################################################################
+					Ship_Station Group
+				###############################################################################*/
+				{
+
+					NV.GROUP_STATION_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
+						WS_CHILD | WS_GROUP | BS_GROUPBOX,
+						370, 240, 620, 410,
+						hWnd, NULL, NULL, NULL);
+
+					// These handes are initialized as visible because they are
+					// shown/hiden with the group
+					NV.useShipMods_Station_DESC = CreateWindowW(L"static", L"Use Station Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 40, 300, 20,
+						NV.GROUP_STATION_SHIP, NULL, NULL, NULL);
+					NV.useShipPreMods_StationH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
+						310, 40, 20, 20,
+						NV.GROUP_STATION_SHIP, (HMENU)NVCB_SHIPSTATIONPREMOD, NULL, NULL);
+					NV.useShipPostMods_StationH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+						330, 40, 20, 20,
+						NV.GROUP_STATION_SHIP, (HMENU)NVCB_SHIPSTATIONPOSTMOD, NULL, NULL);
+					NV.useShipNumberMods_StationH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+						350, 40, 20, 20,
+						NV.GROUP_STATION_SHIP, (HMENU)NVCB_SHIPSTATIONNUMBERMOD, NULL, NULL);
+
+					NV.shipModsProb_Station_DESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 60, 300, 20,
+						NV.GROUP_STATION_SHIP, NULL, NULL, NULL);
+					NV.probShipPreMod_StationH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						10, 80, 40, 20,
+						NV.GROUP_STATION_SHIP, NULL, NULL, NULL);
+					NV.probShipPostMod_StationH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						50, 80, 40, 20,
+						NV.GROUP_STATION_SHIP, NULL, NULL, NULL);
+					NV.probShipNumberMod_StationH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+						90, 80, 40, 20,
+						NV.GROUP_STATION_SHIP, NULL, NULL, NULL);
+
+					NV.shipPreModList_Station = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						12, 130, 296, 266,
+						NV.GROUP_STATION_SHIP, NULL, NULL, NULL);
+					NV.shipPostModList_Station = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						312, 130, 296, 266,
+						NV.GROUP_STATION_SHIP, NULL, NULL, NULL);
+
+					// These buttons load with the ship page, but will load their own page for storeing different data
+					NV.BUTTON_COLONY = CreateWindowW(L"button", L"Colony",
+						WS_CHILD | WS_BORDER,
+						550, 238, 80, 20,
+						hWnd, (HMENU)BUTTON_NAME_SHIP_COLONY, NULL, NULL);
+					NV.BUTTON_INSTRUMENT = CreateWindowW(L"button", L"Instrument",
+						WS_CHILD | WS_BORDER,
+						650, 238, 80, 20,
+						hWnd, (HMENU)BUTTON_NAME_SHIP_INSTRUMENT, NULL, NULL);
+					NV.BUTTON_SATELLITE = CreateWindowW(L"button", L"Satellite",
+						WS_CHILD | WS_BORDER,
+						750, 238, 80, 20,
+						hWnd, (HMENU)BUTTON_NAME_SHIP_SATELLITE, NULL, NULL);
+					NV.BUTTON_STATION = CreateWindowW(L"button", L"Station",
+						WS_CHILD | WS_BORDER,
+						850, 238, 80, 20,
+						hWnd, (HMENU)BUTTON_NAME_SHIP_STATION, NULL, NULL);
+				}
+				/*###############################################################################
+					Dataset Group
+				###############################################################################*/
+				{
+					NV.GROUP_DATASET = CreateWindowW(L"button", L"Markov Variables:",
+						WS_CHILD | WS_GROUP | BS_GROUPBOX,
+						370, 240, 620, 410,
+						hWnd, NULL, NULL, NULL);
+
+					NV.Markov_INFO = CreateWindowW(L"button", L"I",
+						WS_CHILD | WS_BORDER,
+						500, 242, 16, 16,
+						hWnd, (HMENU)IB_MARKOV, NULL, NULL);
+
+					NV.orderDESC = CreateWindowW(L"static", L"Order:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 20, 120, 20,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+					NV.wordVarienceDESC = CreateWindowW(L"static", L"Word Varience:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 40, 120, 20,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+					NV.min_lengthDESC = CreateWindowW(L"static", L"Min Length:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						300, 20, 120, 20,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+					NV.max_lengthDESC = CreateWindowW(L"static", L"Max Length:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						300, 40, 120, 20,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+
+					NV.orderH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT,
+						130, 20, 50, 20,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+					NV.wordVarienceH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT,
+						130, 40, 50, 20,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+					NV.min_lengthH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT,
+						420, 20, 50, 20,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+					NV.max_lengthH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT,
+						420, 40, 50, 20,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+
+					NV.Markov_RawDatasetDESC = CreateWindowW(L"static", L"Dataset:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | SS_CENTER,
+						10, 80, 600, 20,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+					NV.Markov_RawDatasetH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						12, 100, 596, 300,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+				}
+				/*###############################################################################
+					Simple Generator Group
+				###############################################################################*/
+				{
+					NV.GROUP_SIMPLE = CreateWindowW(L"button", L"Simple Generator:",
+						WS_CHILD | WS_GROUP | BS_GROUPBOX,
+						370, 240, 620, 410,
+						hWnd, NULL, NULL, NULL);
+
+					NV.SimpleGenerator_INFO = CreateWindowW(L"button", L"I",
+						WS_CHILD | WS_BORDER,
+						500, 242, 16, 16,
+						hWnd, (HMENU)IB_SIMPLEGENERATOR, NULL, NULL);
+
+					NV.useSimpleGeneratorDESC = CreateWindowW(L"static", L"Use Simple Generator:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 20, 200, 20,
+						NV.GROUP_SIMPLE, NULL, NULL, NULL);
+					NV.useSimpleGeneratorH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
+						210, 20, 20, 20,
+						NV.GROUP_SIMPLE, (HMENU)NVCB_SIMPLEGENERATOR, NULL, NULL);
+
+					NV.PrefixListDESC = CreateWindowW(L"static", L"Prefix List:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | SS_CENTER,
+						10, 60, 600, 20,
+						NV.GROUP_SIMPLE, NULL, NULL, NULL);
+					NV.PrefixListH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						12, 80, 596, 130,
+						NV.GROUP_SIMPLE, NULL, NULL, NULL);
+
+					NV.SuffixListDESC = CreateWindowW(L"static", L"Suffix List:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | SS_CENTER,
+						10, 230, 600, 20,
+						NV.GROUP_SIMPLE, NULL, NULL, NULL);
+					NV.SuffixListH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						12, 250, 596, 130,
+						NV.GROUP_SIMPLE, NULL, NULL, NULL);
+
+				}
+			}
 		}
 		//###############################################################################
 
@@ -2533,6 +2934,8 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 		ShowWindow(NV.PreMod_INFO.INFOBUTTON, 0);
 		ShowWindow(NV.PostMod_INFO.INFOBUTTON, 0);
 		ShowWindow(NV.NumberMod_INFO.INFOBUTTON, 0);
+		ShowWindow(NV.Markov_INFO, 0);
+		ShowWindow(NV.SimpleGenerator_INFO, 0);
 
 		ShowWindow(NV.PreMods_List.DESC, 0);
 		ShowWindow(NV.PostMods_List.DESC, 0);
@@ -2543,6 +2946,18 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 		ShowWindow(NV.GROUP_PLANET, 0);
 		ShowWindow(NV.GROUP_MOON, 0);
 		ShowWindow(NV.GROUP_DWARFMOON, 0);
+		ShowWindow(NV.GROUP_ALL_SHIP, 0);
+		ShowWindow(NV.GROUP_COLONY_SHIP, 0);
+		ShowWindow(NV.GROUP_INSTRUMENT_SHIP, 0);
+		ShowWindow(NV.GROUP_SATELLITE_SHIP, 0);
+		ShowWindow(NV.GROUP_STATION_SHIP, 0);
+		ShowWindow(NV.GROUP_DATASET, 0);
+		ShowWindow(NV.GROUP_SIMPLE, 0);
+
+		ShowWindow(NV.BUTTON_COLONY, 0);
+		ShowWindow(NV.BUTTON_INSTRUMENT, 0);
+		ShowWindow(NV.BUTTON_SATELLITE, 0);
+		ShowWindow(NV.BUTTON_STATION, 0);
 
 		ShowWindow(NV.nameMoonsH.INFOBUTTON, 0);
 	}
@@ -2619,7 +3034,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 		ShowWindow(NV.GROUP_DWARFMOON, 1);
 	}
 
-	void Load_Name_Ship()
+	void Load_Name_All_Ship()
 	{
 		ShowWindow(NV.PreMod_INFO.DESC, 1);
 		ShowWindow(NV.PostMod_INFO.DESC, 1);
@@ -2632,16 +3047,117 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 		ShowWindow(NV.PostMods_List.DESC, 1);
 		ShowWindow(NV.PreMods_List.INFOBUTTON, 1);
 		ShowWindow(NV.PostMods_List.INFOBUTTON, 1);
+
+		ShowWindow(NV.BUTTON_COLONY, 1);
+		ShowWindow(NV.BUTTON_INSTRUMENT, 1);
+		ShowWindow(NV.BUTTON_SATELLITE, 1);
+		ShowWindow(NV.BUTTON_STATION, 1);
+
+		ShowWindow(NV.GROUP_ALL_SHIP, 1);
 	}
+
+	void Load_Name_Colony_Ship()
+	{
+		ShowWindow(NV.PreMod_INFO.DESC, 1);
+		ShowWindow(NV.PostMod_INFO.DESC, 1);
+		ShowWindow(NV.NumberMod_INFO.DESC, 1);
+		ShowWindow(NV.PreMod_INFO.INFOBUTTON, 1);
+		ShowWindow(NV.PostMod_INFO.INFOBUTTON, 1);
+		ShowWindow(NV.NumberMod_INFO.INFOBUTTON, 1);
+
+		ShowWindow(NV.PreMods_List.DESC, 1);
+		ShowWindow(NV.PostMods_List.DESC, 1);
+		ShowWindow(NV.PreMods_List.INFOBUTTON, 1);
+		ShowWindow(NV.PostMods_List.INFOBUTTON, 1);
+
+		ShowWindow(NV.BUTTON_COLONY, 1);
+		ShowWindow(NV.BUTTON_INSTRUMENT, 1);
+		ShowWindow(NV.BUTTON_SATELLITE, 1);
+		ShowWindow(NV.BUTTON_STATION, 1);
+
+		ShowWindow(NV.GROUP_COLONY_SHIP, 1);
+	}
+
+	void Load_Name_Instrument_Ship()
+	{
+		ShowWindow(NV.PreMod_INFO.DESC, 1);
+		ShowWindow(NV.PostMod_INFO.DESC, 1);
+		ShowWindow(NV.NumberMod_INFO.DESC, 1);
+		ShowWindow(NV.PreMod_INFO.INFOBUTTON, 1);
+		ShowWindow(NV.PostMod_INFO.INFOBUTTON, 1);
+		ShowWindow(NV.NumberMod_INFO.INFOBUTTON, 1);
+
+		ShowWindow(NV.PreMods_List.DESC, 1);
+		ShowWindow(NV.PostMods_List.DESC, 1);
+		ShowWindow(NV.PreMods_List.INFOBUTTON, 1);
+		ShowWindow(NV.PostMods_List.INFOBUTTON, 1);
+
+		ShowWindow(NV.BUTTON_COLONY, 1);
+		ShowWindow(NV.BUTTON_INSTRUMENT, 1);
+		ShowWindow(NV.BUTTON_SATELLITE, 1);
+		ShowWindow(NV.BUTTON_STATION, 1);
+
+		ShowWindow(NV.GROUP_INSTRUMENT_SHIP, 1);
+	}
+
+	void Load_Name_Satellite_Ship()
+	{
+		ShowWindow(NV.PreMod_INFO.DESC, 1);
+		ShowWindow(NV.PostMod_INFO.DESC, 1);
+		ShowWindow(NV.NumberMod_INFO.DESC, 1);
+		ShowWindow(NV.PreMod_INFO.INFOBUTTON, 1);
+		ShowWindow(NV.PostMod_INFO.INFOBUTTON, 1);
+		ShowWindow(NV.NumberMod_INFO.INFOBUTTON, 1);
+
+		ShowWindow(NV.PreMods_List.DESC, 1);
+		ShowWindow(NV.PostMods_List.DESC, 1);
+		ShowWindow(NV.PreMods_List.INFOBUTTON, 1);
+		ShowWindow(NV.PostMods_List.INFOBUTTON, 1);
+
+		ShowWindow(NV.BUTTON_COLONY, 1);
+		ShowWindow(NV.BUTTON_INSTRUMENT, 1);
+		ShowWindow(NV.BUTTON_SATELLITE, 1);
+		ShowWindow(NV.BUTTON_STATION, 1);
+
+		ShowWindow(NV.GROUP_SATELLITE_SHIP, 1);
+	}
+
+	void Load_Name_Station_Ship()
+	{
+		ShowWindow(NV.PreMod_INFO.DESC, 1);
+		ShowWindow(NV.PostMod_INFO.DESC, 1);
+		ShowWindow(NV.NumberMod_INFO.DESC, 1);
+		ShowWindow(NV.PreMod_INFO.INFOBUTTON, 1);
+		ShowWindow(NV.PostMod_INFO.INFOBUTTON, 1);
+		ShowWindow(NV.NumberMod_INFO.INFOBUTTON, 1);
+
+		ShowWindow(NV.PreMods_List.DESC, 1);
+		ShowWindow(NV.PostMods_List.DESC, 1);
+		ShowWindow(NV.PreMods_List.INFOBUTTON, 1);
+		ShowWindow(NV.PostMods_List.INFOBUTTON, 1);
+
+		ShowWindow(NV.BUTTON_COLONY, 1);
+		ShowWindow(NV.BUTTON_INSTRUMENT, 1);
+		ShowWindow(NV.BUTTON_SATELLITE, 1);
+		ShowWindow(NV.BUTTON_STATION, 1);
+
+		ShowWindow(NV.GROUP_STATION_SHIP, 1);
+	}
+
+
 
 	void Load_Name_Dataset()
 	{
+		ShowWindow(NV.Markov_INFO, 1);
 
+		ShowWindow(NV.GROUP_DATASET, 1);
 	}
 
 	void Load_Name_Simple()
 	{
+		ShowWindow(NV.SimpleGenerator_INFO, 1);
 
+		ShowWindow(NV.GROUP_SIMPLE, 1);
 	}
 
 	void GetConfigData(HWND hWnd)
