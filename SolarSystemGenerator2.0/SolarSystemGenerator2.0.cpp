@@ -17,6 +17,7 @@ HBITMAP Handle_Image_Logo;
 Configuration CONFIG;
 std::vector<Preset> preset;
 NameVariables NV;
+std::vector<NamePreset> npreset;
 
 std::mt19937 mt_star, mt_planet, mt_moon, mt_ships;
 std::uniform_int_distribution<int> genpercent{ 1, 100 };
@@ -44,6 +45,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 #######################################################
 	*/	void LoadImages();
 	void LoadPresets(HWND);
+	void LoadNamePresets(HWND);
 	void LoadMainScreen(HWND);
 
 	void UpdatePreset(Preset, HWND);
@@ -315,6 +317,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 		case WM_CREATE:
 			LoadImages();
 			LoadPresets(hWnd);
+			LoadNamePresets(hWnd);
 			LoadMainScreen(hWnd);
 			UpdatePreset(preset.at(0), hWnd);
 			Clear_Screen();
@@ -408,7 +411,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 			Preset empty;
 			preset.push_back(empty);
 
-			const int BUFFSIZE = 4096;
+			const int BUFFSIZE = 4096; // about 4 kilobytes
 			DWORD bytesread = 0;
 			char Buffer[BUFFSIZE];
 
@@ -1018,6 +1021,1213 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 			hWnd, (HMENU)BUTTON_UPDATEPRESET, NULL, NULL);
 
 	}
+
+	void LoadNamePresets(HWND hWnd)
+	{
+		wchar_t direct[WSIZE] = L".\\presets\\????????????????????????????????.npreset";
+		WIN32_FIND_DATA FindFileData;
+		HANDLE hFind;
+
+		hFind = FindFirstFileW(direct, &FindFileData);
+		if (hFind == INVALID_HANDLE_VALUE)
+		{
+			FindClose(hFind);
+			return;
+		}
+
+		std::vector<std::wstring> addresses;
+		do
+		{
+			wchar_t prefix[WSIZE] = L".\\presets\\";
+			wcscat_s(prefix, FindFileData.cFileName);
+			std::wstring str(prefix);
+			addresses.push_back(str);
+		} while (FindNextFileW(hFind, &FindFileData) != 0);
+
+		DestroyWindow(CONFIG.namePresetDropDown.HANDLE);
+		DestroyWindow(CONFIG.namePresetDropDown.DESC);
+		DestroyWindow(CONFIG.namePresetDropDown.INFOBUTTON);
+		DestroyWindow(CONFIG.namePresetDropDown.EXTRA);
+
+
+		CONFIG.namePresetDropDown.HANDLE = CreateWindowW(L"combobox", L"",
+			WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
+			760, 240, 200, 500,
+			hWnd, NULL, hInst, NULL);
+
+		CONFIG.namePresetDropDown.DESC = CreateWindowW(L"static", L"Select a Name Preset:",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | SS_CENTER,
+			760, 220, 180, 20,
+			hWnd, NULL, hInst, NULL);
+
+		CONFIG.namePresetDropDown.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_VISIBLE | WS_BORDER,
+			942, 222, 16, 16,
+			hWnd, (HMENU)IB_SELECTNAMEPRESET, NULL, NULL);
+
+
+		for (int i = 0; i < addresses.size(); i++)
+		{
+			HANDLE presetFile = CreateFileW(&addresses.at(i)[0], GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+			NamePreset empty;
+			npreset.push_back(empty);
+
+			const int BUFFSIZE = 32768; // about 33 kilobytes
+			DWORD bytesread = 0;
+			char Buffer[BUFFSIZE];
+
+			if (!ReadFile(presetFile, Buffer, BUFFSIZE, &bytesread, NULL))
+			{
+				//BAD JUJU HAPPENED
+				CloseHandle(presetFile);
+				return;
+			}
+			Buffer[bytesread] = '\0';
+
+			int parse = 0;
+			wchar_t holder, numholder[16];
+			int x = 0;
+
+
+
+
+
+
+			//name
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				npreset.at(i).name[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			npreset.at(i).name[x - 2] = '\0';
+			x = 0;
+
+			//simple generator
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useSimpleGenerator = _wtoi(&holder);
+			parse++;
+			//prefix list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).PrefixList[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			} 
+			npreset.at(i).PrefixList[x] = '\0';
+			x = 0;
+			//suffix list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).SuffixList[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).SuffixList[x] = '\0';
+			x = 0;
+
+			//use star pre mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useStarPreMods = _wtoi(&holder);
+			parse++;
+			//prob star pre mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probStarPreMod = _wtoi(numholder);
+			x = 0;
+			//star pre mod list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).StarPreMods[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).StarPreMods[x] = '\0';
+			x = 0;
+			//use star post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useStarPostMods = _wtoi(&holder);
+			parse++;
+			//prob star post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probStarPostMod = _wtoi(numholder);
+			x = 0;
+			//star pre mod list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).StarPostMods[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).StarPostMods[x] = '\0';
+			x = 0;
+			//use star number mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useStarNumberMods = _wtoi(&holder);
+			parse++;
+			//prob star number mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probStarNumberMod = _wtoi(numholder);
+			x = 0;
+
+			//use planet pre mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).usePlanetPreMods = _wtoi(&holder);
+			parse++;
+			//prob planet pre mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probPlanetPreMod = _wtoi(numholder);
+			x = 0;
+			//planet pre mod list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).PlanetPreMods[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).PlanetPreMods[x] = '\0';
+			x = 0;
+			//use planet post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).usePlanetPostMods = _wtoi(&holder);
+			parse++;
+			//prob planet post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probPlanetPostMod = _wtoi(numholder);
+			x = 0;
+			//planet pre mod list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).PlanetPostMods[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).PlanetPostMods[x] = '\0';
+			x = 0;
+			//use planet number mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).usePlanetNumberMods = _wtoi(&holder);
+			parse++;
+			//prob planet number mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probPlanetNumberMod = _wtoi(numholder);
+			x = 0;
+
+			//name terra moons
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).nameTerraMoons = _wtoi(&holder);
+			parse++;
+			//name gas moons
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).nameGasMoons = _wtoi(&holder);
+			parse++;
+			//use moon pre mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useMoonPreMods = _wtoi(&holder);
+			parse++;
+			//prob moon pre mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probMoonPreMod = _wtoi(numholder);
+			x = 0;
+			//moon pre mod list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).MoonPreMods[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).MoonPreMods[x] = '\0';
+			x = 0;
+			//use moon post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useMoonPostMods = _wtoi(&holder);
+			parse++;
+			//prob moon post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probMoonPostMod = _wtoi(numholder);
+			x = 0;
+			//moon pre mod list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).MoonPostMods[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).MoonPostMods[x] = '\0';
+			x = 0;
+			//use moon number mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useMoonNumberMods = _wtoi(&holder);
+			parse++;
+			//prob moon number mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probMoonNumberMod = _wtoi(numholder);
+			x = 0;
+
+			//name terra dwarf moons
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).nameTerraDwarfMoons = _wtoi(&holder);
+			parse++;
+			//name gas dwarf moons
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).nameGasDwarfMoons = _wtoi(&holder);
+			parse++;
+			//use dwarf moon pre mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useDwarfMoonPreMods = _wtoi(&holder);
+			parse++;
+			//prob dwarf moon pre mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probDwarfMoonPreMod = _wtoi(numholder);
+			x = 0;
+			//dwarf moon pre mod list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).DwarfMoonPreMods[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).DwarfMoonPreMods[x] = '\0';
+			x = 0;
+			//use dwarf moon post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useDwarfMoonPostMods = _wtoi(&holder);
+			parse++;
+			//prob dwarf moon post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probDwarfMoonPostMod = _wtoi(numholder);
+			x = 0;
+			//dwarf moon pre mod list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).DwarfMoonPostMods[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).DwarfMoonPostMods[x] = '\0';
+			x = 0;
+			//use dwarf moon number mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useDwarfMoonNumberMods = _wtoi(&holder);
+			parse++;
+			//prob dwarf moon number mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probDwarfMoonNumberMod = _wtoi(numholder);
+			x = 0;
+
+			//use ship all pre mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useShipPreMods_All = _wtoi(&holder);
+			parse++;
+			//prob ship all pre mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probShipPreMod_All = _wtoi(numholder);
+			x = 0;
+			//ship all pre mod list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).ShipPreMods_All[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).ShipPreMods_All[x] = '\0';
+			x = 0;
+			//use ship all post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useShipPostMods_All = _wtoi(&holder);
+			parse++;
+			//prob ship all post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probShipPostMod_All = _wtoi(numholder);
+			x = 0;
+			//ship all pre mod list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).ShipPostMods_All[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).ShipPostMods_All[x] = '\0';
+			x = 0;
+
+			//use ship colony pre mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useShipPreMods_Colony = _wtoi(&holder);
+			parse++;
+			//prob ship colony pre mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probShipPreMod_Colony = _wtoi(numholder);
+			x = 0;
+			//ship colony pre mod list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).ShipPreMods_Colony[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).ShipPreMods_Colony[x] = '\0';
+			x = 0;
+			//use ship colony post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useShipPostMods_Colony = _wtoi(&holder);
+			parse++;
+			//prob ship colony post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probShipPostMod_Colony = _wtoi(numholder);
+			x = 0;
+			//ship colony pre mod list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).ShipPostMods_Colony[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).ShipPostMods_Colony[x] = '\0';
+			x = 0;
+			//use ship colony number mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useShipNumberMods_Colony = _wtoi(&holder);
+			parse++;
+			//prob ship colony post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probShipNumberMod_Colony = _wtoi(numholder);
+			x = 0;
+
+			//use ship instrument pre mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useShipPreMods_Instrument = _wtoi(&holder);
+			parse++;
+			//prob ship instrument pre mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probShipPreMod_Instrument = _wtoi(numholder);
+			x = 0;
+			//ship instrument pre mod list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).ShipPreMods_Instrument[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).ShipPreMods_Instrument[x] = '\0';
+			x = 0;
+			//use ship instrument post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useShipPostMods_Instrument = _wtoi(&holder);
+			parse++;
+			//prob ship instrument post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probShipPostMod_Instrument = _wtoi(numholder);
+			x = 0;
+			//ship instrument pre mod list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).ShipPostMods_Instrument[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).ShipPostMods_Instrument[x] = '\0';
+			x = 0;
+			//use ship instrument number mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useShipNumberMods_Instrument = _wtoi(&holder);
+			parse++;
+			//prob ship instrument post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probShipNumberMod_Instrument = _wtoi(numholder);
+			x = 0;
+
+			//use ship satellite pre mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useShipPreMods_Satellite = _wtoi(&holder);
+			parse++;
+			//prob ship satellite pre mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probShipPreMod_Satellite = _wtoi(numholder);
+			x = 0;
+			//ship satellite pre mod list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).ShipPreMods_Satellite[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).ShipPreMods_Satellite[x] = '\0';
+			x = 0;
+			//use ship satellite post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useShipPostMods_Satellite = _wtoi(&holder);
+			parse++;
+			//prob ship satellite post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probShipPostMod_Satellite = _wtoi(numholder);
+			x = 0;
+			//ship satellite pre mod list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).ShipPostMods_Satellite[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).ShipPostMods_Satellite[x] = '\0';
+			x = 0;
+			//use ship satellite number mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useShipNumberMods_Satellite = _wtoi(&holder);
+			parse++;
+			//prob ship satellite post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probShipNumberMod_Satellite = _wtoi(numholder);
+			x = 0;
+
+			//use ship station pre mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useShipPreMods_Station = _wtoi(&holder);
+			parse++;
+			//prob ship station pre mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probShipPreMod_Station = _wtoi(numholder);
+			x = 0;
+			//ship station pre mod list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).ShipPreMods_Station[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).ShipPreMods_Station[x] = '\0';
+			x = 0;
+			//use ship station post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useShipPostMods_Station = _wtoi(&holder);
+			parse++;
+			//prob ship station post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probShipPostMod_Station = _wtoi(numholder);
+			x = 0;
+			//ship station pre mod list
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).ShipPostMods_Station[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).ShipPostMods_Station[x] = '\0';
+			x = 0;
+			//use ship station number mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			holder = Buffer[parse];
+			npreset.at(i).useShipNumberMods_Station = _wtoi(&holder);
+			parse++;
+			//prob ship station post mod
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).probShipNumberMod_Station = _wtoi(numholder);
+			x = 0;
+
+			//order
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).order = _wtoi(numholder);
+			x = 0;
+			//word varience
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).wordVarience = _wtoi(numholder);
+			x = 0;
+			//min length
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).min_length = _wtoi(numholder);
+			x = 0;
+			//max length
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '='); //find =
+			do
+			{
+				holder = Buffer[parse];
+				numholder[x] = holder;
+				parse++;
+				x++;
+			} while (holder != '\n');
+			numholder[x] = '\0';
+			npreset.at(i).max_length = _wtoi(numholder);
+			x = 0;
+			//dataset
+			do
+			{
+				holder = Buffer[parse];
+				parse++;
+			} while (holder != '{'); //find {
+			holder = Buffer[parse];
+			while (holder != '}')
+			{
+				npreset.at(i).Markov_RawDataset[x] = holder;
+				parse++;
+				holder = Buffer[parse];
+				x++;
+			}
+			npreset.at(i).Markov_RawDataset[x] = '\0';
+			x = 0;
+
+			SendMessage(CONFIG.namePresetDropDown.HANDLE, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)preset.at(i).name);
+
+			CloseHandle(presetFile);
+		}
+
+		SendMessage(CONFIG.namePresetDropDown.HANDLE, (UINT)CB_SETCURSEL, (WPARAM)0, NULL);
+
+		CONFIG.namePresetDropDown.EXTRA = CreateWindowW(L"button", L"Update",
+			WS_CHILD | WS_VISIBLE | WS_BORDER,
+			965, 218, 50, 50,
+			hWnd, (HMENU)BUTTON_NAME_UPDATE, NULL, NULL);
+	}
+
 	void LoadMainScreen(HWND hWnd)
 	{
 		//Loads the main Logo Image
@@ -2519,6 +3729,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 		ShowWindow(CONFIG.presetDropDown.HANDLE, 0);
 		ShowWindow(CONFIG.savePresetButton.HANDLE, 0);
+		ShowWindow(CONFIG.namePresetDropDown.HANDLE, 0);
 
 
 		//Desc
@@ -2530,6 +3741,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 		ShowWindow(CONFIG.presetDropDown.DESC, 0);
 		ShowWindow(CONFIG.savePresetButton.DESC, 0);
+		ShowWindow(CONFIG.namePresetDropDown.DESC, 0);
 
 		//Info
 		ShowWindow(CONFIG.seedH.INFOBUTTON, 0);
@@ -2540,10 +3752,12 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 		ShowWindow(CONFIG.presetDropDown.INFOBUTTON, 0);
 		ShowWindow(CONFIG.savePresetButton.INFOBUTTON, 0);
+		ShowWindow(CONFIG.namePresetDropDown.INFOBUTTON, 0);
 
 		//Extra
 		ShowWindow(CONFIG.presetDropDown.EXTRA, 0);
 		ShowWindow(CONFIG.savePresetButton.EXTRA, 0);
+		ShowWindow(CONFIG.namePresetDropDown.EXTRA, 0);
 
 		/*#####################################################
 			System and Planet Variables
@@ -2738,6 +3952,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 		ShowWindow(CONFIG.presetDropDown.HANDLE, 1);
 		ShowWindow(CONFIG.savePresetButton.HANDLE, 1);
+		ShowWindow(CONFIG.namePresetDropDown.HANDLE, 1);
 
 		//Desc
 		ShowWindow(CONFIG.seedH.DESC, 1);
@@ -2748,6 +3963,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 		ShowWindow(CONFIG.presetDropDown.DESC, 1);
 		ShowWindow(CONFIG.savePresetButton.DESC, 1);
+		ShowWindow(CONFIG.namePresetDropDown.DESC, 1);
 
 		//Info
 		ShowWindow(CONFIG.seedH.INFOBUTTON, 1);
@@ -2758,10 +3974,12 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 		ShowWindow(CONFIG.presetDropDown.INFOBUTTON, 1);
 		ShowWindow(CONFIG.savePresetButton.INFOBUTTON, 1);
+		ShowWindow(CONFIG.namePresetDropDown.INFOBUTTON, 1);
 
 		//Extra
 		ShowWindow(CONFIG.presetDropDown.EXTRA, 1);
 		ShowWindow(CONFIG.savePresetButton.EXTRA, 1);
+		ShowWindow(CONFIG.namePresetDropDown.EXTRA, 1);
 	}
 	void Load_Screen_SystemPlanet()
 	{
@@ -2961,7 +4179,6 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 		ShowWindow(NV.nameMoonsH.INFOBUTTON, 0);
 	}
-
 	void Load_Name_Star()
 	{
 		ShowWindow(NV.PreMod_INFO.DESC, 1);
@@ -2978,7 +4195,6 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 		ShowWindow(NV.GROUP_STAR, 1);
 	}
-
 	void Load_Name_Planet()
 	{
 		ShowWindow(NV.PreMod_INFO.DESC, 1);
@@ -2995,7 +4211,6 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 		ShowWindow(NV.GROUP_PLANET, 1);
 	}
-
 	void Load_Name_Moon()
 	{
 		ShowWindow(NV.PreMod_INFO.DESC, 1);
@@ -3014,7 +4229,6 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 		ShowWindow(NV.GROUP_MOON, 1);
 	}
-
 	void Load_Name_DwarfMoon()
 	{
 		ShowWindow(NV.PreMod_INFO.DESC, 1);
@@ -3033,7 +4247,6 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 		ShowWindow(NV.GROUP_DWARFMOON, 1);
 	}
-
 	void Load_Name_All_Ship()
 	{
 		ShowWindow(NV.PreMod_INFO.DESC, 1);
@@ -3055,7 +4268,6 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 		ShowWindow(NV.GROUP_ALL_SHIP, 1);
 	}
-
 	void Load_Name_Colony_Ship()
 	{
 		ShowWindow(NV.PreMod_INFO.DESC, 1);
@@ -3077,7 +4289,6 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 		ShowWindow(NV.GROUP_COLONY_SHIP, 1);
 	}
-
 	void Load_Name_Instrument_Ship()
 	{
 		ShowWindow(NV.PreMod_INFO.DESC, 1);
@@ -3099,7 +4310,6 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 		ShowWindow(NV.GROUP_INSTRUMENT_SHIP, 1);
 	}
-
 	void Load_Name_Satellite_Ship()
 	{
 		ShowWindow(NV.PreMod_INFO.DESC, 1);
@@ -3121,7 +4331,6 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 		ShowWindow(NV.GROUP_SATELLITE_SHIP, 1);
 	}
-
 	void Load_Name_Station_Ship()
 	{
 		ShowWindow(NV.PreMod_INFO.DESC, 1);
@@ -3144,15 +4353,12 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 		ShowWindow(NV.GROUP_STATION_SHIP, 1);
 	}
 
-
-
 	void Load_Name_Dataset()
 	{
 		ShowWindow(NV.Markov_INFO, 1);
 
 		ShowWindow(NV.GROUP_DATASET, 1);
 	}
-
 	void Load_Name_Simple()
 	{
 		ShowWindow(NV.SimpleGenerator_INFO, 1);

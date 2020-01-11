@@ -68,6 +68,7 @@ struct Configuration
 
 	var presetDropDown;
 	var savePresetButton;
+	var namePresetDropDown;
 
 	/*#####################################################
 		*/	HWND HEADER_SYSTEMPLANET; /*
@@ -394,4 +395,65 @@ struct NameVariables
 	HWND PrefixListDESC, PrefixListH, SuffixListDESC, SuffixListH;
 	std::vector<std::wstring> PrefixList, SuffixList;
 	
+};
+
+const int MODLIST_SIZE = 2048, DATASET_SIZE = 16384;
+struct NamePreset
+{
+	wchar_t name[WSIZE];
+
+	//Star
+	bool useStarPreMods, useStarPostMods, useStarNumberMods;
+	int probStarPreMod, probStarPostMod, probStarNumberMod;
+	wchar_t StarPreMods[MODLIST_SIZE], StarPostMods[MODLIST_SIZE];
+
+	//Planet
+	bool usePlanetPreMods, usePlanetPostMods, usePlanetNumberMods;
+	int probPlanetPreMod, probPlanetPostMod, probPlanetNumberMod;
+	wchar_t PlanetPreMods[MODLIST_SIZE], PlanetPostMods[MODLIST_SIZE];
+
+	//Moon
+	bool nameTerraMoons, nameGasMoons;
+	bool useMoonPreMods, useMoonPostMods, useMoonNumberMods;
+	int probMoonPreMod, probMoonPostMod, probMoonNumberMod;
+	wchar_t MoonPreMods[MODLIST_SIZE], MoonPostMods[MODLIST_SIZE];
+
+	//Dwarf Moon
+	bool nameTerraDwarfMoons, nameGasDwarfMoons;
+	bool useDwarfMoonPreMods, useDwarfMoonPostMods, useDwarfMoonNumberMods;
+	int probDwarfMoonPreMod, probDwarfMoonPostMod, probDwarfMoonNumberMod;
+	wchar_t DwarfMoonPreMods[MODLIST_SIZE], DwarfMoonPostMods[MODLIST_SIZE];
+
+	//Ship All
+	bool useShipPreMods_All, useShipPostMods_All;
+	int probShipPreMod_All, probShipPostMod_All;
+	wchar_t ShipPreMods_All[MODLIST_SIZE], ShipPostMods_All[MODLIST_SIZE];
+
+	//Ship Colony
+	bool useShipPreMods_Colony, useShipPostMods_Colony, useShipNumberMods_Colony;
+	int probShipPreMod_Colony, probShipPostMod_Colony, probShipNumberMod_Colony;
+	wchar_t ShipPreMods_Colony[MODLIST_SIZE], ShipPostMods_Colony[MODLIST_SIZE];
+
+	//Ship Instrument
+	bool useShipPreMods_Instrument, useShipPostMods_Instrument, useShipNumberMods_Instrument;
+	int probShipPreMod_Instrument, probShipPostMod_Instrument, probShipNumberMod_Instrument;
+	wchar_t ShipPreMods_Instrument[MODLIST_SIZE], ShipPostMods_Instrument[MODLIST_SIZE];
+
+	//Ship Satellite
+	bool useShipPreMods_Satellite, useShipPostMods_Satellite, useShipNumberMods_Satellite;
+	int probShipPreMod_Satellite, probShipPostMod_Satellite, probShipNumberMod_Satellite;
+	wchar_t ShipPreMods_Satellite[MODLIST_SIZE], ShipPostMods_Satellite[MODLIST_SIZE];
+
+	//Ship Station
+	bool useShipPreMods_Station, useShipPostMods_Station, useShipNumberMods_Station;
+	int probShipPreMod_Station, probShipPostMod_Station, probShipNumberMod_Station;
+	wchar_t ShipPreMods_Station[MODLIST_SIZE], ShipPostMods_Station[MODLIST_SIZE];
+
+	//Dataset
+	int order, wordVarience, max_length, min_length;
+	wchar_t Markov_RawDataset[DATASET_SIZE];
+
+	//Simple Generator
+	bool useSimpleGenerator;
+	wchar_t PrefixList[MODLIST_SIZE], SuffixList[MODLIST_SIZE];
 };
