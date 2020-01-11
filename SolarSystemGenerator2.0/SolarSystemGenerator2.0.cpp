@@ -51,8 +51,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 	void UpdatePreset(Preset, HWND);
 	void UpdateNamePreset(NamePreset, HWND);
 	void SavePreset(HWND);
-	void SaveNamePreset(HWND);
-	void CreateNameVectors(HWND);
+	void SaveNamePreset(HWND);	
 
 	void Clear_Screen();
 	void Load_Screen_General();
@@ -78,6 +77,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 	void Load_Name_Simple();
 
 	void GetConfigData(HWND);
+	void CreateNameVectors(HWND);
 
 	void SetInfoBox(int);
 	void SetCheckBoxText(HWND, int); /*
@@ -1083,11 +1083,6 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 			int parse = 0;
 			wchar_t holder, numholder[16];
 			int x = 0;
-
-
-
-
-
 
 			//name
 			do
@@ -3771,6 +3766,8 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 		_itow_s(P.max_length, genVar, sizeof(genVar) / 2, 10);
 		SetWindowTextW(NV.max_lengthH, genVar);
 		SetWindowTextW(NV.Markov_RawDatasetH, P.Markov_RawDataset);
+
+		CreateNameVectors(hWnd);
 	}
 	void SavePreset(HWND hWnd)
 	{
@@ -3833,9 +3830,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 	{
 	}
 
-	void CreateNameVectors(HWND hWnd)
-	{
-	}
+	
 
 
 	void Clear_Screen()
@@ -4606,6 +4601,169 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 		GetWindowTextW(CONFIG.exotic_CompanionOrbitChanceH.HANDLE, genvar, 20);
 		CONFIG.exotic_CompanionOrbitChance = _wtoi(genvar);
 	}
+	void CreateNameVectors(HWND hWnd)
+	{
+		wchar_t datasetHolder[DATASET_SIZE];
+		
+		NV.useSimpleGenerator = (IsDlgButtonChecked(NV.GROUP_SIMPLE, NVCB_SIMPLEGENERATOR) == BST_CHECKED) ? true : false;
+		FillModList(NV.PrefixListH, NV.PrefixList);
+		FillModList(NV.SuffixListH, NV.SuffixList);
+
+		NV.useStarPreMods = (IsDlgButtonChecked(NV.GROUP_STAR, NVCB_STARPREMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probStarPreModH, NV.probStarPreMod);
+		FillModList(NV.starPreModList, NV.StarPreMods);
+		NV.useStarPostMods = (IsDlgButtonChecked(NV.GROUP_STAR, NVCB_STARPOSTMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probStarPostModH, NV.probStarPostMod);
+		FillModList(NV.starPostModList, NV.StarPostMods);
+		NV.useStarNumberMods = (IsDlgButtonChecked(NV.GROUP_STAR, NVCB_STARNUMBERMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probStarNumberModH, NV.probStarNumberMod);
+
+		NV.usePlanetPreMods = (IsDlgButtonChecked(NV.GROUP_PLANET, NVCB_PLANETPREMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probPlanetPreModH, NV.probPlanetPreMod);
+		FillModList(NV.planetPreModList, NV.PlanetPreMods);
+		NV.usePlanetPostMods = (IsDlgButtonChecked(NV.GROUP_PLANET, NVCB_PLANETPOSTMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probPlanetPostModH, NV.probPlanetPostMod);
+		FillModList(NV.planetPostModList, NV.PlanetPostMods);
+		NV.usePlanetNumberMods = (IsDlgButtonChecked(NV.GROUP_PLANET, NVCB_PLANETNUMBERMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probPlanetNumberModH, NV.probPlanetNumberMod);
+
+		NV.nameTerraMoons = (IsDlgButtonChecked(NV.GROUP_MOON, NVCB_NAMETERRAMOONS) == BST_CHECKED) ? true : false;
+		NV.nameGasMoons = (IsDlgButtonChecked(NV.GROUP_MOON, NVCB_NAMEGASMOONS) == BST_CHECKED) ? true : false;
+		NV.useMoonPreMods = (IsDlgButtonChecked(NV.GROUP_MOON, NVCB_MOONPREMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probMoonPreModH, NV.probMoonPreMod);
+		FillModList(NV.moonPreModList, NV.MoonPreMods);
+		NV.useMoonPostMods = (IsDlgButtonChecked(NV.GROUP_MOON, NVCB_MOONPOSTMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probMoonPostModH, NV.probMoonPostMod);
+		FillModList(NV.moonPostModList, NV.MoonPostMods);
+		NV.useMoonNumberMods = (IsDlgButtonChecked(NV.GROUP_MOON, NVCB_MOONNUMBERMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probMoonNumberModH, NV.probMoonNumberMod);
+
+		NV.nameTerraDwarfMoons = (IsDlgButtonChecked(NV.GROUP_DWARFMOON, NVCB_NAMETERRADWARFMOONS) == BST_CHECKED) ? true : false;
+		NV.nameGasDwarfMoons = (IsDlgButtonChecked(NV.GROUP_DWARFMOON, NVCB_NAMEGASDWARFMOONS) == BST_CHECKED) ? true : false;
+		NV.useDwarfMoonPreMods = (IsDlgButtonChecked(NV.GROUP_DWARFMOON, NVCB_DWARFMOONPREMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probDwarfMoonPreModH, NV.probDwarfMoonPreMod);
+		FillModList(NV.dwarfMoonPreModList, NV.DwarfMoonPreMods);
+		NV.useDwarfMoonPostMods = (IsDlgButtonChecked(NV.GROUP_DWARFMOON, NVCB_DWARFMOONPOSTMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probDwarfMoonPostModH, NV.probDwarfMoonPostMod);
+		FillModList(NV.dwarfMoonPostModList, NV.DwarfMoonPostMods);
+		NV.useDwarfMoonNumberMods = (IsDlgButtonChecked(NV.GROUP_DWARFMOON, NVCB_DWARFMOONNUMBERMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probDwarfMoonNumberModH, NV.probDwarfMoonNumberMod);
+
+		NV.useShipPreMods_All = (IsDlgButtonChecked(NV.GROUP_ALL_SHIP, NVCB_SHIPALLPREMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probShipPreMod_AllH, NV.probShipPreMod_All);
+		FillModList(NV.shipPreModList_All, NV.ShipPreMods_All);
+		NV.useShipPostMods_All = (IsDlgButtonChecked(NV.GROUP_ALL_SHIP, NVCB_SHIPALLPOSTMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probShipPostMod_AllH, NV.probShipPostMod_All);
+		FillModList(NV.shipPostModList_All, NV.ShipPostMods_All);
+
+		NV.useShipPreMods_Colony = (IsDlgButtonChecked(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYPREMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probShipPreMod_ColonyH, NV.probShipPreMod_Colony);
+		FillModList(NV.shipPreModList_Colony, NV.ShipPreMods_Colony);
+		NV.useShipPostMods_Colony = (IsDlgButtonChecked(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYPOSTMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probShipPostMod_ColonyH, NV.probShipPostMod_Colony);
+		FillModList(NV.shipPostModList_Colony, NV.ShipPostMods_Colony);
+		NV.useShipNumberMods_Colony = (IsDlgButtonChecked(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYNUMBERMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probShipNumberMod_ColonyH, NV.probShipNumberMod_Colony);
+
+		NV.useShipPreMods_Instrument = (IsDlgButtonChecked(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTPREMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probShipPreMod_InstrumentH, NV.probShipPreMod_Instrument);
+		FillModList(NV.shipPreModList_Instrument, NV.ShipPreMods_Instrument);
+		NV.useShipPostMods_Instrument = (IsDlgButtonChecked(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTPOSTMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probShipPostMod_InstrumentH, NV.probShipPostMod_Instrument);
+		FillModList(NV.shipPostModList_Instrument, NV.ShipPostMods_Instrument);
+		NV.useShipNumberMods_Instrument = (IsDlgButtonChecked(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTNUMBERMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probShipNumberMod_InstrumentH, NV.probShipNumberMod_Instrument);
+
+		NV.useShipPreMods_Satellite = (IsDlgButtonChecked(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITEPREMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probShipPreMod_SatelliteH, NV.probShipPreMod_Satellite);
+		FillModList(NV.shipPreModList_Satellite, NV.ShipPreMods_Satellite);
+		NV.useShipPostMods_Satellite = (IsDlgButtonChecked(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITEPOSTMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probShipPostMod_SatelliteH, NV.probShipPostMod_Satellite);
+		FillModList(NV.shipPostModList_Satellite, NV.ShipPostMods_Satellite);
+		NV.useShipNumberMods_Satellite = (IsDlgButtonChecked(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITENUMBERMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probShipNumberMod_SatelliteH, NV.probShipNumberMod_Satellite);
+		
+		NV.useShipPreMods_Station = (IsDlgButtonChecked(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONPREMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probShipPreMod_StationH, NV.probShipPreMod_Station);
+		FillModList(NV.shipPreModList_Station, NV.ShipPreMods_Station);
+		NV.useShipPostMods_Station = (IsDlgButtonChecked(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONPOSTMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probShipPostMod_StationH, NV.probShipPostMod_Station);
+		FillModList(NV.shipPostModList_Station, NV.ShipPostMods_Station);
+		NV.useShipNumberMods_Station = (IsDlgButtonChecked(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONNUMBERMOD) == BST_CHECKED) ? true : false;
+		GetIntFromWindow(NV.probShipNumberMod_StationH, NV.probShipNumberMod_Station);
+
+		GetIntFromWindow(NV.orderH, NV.order);
+		GetIntFromWindow(NV.wordVarienceH, NV.wordVarience);
+		GetIntFromWindow(NV.min_lengthH, NV.min_length);
+		GetIntFromWindow(NV.max_lengthH, NV.max_length);
+		FillDataset(NV.Markov_RawDatasetH, NV.Markov_RawDataset, NV.usedNames);
+
+		// Creates lists of all n combinations of letters in the data set
+		for (int count = 0; count < NV.Markov_RawDataset.size(); count++)
+		{
+			int Length_Test = ((NV.Markov_RawDataset.at(count).length()) - (NV.order + 1));
+			for (int i = 0; i <= Length_Test; i++)
+			{
+				std::wstring gram(NV.Markov_RawDataset.at(count), i, NV.order);
+
+				bool test = 0;
+				for (int j = 0; j < NV.main_ngrams.ngrams.size(); j++)
+				{
+					if (NV.main_ngrams.ngrams.at(j) == gram)
+					{
+						std::wstring next_letter(NV.Markov_RawDataset.at(count), (i + NV.order), 1);
+						NV.main_ngrams.nextCharList.at(j) += next_letter;
+						test = 1;
+					}
+				}
+				if (test == 0)
+				{
+					if (NV.Markov_RawDataset.at(count).length() > NV.order)
+					{
+						NV.main_ngrams.ngrams.push_back(gram);
+						std::wstring next_letter(NV.Markov_RawDataset.at(count), (i + NV.order), 1);
+						NV.main_ngrams.nextCharList.push_back(next_letter);
+					}
+					else
+						NV.main_ngrams.nextCharList.push_back(L"");
+				}
+
+			}
+		}
+
+		// Creates lists of all Two Gram combinations in the data set
+		for (int count = 0; count < NV.Markov_RawDataset.size(); count++)
+		{
+			int Length_Test = ((NV.Markov_RawDataset.at(count).length()) - 3);
+			for (int i = 0; i <= Length_Test; i++)
+			{
+				std::wstring gram(NV.Markov_RawDataset.at(count), i, 2);
+
+				bool test = 0;
+				for (int j = 0; j < NV.twogram_list.ngrams.size(); j++)
+				{
+					if (NV.twogram_list.ngrams.at(j) == gram)
+					{
+						std::wstring next_letter(NV.Markov_RawDataset.at(count), (i + 2), 1);
+						NV.twogram_list.nextCharList.at(j) += next_letter;
+						test = 1;
+					}
+				}
+				if (test == 0)
+				{
+					if (NV.Markov_RawDataset.at(count).length() > 2)
+					{
+						NV.twogram_list.ngrams.push_back(gram);
+						std::wstring next_letter(NV.Markov_RawDataset.at(count), (i + 2), 1);
+						NV.twogram_list.nextCharList.push_back(next_letter);
+					}
+					else
+						NV.twogram_list.nextCharList.push_back(L"");
+				}
+
+			}
+		}
+	}
 
 
 	void SetInfoBox(int command)
@@ -4840,7 +4998,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 	*/
 
 	/*---------------------------------------------------------------------------------------#
-	|	THE GENERATOR:																			 |
+	|	THE GENERATOR:																		 |
 	#---------------------------------------------------------------------------------------*/
 
 

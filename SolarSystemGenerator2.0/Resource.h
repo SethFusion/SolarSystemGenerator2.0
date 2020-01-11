@@ -4,6 +4,8 @@
 
 #define MAX_LOADSTRING			100
 #define WSIZE					256
+#define MODLIST_SIZE			1024
+#define DATASET_SIZE			8192
 
 /*---------------------------------------------
 		Button Commands

@@ -194,6 +194,19 @@ struct Preset
 
 struct NameVariables
 {
+	/*#####################################################
+	*/	HWND GROUP_SIMPLE; /*
+	#####################################################*/
+
+	HWND SimpleGenerator_INFO;
+
+	bool useSimpleGenerator;
+	HWND useSimpleGeneratorDESC, useSimpleGeneratorH;
+
+	HWND PrefixListDESC, PrefixListH, SuffixListDESC, SuffixListH;
+	std::vector<std::wstring> PrefixList, SuffixList;
+
+
 	/*=====================================================
 		*/	std::vector<std::wstring> usedNames;	/*
 		This vector fills up with names as the program
@@ -382,22 +395,13 @@ struct NameVariables
 		std::vector<std::wstring> nextCharList;
 	};
 	NGRAMS main_ngrams, twogram_list;
-		
-	/*#####################################################
-	*/	HWND GROUP_SIMPLE; /*
-	#####################################################*/
 
-	HWND SimpleGenerator_INFO;
 
-	bool useSimpleGenerator;
-	HWND useSimpleGeneratorDESC, useSimpleGeneratorH;
 
-	HWND PrefixListDESC, PrefixListH, SuffixListDESC, SuffixListH;
-	std::vector<std::wstring> PrefixList, SuffixList;
-	
+
+
 };
 
-const int MODLIST_SIZE = 1024, DATASET_SIZE = 8192;
 struct NamePreset
 {
 	wchar_t name[WSIZE];
