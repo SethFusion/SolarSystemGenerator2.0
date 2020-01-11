@@ -51,6 +51,8 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 	void UpdatePreset(Preset, HWND);
 	void UpdateNamePreset(NamePreset, HWND);
 	void SavePreset(HWND);
+	void SaveNamePreset(HWND);
+	void CreateNameVectors(HWND);
 
 	void Clear_Screen();
 	void Load_Screen_General();
@@ -221,14 +223,8 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 				Load_Screen_Exotic();
 				break;
 			case BUTTON_ADVANCED:
-
-
-
 				Clear_Screen();
 				Load_Screen_Advanced();
-
-
-
 				break;
 			case BUTTON_SAVEPRESET:
 				GetConfigData(hWnd);
@@ -244,12 +240,10 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 				BeginGenerate();
 				break;
 
-
-			case 69:
-
-				Clear_Screen();
+			case BUTTON_NAME_UPDATE:
+				wmId = SendMessage(CONFIG.namePresetDropDown.HANDLE, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
+				UpdateNamePreset(npreset.at(wmId), hWnd);
 				break;
-
 			case BUTTON_NAME_STAR:
 				Clear_Advanced();
 				Load_Name_Star();
@@ -3833,6 +3827,14 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 			<< "exotic_CompanionOrbitChance=" << CONFIG.exotic_CompanionOrbitChance << "\n";
 
 		outputFile.close();
+	}
+
+	void SaveNamePreset(HWND)
+	{
+	}
+
+	void CreateNameVectors(HWND hWnd)
+	{
 	}
 
 
