@@ -49,6 +49,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 	void LoadMainScreen(HWND);
 
 	void UpdatePreset(Preset, HWND);
+	void UpdateNamePreset(NamePreset, HWND);
 	void SavePreset(HWND);
 
 	void Clear_Screen();
@@ -320,6 +321,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 			LoadNamePresets(hWnd);
 			LoadMainScreen(hWnd);
 			UpdatePreset(preset.at(0), hWnd);
+			UpdateNamePreset(npreset.at(0), hWnd);
 			Clear_Screen();
 			//Load_Screen_General();
 			//Load_Screen_SystemPlanet();
@@ -2215,7 +2217,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 			npreset.at(i).Markov_RawDataset[x] = '\0';
 			x = 0;
 
-			SendMessage(CONFIG.namePresetDropDown.HANDLE, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)preset.at(i).name);
+			SendMessage(CONFIG.namePresetDropDown.HANDLE, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)npreset.at(i).name);
 
 			CloseHandle(presetFile);
 		}
@@ -3497,7 +3499,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 						10, 80, 600, 20,
 						NV.GROUP_DATASET, NULL, NULL, NULL);
 					NV.Markov_RawDatasetH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 						12, 100, 596, 300,
 						NV.GROUP_DATASET, NULL, NULL, NULL);
 				}
@@ -3512,7 +3514,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 					NV.SimpleGenerator_INFO = CreateWindowW(L"button", L"I",
 						WS_CHILD | WS_BORDER,
-						500, 242, 16, 16,
+						602, 262, 16, 16,
 						hWnd, (HMENU)IB_SIMPLEGENERATOR, NULL, NULL);
 
 					NV.useSimpleGeneratorDESC = CreateWindowW(L"static", L"Use Simple Generator:",
@@ -3529,7 +3531,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 						10, 60, 600, 20,
 						NV.GROUP_SIMPLE, NULL, NULL, NULL);
 					NV.PrefixListH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 						12, 80, 596, 130,
 						NV.GROUP_SIMPLE, NULL, NULL, NULL);
 
@@ -3538,7 +3540,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 						10, 230, 600, 20,
 						NV.GROUP_SIMPLE, NULL, NULL, NULL);
 					NV.SuffixListH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 						12, 250, 596, 130,
 						NV.GROUP_SIMPLE, NULL, NULL, NULL);
 
@@ -3648,6 +3650,133 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 		SetWindowTextW(CONFIG.exotic_DebrisRingChanceH.HANDLE, genVar);
 		_itow_s(P.exotic_CompanionOrbitChance, genVar, sizeof(genVar) / 2, 10);
 		SetWindowTextW(CONFIG.exotic_CompanionOrbitChanceH.HANDLE, genVar);
+	}
+	void UpdateNamePreset(NamePreset P, HWND hWnd)
+	{
+		wchar_t genVar[16];
+
+		CheckDlgButton(NV.GROUP_SIMPLE, NVCB_SIMPLEGENERATOR, P.useSimpleGenerator);
+		SetWindowTextW(NV.PrefixListH, P.PrefixList);
+		SetWindowTextW(NV.SuffixListH, P.SuffixList);
+
+		CheckDlgButton(NV.GROUP_STAR, NVCB_STARPREMOD, P.useStarPreMods);
+		_itow_s(P.probStarPreMod, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probStarPreModH, genVar);
+		SetWindowTextW(NV.starPreModList, P.StarPreMods);
+		CheckDlgButton(NV.GROUP_STAR, NVCB_STARPOSTMOD, P.useStarPostMods);
+		_itow_s(P.probStarPostMod, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probStarPostModH, genVar);
+		SetWindowTextW(NV.starPostModList, P.StarPostMods);
+		CheckDlgButton(NV.GROUP_STAR, NVCB_STARNUMBERMOD, P.useStarNumberMods);
+		_itow_s(P.probStarNumberMod, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probStarNumberModH, genVar);
+
+		CheckDlgButton(NV.GROUP_PLANET, NVCB_PLANETPREMOD, P.usePlanetPreMods);
+		_itow_s(P.probPlanetPreMod, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probPlanetPreModH, genVar);
+		SetWindowTextW(NV.planetPreModList, P.PlanetPreMods);
+		CheckDlgButton(NV.GROUP_PLANET, NVCB_PLANETPOSTMOD, P.usePlanetPostMods);
+		_itow_s(P.probPlanetPostMod, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probPlanetPostModH, genVar);
+		SetWindowTextW(NV.planetPostModList, P.PlanetPostMods);
+		CheckDlgButton(NV.GROUP_PLANET, NVCB_PLANETNUMBERMOD, P.usePlanetNumberMods);
+		_itow_s(P.probPlanetNumberMod, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probPlanetNumberModH, genVar);
+
+		CheckDlgButton(NV.GROUP_MOON, NVCB_NAMETERRAMOONS, P.nameTerraMoons);
+		CheckDlgButton(NV.GROUP_MOON, NVCB_NAMEGASMOONS, P.nameGasMoons);
+		CheckDlgButton(NV.GROUP_MOON, NVCB_MOONPREMOD, P.useMoonPreMods);
+		_itow_s(P.probMoonPreMod, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probMoonPreModH, genVar);
+		SetWindowTextW(NV.moonPreModList, P.MoonPreMods);
+		CheckDlgButton(NV.GROUP_MOON, NVCB_MOONPOSTMOD, P.useMoonPostMods);
+		_itow_s(P.probMoonPostMod, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probMoonPostModH, genVar);
+		SetWindowTextW(NV.moonPostModList, P.MoonPostMods);
+		CheckDlgButton(NV.GROUP_MOON, NVCB_MOONNUMBERMOD, P.useMoonNumberMods);
+		_itow_s(P.probMoonNumberMod, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probMoonNumberModH, genVar);
+
+		CheckDlgButton(NV.GROUP_DWARFMOON, NVCB_NAMETERRADWARFMOONS, P.nameTerraDwarfMoons);
+		CheckDlgButton(NV.GROUP_DWARFMOON, NVCB_NAMEGASDWARFMOONS, P.nameGasDwarfMoons);
+		CheckDlgButton(NV.GROUP_DWARFMOON, NVCB_DWARFMOONPREMOD, P.useDwarfMoonPreMods);
+		_itow_s(P.probDwarfMoonPreMod, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probDwarfMoonPreModH, genVar);
+		SetWindowTextW(NV.dwarfMoonPreModList, P.DwarfMoonPreMods);
+		CheckDlgButton(NV.GROUP_DWARFMOON, NVCB_DWARFMOONPOSTMOD, P.useDwarfMoonPostMods);
+		_itow_s(P.probDwarfMoonPostMod, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probDwarfMoonPostModH, genVar);
+		SetWindowTextW(NV.dwarfMoonPostModList, P.DwarfMoonPostMods);
+		CheckDlgButton(NV.GROUP_DWARFMOON, NVCB_DWARFMOONNUMBERMOD, P.useDwarfMoonNumberMods);
+		_itow_s(P.probDwarfMoonNumberMod, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probDwarfMoonNumberModH, genVar);
+
+		CheckDlgButton(NV.GROUP_ALL_SHIP, NVCB_SHIPALLPREMOD, P.useShipPreMods_All);
+		_itow_s(P.probShipPreMod_All, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probShipPreMod_AllH, genVar);
+		SetWindowTextW(NV.shipPreModList_All, P.ShipPreMods_All);
+		CheckDlgButton(NV.GROUP_ALL_SHIP, NVCB_SHIPALLPOSTMOD, P.useShipPostMods_All);
+		_itow_s(P.probShipPostMod_All, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probShipPostMod_AllH, genVar);
+		SetWindowTextW(NV.shipPostModList_All, P.ShipPostMods_All);
+
+		CheckDlgButton(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYPREMOD, P.useShipPreMods_Colony);
+		_itow_s(P.probShipPreMod_Colony, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probShipPreMod_ColonyH, genVar);
+		SetWindowTextW(NV.shipPreModList_Colony, P.ShipPreMods_Colony);
+		CheckDlgButton(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYPOSTMOD, P.useShipPostMods_Colony);
+		_itow_s(P.probShipPostMod_Colony, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probShipPostMod_ColonyH, genVar);
+		SetWindowTextW(NV.shipPostModList_Colony, P.ShipPostMods_Colony);
+		CheckDlgButton(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYNUMBERMOD, P.useShipNumberMods_Colony);
+		_itow_s(P.probShipNumberMod_Colony, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probShipNumberMod_ColonyH, genVar);
+
+		CheckDlgButton(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTPREMOD, P.useShipPreMods_Instrument);
+		_itow_s(P.probShipPreMod_Instrument, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probShipPreMod_InstrumentH, genVar);
+		SetWindowTextW(NV.shipPreModList_Instrument, P.ShipPreMods_Instrument);
+		CheckDlgButton(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTPOSTMOD, P.useShipPostMods_Instrument);
+		_itow_s(P.probShipPostMod_Instrument, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probShipPostMod_InstrumentH, genVar);
+		SetWindowTextW(NV.shipPostModList_Instrument, P.ShipPostMods_Instrument);
+		CheckDlgButton(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTNUMBERMOD, P.useShipNumberMods_Instrument);
+		_itow_s(P.probShipNumberMod_Instrument, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probShipNumberMod_InstrumentH, genVar);
+
+		CheckDlgButton(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITEPREMOD, P.useShipPreMods_Satellite);
+		_itow_s(P.probShipPreMod_Satellite, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probShipPreMod_SatelliteH, genVar);
+		SetWindowTextW(NV.shipPreModList_Satellite, P.ShipPreMods_Satellite);
+		CheckDlgButton(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITEPOSTMOD, P.useShipPostMods_Satellite);
+		_itow_s(P.probShipPostMod_Satellite, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probShipPostMod_SatelliteH, genVar);
+		SetWindowTextW(NV.shipPostModList_Satellite, P.ShipPostMods_Satellite);
+		CheckDlgButton(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITENUMBERMOD, P.useShipNumberMods_Satellite);
+		_itow_s(P.probShipNumberMod_Satellite, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probShipNumberMod_SatelliteH, genVar);
+
+		CheckDlgButton(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONPREMOD, P.useShipPreMods_Station);
+		_itow_s(P.probShipPreMod_Station, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probShipPreMod_StationH, genVar);
+		SetWindowTextW(NV.shipPreModList_Station, P.ShipPreMods_Station);
+		CheckDlgButton(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONPOSTMOD, P.useShipPostMods_Station);
+		_itow_s(P.probShipPostMod_Station, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probShipPostMod_StationH, genVar);
+		SetWindowTextW(NV.shipPostModList_Station, P.ShipPostMods_Station);
+		CheckDlgButton(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONNUMBERMOD, P.useShipNumberMods_Station);
+		_itow_s(P.probShipNumberMod_Station, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.probShipNumberMod_StationH, genVar);
+
+		_itow_s(P.order, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.orderH, genVar);
+		_itow_s(P.wordVarience, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.wordVarienceH, genVar);
+		_itow_s(P.min_length, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.min_lengthH, genVar);
+		_itow_s(P.max_length, genVar, sizeof(genVar) / 2, 10);
+		SetWindowTextW(NV.max_lengthH, genVar);
+		SetWindowTextW(NV.Markov_RawDatasetH, P.Markov_RawDataset);
 	}
 	void SavePreset(HWND hWnd)
 	{

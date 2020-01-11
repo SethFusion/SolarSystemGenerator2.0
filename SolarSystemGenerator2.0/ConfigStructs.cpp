@@ -397,7 +397,7 @@ struct NameVariables
 	
 };
 
-const int MODLIST_SIZE = 2048, DATASET_SIZE = 16384;
+const int MODLIST_SIZE = 1024, DATASET_SIZE = 8192;
 struct NamePreset
 {
 	wchar_t name[WSIZE];
