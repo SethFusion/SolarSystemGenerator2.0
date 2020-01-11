@@ -15,6 +15,21 @@ static void GetIntFromWindow(HWND &window, int &store)
 	GetWindowTextW(window, genvar, 20);
 	store = _wtoi(genvar);
 }
+static void SetIntToWindow(HWND &window, int number)
+{
+	wchar_t genVar[16];
+	_itow_s(number, genVar, sizeof(genVar) / 2, 10);
+	SetWindowTextW(window, genVar);
+}
+
+static void SetDoubleToWindow(HWND& window, double number)
+{
+	wchar_t genVar[16];
+	char genChar[26];
+	_gcvt_s(genChar, sizeof(genChar), number, 10);
+	mbstowcs_s(NULL, genVar, sizeof(genVar) / 2, genChar, sizeof(genChar));
+	SetWindowTextW(window, genVar);
+}
 
 
 

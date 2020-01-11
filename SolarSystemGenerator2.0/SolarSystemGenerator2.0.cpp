@@ -3558,55 +3558,34 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 	void UpdatePreset(Preset P, HWND hWnd)
 	{
-		wchar_t genVar[16];
 		char genChar[26];
+
+		SetIntToWindow(CONFIG..HANDLE, P.);
+		SetDoubleToWindow(CONFIG..HANDLE, P.);
 
 		SetWindowTextW(CONFIG.starOutputFolderH.HANDLE, P.starOutputFolder);
 		SetWindowTextW(CONFIG.planetOutputFolderH.HANDLE, P.planetOutputFolder);
-		_itow_s(P.seed, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(CONFIG.seedH.HANDLE, genVar);
-		_itow_s(P.numberOfRuns, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(CONFIG.numberOfRunsH.HANDLE, genVar);
+		SetIntToWindow(CONFIG.seedH.HANDLE, P.seed);
+		SetIntToWindow(CONFIG.numberOfRunsH.HANDLE, P.numberOfRuns);
 		CheckDlgButton(hWnd, CB_DEBUG, P.debug);
 		SetWindowTextW(CONFIG.debugH.HANDLE, P.debugState);
 
 		CheckDlgButton(hWnd, CB_SMARTPLACEMENT, P.smartPlacement);
 		SetWindowTextW(CONFIG.smartPlacementH.HANDLE, P.smartPlacementState);
-		_itow_s(P.minPlanetNumber, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(CONFIG.minPlanetNumberH.HANDLE, genVar);
+		SetIntToWindow(CONFIG.minPlanetNumberH.HANDLE, P.minPlanetNumber);
 
-		_gcvt_s(genChar, sizeof(genChar), P.minDistance, 10);
-		mbstowcs_s(NULL, genVar, sizeof(genVar) / 2, genChar, sizeof(genChar));
-		SetWindowTextW(CONFIG.minDistanceH.HANDLE, genVar);
-		_gcvt_s(genChar, sizeof(genChar), P.maxDistance, 10);
-		mbstowcs_s(NULL, genVar, sizeof(genVar) / 2, genChar, sizeof(genChar));
-		SetWindowTextW(CONFIG.maxDistanceH.HANDLE, genVar);
-		_gcvt_s(genChar, sizeof(genChar), P.planetSpacing, 10);
-		mbstowcs_s(NULL, genVar, sizeof(genVar) / 2, genChar, sizeof(genChar));
-		SetWindowTextW(CONFIG.planetSpacingH.HANDLE, genVar);
+		SetDoubleToWindow(CONFIG.minDistanceH.HANDLE, P.minDistance);
+		SetDoubleToWindow(CONFIG.maxDistanceH.HANDLE, P.maxDistance);
+		SetDoubleToWindow(CONFIG.planetSpacingH.HANDLE, P.planetSpacing);
 		CheckDlgButton(hWnd, CB_GENERATEDWARFPLANET, P.generateDwarfPlanets);
 		SetWindowTextW(CONFIG.generateDwarfPlanetsH.HANDLE, P.generateDwarfPlanetsState);
-		_itow_s(P.dwarfPlanetChance, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(CONFIG.dwarfPlanetChanceH.HANDLE, genVar);
-		_gcvt_s(genChar, sizeof(genChar), P.avgEccentricity, 10);
-		mbstowcs_s(NULL, genVar, sizeof(genVar) / 2, genChar, sizeof(genChar));
-		SetWindowTextW(CONFIG.avgEccentricityH.HANDLE, genVar);
-		_gcvt_s(genChar, sizeof(genChar), P.SDEccentricity, 10);
-		mbstowcs_s(NULL, genVar, sizeof(genVar) / 2, genChar, sizeof(genChar));
-		SetWindowTextW(CONFIG.SDEccentricityH.HANDLE, genVar);
-		_gcvt_s(genChar, sizeof(genChar), P.avgInclination, 10);
-		mbstowcs_s(NULL, genVar, sizeof(genVar) / 2, genChar, sizeof(genChar));
-		SetWindowTextW(CONFIG.avgInclinationH.HANDLE, genVar);
-		_gcvt_s(genChar, sizeof(genChar), P.SDInclination, 10);
-		mbstowcs_s(NULL, genVar, sizeof(genVar) / 2, genChar, sizeof(genChar));
-		SetWindowTextW(CONFIG.SDInclinationH.HANDLE, genVar);
-		_gcvt_s(genChar, sizeof(genChar), P.avgObliquity, 10);
-		mbstowcs_s(NULL, genVar, sizeof(genVar) / 2, genChar, sizeof(genChar));
-		SetWindowTextW(CONFIG.avgObliquityH.HANDLE, genVar);
-		_gcvt_s(genChar, sizeof(genChar), P.SDObliquity, 10);
-		mbstowcs_s(NULL, genVar, sizeof(genVar) / 2, genChar, sizeof(genChar));
-		SetWindowTextW(CONFIG.SDObliquityH.HANDLE, genVar);
-
+		SetIntToWindow(CONFIG.dwarfPlanetChanceH.HANDLE, P.dwarfPlanetChance);
+		SetDoubleToWindow(CONFIG.avgEccentricityH.HANDLE, P.avgEccentricity);
+		SetDoubleToWindow(CONFIG.SDEccentricityH.HANDLE, P.SDEccentricity);
+		SetDoubleToWindow(CONFIG.avgInclinationH.HANDLE, P.avgInclination);
+		SetDoubleToWindow(CONFIG.SDInclinationH.HANDLE, P.SDInclination);
+		SetDoubleToWindow(CONFIG.avgObliquityH.HANDLE, P.avgObliquity);
+		SetDoubleToWindow(CONFIG.SDObliquityH.HANDLE, P.SDObliquity);
 		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_OCLASS, P.starClassO);
 		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_BCLASS, P.starClassB);
 		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_ACLASS, P.starClassA);
@@ -3618,157 +3597,117 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_QCLASS, P.starClassQ);
 		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_XCLASS, P.starClassX);
 
-		_itow_s(P.life_OrganicChance, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(CONFIG.life_OrganicChanceH.HANDLE, genVar);
-		_itow_s(P.life_ExoticChance, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(CONFIG.life_ExoticChanceH.HANDLE, genVar);
-		_itow_s(P.life_MulticellChance, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(CONFIG.life_MulticellChanceH.HANDLE, genVar);
+		SetIntToWindow(CONFIG.life_OrganicChanceH.HANDLE, P.life_OrganicChance);
+		SetIntToWindow(CONFIG.life_ExoticChanceH.HANDLE, P.life_ExoticChance);
+		SetIntToWindow(CONFIG.life_MulticellChanceH.HANDLE, P.life_MulticellChance);
 		CheckDlgButton(hWnd, CB_FORCELIFE, P.forceLife);
 		SetWindowTextW(CONFIG.forceLifeH.HANDLE, P.forceLifeState);
 		CheckDlgButton(hWnd, CB_TRADITIONALLIFE, P.traditionalLife);
 		SetWindowTextW(CONFIG.traditionalLifeH.HANDLE, P.traditonalLifeState);
 
-		_itow_s(P.exotic_ShipChance, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(CONFIG.exotic_ShipChanceH.HANDLE, genVar);
+		SetIntToWindow(CONFIG.exotic_ShipChanceH.HANDLE, P.exotic_ShipChance);
 		SetWindowTextW(CONFIG.modelsFolderH.HANDLE, P.modelsFolder);
 		CheckDlgButton(hWnd, CB_SHIPSNEEDLIFE, P.shipsNeedLife);
 		SetWindowTextW(CONFIG.shipsNeedLifeH.HANDLE, P.shipsNeedLifeState);
 
-		_itow_s(P.exotic_OrbitChance, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(CONFIG.exotic_OrbitChanceH.HANDLE, genVar);
-		_itow_s(P.exotic_AxialTiltChance, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(CONFIG.exotic_AxialTiltChanceH.HANDLE, genVar);
-		_itow_s(P.exotic_DebrisRingChance, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(CONFIG.exotic_DebrisRingChanceH.HANDLE, genVar);
-		_itow_s(P.exotic_CompanionOrbitChance, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(CONFIG.exotic_CompanionOrbitChanceH.HANDLE, genVar);
+		SetIntToWindow(CONFIG.exotic_OrbitChanceH.HANDLE, P.exotic_OrbitChance);
+		SetIntToWindow(CONFIG.exotic_AxialTiltChanceH.HANDLE, P.exotic_AxialTiltChance);
+		SetIntToWindow(CONFIG.exotic_DebrisRingChanceH.HANDLE, P.exotic_DebrisRingChance);
+		SetIntToWindow(CONFIG.exotic_CompanionOrbitChanceH.HANDLE, P.exotic_CompanionOrbitChance);
 	}
 	void UpdateNamePreset(NamePreset P, HWND hWnd)
 	{
-		wchar_t genVar[16];
-
 		CheckDlgButton(NV.GROUP_SIMPLE, NVCB_SIMPLEGENERATOR, P.useSimpleGenerator);
 		SetWindowTextW(NV.PrefixListH, P.PrefixList);
 		SetWindowTextW(NV.SuffixListH, P.SuffixList);
 
 		CheckDlgButton(NV.GROUP_STAR, NVCB_STARPREMOD, P.useStarPreMods);
-		_itow_s(P.probStarPreMod, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probStarPreModH, genVar);
+		SetIntToWindow(NV.probStarPreModH, P.probStarPreMod);
 		SetWindowTextW(NV.starPreModList, P.StarPreMods);
 		CheckDlgButton(NV.GROUP_STAR, NVCB_STARPOSTMOD, P.useStarPostMods);
-		_itow_s(P.probStarPostMod, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probStarPostModH, genVar);
+		SetIntToWindow(NV.probStarPostModH, P.probStarPostMod);
 		SetWindowTextW(NV.starPostModList, P.StarPostMods);
 		CheckDlgButton(NV.GROUP_STAR, NVCB_STARNUMBERMOD, P.useStarNumberMods);
-		_itow_s(P.probStarNumberMod, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probStarNumberModH, genVar);
+		SetIntToWindow(NV.probStarNumberModH, P.probStarNumberMod);
 
 		CheckDlgButton(NV.GROUP_PLANET, NVCB_PLANETPREMOD, P.usePlanetPreMods);
-		_itow_s(P.probPlanetPreMod, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probPlanetPreModH, genVar);
+		SetIntToWindow(NV.probPlanetPreModH, P.probPlanetPreMod);
 		SetWindowTextW(NV.planetPreModList, P.PlanetPreMods);
 		CheckDlgButton(NV.GROUP_PLANET, NVCB_PLANETPOSTMOD, P.usePlanetPostMods);
-		_itow_s(P.probPlanetPostMod, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probPlanetPostModH, genVar);
+		SetIntToWindow(NV.probPlanetPostModH, P.probPlanetPostMod);
 		SetWindowTextW(NV.planetPostModList, P.PlanetPostMods);
 		CheckDlgButton(NV.GROUP_PLANET, NVCB_PLANETNUMBERMOD, P.usePlanetNumberMods);
-		_itow_s(P.probPlanetNumberMod, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probPlanetNumberModH, genVar);
+		SetIntToWindow(NV.probPlanetNumberModH, P.probPlanetNumberMod);
 
 		CheckDlgButton(NV.GROUP_MOON, NVCB_NAMETERRAMOONS, P.nameTerraMoons);
 		CheckDlgButton(NV.GROUP_MOON, NVCB_NAMEGASMOONS, P.nameGasMoons);
 		CheckDlgButton(NV.GROUP_MOON, NVCB_MOONPREMOD, P.useMoonPreMods);
-		_itow_s(P.probMoonPreMod, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probMoonPreModH, genVar);
+		SetIntToWindow(NV.probMoonPreModH, P.probMoonPreMod);
 		SetWindowTextW(NV.moonPreModList, P.MoonPreMods);
 		CheckDlgButton(NV.GROUP_MOON, NVCB_MOONPOSTMOD, P.useMoonPostMods);
-		_itow_s(P.probMoonPostMod, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probMoonPostModH, genVar);
+		SetIntToWindow(NV.probMoonPostModH, P.probMoonPostMod);
 		SetWindowTextW(NV.moonPostModList, P.MoonPostMods);
 		CheckDlgButton(NV.GROUP_MOON, NVCB_MOONNUMBERMOD, P.useMoonNumberMods);
-		_itow_s(P.probMoonNumberMod, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probMoonNumberModH, genVar);
+		SetIntToWindow(NV.probMoonNumberModH, P.probMoonNumberMod);
 
 		CheckDlgButton(NV.GROUP_DWARFMOON, NVCB_NAMETERRADWARFMOONS, P.nameTerraDwarfMoons);
 		CheckDlgButton(NV.GROUP_DWARFMOON, NVCB_NAMEGASDWARFMOONS, P.nameGasDwarfMoons);
 		CheckDlgButton(NV.GROUP_DWARFMOON, NVCB_DWARFMOONPREMOD, P.useDwarfMoonPreMods);
-		_itow_s(P.probDwarfMoonPreMod, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probDwarfMoonPreModH, genVar);
+		SetIntToWindow(NV.probDwarfMoonPreModH, P.probDwarfMoonPreMod);
 		SetWindowTextW(NV.dwarfMoonPreModList, P.DwarfMoonPreMods);
 		CheckDlgButton(NV.GROUP_DWARFMOON, NVCB_DWARFMOONPOSTMOD, P.useDwarfMoonPostMods);
-		_itow_s(P.probDwarfMoonPostMod, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probDwarfMoonPostModH, genVar);
+		SetIntToWindow(NV.probDwarfMoonPostModH, P.probDwarfMoonPostMod);
 		SetWindowTextW(NV.dwarfMoonPostModList, P.DwarfMoonPostMods);
 		CheckDlgButton(NV.GROUP_DWARFMOON, NVCB_DWARFMOONNUMBERMOD, P.useDwarfMoonNumberMods);
-		_itow_s(P.probDwarfMoonNumberMod, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probDwarfMoonNumberModH, genVar);
+		SetIntToWindow(NV.probDwarfMoonNumberModH, P.probDwarfMoonNumberMod);
 
 		CheckDlgButton(NV.GROUP_ALL_SHIP, NVCB_SHIPALLPREMOD, P.useShipPreMods_All);
-		_itow_s(P.probShipPreMod_All, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probShipPreMod_AllH, genVar);
+		SetIntToWindow(NV.probShipPreMod_AllH, P.probShipPreMod_All);
 		SetWindowTextW(NV.shipPreModList_All, P.ShipPreMods_All);
 		CheckDlgButton(NV.GROUP_ALL_SHIP, NVCB_SHIPALLPOSTMOD, P.useShipPostMods_All);
-		_itow_s(P.probShipPostMod_All, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probShipPostMod_AllH, genVar);
+		SetIntToWindow(NV.probShipPostMod_AllH, P.probShipPostMod_All);
 		SetWindowTextW(NV.shipPostModList_All, P.ShipPostMods_All);
 
 		CheckDlgButton(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYPREMOD, P.useShipPreMods_Colony);
-		_itow_s(P.probShipPreMod_Colony, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probShipPreMod_ColonyH, genVar);
+		SetIntToWindow(NV.probShipPreMod_ColonyH, P.probShipPreMod_Colony);
 		SetWindowTextW(NV.shipPreModList_Colony, P.ShipPreMods_Colony);
 		CheckDlgButton(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYPOSTMOD, P.useShipPostMods_Colony);
-		_itow_s(P.probShipPostMod_Colony, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probShipPostMod_ColonyH, genVar);
+		SetIntToWindow(NV.probShipPostMod_ColonyH, P.probShipPostMod_Colony);
 		SetWindowTextW(NV.shipPostModList_Colony, P.ShipPostMods_Colony);
 		CheckDlgButton(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYNUMBERMOD, P.useShipNumberMods_Colony);
-		_itow_s(P.probShipNumberMod_Colony, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probShipNumberMod_ColonyH, genVar);
+		SetIntToWindow(NV.probShipNumberMod_ColonyH, P.probShipNumberMod_Colony);
 
 		CheckDlgButton(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTPREMOD, P.useShipPreMods_Instrument);
-		_itow_s(P.probShipPreMod_Instrument, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probShipPreMod_InstrumentH, genVar);
+		SetIntToWindow(NV.probShipPreMod_InstrumentH, P.probShipPreMod_Instrument);
 		SetWindowTextW(NV.shipPreModList_Instrument, P.ShipPreMods_Instrument);
 		CheckDlgButton(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTPOSTMOD, P.useShipPostMods_Instrument);
-		_itow_s(P.probShipPostMod_Instrument, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probShipPostMod_InstrumentH, genVar);
+		SetIntToWindow(NV.probShipPostMod_InstrumentH, P.probShipPostMod_Instrument);
 		SetWindowTextW(NV.shipPostModList_Instrument, P.ShipPostMods_Instrument);
 		CheckDlgButton(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTNUMBERMOD, P.useShipNumberMods_Instrument);
-		_itow_s(P.probShipNumberMod_Instrument, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probShipNumberMod_InstrumentH, genVar);
+		SetIntToWindow(NV.probShipNumberMod_InstrumentH, P.probShipNumberMod_Instrument);
 
 		CheckDlgButton(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITEPREMOD, P.useShipPreMods_Satellite);
-		_itow_s(P.probShipPreMod_Satellite, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probShipPreMod_SatelliteH, genVar);
+		SetIntToWindow(NV.probShipPreMod_SatelliteH, P.probShipPreMod_Satellite);
 		SetWindowTextW(NV.shipPreModList_Satellite, P.ShipPreMods_Satellite);
 		CheckDlgButton(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITEPOSTMOD, P.useShipPostMods_Satellite);
-		_itow_s(P.probShipPostMod_Satellite, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probShipPostMod_SatelliteH, genVar);
+		SetIntToWindow(NV.probShipPostMod_SatelliteH, P.probShipPostMod_Satellite);
 		SetWindowTextW(NV.shipPostModList_Satellite, P.ShipPostMods_Satellite);
 		CheckDlgButton(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITENUMBERMOD, P.useShipNumberMods_Satellite);
-		_itow_s(P.probShipNumberMod_Satellite, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probShipNumberMod_SatelliteH, genVar);
+		SetIntToWindow(NV.probShipNumberMod_SatelliteH, P.probShipNumberMod_Satellite);
 
 		CheckDlgButton(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONPREMOD, P.useShipPreMods_Station);
-		_itow_s(P.probShipPreMod_Station, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probShipPreMod_StationH, genVar);
+		SetIntToWindow(NV.probShipPreMod_StationH, P.probShipPreMod_Station);
 		SetWindowTextW(NV.shipPreModList_Station, P.ShipPreMods_Station);
 		CheckDlgButton(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONPOSTMOD, P.useShipPostMods_Station);
-		_itow_s(P.probShipPostMod_Station, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probShipPostMod_StationH, genVar);
+		SetIntToWindow(NV.probShipPostMod_StationH, P.probShipPostMod_Station);
 		SetWindowTextW(NV.shipPostModList_Station, P.ShipPostMods_Station);
 		CheckDlgButton(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONNUMBERMOD, P.useShipNumberMods_Station);
-		_itow_s(P.probShipNumberMod_Station, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.probShipNumberMod_StationH, genVar);
+		SetIntToWindow(NV.probShipNumberMod_StationH, P.probShipNumberMod_Station);
 
-		_itow_s(P.order, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.orderH, genVar);
-		_itow_s(P.wordVarience, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.wordVarienceH, genVar);
-		_itow_s(P.min_length, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.min_lengthH, genVar);
-		_itow_s(P.max_length, genVar, sizeof(genVar) / 2, 10);
-		SetWindowTextW(NV.max_lengthH, genVar);
+		SetIntToWindow(NV.orderH, P.order);
+		SetIntToWindow(NV.wordVarienceH, P.wordVarience);
+		SetIntToWindow(NV.min_lengthH, P.min_length);
+		SetIntToWindow(NV.max_lengthH, P.max_length);
 		SetWindowTextW(NV.Markov_RawDatasetH, P.Markov_RawDataset);
 
 		CreateNameVectors(hWnd);
