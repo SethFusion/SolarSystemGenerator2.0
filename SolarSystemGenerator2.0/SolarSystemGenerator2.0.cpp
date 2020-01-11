@@ -244,6 +244,10 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 				wmId = SendMessage(CONFIG.namePresetDropDown.HANDLE, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
 				UpdateNamePreset(npreset.at(wmId), hWnd);
 				break;
+			case BUTTON_NAME_LOAD_VECTORS:
+				CreateNameVectors(hWnd);
+				break;
+
 			case BUTTON_NAME_STAR:
 				Clear_Advanced();
 				Load_Name_Star();
@@ -2832,7 +2836,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 				CONFIG.buttonUpdate = CreateWindowW(L"button", L"Update Names",
 					WS_CHILD | WS_BORDER | BS_MULTILINE,
 					550, 120, 70, 50,
-					hWnd, (HMENU)BUTTON_NAME_UPDATE, NULL, NULL);
+					hWnd, (HMENU)BUTTON_NAME_LOAD_VECTORS, NULL, NULL);
 				CONFIG.buttonStar = CreateWindowW(L"button", L"Star",
 					WS_CHILD | WS_BORDER,
 					380, 120, 50, 30,
@@ -4603,8 +4607,35 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 	}
 	void CreateNameVectors(HWND hWnd)
 	{
-		wchar_t datasetHolder[DATASET_SIZE];
-		
+		if (NV.Markov_RawDataset.size() > 0)
+		{
+			int size = NV.Markov_RawDataset.size();
+			for (int i = 0; i < size; i++)
+				NV.Markov_RawDataset.pop_back();
+		}
+		if (NV.usedNames.size() > 0)
+		{
+			int size = NV.usedNames.size();
+			for (int i = 0; i < size; i++)
+				NV.usedNames.pop_back();
+		}
+		if (NV.main_ngrams.ngrams.size() > 0)
+		{
+			int size = NV.main_ngrams.ngrams.size();
+			for (int i = 0; i < size; i++)
+			{
+				NV.main_ngrams.ngrams.pop_back();
+				NV.main_ngrams.nextCharList.pop_back();
+			}
+			size = NV.twogram_list.ngrams.size();
+			for (int i = 0; i < size; i++)
+			{
+				NV.twogram_list.ngrams.pop_back();
+				NV.twogram_list.nextCharList.pop_back();
+			}
+		}
+
+
 		NV.useSimpleGenerator = (IsDlgButtonChecked(NV.GROUP_SIMPLE, NVCB_SIMPLEGENERATOR) == BST_CHECKED) ? true : false;
 		FillModList(NV.PrefixListH, NV.PrefixList);
 		FillModList(NV.SuffixListH, NV.SuffixList);
@@ -4692,6 +4723,9 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 		NV.useShipNumberMods_Station = (IsDlgButtonChecked(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONNUMBERMOD) == BST_CHECKED) ? true : false;
 		GetIntFromWindow(NV.probShipNumberMod_StationH, NV.probShipNumberMod_Station);
 
+		//if (NV.useSimpleGenerator == true)
+		//	return;
+
 		GetIntFromWindow(NV.orderH, NV.order);
 		GetIntFromWindow(NV.wordVarienceH, NV.wordVarience);
 		GetIntFromWindow(NV.min_lengthH, NV.min_length);
@@ -4763,6 +4797,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 			}
 		}
+
 	}
 
 
