@@ -21,14 +21,14 @@ static void FindNextEntry(char* Buffer, int& parse)
 		parse++;
 	} while (holder != '=');
 }
-static void LoadVariableFromEntry(char* Buffer, int& parse, bool& store)
+static void LoadVariableFromFile(char* Buffer, int& parse, bool& store)
 {
 	FindNextEntry(Buffer, parse);
 	wchar_t holder = Buffer[parse];
 	store = _wtoi(&holder);
 	parse++;
 }
-static void LoadVariableFromEntry(char* Buffer, int& parse, wchar_t* store)
+static void LoadVariableFromFile(char* Buffer, int& parse, wchar_t* store)
 {
 	FindNextEntry(Buffer, parse);
 	wchar_t holder;
@@ -42,7 +42,7 @@ static void LoadVariableFromEntry(char* Buffer, int& parse, wchar_t* store)
 	} while (holder != '\n');
 	store[i - 2] = '\0';
 }
-static void LoadVariableFromEntry(char* Buffer, int& parse, int& store)
+static void LoadVariableFromFile(char* Buffer, int& parse, int& store)
 {
 	FindNextEntry(Buffer, parse);
 	wchar_t holder, numholder[16];
@@ -57,7 +57,7 @@ static void LoadVariableFromEntry(char* Buffer, int& parse, int& store)
 	numholder[i] = '\0';
 	store = _wtoi(numholder);
 }
-static void LoadVariableFromEntry(char* Buffer, int& parse, double& store)
+static void LoadVariableFromFile(char* Buffer, int& parse, double& store)
 {
 	FindNextEntry(Buffer, parse);
 	wchar_t holder, numholder[16];
@@ -72,7 +72,7 @@ static void LoadVariableFromEntry(char* Buffer, int& parse, double& store)
 	numholder[i] = '\0';
 	store = _wtof(numholder);
 }
-static void LoadListFromEntry(char* Buffer, int& parse, wchar_t* store)
+static void LoadListFromFile(char* Buffer, int& parse, wchar_t* store)
 {
 	wchar_t holder;
 	int i = 0;
@@ -97,21 +97,38 @@ static void LoadListFromEntry(char* Buffer, int& parse, wchar_t* store)
 
 
 
-
-static void GetIntFromWindow(HWND &window, int &store)
+static void GetVariableFromWindow(HWND& window, wchar_t* store)
+{
+	wchar_t genvar[WSIZE];
+	int i = 0;
+	GetWindowTextW(window, genvar, WSIZE);
+	while (genvar[i] != '\0')
+	{
+		store[i] = genvar[i];
+		i++;
+	}
+}
+static void GetVariableFromWindow(HWND& window, int& store)
 {
 	wchar_t genvar[WSIZE];
 	GetWindowTextW(window, genvar, 20);
 	store = _wtoi(genvar);
 }
-static void SetIntToWindow(HWND &window, int number)
+static void GetVariableFromWindow(HWND& window, double& store)
+{
+	wchar_t genvar[WSIZE];
+	GetWindowTextW(window, genvar, 20);
+	store = _wtof(genvar);
+}
+
+
+static void SetVariableToWindow(HWND& window, int number)
 {
 	wchar_t genVar[16];
 	_itow_s(number, genVar, sizeof(genVar) / 2, 10);
 	SetWindowTextW(window, genVar);
 }
-
-static void SetDoubleToWindow(HWND& window, double number)
+static void SetVariableToWindow(HWND& window, double number)
 {
 	wchar_t genVar[16];
 	char genChar[26];

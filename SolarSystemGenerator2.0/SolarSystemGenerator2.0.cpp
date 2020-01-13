@@ -420,51 +420,51 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 			Buffer[bytesread] = '\0';
 
 			int parse = 0;
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).name);	
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).starOutputFolder);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).planetOutputFolder);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).seed);	
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).numberOfRuns);	
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).smartPlacement);
+			LoadVariableFromFile(Buffer, parse, preset.at(i).name);	
+			LoadVariableFromFile(Buffer, parse, preset.at(i).starOutputFolder);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).planetOutputFolder);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).seed);	
+			LoadVariableFromFile(Buffer, parse, preset.at(i).numberOfRuns);	
+			LoadVariableFromFile(Buffer, parse, preset.at(i).smartPlacement);
 			preset.at(i).smartPlacementState = (preset.at(i).smartPlacement == true) ? L"Enabled" : L"Disabled";	
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).minPlanetNumber);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).minDistance);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).maxDistance);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).planetSpacing);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).generateDwarfPlanets);
+			LoadVariableFromFile(Buffer, parse, preset.at(i).minPlanetNumber);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).minDistance);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).maxDistance);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).planetSpacing);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).generateDwarfPlanets);
 			preset.at(i).generateDwarfPlanetsState = (preset.at(i).generateDwarfPlanets == true) ? L"Enabled" : L"Disabled";		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).dwarfPlanetChance);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).avgEccentricity);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).SDEccentricity);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).avgInclination);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).SDInclination);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).avgObliquity);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).SDObliquity);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).starClassO);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).starClassB);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).starClassA);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).starClassF);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).starClassG);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).starClassK);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).starClassM);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).starClassWD);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).starClassQ);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).starClassX);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).life_OrganicChance);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).life_ExoticChance);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).life_MulticellChance);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).forceLife);
+			LoadVariableFromFile(Buffer, parse, preset.at(i).dwarfPlanetChance);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).avgEccentricity);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).SDEccentricity);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).avgInclination);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).SDInclination);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).avgObliquity);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).SDObliquity);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).starClassO);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).starClassB);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).starClassA);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).starClassF);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).starClassG);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).starClassK);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).starClassM);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).starClassWD);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).starClassQ);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).starClassX);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).life_OrganicChance);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).life_ExoticChance);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).life_MulticellChance);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).forceLife);
 			preset.at(i).forceLifeState = (preset.at(i).forceLife == true) ? L"Enabled" : L"Disabled";		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).traditionalLife);
+			LoadVariableFromFile(Buffer, parse, preset.at(i).traditionalLife);
 			preset.at(i).traditonalLifeState = (preset.at(i).traditionalLife == true) ? L"Enabled" : L"Disabled";		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).exotic_ShipChance);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).modelsFolder);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).shipsNeedLife);
+			LoadVariableFromFile(Buffer, parse, preset.at(i).exotic_ShipChance);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).modelsFolder);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).shipsNeedLife);
 			preset.at(i).shipsNeedLifeState = (preset.at(i).shipsNeedLife == true) ? L"Enabled" : L"Disabled";		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).exotic_OrbitChance);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).exotic_AxialTiltChance);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).exotic_DebrisRingChance);		
-			LoadVariableFromEntry(Buffer, parse, preset.at(i).exotic_CompanionOrbitChance);
+			LoadVariableFromFile(Buffer, parse, preset.at(i).exotic_OrbitChance);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).exotic_AxialTiltChance);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).exotic_DebrisRingChance);		
+			LoadVariableFromFile(Buffer, parse, preset.at(i).exotic_CompanionOrbitChance);
 
 			wchar_t holder = Buffer[parse];
 			preset.at(i).debug = _wtoi(&holder);
@@ -541,99 +541,99 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 			Buffer[bytesread] = '\0';
 
 			int parse = 0;
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).name);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useSimpleGenerator);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).PrefixList);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).SuffixList);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).name);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useSimpleGenerator);
+			LoadListFromFile(Buffer, parse, npreset.at(i).PrefixList);
+			LoadListFromFile(Buffer, parse, npreset.at(i).SuffixList);
 
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useStarPreMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probStarPreMod);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).StarPreMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useStarPostMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probStarPostMod);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).StarPostMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useStarNumberMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probStarNumberMod);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useStarPreMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probStarPreMod);
+			LoadListFromFile(Buffer, parse, npreset.at(i).StarPreMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useStarPostMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probStarPostMod);
+			LoadListFromFile(Buffer, parse, npreset.at(i).StarPostMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useStarNumberMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probStarNumberMod);
 
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).usePlanetPreMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probPlanetPreMod);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).PlanetPreMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).usePlanetPostMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probPlanetPostMod);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).PlanetPostMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).usePlanetNumberMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probPlanetNumberMod);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).usePlanetPreMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probPlanetPreMod);
+			LoadListFromFile(Buffer, parse, npreset.at(i).PlanetPreMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).usePlanetPostMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probPlanetPostMod);
+			LoadListFromFile(Buffer, parse, npreset.at(i).PlanetPostMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).usePlanetNumberMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probPlanetNumberMod);
 
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).nameTerraMoons);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).nameGasMoons);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useMoonPreMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probMoonPreMod);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).MoonPreMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useMoonPostMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probMoonPostMod);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).MoonPostMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useMoonNumberMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probMoonNumberMod);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).nameTerraMoons);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).nameGasMoons);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useMoonPreMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probMoonPreMod);
+			LoadListFromFile(Buffer, parse, npreset.at(i).MoonPreMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useMoonPostMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probMoonPostMod);
+			LoadListFromFile(Buffer, parse, npreset.at(i).MoonPostMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useMoonNumberMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probMoonNumberMod);
 
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).nameTerraDwarfMoons);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).nameGasDwarfMoons);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useDwarfMoonPreMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probDwarfMoonPreMod);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).DwarfMoonPreMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useDwarfMoonPostMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probDwarfMoonPostMod);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).DwarfMoonPostMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useDwarfMoonNumberMods);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probDwarfMoonNumberMod);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).nameTerraDwarfMoons);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).nameGasDwarfMoons);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useDwarfMoonPreMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probDwarfMoonPreMod);
+			LoadListFromFile(Buffer, parse, npreset.at(i).DwarfMoonPreMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useDwarfMoonPostMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probDwarfMoonPostMod);
+			LoadListFromFile(Buffer, parse, npreset.at(i).DwarfMoonPostMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useDwarfMoonNumberMods);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probDwarfMoonNumberMod);
 
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useShipPreMods_All);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probShipPreMod_All);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).ShipPreMods_All);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useShipPostMods_All);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probShipPostMod_All);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).ShipPostMods_All);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useShipPreMods_All);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probShipPreMod_All);
+			LoadListFromFile(Buffer, parse, npreset.at(i).ShipPreMods_All);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useShipPostMods_All);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probShipPostMod_All);
+			LoadListFromFile(Buffer, parse, npreset.at(i).ShipPostMods_All);
 
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useShipPreMods_Colony);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probShipPreMod_Colony);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).ShipPreMods_Colony);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useShipPostMods_Colony);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probShipPostMod_Colony);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).ShipPostMods_Colony);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useShipNumberMods_Colony);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probShipNumberMod_Colony);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useShipPreMods_Colony);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probShipPreMod_Colony);
+			LoadListFromFile(Buffer, parse, npreset.at(i).ShipPreMods_Colony);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useShipPostMods_Colony);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probShipPostMod_Colony);
+			LoadListFromFile(Buffer, parse, npreset.at(i).ShipPostMods_Colony);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useShipNumberMods_Colony);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probShipNumberMod_Colony);
 
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useShipPreMods_Instrument);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probShipPreMod_Instrument);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).ShipPreMods_Instrument);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useShipPostMods_Instrument);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probShipPostMod_Instrument);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).ShipPostMods_Instrument);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useShipNumberMods_Instrument);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probShipNumberMod_Instrument);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useShipPreMods_Instrument);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probShipPreMod_Instrument);
+			LoadListFromFile(Buffer, parse, npreset.at(i).ShipPreMods_Instrument);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useShipPostMods_Instrument);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probShipPostMod_Instrument);
+			LoadListFromFile(Buffer, parse, npreset.at(i).ShipPostMods_Instrument);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useShipNumberMods_Instrument);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probShipNumberMod_Instrument);
 
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useShipPreMods_Satellite);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probShipPreMod_Satellite);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).ShipPreMods_Satellite);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useShipPostMods_Satellite);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probShipPostMod_Satellite);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).ShipPostMods_Satellite);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useShipNumberMods_Satellite);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probShipNumberMod_Satellite);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useShipPreMods_Satellite);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probShipPreMod_Satellite);
+			LoadListFromFile(Buffer, parse, npreset.at(i).ShipPreMods_Satellite);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useShipPostMods_Satellite);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probShipPostMod_Satellite);
+			LoadListFromFile(Buffer, parse, npreset.at(i).ShipPostMods_Satellite);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useShipNumberMods_Satellite);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probShipNumberMod_Satellite);
 
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useShipPreMods_Station);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probShipPreMod_Station);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).ShipPreMods_Station);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useShipPostMods_Station);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probShipPostMod_Station);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).ShipPostMods_Station);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).useShipNumberMods_Station);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).probShipNumberMod_Station);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useShipPreMods_Station);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probShipPreMod_Station);
+			LoadListFromFile(Buffer, parse, npreset.at(i).ShipPreMods_Station);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useShipPostMods_Station);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probShipPostMod_Station);
+			LoadListFromFile(Buffer, parse, npreset.at(i).ShipPostMods_Station);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).useShipNumberMods_Station);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).probShipNumberMod_Station);
 
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).order);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).wordVarience);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).min_length);
-			LoadVariableFromEntry(Buffer, parse, npreset.at(i).max_length);
-			LoadListFromEntry(Buffer, parse, npreset.at(i).Markov_RawDataset);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).order);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).wordVarience);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).min_length);
+			LoadVariableFromFile(Buffer, parse, npreset.at(i).max_length);
+			LoadListFromFile(Buffer, parse, npreset.at(i).Markov_RawDataset);
 
 			SendMessage(CONFIG.namePresetDropDown.HANDLE, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)npreset.at(i).name);
 			CloseHandle(presetFile);
@@ -1984,32 +1984,32 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 	{
 		char genChar[26];
 
-	//	SetIntToWindow(CONFIG..HANDLE, P.);
-		//SetDoubleToWindow(CONFIG..HANDLE, P.);
+	//	SetVariableToWindow(CONFIG..HANDLE, P.);
+		//SetVariableToWindow(CONFIG..HANDLE, P.);
 
 		SetWindowTextW(CONFIG.starOutputFolderH.HANDLE, P.starOutputFolder);
 		SetWindowTextW(CONFIG.planetOutputFolderH.HANDLE, P.planetOutputFolder);
-		SetIntToWindow(CONFIG.seedH.HANDLE, P.seed);
-		SetIntToWindow(CONFIG.numberOfRunsH.HANDLE, P.numberOfRuns);
+		SetVariableToWindow(CONFIG.seedH.HANDLE, P.seed);
+		SetVariableToWindow(CONFIG.numberOfRunsH.HANDLE, P.numberOfRuns);
 		CheckDlgButton(hWnd, CB_DEBUG, P.debug);
 		SetWindowTextW(CONFIG.debugH.HANDLE, P.debugState);
 
 		CheckDlgButton(hWnd, CB_SMARTPLACEMENT, P.smartPlacement);
 		SetWindowTextW(CONFIG.smartPlacementH.HANDLE, P.smartPlacementState);
-		SetIntToWindow(CONFIG.minPlanetNumberH.HANDLE, P.minPlanetNumber);
+		SetVariableToWindow(CONFIG.minPlanetNumberH.HANDLE, P.minPlanetNumber);
 
-		SetDoubleToWindow(CONFIG.minDistanceH.HANDLE, P.minDistance);
-		SetDoubleToWindow(CONFIG.maxDistanceH.HANDLE, P.maxDistance);
-		SetDoubleToWindow(CONFIG.planetSpacingH.HANDLE, P.planetSpacing);
+		SetVariableToWindow(CONFIG.minDistanceH.HANDLE, P.minDistance);
+		SetVariableToWindow(CONFIG.maxDistanceH.HANDLE, P.maxDistance);
+		SetVariableToWindow(CONFIG.planetSpacingH.HANDLE, P.planetSpacing);
 		CheckDlgButton(hWnd, CB_GENERATEDWARFPLANET, P.generateDwarfPlanets);
 		SetWindowTextW(CONFIG.generateDwarfPlanetsH.HANDLE, P.generateDwarfPlanetsState);
-		SetIntToWindow(CONFIG.dwarfPlanetChanceH.HANDLE, P.dwarfPlanetChance);
-		SetDoubleToWindow(CONFIG.avgEccentricityH.HANDLE, P.avgEccentricity);
-		SetDoubleToWindow(CONFIG.SDEccentricityH.HANDLE, P.SDEccentricity);
-		SetDoubleToWindow(CONFIG.avgInclinationH.HANDLE, P.avgInclination);
-		SetDoubleToWindow(CONFIG.SDInclinationH.HANDLE, P.SDInclination);
-		SetDoubleToWindow(CONFIG.avgObliquityH.HANDLE, P.avgObliquity);
-		SetDoubleToWindow(CONFIG.SDObliquityH.HANDLE, P.SDObliquity);
+		SetVariableToWindow(CONFIG.dwarfPlanetChanceH.HANDLE, P.dwarfPlanetChance);
+		SetVariableToWindow(CONFIG.avgEccentricityH.HANDLE, P.avgEccentricity);
+		SetVariableToWindow(CONFIG.SDEccentricityH.HANDLE, P.SDEccentricity);
+		SetVariableToWindow(CONFIG.avgInclinationH.HANDLE, P.avgInclination);
+		SetVariableToWindow(CONFIG.SDInclinationH.HANDLE, P.SDInclination);
+		SetVariableToWindow(CONFIG.avgObliquityH.HANDLE, P.avgObliquity);
+		SetVariableToWindow(CONFIG.SDObliquityH.HANDLE, P.SDObliquity);
 		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_OCLASS, P.starClassO);
 		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_BCLASS, P.starClassB);
 		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_ACLASS, P.starClassA);
@@ -2021,23 +2021,23 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_QCLASS, P.starClassQ);
 		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_XCLASS, P.starClassX);
 
-		SetIntToWindow(CONFIG.life_OrganicChanceH.HANDLE, P.life_OrganicChance);
-		SetIntToWindow(CONFIG.life_ExoticChanceH.HANDLE, P.life_ExoticChance);
-		SetIntToWindow(CONFIG.life_MulticellChanceH.HANDLE, P.life_MulticellChance);
+		SetVariableToWindow(CONFIG.life_OrganicChanceH.HANDLE, P.life_OrganicChance);
+		SetVariableToWindow(CONFIG.life_ExoticChanceH.HANDLE, P.life_ExoticChance);
+		SetVariableToWindow(CONFIG.life_MulticellChanceH.HANDLE, P.life_MulticellChance);
 		CheckDlgButton(hWnd, CB_FORCELIFE, P.forceLife);
 		SetWindowTextW(CONFIG.forceLifeH.HANDLE, P.forceLifeState);
 		CheckDlgButton(hWnd, CB_TRADITIONALLIFE, P.traditionalLife);
 		SetWindowTextW(CONFIG.traditionalLifeH.HANDLE, P.traditonalLifeState);
 
-		SetIntToWindow(CONFIG.exotic_ShipChanceH.HANDLE, P.exotic_ShipChance);
+		SetVariableToWindow(CONFIG.exotic_ShipChanceH.HANDLE, P.exotic_ShipChance);
 		SetWindowTextW(CONFIG.modelsFolderH.HANDLE, P.modelsFolder);
 		CheckDlgButton(hWnd, CB_SHIPSNEEDLIFE, P.shipsNeedLife);
 		SetWindowTextW(CONFIG.shipsNeedLifeH.HANDLE, P.shipsNeedLifeState);
 
-		SetIntToWindow(CONFIG.exotic_OrbitChanceH.HANDLE, P.exotic_OrbitChance);
-		SetIntToWindow(CONFIG.exotic_AxialTiltChanceH.HANDLE, P.exotic_AxialTiltChance);
-		SetIntToWindow(CONFIG.exotic_DebrisRingChanceH.HANDLE, P.exotic_DebrisRingChance);
-		SetIntToWindow(CONFIG.exotic_CompanionOrbitChanceH.HANDLE, P.exotic_CompanionOrbitChance);
+		SetVariableToWindow(CONFIG.exotic_OrbitChanceH.HANDLE, P.exotic_OrbitChance);
+		SetVariableToWindow(CONFIG.exotic_AxialTiltChanceH.HANDLE, P.exotic_AxialTiltChance);
+		SetVariableToWindow(CONFIG.exotic_DebrisRingChanceH.HANDLE, P.exotic_DebrisRingChance);
+		SetVariableToWindow(CONFIG.exotic_CompanionOrbitChanceH.HANDLE, P.exotic_CompanionOrbitChance);
 	}
 	void UpdateNamePreset(NamePreset P, HWND hWnd)
 	{
@@ -2046,92 +2046,92 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 		SetWindowTextW(NV.SuffixListH, P.SuffixList);
 
 		CheckDlgButton(NV.GROUP_STAR, NVCB_STARPREMOD, P.useStarPreMods);
-		SetIntToWindow(NV.probStarPreModH, P.probStarPreMod);
+		SetVariableToWindow(NV.probStarPreModH, P.probStarPreMod);
 		SetWindowTextW(NV.starPreModList, P.StarPreMods);
 		CheckDlgButton(NV.GROUP_STAR, NVCB_STARPOSTMOD, P.useStarPostMods);
-		SetIntToWindow(NV.probStarPostModH, P.probStarPostMod);
+		SetVariableToWindow(NV.probStarPostModH, P.probStarPostMod);
 		SetWindowTextW(NV.starPostModList, P.StarPostMods);
 		CheckDlgButton(NV.GROUP_STAR, NVCB_STARNUMBERMOD, P.useStarNumberMods);
-		SetIntToWindow(NV.probStarNumberModH, P.probStarNumberMod);
+		SetVariableToWindow(NV.probStarNumberModH, P.probStarNumberMod);
 
 		CheckDlgButton(NV.GROUP_PLANET, NVCB_PLANETPREMOD, P.usePlanetPreMods);
-		SetIntToWindow(NV.probPlanetPreModH, P.probPlanetPreMod);
+		SetVariableToWindow(NV.probPlanetPreModH, P.probPlanetPreMod);
 		SetWindowTextW(NV.planetPreModList, P.PlanetPreMods);
 		CheckDlgButton(NV.GROUP_PLANET, NVCB_PLANETPOSTMOD, P.usePlanetPostMods);
-		SetIntToWindow(NV.probPlanetPostModH, P.probPlanetPostMod);
+		SetVariableToWindow(NV.probPlanetPostModH, P.probPlanetPostMod);
 		SetWindowTextW(NV.planetPostModList, P.PlanetPostMods);
 		CheckDlgButton(NV.GROUP_PLANET, NVCB_PLANETNUMBERMOD, P.usePlanetNumberMods);
-		SetIntToWindow(NV.probPlanetNumberModH, P.probPlanetNumberMod);
+		SetVariableToWindow(NV.probPlanetNumberModH, P.probPlanetNumberMod);
 
 		CheckDlgButton(NV.GROUP_MOON, NVCB_NAMETERRAMOONS, P.nameTerraMoons);
 		CheckDlgButton(NV.GROUP_MOON, NVCB_NAMEGASMOONS, P.nameGasMoons);
 		CheckDlgButton(NV.GROUP_MOON, NVCB_MOONPREMOD, P.useMoonPreMods);
-		SetIntToWindow(NV.probMoonPreModH, P.probMoonPreMod);
+		SetVariableToWindow(NV.probMoonPreModH, P.probMoonPreMod);
 		SetWindowTextW(NV.moonPreModList, P.MoonPreMods);
 		CheckDlgButton(NV.GROUP_MOON, NVCB_MOONPOSTMOD, P.useMoonPostMods);
-		SetIntToWindow(NV.probMoonPostModH, P.probMoonPostMod);
+		SetVariableToWindow(NV.probMoonPostModH, P.probMoonPostMod);
 		SetWindowTextW(NV.moonPostModList, P.MoonPostMods);
 		CheckDlgButton(NV.GROUP_MOON, NVCB_MOONNUMBERMOD, P.useMoonNumberMods);
-		SetIntToWindow(NV.probMoonNumberModH, P.probMoonNumberMod);
+		SetVariableToWindow(NV.probMoonNumberModH, P.probMoonNumberMod);
 
 		CheckDlgButton(NV.GROUP_DWARFMOON, NVCB_NAMETERRADWARFMOONS, P.nameTerraDwarfMoons);
 		CheckDlgButton(NV.GROUP_DWARFMOON, NVCB_NAMEGASDWARFMOONS, P.nameGasDwarfMoons);
 		CheckDlgButton(NV.GROUP_DWARFMOON, NVCB_DWARFMOONPREMOD, P.useDwarfMoonPreMods);
-		SetIntToWindow(NV.probDwarfMoonPreModH, P.probDwarfMoonPreMod);
+		SetVariableToWindow(NV.probDwarfMoonPreModH, P.probDwarfMoonPreMod);
 		SetWindowTextW(NV.dwarfMoonPreModList, P.DwarfMoonPreMods);
 		CheckDlgButton(NV.GROUP_DWARFMOON, NVCB_DWARFMOONPOSTMOD, P.useDwarfMoonPostMods);
-		SetIntToWindow(NV.probDwarfMoonPostModH, P.probDwarfMoonPostMod);
+		SetVariableToWindow(NV.probDwarfMoonPostModH, P.probDwarfMoonPostMod);
 		SetWindowTextW(NV.dwarfMoonPostModList, P.DwarfMoonPostMods);
 		CheckDlgButton(NV.GROUP_DWARFMOON, NVCB_DWARFMOONNUMBERMOD, P.useDwarfMoonNumberMods);
-		SetIntToWindow(NV.probDwarfMoonNumberModH, P.probDwarfMoonNumberMod);
+		SetVariableToWindow(NV.probDwarfMoonNumberModH, P.probDwarfMoonNumberMod);
 
 		CheckDlgButton(NV.GROUP_ALL_SHIP, NVCB_SHIPALLPREMOD, P.useShipPreMods_All);
-		SetIntToWindow(NV.probShipPreMod_AllH, P.probShipPreMod_All);
+		SetVariableToWindow(NV.probShipPreMod_AllH, P.probShipPreMod_All);
 		SetWindowTextW(NV.shipPreModList_All, P.ShipPreMods_All);
 		CheckDlgButton(NV.GROUP_ALL_SHIP, NVCB_SHIPALLPOSTMOD, P.useShipPostMods_All);
-		SetIntToWindow(NV.probShipPostMod_AllH, P.probShipPostMod_All);
+		SetVariableToWindow(NV.probShipPostMod_AllH, P.probShipPostMod_All);
 		SetWindowTextW(NV.shipPostModList_All, P.ShipPostMods_All);
 
 		CheckDlgButton(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYPREMOD, P.useShipPreMods_Colony);
-		SetIntToWindow(NV.probShipPreMod_ColonyH, P.probShipPreMod_Colony);
+		SetVariableToWindow(NV.probShipPreMod_ColonyH, P.probShipPreMod_Colony);
 		SetWindowTextW(NV.shipPreModList_Colony, P.ShipPreMods_Colony);
 		CheckDlgButton(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYPOSTMOD, P.useShipPostMods_Colony);
-		SetIntToWindow(NV.probShipPostMod_ColonyH, P.probShipPostMod_Colony);
+		SetVariableToWindow(NV.probShipPostMod_ColonyH, P.probShipPostMod_Colony);
 		SetWindowTextW(NV.shipPostModList_Colony, P.ShipPostMods_Colony);
 		CheckDlgButton(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYNUMBERMOD, P.useShipNumberMods_Colony);
-		SetIntToWindow(NV.probShipNumberMod_ColonyH, P.probShipNumberMod_Colony);
+		SetVariableToWindow(NV.probShipNumberMod_ColonyH, P.probShipNumberMod_Colony);
 
 		CheckDlgButton(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTPREMOD, P.useShipPreMods_Instrument);
-		SetIntToWindow(NV.probShipPreMod_InstrumentH, P.probShipPreMod_Instrument);
+		SetVariableToWindow(NV.probShipPreMod_InstrumentH, P.probShipPreMod_Instrument);
 		SetWindowTextW(NV.shipPreModList_Instrument, P.ShipPreMods_Instrument);
 		CheckDlgButton(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTPOSTMOD, P.useShipPostMods_Instrument);
-		SetIntToWindow(NV.probShipPostMod_InstrumentH, P.probShipPostMod_Instrument);
+		SetVariableToWindow(NV.probShipPostMod_InstrumentH, P.probShipPostMod_Instrument);
 		SetWindowTextW(NV.shipPostModList_Instrument, P.ShipPostMods_Instrument);
 		CheckDlgButton(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTNUMBERMOD, P.useShipNumberMods_Instrument);
-		SetIntToWindow(NV.probShipNumberMod_InstrumentH, P.probShipNumberMod_Instrument);
+		SetVariableToWindow(NV.probShipNumberMod_InstrumentH, P.probShipNumberMod_Instrument);
 
 		CheckDlgButton(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITEPREMOD, P.useShipPreMods_Satellite);
-		SetIntToWindow(NV.probShipPreMod_SatelliteH, P.probShipPreMod_Satellite);
+		SetVariableToWindow(NV.probShipPreMod_SatelliteH, P.probShipPreMod_Satellite);
 		SetWindowTextW(NV.shipPreModList_Satellite, P.ShipPreMods_Satellite);
 		CheckDlgButton(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITEPOSTMOD, P.useShipPostMods_Satellite);
-		SetIntToWindow(NV.probShipPostMod_SatelliteH, P.probShipPostMod_Satellite);
+		SetVariableToWindow(NV.probShipPostMod_SatelliteH, P.probShipPostMod_Satellite);
 		SetWindowTextW(NV.shipPostModList_Satellite, P.ShipPostMods_Satellite);
 		CheckDlgButton(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITENUMBERMOD, P.useShipNumberMods_Satellite);
-		SetIntToWindow(NV.probShipNumberMod_SatelliteH, P.probShipNumberMod_Satellite);
+		SetVariableToWindow(NV.probShipNumberMod_SatelliteH, P.probShipNumberMod_Satellite);
 
 		CheckDlgButton(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONPREMOD, P.useShipPreMods_Station);
-		SetIntToWindow(NV.probShipPreMod_StationH, P.probShipPreMod_Station);
+		SetVariableToWindow(NV.probShipPreMod_StationH, P.probShipPreMod_Station);
 		SetWindowTextW(NV.shipPreModList_Station, P.ShipPreMods_Station);
 		CheckDlgButton(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONPOSTMOD, P.useShipPostMods_Station);
-		SetIntToWindow(NV.probShipPostMod_StationH, P.probShipPostMod_Station);
+		SetVariableToWindow(NV.probShipPostMod_StationH, P.probShipPostMod_Station);
 		SetWindowTextW(NV.shipPostModList_Station, P.ShipPostMods_Station);
 		CheckDlgButton(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONNUMBERMOD, P.useShipNumberMods_Station);
-		SetIntToWindow(NV.probShipNumberMod_StationH, P.probShipNumberMod_Station);
+		SetVariableToWindow(NV.probShipNumberMod_StationH, P.probShipNumberMod_Station);
 
-		SetIntToWindow(NV.orderH, P.order);
-		SetIntToWindow(NV.wordVarienceH, P.wordVarience);
-		SetIntToWindow(NV.min_lengthH, P.min_length);
-		SetIntToWindow(NV.max_lengthH, P.max_length);
+		SetVariableToWindow(NV.orderH, P.order);
+		SetVariableToWindow(NV.wordVarienceH, P.wordVarience);
+		SetVariableToWindow(NV.min_lengthH, P.min_length);
+		SetVariableToWindow(NV.max_lengthH, P.max_length);
 		SetWindowTextW(NV.Markov_RawDatasetH, P.Markov_RawDataset);
 
 		CreateNameVectors(hWnd);
@@ -2864,49 +2864,24 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 		wchar_t genvar[WSIZE];
 		int i = 0;
 
-		GetWindowTextW(CONFIG.starOutputFolderH.HANDLE, genvar, WSIZE);
-		while (genvar[i] != '\0')
-		{
-			CONFIG.starOutputFolder[i] = genvar[i];
-			i++;
-		}
-		i = 0;
-		GetWindowTextW(CONFIG.planetOutputFolderH.HANDLE, genvar, WSIZE);
-		while (genvar[i] != '\0')
-		{
-			CONFIG.planetOutputFolder[i] = genvar[i];
-			i++;
-		}
-		i = 0;
-		GetWindowTextW(CONFIG.seedH.HANDLE, genvar, 20);
-		CONFIG.seed = _wtoi(genvar);
-		GetWindowTextW(CONFIG.numberOfRunsH.HANDLE, genvar, 20);
-		CONFIG.numberOfRuns = _wtoi(genvar);
+		GetVariableFromWindow(CONFIG.starOutputFolderH.HANDLE, CONFIG.starOutputFolder);
+		GetVariableFromWindow(CONFIG.planetOutputFolderH.HANDLE, CONFIG.planetOutputFolder);
+		GetVariableFromWindow(CONFIG.seedH.HANDLE, CONFIG.seed);
+		GetVariableFromWindow(CONFIG.numberOfRunsH.HANDLE, CONFIG.numberOfRuns);
 		CONFIG.smartPlacement = (IsDlgButtonChecked(hWnd, CB_SMARTPLACEMENT) == BST_CHECKED) ? true : false;
 
-		GetWindowTextW(CONFIG.minPlanetNumberH.HANDLE, genvar, 20);
-		CONFIG.minPlanetNumber = _wtoi(genvar);
-		GetWindowTextW(CONFIG.minDistanceH.HANDLE, genvar, 20);
-		CONFIG.minDistance = _wtof(genvar);
-		GetWindowTextW(CONFIG.maxDistanceH.HANDLE, genvar, 20);
-		CONFIG.maxDistance = _wtof(genvar);
-		GetWindowTextW(CONFIG.planetSpacingH.HANDLE, genvar, 20);
-		CONFIG.planetSpacing = _wtof(genvar);
+		GetVariableFromWindow(CONFIG.minPlanetNumberH.HANDLE, CONFIG.minPlanetNumber);
+		GetVariableFromWindow(CONFIG.minDistanceH.HANDLE, CONFIG.minDistance);
+		GetVariableFromWindow(CONFIG.maxDistanceH.HANDLE, CONFIG.maxDistance);
+		GetVariableFromWindow(CONFIG.planetSpacingH.HANDLE, CONFIG.planetSpacing);
 		CONFIG.generateDwarfPlanets = (IsDlgButtonChecked(hWnd, CB_GENERATEDWARFPLANET) == BST_CHECKED) ? true : false;
-		GetWindowTextW(CONFIG.dwarfPlanetChanceH.HANDLE, genvar, 20);
-		CONFIG.dwarfPlanetChance = _wtoi(genvar);
-		GetWindowTextW(CONFIG.avgEccentricityH.HANDLE, genvar, 20);
-		CONFIG.avgEccentricity = _wtof(genvar);
-		GetWindowTextW(CONFIG.SDEccentricityH.HANDLE, genvar, 20);
-		CONFIG.SDEccentricity = _wtof(genvar);
-		GetWindowTextW(CONFIG.avgInclinationH.HANDLE, genvar, 20);
-		CONFIG.avgInclination = _wtof(genvar);
-		GetWindowTextW(CONFIG.SDInclinationH.HANDLE, genvar, 20);
-		CONFIG.SDInclination = _wtof(genvar);
-		GetWindowTextW(CONFIG.avgObliquityH.HANDLE, genvar, 20);
-		CONFIG.avgObliquity = _wtof(genvar);
-		GetWindowTextW(CONFIG.SDObliquityH.HANDLE, genvar, 20);
-		CONFIG.SDObliquity = _wtof(genvar);
+		GetVariableFromWindow(CONFIG.dwarfPlanetChanceH.HANDLE, CONFIG.dwarfPlanetChance);
+		GetVariableFromWindow(CONFIG.avgEccentricityH.HANDLE, CONFIG.avgEccentricity);
+		GetVariableFromWindow(CONFIG.SDEccentricityH.HANDLE, CONFIG.SDEccentricity);
+		GetVariableFromWindow(CONFIG.avgInclinationH.HANDLE, CONFIG.avgInclination);
+		GetVariableFromWindow(CONFIG.SDInclinationH.HANDLE, CONFIG.SDInclination);
+		GetVariableFromWindow(CONFIG.avgObliquityH.HANDLE, CONFIG.avgObliquity);
+		GetVariableFromWindow(CONFIG.SDObliquityH.HANDLE, CONFIG.SDObliquity);
 
 		CONFIG.starClassO = (IsDlgButtonChecked(CONFIG.starClassOH.EXTRA, CB_OCLASS) == BST_CHECKED) ? true : false;
 		CONFIG.starClassB = (IsDlgButtonChecked(CONFIG.starClassOH.EXTRA, CB_BCLASS) == BST_CHECKED) ? true : false;
@@ -2939,34 +2914,20 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 		if (CONFIG.starClassX)
 			CONFIG.classList.push_back(L"X");
 
-		GetWindowTextW(CONFIG.life_OrganicChanceH.HANDLE, genvar, 20);
-		CONFIG.life_OrganicChance = _wtoi(genvar);
-		GetWindowTextW(CONFIG.life_ExoticChanceH.HANDLE, genvar, 20);
-		CONFIG.life_ExoticChance = _wtoi(genvar);
-		GetWindowTextW(CONFIG.life_MulticellChanceH.HANDLE, genvar, 20);
-		CONFIG.life_MulticellChance = _wtoi(genvar);
+		GetVariableFromWindow(CONFIG.life_OrganicChanceH.HANDLE, CONFIG.life_OrganicChance);
+		GetVariableFromWindow(CONFIG.life_ExoticChanceH.HANDLE, CONFIG.life_ExoticChance);
+		GetVariableFromWindow(CONFIG.life_MulticellChanceH.HANDLE, CONFIG.life_MulticellChance);
 		CONFIG.forceLife = (IsDlgButtonChecked(hWnd, CB_FORCELIFE) == BST_CHECKED) ? true : false;
 		CONFIG.traditionalLife = (IsDlgButtonChecked(hWnd, CB_TRADITIONALLIFE) == BST_CHECKED) ? true : false;
 
-		GetWindowTextW(CONFIG.exotic_ShipChanceH.HANDLE, genvar, 20);
-		CONFIG.exotic_ShipChance = _wtoi(genvar);
-		GetWindowTextW(CONFIG.modelsFolderH.HANDLE, genvar, WSIZE);
-		while (genvar[i] != '\0')
-		{
-			CONFIG.modelsFolder[i] = genvar[i];
-			i++;
-		}
-		i = 0;
+		GetVariableFromWindow(CONFIG.exotic_ShipChanceH.HANDLE, CONFIG.exotic_ShipChance);
+		GetVariableFromWindow(CONFIG.modelsFolderH.HANDLE, CONFIG.modelsFolder);
 		CONFIG.shipsNeedLife = (IsDlgButtonChecked(hWnd, CB_SHIPSNEEDLIFE) == BST_CHECKED) ? true : false;
 
-		GetWindowTextW(CONFIG.exotic_OrbitChanceH.HANDLE, genvar, 20);
-		CONFIG.exotic_OrbitChance = _wtoi(genvar);
-		GetWindowTextW(CONFIG.exotic_AxialTiltChanceH.HANDLE, genvar, 20);
-		CONFIG.exotic_AxialTiltChance = _wtoi(genvar);
-		GetWindowTextW(CONFIG.exotic_DebrisRingChanceH.HANDLE, genvar, 20);
-		CONFIG.exotic_DebrisRingChance = _wtoi(genvar);
-		GetWindowTextW(CONFIG.exotic_CompanionOrbitChanceH.HANDLE, genvar, 20);
-		CONFIG.exotic_CompanionOrbitChance = _wtoi(genvar);
+		GetVariableFromWindow(CONFIG.exotic_OrbitChanceH.HANDLE, CONFIG.exotic_OrbitChance);
+		GetVariableFromWindow(CONFIG.exotic_AxialTiltChanceH.HANDLE, CONFIG.exotic_AxialTiltChance);
+		GetVariableFromWindow(CONFIG.exotic_DebrisRingChanceH.HANDLE, CONFIG.exotic_DebrisRingChance);
+		GetVariableFromWindow(CONFIG.exotic_CompanionOrbitChanceH.HANDLE, CONFIG.exotic_CompanionOrbitChance);
 	}
 	void CreateNameVectors(HWND hWnd)
 	{
@@ -2998,101 +2959,100 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 			}
 		}
 
-
 		NV.useSimpleGenerator = (IsDlgButtonChecked(NV.GROUP_SIMPLE, NVCB_SIMPLEGENERATOR) == BST_CHECKED) ? true : false;
 		FillModList(NV.PrefixListH, NV.PrefixList);
 		FillModList(NV.SuffixListH, NV.SuffixList);
 
 		NV.useStarPreMods = (IsDlgButtonChecked(NV.GROUP_STAR, NVCB_STARPREMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probStarPreModH, NV.probStarPreMod);
+		GetVariableFromWindow(NV.probStarPreModH, NV.probStarPreMod);
 		FillModList(NV.starPreModList, NV.StarPreMods);
 		NV.useStarPostMods = (IsDlgButtonChecked(NV.GROUP_STAR, NVCB_STARPOSTMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probStarPostModH, NV.probStarPostMod);
+		GetVariableFromWindow(NV.probStarPostModH, NV.probStarPostMod);
 		FillModList(NV.starPostModList, NV.StarPostMods);
 		NV.useStarNumberMods = (IsDlgButtonChecked(NV.GROUP_STAR, NVCB_STARNUMBERMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probStarNumberModH, NV.probStarNumberMod);
+		GetVariableFromWindow(NV.probStarNumberModH, NV.probStarNumberMod);
 
 		NV.usePlanetPreMods = (IsDlgButtonChecked(NV.GROUP_PLANET, NVCB_PLANETPREMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probPlanetPreModH, NV.probPlanetPreMod);
+		GetVariableFromWindow(NV.probPlanetPreModH, NV.probPlanetPreMod);
 		FillModList(NV.planetPreModList, NV.PlanetPreMods);
 		NV.usePlanetPostMods = (IsDlgButtonChecked(NV.GROUP_PLANET, NVCB_PLANETPOSTMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probPlanetPostModH, NV.probPlanetPostMod);
+		GetVariableFromWindow(NV.probPlanetPostModH, NV.probPlanetPostMod);
 		FillModList(NV.planetPostModList, NV.PlanetPostMods);
 		NV.usePlanetNumberMods = (IsDlgButtonChecked(NV.GROUP_PLANET, NVCB_PLANETNUMBERMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probPlanetNumberModH, NV.probPlanetNumberMod);
+		GetVariableFromWindow(NV.probPlanetNumberModH, NV.probPlanetNumberMod);
 
 		NV.nameTerraMoons = (IsDlgButtonChecked(NV.GROUP_MOON, NVCB_NAMETERRAMOONS) == BST_CHECKED) ? true : false;
 		NV.nameGasMoons = (IsDlgButtonChecked(NV.GROUP_MOON, NVCB_NAMEGASMOONS) == BST_CHECKED) ? true : false;
 		NV.useMoonPreMods = (IsDlgButtonChecked(NV.GROUP_MOON, NVCB_MOONPREMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probMoonPreModH, NV.probMoonPreMod);
+		GetVariableFromWindow(NV.probMoonPreModH, NV.probMoonPreMod);
 		FillModList(NV.moonPreModList, NV.MoonPreMods);
 		NV.useMoonPostMods = (IsDlgButtonChecked(NV.GROUP_MOON, NVCB_MOONPOSTMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probMoonPostModH, NV.probMoonPostMod);
+		GetVariableFromWindow(NV.probMoonPostModH, NV.probMoonPostMod);
 		FillModList(NV.moonPostModList, NV.MoonPostMods);
 		NV.useMoonNumberMods = (IsDlgButtonChecked(NV.GROUP_MOON, NVCB_MOONNUMBERMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probMoonNumberModH, NV.probMoonNumberMod);
+		GetVariableFromWindow(NV.probMoonNumberModH, NV.probMoonNumberMod);
 
 		NV.nameTerraDwarfMoons = (IsDlgButtonChecked(NV.GROUP_DWARFMOON, NVCB_NAMETERRADWARFMOONS) == BST_CHECKED) ? true : false;
 		NV.nameGasDwarfMoons = (IsDlgButtonChecked(NV.GROUP_DWARFMOON, NVCB_NAMEGASDWARFMOONS) == BST_CHECKED) ? true : false;
 		NV.useDwarfMoonPreMods = (IsDlgButtonChecked(NV.GROUP_DWARFMOON, NVCB_DWARFMOONPREMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probDwarfMoonPreModH, NV.probDwarfMoonPreMod);
+		GetVariableFromWindow(NV.probDwarfMoonPreModH, NV.probDwarfMoonPreMod);
 		FillModList(NV.dwarfMoonPreModList, NV.DwarfMoonPreMods);
 		NV.useDwarfMoonPostMods = (IsDlgButtonChecked(NV.GROUP_DWARFMOON, NVCB_DWARFMOONPOSTMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probDwarfMoonPostModH, NV.probDwarfMoonPostMod);
+		GetVariableFromWindow(NV.probDwarfMoonPostModH, NV.probDwarfMoonPostMod);
 		FillModList(NV.dwarfMoonPostModList, NV.DwarfMoonPostMods);
 		NV.useDwarfMoonNumberMods = (IsDlgButtonChecked(NV.GROUP_DWARFMOON, NVCB_DWARFMOONNUMBERMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probDwarfMoonNumberModH, NV.probDwarfMoonNumberMod);
+		GetVariableFromWindow(NV.probDwarfMoonNumberModH, NV.probDwarfMoonNumberMod);
 
 		NV.useShipPreMods_All = (IsDlgButtonChecked(NV.GROUP_ALL_SHIP, NVCB_SHIPALLPREMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probShipPreMod_AllH, NV.probShipPreMod_All);
+		GetVariableFromWindow(NV.probShipPreMod_AllH, NV.probShipPreMod_All);
 		FillModList(NV.shipPreModList_All, NV.ShipPreMods_All);
 		NV.useShipPostMods_All = (IsDlgButtonChecked(NV.GROUP_ALL_SHIP, NVCB_SHIPALLPOSTMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probShipPostMod_AllH, NV.probShipPostMod_All);
+		GetVariableFromWindow(NV.probShipPostMod_AllH, NV.probShipPostMod_All);
 		FillModList(NV.shipPostModList_All, NV.ShipPostMods_All);
 
 		NV.useShipPreMods_Colony = (IsDlgButtonChecked(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYPREMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probShipPreMod_ColonyH, NV.probShipPreMod_Colony);
+		GetVariableFromWindow(NV.probShipPreMod_ColonyH, NV.probShipPreMod_Colony);
 		FillModList(NV.shipPreModList_Colony, NV.ShipPreMods_Colony);
 		NV.useShipPostMods_Colony = (IsDlgButtonChecked(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYPOSTMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probShipPostMod_ColonyH, NV.probShipPostMod_Colony);
+		GetVariableFromWindow(NV.probShipPostMod_ColonyH, NV.probShipPostMod_Colony);
 		FillModList(NV.shipPostModList_Colony, NV.ShipPostMods_Colony);
 		NV.useShipNumberMods_Colony = (IsDlgButtonChecked(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYNUMBERMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probShipNumberMod_ColonyH, NV.probShipNumberMod_Colony);
+		GetVariableFromWindow(NV.probShipNumberMod_ColonyH, NV.probShipNumberMod_Colony);
 
 		NV.useShipPreMods_Instrument = (IsDlgButtonChecked(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTPREMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probShipPreMod_InstrumentH, NV.probShipPreMod_Instrument);
+		GetVariableFromWindow(NV.probShipPreMod_InstrumentH, NV.probShipPreMod_Instrument);
 		FillModList(NV.shipPreModList_Instrument, NV.ShipPreMods_Instrument);
 		NV.useShipPostMods_Instrument = (IsDlgButtonChecked(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTPOSTMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probShipPostMod_InstrumentH, NV.probShipPostMod_Instrument);
+		GetVariableFromWindow(NV.probShipPostMod_InstrumentH, NV.probShipPostMod_Instrument);
 		FillModList(NV.shipPostModList_Instrument, NV.ShipPostMods_Instrument);
 		NV.useShipNumberMods_Instrument = (IsDlgButtonChecked(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTNUMBERMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probShipNumberMod_InstrumentH, NV.probShipNumberMod_Instrument);
+		GetVariableFromWindow(NV.probShipNumberMod_InstrumentH, NV.probShipNumberMod_Instrument);
 
 		NV.useShipPreMods_Satellite = (IsDlgButtonChecked(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITEPREMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probShipPreMod_SatelliteH, NV.probShipPreMod_Satellite);
+		GetVariableFromWindow(NV.probShipPreMod_SatelliteH, NV.probShipPreMod_Satellite);
 		FillModList(NV.shipPreModList_Satellite, NV.ShipPreMods_Satellite);
 		NV.useShipPostMods_Satellite = (IsDlgButtonChecked(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITEPOSTMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probShipPostMod_SatelliteH, NV.probShipPostMod_Satellite);
+		GetVariableFromWindow(NV.probShipPostMod_SatelliteH, NV.probShipPostMod_Satellite);
 		FillModList(NV.shipPostModList_Satellite, NV.ShipPostMods_Satellite);
 		NV.useShipNumberMods_Satellite = (IsDlgButtonChecked(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITENUMBERMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probShipNumberMod_SatelliteH, NV.probShipNumberMod_Satellite);
+		GetVariableFromWindow(NV.probShipNumberMod_SatelliteH, NV.probShipNumberMod_Satellite);
 		
 		NV.useShipPreMods_Station = (IsDlgButtonChecked(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONPREMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probShipPreMod_StationH, NV.probShipPreMod_Station);
+		GetVariableFromWindow(NV.probShipPreMod_StationH, NV.probShipPreMod_Station);
 		FillModList(NV.shipPreModList_Station, NV.ShipPreMods_Station);
 		NV.useShipPostMods_Station = (IsDlgButtonChecked(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONPOSTMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probShipPostMod_StationH, NV.probShipPostMod_Station);
+		GetVariableFromWindow(NV.probShipPostMod_StationH, NV.probShipPostMod_Station);
 		FillModList(NV.shipPostModList_Station, NV.ShipPostMods_Station);
 		NV.useShipNumberMods_Station = (IsDlgButtonChecked(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONNUMBERMOD) == BST_CHECKED) ? true : false;
-		GetIntFromWindow(NV.probShipNumberMod_StationH, NV.probShipNumberMod_Station);
+		GetVariableFromWindow(NV.probShipNumberMod_StationH, NV.probShipNumberMod_Station);
 
 		//if (NV.useSimpleGenerator == true)
 		//	return;
 
-		GetIntFromWindow(NV.orderH, NV.order);
-		GetIntFromWindow(NV.wordVarienceH, NV.wordVarience);
-		GetIntFromWindow(NV.min_lengthH, NV.min_length);
-		GetIntFromWindow(NV.max_lengthH, NV.max_length);
+		GetVariableFromWindow(NV.orderH, NV.order);
+		GetVariableFromWindow(NV.wordVarienceH, NV.wordVarience);
+		GetVariableFromWindow(NV.min_lengthH, NV.min_length);
+		GetVariableFromWindow(NV.max_lengthH, NV.max_length);
 		FillDataset(NV.Markov_RawDatasetH, NV.Markov_RawDataset, NV.usedNames);
 
 		// Creates lists of all n combinations of letters in the data set
