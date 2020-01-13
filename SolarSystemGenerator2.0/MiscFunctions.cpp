@@ -9,6 +9,95 @@ static std::string wstr_to_str(std::wstring wstr)
 	return str;
 }
 
+
+
+
+static void FindNextEntry(char* Buffer, int& parse)
+{
+	wchar_t holder;
+	do
+	{
+		holder = Buffer[parse];
+		parse++;
+	} while (holder != '=');
+}
+static void LoadVariableFromEntry(char* Buffer, int& parse, bool& store)
+{
+	FindNextEntry(Buffer, parse);
+	wchar_t holder = Buffer[parse];
+	store = _wtoi(&holder);
+	parse++;
+}
+static void LoadVariableFromEntry(char* Buffer, int& parse, wchar_t* store)
+{
+	FindNextEntry(Buffer, parse);
+	wchar_t holder;
+	int i = 0;
+	do
+	{
+		holder = Buffer[parse];
+		store[i] = holder;
+		parse++;
+		i++;
+	} while (holder != '\n');
+	store[i - 2] = '\0';
+}
+static void LoadVariableFromEntry(char* Buffer, int& parse, int& store)
+{
+	FindNextEntry(Buffer, parse);
+	wchar_t holder, numholder[16];
+	int i = 0;
+	do
+	{
+		holder = Buffer[parse];
+		numholder[i] = holder;
+		parse++;
+		i++;
+	} while (holder != '\n');
+	numholder[i] = '\0';
+	store = _wtoi(numholder);
+}
+static void LoadVariableFromEntry(char* Buffer, int& parse, double& store)
+{
+	FindNextEntry(Buffer, parse);
+	wchar_t holder, numholder[16];
+	int i = 0;
+	do
+	{
+		holder = Buffer[parse];
+		numholder[i] = holder;
+		parse++;
+		i++;
+	} while (holder != '\n');
+	numholder[i] = '\0';
+	store = _wtof(numholder);
+}
+static void LoadListFromEntry(char* Buffer, int& parse, wchar_t* store)
+{
+	wchar_t holder;
+	int i = 0;
+	do
+	{
+		holder = Buffer[parse];
+		parse++;
+	} while (holder != '{');
+	holder = Buffer[parse];
+	while (holder != '}')
+	{
+		store[i] = holder;
+		parse++;
+		holder = Buffer[parse];
+		i++;
+	}
+	store[i] = '\0';
+}
+
+
+
+
+
+
+
 static void GetIntFromWindow(HWND &window, int &store)
 {
 	wchar_t genvar[WSIZE];
