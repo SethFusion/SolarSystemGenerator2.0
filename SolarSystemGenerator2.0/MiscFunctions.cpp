@@ -8,6 +8,20 @@ static std::string wstr_to_str(std::wstring wstr)
 		str += wstr[i];
 	return str;
 }
+static std::string wstr_to_str(std::vector<std::wstring> vwstr)
+{
+	std::string str;
+	for (int i = 0; i < vwstr.size(); i++)
+	{
+		for (int j = 0; j < vwstr.at(i).size(); j++)
+		{
+			str += vwstr.at(i)[j];
+		}
+		if (!(i == vwstr.size() - 1))
+			str += " ";
+	}
+	return str;
+}
 
 
 

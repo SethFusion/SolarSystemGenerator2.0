@@ -69,6 +69,7 @@ struct Configuration
 	var presetDropDown;
 	var savePresetButton;
 	var namePresetDropDown;
+	// save name button is under advanced
 
 	/*#####################################################
 		*/	HWND HEADER_SYSTEMPLANET; /*
@@ -122,6 +123,8 @@ struct Configuration
 	/*#####################################################
 		*/	HWND HEADER_ADVANCED; /*
 	#####################################################*/
+
+		var saveNamePresetButton;
 
 		/*=====================================================
 			*/	var advNameGroup;
