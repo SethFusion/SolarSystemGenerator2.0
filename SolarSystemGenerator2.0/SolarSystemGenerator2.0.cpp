@@ -19,9 +19,10 @@ std::vector<Preset> preset;
 NameVariables NV;
 std::vector<NamePreset> npreset;
 
-std::mt19937 mt_star, mt_planet, mt_moon, mt_ships;
+std::mt19937 mt_star, mt_planet, mt_moon, mt_ships, mt_name;
 std::uniform_int_distribution<int> genpercent{ 1, 100 };
 std::uniform_real_distribution<> gendegree{ 0, 360 };
+enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4};
 
 /*---------------------------------------------------------------------------------------#
 |	Function Declaration:																			 |
@@ -50,8 +51,8 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 	void UpdatePreset(Preset, HWND);
 	void UpdateNamePreset(NamePreset, HWND);
-	void SavePreset(HWND);
-	void SaveNamePreset(HWND);	
+	void SavePreset();
+	void SaveNamePreset();	
 
 	void Clear_Screen();
 	void Load_Screen_General();
@@ -85,7 +86,9 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 	//int OpenPreset();
 	
 #######################################################
-	*/	void BeginGenerate(); 
+	*/	std::wstring GenName(Object_Type);
+		std::wstring GenNumberModifier();
+		void BeginGenerate(); 
 		void GenerateStar(STAR&);
 		void PrintStar(STAR&, std::ofstream&);
 		void GeneratePlanet(STAR&, PLANET&); /*
@@ -228,7 +231,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 				break;
 			case BUTTON_SAVEPRESET:
 				GetConfigData(hWnd);
-				SavePreset(hWnd);
+				SavePreset();
 				LoadPresets(hWnd);
 				break;
 			case BUTTON_UPDATEPRESET:
@@ -242,7 +245,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 			case BUTTON_NAME_SAVEPRESET:
 				CreateNameVectors(hWnd);
-				SaveNamePreset(hWnd);
+				SaveNamePreset();
 				LoadNamePresets(hWnd);
 				break;
 			case BUTTON_NAME_UPDATE:
@@ -2168,7 +2171,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 		CreateNameVectors(hWnd);
 	}
-	void SavePreset(HWND hWnd)
+	void SavePreset()
 	{
 		const int NAMESIZE = 64;
 		
@@ -2224,8 +2227,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 		outputFile.close();
 	}
-
-	void SaveNamePreset(HWND)
+	void SaveNamePreset()
 	{
 		const int NAMESIZE = 64;
 
@@ -2334,9 +2336,6 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 
 		outputFile.close();
 	}
-
-	
-
 
 	void Clear_Screen()
 	{
@@ -3623,6 +3622,394 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 	|	THE GENERATOR:																		 |
 	#---------------------------------------------------------------------------------------*/
 
+	std::wstring GenName(Object_Type type)
+	{
+		//######################################################################################################
+			//  VARIABLES
+
+		std::wstring finalName;
+		int wordCount, wordPercent, syllCount, syllPercent; // number of words in the name, and % chance of multiple words. Number of syllables in a word and percent for multiple syllables
+		bool has_prename_mod, has_postname_mod, has_number_mod, testName;
+
+		//######################################################################################################
+			// PUTS NAME TOGETHER
+
+		do //loop to check if the name has been used already
+		{
+			testName = 0;
+			finalName = L"";
+			has_prename_mod = false;
+			has_postname_mod = false;
+			has_number_mod = false;
+
+			//######################################################################################################
+				//  GENERATES NUMBER OF WORDS
+
+			wordPercent = genpercent(mt_name);
+			if (wordPercent <= 85)
+				wordCount = 1;
+			else
+				wordCount = 2;
+
+			//######################################################################################################
+				// MODIFIER PICKER
+
+			switch (type)
+			{
+			case typeDwarfMoon:
+			{
+				if (NV.useDwarfMoonPreMods)
+					has_prename_mod = (genpercent(mt_name) <= NV.probDwarfMoonPreMod) ? true : false;
+				if (NV.useDwarfMoonPostMods)
+					has_postname_mod = (genpercent(mt_name) <= NV.probDwarfMoonPostMod) ? true : false;
+				if (NV.useDwarfMoonNumberMods)
+					has_number_mod = (genpercent(mt_name) <= NV.probDwarfMoonNumberMod) ? true : false;
+			}
+				break;
+			case typeMoon:
+			{
+				if (NV.useMoonPreMods)
+					has_prename_mod = (genpercent(mt_name) <= NV.probMoonPreMod) ? true : false;
+				if (NV.useMoonPostMods)
+					has_postname_mod = (genpercent(mt_name) <= NV.probMoonPostMod) ? true : false;
+				if (NV.useMoonNumberMods)
+					has_number_mod = (genpercent(mt_name) <= NV.probMoonNumberMod) ? true : false;
+			}			
+				break;
+			case typePlanet:
+			{
+				if (NV.usePlanetPreMods)
+					has_prename_mod = (genpercent(mt_name) <= NV.probPlanetPreMod) ? true : false;
+				if (NV.usePlanetPostMods)
+					has_postname_mod = (genpercent(mt_name) <= NV.probPlanetPostMod) ? true : false;
+				if (NV.usePlanetNumberMods)
+					has_number_mod = (genpercent(mt_name) <= NV.probPlanetNumberMod) ? true : false;
+			}				
+				break;
+			case typeStar:
+			{
+				if (NV.useStarPreMods)
+					has_prename_mod = (genpercent(mt_name) <= NV.probStarPreMod) ? true : false;
+				if (NV.useStarPostMods)
+					has_postname_mod = (genpercent(mt_name) <= NV.probStarPostMod) ? true : false;
+				if (NV.useStarNumberMods)
+					has_number_mod = (genpercent(mt_name) <= NV.probStarNumberMod) ? true : false;
+			}				
+				break;
+			}
+
+			//######################################################################################################
+				// PRE NAME MODIFIER
+
+			if (has_prename_mod)
+			{
+				switch (type)
+				{
+				case typeDwarfMoon:
+				{
+					int listsize = NV.DwarfMoonPreMods.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName = NV.DwarfMoonPreMods.at(gen_mod_position(mt_name));
+					finalName += L" ";
+				}		
+					break;
+				case typeMoon:
+				{
+					int listsize = NV.MoonPreMods.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName = NV.MoonPreMods.at(gen_mod_position(mt_name));
+					finalName += L" ";
+				}					
+					break;
+				case typePlanet:
+				{
+					int listsize = NV.PlanetPreMods.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName = NV.PlanetPreMods.at(gen_mod_position(mt_name));
+					finalName += L" ";
+				}				
+					break;
+				case typeStar:
+				{
+					int listsize = NV.StarPreMods.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName = NV.StarPreMods.at(gen_mod_position(mt_name));
+					finalName += L" ";
+				}
+					break;
+				}
+			}
+
+			//######################################################################################################
+				// NAME GENERATION
+
+			if (!NV.useSimpleGenerator) // markov name generator
+			{
+				std::wstring vowels = L"aeiou";
+				std::wstring letters = L"abcdefghijklmnopqrstuvwxyz";
+				std::uniform_int_distribution<int> pickvowel{ 0, 4 };
+				std::uniform_int_distribution<int> pickletter{ 0, 25 };
+
+				for (int count = 0; count < wordCount; count++)
+				{
+					int firstPosition = (NV.Markov_RawDataset.size() - 1);
+					std::uniform_int_distribution<int> PosGen{ 0, firstPosition };
+					std::wstring markovName(NV.Markov_RawDataset.at(PosGen(mt_name)), 0, 3);
+					std::uniform_int_distribution<int> lengthgen{ (NV.min_length - 3), (NV.max_length - 3) };
+					int _namelength = lengthgen(mt_name);
+
+					for (int i = 0; i < _namelength; i++) // number of characters in the name
+					{
+						if (genpercent(mt_name) > NV.wordVarience) // generator to add a constant variance to name generation
+						{
+							bool gram_exists = false;
+							std::wstring currentgram(markovName, (markovName.length() - NV.order), NV.order);
+							int position;
+
+							// Checks the current ORDER number of letters to see if it exists in the ngram list
+							for (int j = 0; j < NV.main_ngrams.ngrams.size(); j++)
+							{
+								if (NV.main_ngrams.ngrams.at(j) == currentgram)
+								{
+									position = j;
+									gram_exists = true;
+									break;
+								}
+							}
+
+							// if it does exist, use it to determine the next letter
+							if (gram_exists)
+							{
+								int posSize = (NV.main_ngrams.nextCharList.at(position).length() - 1);
+								std::uniform_int_distribution<int> nextCharGen{ 0, posSize };
+
+								markovName += NV.main_ngrams.nextCharList.at(position).at(nextCharGen(mt_name));
+							}
+
+							// if it does not exist, decide to add another letter and how to add it
+							else
+							{
+								if (genpercent(mt_name) < (100 - (markovName.length() * 5))) // adds another letter based on the current size of the name
+								{
+									if (genpercent(mt_name) < 50) // adds a random letter from list of vowels and list of all letters
+									{
+										if (genpercent(mt_name) < 50)
+											markovName += vowels.at(pickvowel(mt_name));
+										else
+											markovName += letters.at(pickletter(mt_name));
+									}
+									else // adds a letter based on the list of possible letters when looking at only the last two letters (instead of the last ORDER # of letters)
+									{
+										std::wstring currenttwogram_list(markovName, (markovName.length() - 2), 2);
+
+										for (int j = 0; j < NV.twogram_list.ngrams.size(); j++)
+										{
+											if (NV.twogram_list.ngrams.at(j) == currenttwogram_list)
+											{
+												position = j;
+												gram_exists = true;
+												break;
+											}
+										}
+										if (gram_exists)
+										{
+											int posSize = (NV.twogram_list.nextCharList.at(position).length() - 1);
+											std::uniform_int_distribution<int> nextCharGen{ 0, posSize };
+
+											markovName += NV.twogram_list.nextCharList.at(position).at(nextCharGen(mt_name));
+										}
+									}
+								}
+							}
+						}
+						else // constant varience could add a random letter instead of using the markov chain
+						{
+							if (genpercent(mt_name) < 50)
+								markovName += vowels.at(pickvowel(mt_name));
+							else
+								markovName += letters.at(pickletter(mt_name));
+						}
+					}
+
+					markovName.at(0) = toupper(markovName.at(0));
+					finalName += markovName;
+					if (count < (wordCount - 1)) //Adds a space before the next word if there is another word
+						finalName += L" ";
+				}
+			}
+			else // old name generator
+			{
+				int plsize = NV.PrefixList.size() - 1, slsize = NV.SuffixList.size() - 1;
+				std::uniform_int_distribution<int> gen_prefix_position{ 0, plsize };
+				std::uniform_int_distribution<int> gen_suffix_position{ 0, slsize };
+
+				for (int count = 0; count < wordCount; count++)
+				{
+					finalName += NV.PrefixList.at(gen_prefix_position(mt_name)); //Starts word off with a prefix
+
+					syllPercent = genpercent(mt_name); //Determines number of syllables
+					if (syllPercent <= 10)
+						syllCount = 1;
+					else if (syllPercent < 100)
+						syllCount = 2;
+					else syllCount = 3;
+
+					for (int count2 = 0; count2 < syllCount; count2++) //Adds syllables until the word is complete
+						finalName += NV.SuffixList.at(gen_suffix_position(mt_name));
+
+					if (count < (wordCount - 1)) //Adds a space before the next word if there is another word
+						finalName += L" ";
+				}
+			}
+
+			//######################################################################################################
+				// POST NAME MODIFIER
+
+			if (has_postname_mod)
+			{
+				switch (type)
+				{
+				case typeDwarfMoon:
+				{
+					int listsize = NV.DwarfMoonPostMods.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName += L" ";
+					finalName += NV.DwarfMoonPostMods.at(gen_mod_position(mt_name));
+				}
+					break;
+				case typeMoon:
+				{
+					int listsize = NV.MoonPostMods.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName += L" ";
+					finalName += NV.MoonPostMods.at(gen_mod_position(mt_name));
+				}
+					break;
+				case typePlanet:
+				{
+					int listsize = NV.PlanetPostMods.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName += L" ";
+					finalName += NV.PlanetPostMods.at(gen_mod_position(mt_name));
+				}
+					break;
+				case typeStar:
+				{
+					int listsize = NV.StarPostMods.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName += L" ";
+					finalName += NV.StarPostMods.at(gen_mod_position(mt_name));
+				}
+					break;
+				}
+			}
+
+			//######################################################################################################
+				// NUMBER MODIFIER
+
+			if (has_number_mod == true)
+			{
+				if (genpercent(mt_name) < 50)
+				{
+					finalName += L" " + GenNumberModifier();
+				}
+				else
+				{
+					std::wstring tempName = GenNumberModifier() + L" " + finalName;
+					finalName = tempName;
+				}
+			}
+
+			//######################################################################################################
+				// USED NAME CHECKER
+
+			for (int count = 0; count < NV.usedNames.size(); count++)
+			{
+				if (finalName == NV.usedNames.at(count))
+				{
+					testName = true;
+					count = NV.usedNames.size();
+				}
+			}
+		} while (testName == true);
+
+		//######################################################################################################
+			// FINAL NAME OUTPUT
+
+		NV.usedNames.push_back(finalName);
+		return finalName;
+	}
+
+	std::wstring GenNumberModifier()
+	{
+		std::wstring FinalNumber = L"";
+		std::wstring NumbersAlpha[10] = { L"One", L"Two", L"Three", L"Four", L"Five", L"Six", L"Seven", L"Eight", L"Nine", L"Ten" };
+		std::wstring NumbersRoman[10] = { L"I", L"II", L"III", L"IV", L"V", L"VI", L"VII", L"VIII", L"IX", L"X" };
+		std::wstring NumbersDigit = L"0123456789";
+		std::wstring Letters = L"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		std::wstring Symbols = L"\\- ";
+
+		int numType = genpercent(mt_name);
+
+		// 50% chance to use digits
+		if (numType < 50)
+		{
+			do
+			{
+				std::uniform_int_distribution<int> gennumber{ 0, 9 };
+				FinalNumber += NumbersDigit.at(gennumber(mt_name));
+			} while (genpercent(mt_name) < 30);
+		}
+		// 30% chance to use roman numerals
+		else if (numType < 80)
+		{
+			std::uniform_int_distribution<int> gennumber{ 0, 9 };
+			FinalNumber += NumbersRoman[gennumber(mt_name)];
+		}
+		// 20% chance to use words
+		else
+		{
+			std::uniform_int_distribution<int> gennumber{ 0, 9 };
+			FinalNumber += NumbersAlpha[gennumber(mt_name)];
+		}
+
+
+		// This adds special tags and stuff
+		if (genpercent(mt_name) < 40)
+		{
+			do
+			{
+				// < 50 put the tag on the end, > 50 puts the tag on the front
+				if (genpercent(mt_name) < 50)
+				{
+					std::uniform_int_distribution<int> gensymbol{ 0, 2 };
+					FinalNumber += Symbols.at(gensymbol(mt_name));
+
+					do
+					{
+						std::uniform_int_distribution<int> genletter{ 0, 25 };
+						FinalNumber += Letters.at(genletter(mt_name));
+					} while (genpercent(mt_name) < 30);
+				}
+				else
+				{
+					std::wstring tempName;
+
+					do
+					{
+						std::uniform_int_distribution<int> genletter{ 0, 25 };
+						tempName += Letters.at(genletter(mt_name));
+					} while (genpercent(mt_name) < 30);
+
+					std::uniform_int_distribution<int> gensymbol{ 0, 2 };
+					tempName += Symbols.at(gensymbol(mt_name)) + FinalNumber;
+					FinalNumber = tempName;
+				}
+			} while (genpercent(mt_name) < 5);
+		}
+
+		return FinalNumber;
+	}
 
 	void BeginGenerate()
 	{
@@ -3638,6 +4025,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 		mt_planet.seed(CONFIG.seed);
 		mt_moon.seed(CONFIG.seed);
 		mt_ships.seed(CONFIG.seed);
+		mt_name.seed(CONFIG.seed);
 
 
 
@@ -3648,8 +4036,8 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 		GenerateStar(currentStar);
 
 		std::wstring starFileName = CONFIG.starOutputFolder;	//Creates the star file
-		starFileName += currentStar.name;
-		starFileName += L" Star.sc";
+		//starFileName += currentStar.name;
+		starFileName += L"test star Star.sc";
 		//starFileName += L"Test Star.sc";
 		std::ofstream starFile(starFileName.c_str());
 		PrintStar(currentStar, starFile);
@@ -3692,7 +4080,7 @@ std::uniform_real_distribution<> gendegree{ 0, 360 };
 		std::uniform_int_distribution<int> gendecl{ -90, 90 };
 		std::uniform_real_distribution<> gendistance{ CONFIG.minDistance, CONFIG.maxDistance };
 		std::normal_distribution<> genSM{ 1.7, 0.2 };
-		star.name = L"test star";
+		star.name = GenName(typeStar);
 
 		//######################################################################################################
 			//	CLASS GENERATION
