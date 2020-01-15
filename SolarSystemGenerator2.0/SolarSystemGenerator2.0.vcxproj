@@ -154,10 +154,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CheckSeed.cpp" />
-    <ClCompile Include="ConfigStructs.cpp" />
+    <ClCompile Include="ConfigStructs.h" />
     <ClCompile Include="MiscFunctions.cpp" />
     <ClCompile Include="SolarSystemGenerator2.0.cpp" />
-    <ClCompile Include="Structs.cpp" />
+    <ClCompile Include="Structs.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SolarSystemGenerator2.0.rc" />

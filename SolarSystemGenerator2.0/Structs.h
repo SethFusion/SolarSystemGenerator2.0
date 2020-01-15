@@ -1,6 +1,5 @@
 #include "framework.h"
 #include "resource.h"
-#include <windows.h>
 
 
 

@@ -32,16 +32,16 @@
     <ClCompile Include="SolarSystemGenerator2.0.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ConfigStructs.cpp">
+    <ClCompile Include="CheckSeed.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Structs.cpp">
+    <ClCompile Include="ConfigStructs.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Structs.h">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MiscFunctions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CheckSeed.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

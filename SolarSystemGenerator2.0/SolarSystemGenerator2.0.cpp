@@ -1,7 +1,7 @@
 #include "framework.h"
 #include "SolarSystemGenerator2.0.h"
-#include "ConfigStructs.cpp"
-#include "Structs.cpp"
+#include "ConfigStructs.h"
+#include "Structs.h"
 #include "MiscFunctions.cpp"
 #include "CheckSeed.cpp"
 
@@ -4135,19 +4135,12 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 			std::uniform_int_distribution<int> genseed{ 0, 2147483647 };
 			CONFIG.seed = genseed(mtseed);
 		}
-		if (CheckSeed(CONFIG))
-			return;
 
 		mt_star.seed(CONFIG.seed);
 		mt_planet.seed(CONFIG.seed);
 		mt_moon.seed(CONFIG.seed);
 		mt_ships.seed(CONFIG.seed);
 		mt_name.seed(CONFIG.seed);
-
-
-
-
-
 
 		STAR currentStar;
 		GenerateStar(currentStar);
@@ -4164,6 +4157,9 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 		//planetFileName += " System.sc";
 		planetFileName += L"Test System.sc";
 		std::ofstream planetFile(planetFileName.c_str());
+
+		if (CheckSeed(CONFIG.seed, starFile, planetFile))
+			return;
 
 		std::uniform_int_distribution<int> genplanetnum{ CONFIG.minPlanetNumber, currentStar.maxPlanetNumber };
 		int planetNumber = genplanetnum(mt_planet);
@@ -4433,11 +4429,6 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 	}
 	void PrintPlanet(PLANET& planet, std::ofstream& file)
 	{
-		file << "Planet\t\t\"" << wstr_to_str(planet.name) << "\"\n"
-			<< "Semimajor\t\t" << planet.semimajorAxis << "\n\n";
-
-
-
 		if (planet.planetType == L"DwarfPlanet")
 			file << wstr_to_str(planet.planetType) << "\t\t\t\t\t\"" << wstr_to_str(planet.name) << "\"\n{";
 		else
