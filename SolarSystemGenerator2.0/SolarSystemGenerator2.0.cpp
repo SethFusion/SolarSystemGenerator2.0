@@ -22,10 +22,11 @@ std::vector<NamePreset> npreset;
 std::mt19937 mt_star, mt_planet, mt_moon, mt_ships, mt_name;
 std::uniform_int_distribution<int> genpercent{ 1, 100 };
 std::uniform_real_distribution<> gendegree{ 0, 360 };
-enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4};
+enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
+	typeShipColony = 5, typeShipInstrument = 6, typeShipSatellite = 7, typeShipStation = 8};
 
 /*---------------------------------------------------------------------------------------#
-|	Function Declaration:																			 |
+|	Function Declaration:																 |
 #---------------------------------------------------------------------------------------*/
 
 /*#####################################################
@@ -684,7 +685,7 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4}
 
 		/*###############################################################################
 			Main Buttons */ {
-			//###############################################################################
+		//###############################################################################
 			CreateWindowW(L"button", //type
 				L"General", //Text Field
 				WS_VISIBLE | WS_CHILD | WS_BORDER, // Effects
@@ -3629,27 +3630,27 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4}
 
 		std::wstring finalName;
 		int wordCount, wordPercent, syllCount, syllPercent; // number of words in the name, and % chance of multiple words. Number of syllables in a word and percent for multiple syllables
-		bool has_prename_mod, has_postname_mod, has_number_mod, testName;
+		bool has_prename_mod, has_postname_mod, has_number_mod, has_shipall_premod, has_shipall_postmod, testName;
 
 		//######################################################################################################
 			// PUTS NAME TOGETHER
 
 		do //loop to check if the name has been used already
 		{
+			wordCount = 1;
 			testName = 0;
 			finalName = L"";
 			has_prename_mod = false;
 			has_postname_mod = false;
 			has_number_mod = false;
+			has_shipall_premod = false;
+			has_shipall_postmod = false;
 
 			//######################################################################################################
 				//  GENERATES NUMBER OF WORDS
 
-			wordPercent = genpercent(mt_name);
-			if (wordPercent <= 85)
-				wordCount = 1;
-			else
-				wordCount = 2;
+			while (genpercent(mt_name) <= 5)
+				wordCount++;
 
 			//######################################################################################################
 				// MODIFIER PICKER
@@ -3684,7 +3685,63 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4}
 					has_postname_mod = (genpercent(mt_name) <= NV.probPlanetPostMod) ? true : false;
 				if (NV.usePlanetNumberMods)
 					has_number_mod = (genpercent(mt_name) <= NV.probPlanetNumberMod) ? true : false;
-			}				
+			}
+				break;
+			case typeShipColony:
+			{
+				if (NV.useShipPreMods_All)
+					has_shipall_premod = (genpercent(mt_name) <= NV.probShipPreMod_All) ? true : false;
+				if (NV.useShipPostMods_All)
+					has_shipall_postmod = (genpercent(mt_name) <= NV.probShipPostMod_All) ? true : false;
+				if (NV.useShipPreMods_Colony)
+					has_prename_mod = (genpercent(mt_name) <= NV.probShipPreMod_Colony) ? true : false;
+				if (NV.useShipPostMods_Colony)
+					has_postname_mod = (genpercent(mt_name) <= NV.probShipPostMod_Colony) ? true : false;
+				if (NV.useShipNumberMods_Colony)
+					has_number_mod = (genpercent(mt_name) <= NV.probShipNumberMod_Colony) ? true : false;
+			}
+				break;
+			case typeShipInstrument:
+			{
+				if (NV.useShipPreMods_All)
+					has_shipall_premod = (genpercent(mt_name) <= NV.probShipPreMod_All) ? true : false;
+				if (NV.useShipPostMods_All)
+					has_shipall_postmod = (genpercent(mt_name) <= NV.probShipPostMod_All) ? true : false;
+				if (NV.useShipPreMods_Instrument)
+					has_prename_mod = (genpercent(mt_name) <= NV.probShipPreMod_Instrument) ? true : false;
+				if (NV.useShipPostMods_Instrument)
+					has_postname_mod = (genpercent(mt_name) <= NV.probShipPostMod_Instrument) ? true : false;
+				if (NV.useShipNumberMods_Instrument)
+					has_number_mod = (genpercent(mt_name) <= NV.probShipNumberMod_Instrument) ? true : false;
+			}
+				break;
+			case typeShipSatellite:
+			{
+				if (NV.useShipPreMods_All)
+					has_shipall_premod = (genpercent(mt_name) <= NV.probShipPreMod_All) ? true : false;
+				if (NV.useShipPostMods_All)
+					has_shipall_postmod = (genpercent(mt_name) <= NV.probShipPostMod_All) ? true : false;
+				if (NV.useShipPreMods_Satellite)
+					has_prename_mod = (genpercent(mt_name) <= NV.probShipPreMod_Satellite) ? true : false;
+				if (NV.useShipPostMods_Satellite)
+					has_postname_mod = (genpercent(mt_name) <= NV.probShipPostMod_Satellite) ? true : false;
+				if (NV.useShipNumberMods_Satellite)
+					has_number_mod = (genpercent(mt_name) <= NV.probShipNumberMod_Satellite) ? true : false;
+			}
+				break;
+			case typeShipStation:
+			{
+				if (NV.useShipPreMods_All)
+					has_shipall_premod = (genpercent(mt_name) <= NV.probShipPreMod_All) ? true : false;
+				if (NV.useShipPostMods_All)
+					has_shipall_postmod = (genpercent(mt_name) <= NV.probShipPostMod_All) ? true : false;
+				if (NV.useShipPreMods_Station)
+					has_prename_mod = (genpercent(mt_name) <= NV.probShipPreMod_Station) ? true : false;
+				if (NV.useShipPostMods_Station)
+					has_postname_mod = (genpercent(mt_name) <= NV.probShipPostMod_Station) ? true : false;
+				if (NV.useShipNumberMods_Station)
+					has_number_mod = (genpercent(mt_name) <= NV.probShipNumberMod_Station) ? true : false;
+			}
 				break;
 			case typeStar:
 			{
@@ -3700,6 +3757,14 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4}
 
 			//######################################################################################################
 				// PRE NAME MODIFIER
+
+			if (has_shipall_premod)
+			{
+				int listsize = NV.ShipPreMods_All.size() - 1;
+				std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+				finalName = NV.ShipPreMods_All.at(gen_mod_position(mt_name));
+				finalName += L" ";
+			}
 
 			if (has_prename_mod)
 			{
@@ -3728,6 +3793,38 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4}
 					finalName = NV.PlanetPreMods.at(gen_mod_position(mt_name));
 					finalName += L" ";
 				}				
+					break;
+				case typeShipColony:
+				{
+					int listsize = NV.ShipPreMods_Colony.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName += NV.ShipPreMods_Colony.at(gen_mod_position(mt_name));
+					finalName += L" ";
+				}
+					break;
+				case typeShipInstrument:
+				{
+					int listsize = NV.ShipPreMods_Instrument.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName += NV.ShipPreMods_Instrument.at(gen_mod_position(mt_name));
+					finalName += L" ";
+				}
+					break;
+				case typeShipSatellite:
+				{
+					int listsize = NV.ShipPreMods_Satellite.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName += NV.ShipPreMods_Satellite.at(gen_mod_position(mt_name));
+					finalName += L" ";
+				}
+					break;
+				case typeShipStation:
+				{
+					int listsize = NV.ShipPreMods_Station.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName += NV.ShipPreMods_Station.at(gen_mod_position(mt_name));
+					finalName += L" ";
+				}
 					break;
 				case typeStar:
 				{
@@ -3893,6 +3990,38 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4}
 					finalName += NV.PlanetPostMods.at(gen_mod_position(mt_name));
 				}
 					break;
+				case typeShipColony:
+				{
+					int listsize = NV.ShipPostMods_Colony.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName += NV.ShipPostMods_Colony.at(gen_mod_position(mt_name));
+					finalName += L" ";
+				}
+					break;
+				case typeShipInstrument:
+				{
+					int listsize = NV.ShipPostMods_Instrument.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName += NV.ShipPostMods_Instrument.at(gen_mod_position(mt_name));
+					finalName += L" ";
+				}
+					break;
+				case typeShipSatellite:
+				{
+					int listsize = NV.ShipPostMods_Satellite.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName += NV.ShipPostMods_Satellite.at(gen_mod_position(mt_name));
+					finalName += L" ";
+				}
+					break;
+				case typeShipStation:
+				{
+					int listsize = NV.ShipPostMods_Station.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName += NV.ShipPostMods_Station.at(gen_mod_position(mt_name));
+					finalName += L" ";
+				}
+					break;
 				case typeStar:
 				{
 					int listsize = NV.StarPostMods.size() - 1;
@@ -3902,6 +4031,14 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4}
 				}
 					break;
 				}
+
+				if (has_shipall_postmod)
+				{
+					int listsize = NV.ShipPostMods_All.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName += L" ";
+					finalName = NV.ShipPostMods_All.at(gen_mod_position(mt_name));
+				}
 			}
 
 			//######################################################################################################
@@ -3910,14 +4047,9 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4}
 			if (has_number_mod == true)
 			{
 				if (genpercent(mt_name) < 50)
-				{
 					finalName += L" " + GenNumberModifier();
-				}
 				else
-				{
-					std::wstring tempName = GenNumberModifier() + L" " + finalName;
-					finalName = tempName;
-				}
+					finalName = GenNumberModifier() + L" " + finalName;
 			}
 
 			//######################################################################################################
