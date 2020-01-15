@@ -398,11 +398,6 @@ struct NameVariables
 		std::vector<std::wstring> nextCharList;
 	};
 	NGRAMS main_ngrams, twogram_list;
-
-
-
-
-
 };
 
 struct NamePreset

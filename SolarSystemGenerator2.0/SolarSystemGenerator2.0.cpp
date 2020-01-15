@@ -3,6 +3,7 @@
 #include "ConfigStructs.cpp"
 #include "Structs.cpp"
 #include "MiscFunctions.cpp"
+#include "CheckSeed.cpp"
 
 /*---------------------------------------------------------------------------------------#
 |	Global Variables:																	 |
@@ -345,27 +346,6 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 		}
 		return 0;
 	}
-	/*
-	void LoadImages();
-	void LoadPresets(HWND);
-	void LoadMainScreen(HWND);
-
-	void UpdatePreset(Preset, HWND);
-	void SavePreset(HWND);
-
-	void Clear_Screen();
-	void Load_Screen_General();
-	void Load_Screen_SystemPlanet();
-	void Load_Screen_Life();
-	void Load_Screen_Ships();
-	void Load_Screen_Exotic();
-	void Load_Screen_Advanced();
-
-	void GetConfigData(HWND);
-
-	void SetInfoBox(int);
-	void SetCheckBoxText(HWND, int);
-	*/
 
 	void LoadImages()
 	{
@@ -3637,9 +3617,10 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 
 		do //loop to check if the name has been used already
 		{
-			wordCount = 1;
-			testName = 0;
 			finalName = L"";
+			wordCount = 1;
+			wordPercent = 5;
+			testName = 0;
 			has_prename_mod = false;
 			has_postname_mod = false;
 			has_number_mod = false;
@@ -3649,7 +3630,7 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 			//######################################################################################################
 				//  GENERATES NUMBER OF WORDS
 
-			while (genpercent(mt_name) <= 5)
+			while (genpercent(mt_name) <= wordPercent)
 				wordCount++;
 
 			//######################################################################################################
@@ -4071,7 +4052,6 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 		NV.usedNames.push_back(finalName);
 		return finalName;
 	}
-
 	std::wstring GenNumberModifier()
 	{
 		std::wstring FinalNumber = L"";
@@ -4152,6 +4132,8 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 			std::uniform_int_distribution<int> genseed{ 0, 2147483647 };
 			CONFIG.seed = genseed(mtseed);
 		}
+		if (CheckSeed(CONFIG.seed))
+			return;
 
 		mt_star.seed(CONFIG.seed);
 		mt_planet.seed(CONFIG.seed);

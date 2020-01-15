@@ -153,6 +153,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CheckSeed.cpp" />
     <ClCompile Include="ConfigStructs.cpp" />
     <ClCompile Include="MiscFunctions.cpp" />
     <ClCompile Include="SolarSystemGenerator2.0.cpp" />
