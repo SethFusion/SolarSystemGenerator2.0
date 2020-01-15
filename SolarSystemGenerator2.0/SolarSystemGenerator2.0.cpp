@@ -91,8 +91,11 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 	*/	std::wstring GenName(Object_Type);
 		std::wstring GenNumberModifier();
 		void BeginGenerate(); 
+		void SortVector(std::vector<PLANET>&, int, int);
+		int Partition(std::vector<PLANET>&, int, int);
 		void GenerateStar(STAR&);
 		void PrintStar(STAR&, std::ofstream&);
+		void PrintPlanet(PLANET&, std::ofstream&);
 		void GeneratePlanet(STAR&, PLANET&); /*
 	Generator Functions
 
@@ -4132,7 +4135,7 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 			std::uniform_int_distribution<int> genseed{ 0, 2147483647 };
 			CONFIG.seed = genseed(mtseed);
 		}
-		if (CheckSeed(CONFIG.seed))
+		if (CheckSeed(CONFIG))
 			return;
 
 		mt_star.seed(CONFIG.seed);
@@ -4151,37 +4154,78 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 
 		std::wstring starFileName = CONFIG.starOutputFolder;	//Creates the star file
 		//starFileName += currentStar.name;
-		starFileName += L"test star Star.sc";
-		//starFileName += L"Test Star.sc";
+		//starFileName += L" Star.sc";
+		starFileName += L"Test Star.sc";
 		std::ofstream starFile(starFileName.c_str());
 		PrintStar(currentStar, starFile);
 
+		std::wstring planetFileName = CONFIG.planetOutputFolder;	//Creates the planet file
+		//planetFileName += mainStar.name;
+		//planetFileName += " System.sc";
+		planetFileName += L"Test System.sc";
+		std::ofstream planetFile(planetFileName.c_str());
+
 		std::uniform_int_distribution<int> genplanetnum{ CONFIG.minPlanetNumber, currentStar.maxPlanetNumber };
 		int planetNumber = genplanetnum(mt_planet);
-		std::vector<PLANET> planetList(planetNumber);
+		std::vector<PLANET> planetList;
 		
-		for (int currentPlanet = 0; currentPlanet < planetNumber; currentPlanet++)
+		for (int planetCounter = 0; planetCounter < planetNumber; planetCounter++)
 		{
-			planetList.at(currentPlanet).planetType = L"Planet";
-			GeneratePlanet(currentStar, planetList.at(currentPlanet));
-
-			/*#########################################
-				Used fopr temporary planet names	
-			#########################################*/
-			wchar_t temp[3];
-			_itow_s(currentPlanet + 1, temp, 10);
-
-			planetList.at(currentPlanet).name += temp;
-			/*########################################*/
+			PLANET curentPlanet;
+			GeneratePlanet(currentStar, curentPlanet);
+			planetList.push_back(curentPlanet);
 		}
 		while (genpercent(mt_planet) < CONFIG.dwarfPlanetChance)
 		{
 			//Dwarf Planets will be generated here
 		}
+		SortVector(planetList, 0, planetList.size() - 1);
+
+		for (int i = 0; i < planetList.size(); i++)
+			PrintPlanet(planetList.at(i), planetFile);
 
 
+
+		/*#########################################
+				Used for numbered names
+			#########################################
+			wchar_t temp[3];
+			_itow_s(planetCounter + 1, temp, 10);
+
+			curentPlanet.name += temp;
+			########################################*/
 		starFile.close();
 		return;
+	}
+	static void SortVector(std::vector<PLANET>& vector, int low, int high)
+	{
+		if (low < high)
+		{
+			int part = Partition(vector, low, high);
+			SortVector(vector, low, part - 1);
+			SortVector(vector, part + 1, high);
+		}
+	}
+	static int Partition(std::vector<PLANET>& vector, int low, int high)
+	{
+		double pivot = vector.at(high).semimajorAxis;
+		int i = (low - 1);
+
+		for (int j = low; j <= high - 1; j++)
+		{
+			if (vector.at(j).semimajorAxis <= pivot)
+			{
+				i++;
+				PLANET temp = vector.at(i);
+				vector.at(i) = vector.at(j);
+				vector.at(j) = temp;
+			}
+		}
+
+		PLANET temp = vector.at(i + 1);
+		vector.at(i + 1) = vector.at(high);
+		vector.at(high) = temp;
+		return (i + 1);
 	}
 
 	void GenerateStar(STAR& star)
@@ -4387,13 +4431,70 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 
 		file << "\n\n\tSeed: " << CONFIG.seed;
 	}
+	void PrintPlanet(PLANET& planet, std::ofstream& file)
+	{
+		file << "Planet\t\t\"" << wstr_to_str(planet.name) << "\"\n"
+			<< "Semimajor\t\t" << planet.semimajorAxis << "\n\n";
+
+
+
+		if (planet.planetType == L"DwarfPlanet")
+			file << wstr_to_str(planet.planetType) << "\t\t\t\t\t\"" << wstr_to_str(planet.name) << "\"\n{";
+		else
+			file << wstr_to_str(planet.planetType) << "\t\t\t\t\t\t\"" << wstr_to_str(planet.name) << "\"\n{";
+		file << "\n\tParentBody\t\t\t\t\"" << wstr_to_str(planet.parentBody) << "\"";
+		file << "\n\tClass\t\t\t\t\t\"" << wstr_to_str(planet.class_) << "\"\n";
+		file << "\n\tMass\t\t\t\t\t" << planet.mass << "\n";
+		file << "\tRadius\t\t\t\t\t" << planet.radius << "\n";
+		file << "\tObliquity\t\t\t\t" << planet.obliquity << "\n";
+
+		if (planet.life_organic.haslife == true)
+		{
+			file << "\n\tLife\n\t{"
+				<< "\n\t\tClass\t\"" << wstr_to_str(planet.life_organic._class) << "\""
+				<< "\n\t\tType\t\"" << wstr_to_str(planet.life_organic.type) << "\"";
+			if (planet.life_organic.panspermia == true)
+				file << "\n\t\tPanspermia\ttrue";
+			file << "\n\t}\n";
+		}
+		if (planet.life_exotic.haslife == true)
+		{
+			file << "\n\tLife\n\t{"
+				<< "\n\t\tClass\t\"" << wstr_to_str(planet.life_exotic._class) << "\""
+				<< "\n\t\tType\t\"" << wstr_to_str(planet.life_exotic.type) << "\"";
+			if (planet.life_exotic.panspermia == true)
+				file << "\n\t\tPanspermia\ttrue";
+			file << "\n\t}\n";
+		}
+
+		file << "\n\tOrbit\n\t{\n\t\t";
+		file << "RefPlane\t\t\t\"Equator\"";
+		file << "\n\t\tSemiMajorAxis\t\t" << (planet.semimajorAxis);
+		file << "\n\t\tEccentricity\t\t" << planet.eccentricity;
+		file << "\n\t\tInclination\t\t\t" << planet.inclination;
+		file << "\n\t\tAscendingNode\t\t" << planet.ascendingNode;
+		file << "\n\t\tArgOfPericenter\t\t" << planet.argofPericenter;
+		file << "\n\t\tMeanAnomaly\t\t\t" << planet.meanAnomaly;
+		file << "\n\t}\n}\n\n";
+	}
 
 	void GeneratePlanet(STAR& star, PLANET& planet)
 	{
 		std::normal_distribution<> genobliquity{ CONFIG.avgObliquity, CONFIG.SDObliquity };
 		std::normal_distribution<> geneccentricity{ CONFIG.avgEccentricity, CONFIG.SDEccentricity };
 		std::normal_distribution<> geninclination{ CONFIG.avgInclination, CONFIG.SDInclination };
-		planet.name = L"Planet ";
+		planet.planetType = L"Planet";
+		planet.name = GenName(typePlanet);
+		planet.parentBody = star.name;
+
+		//######################################################################################################
+			//	GENERATE SEMIMAJOR
+
+		int holder, size = star.semimajorList.size() - 1;
+		std::uniform_int_distribution<int> gensemimajor{ 0, size };
+		holder = gensemimajor(mt_planet);
+		planet.semimajorAxis = star.semimajorList.at(holder);
+		star.semimajorList.erase(star.semimajorList.begin() + holder);
 
 	}
 
