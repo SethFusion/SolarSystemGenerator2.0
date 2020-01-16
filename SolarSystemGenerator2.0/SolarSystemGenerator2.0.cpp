@@ -4433,11 +4433,11 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 			file << wstr_to_str(planet.planetType) << "\t\t\t\t\t\"" << wstr_to_str(planet.name) << "\"\n{";
 		else
 			file << wstr_to_str(planet.planetType) << "\t\t\t\t\t\t\"" << wstr_to_str(planet.name) << "\"\n{";
-		file << "\n\tParentBody\t\t\t\t\"" << wstr_to_str(planet.parentBody) << "\"";
-		file << "\n\tClass\t\t\t\t\t\"" << wstr_to_str(planet.class_) << "\"\n";
-		file << "\n\tMass\t\t\t\t\t" << planet.mass << "\n";
-		file << "\tRadius\t\t\t\t\t" << planet.radius << "\n";
-		file << "\tObliquity\t\t\t\t" << planet.obliquity << "\n";
+		file << "\n\tParentBody\t\t\t\t\"" << wstr_to_str(planet.parentBody) << "\"" 
+			<< "\n\tClass\t\t\t\t\t\"" << wstr_to_str(planet.class_) << "\"\n"
+			<< "\n\tMass\t\t\t\t\t" << planet.mass << "\n"
+			<< "\tRadius\t\t\t\t\t" << planet.radius << "\n"
+			<< "\tObliquity\t\t\t\t" << planet.obliquity << "\n";
 
 		if (planet.life_organic.haslife == true)
 		{
@@ -4458,15 +4458,15 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 			file << "\n\t}\n";
 		}
 
-		file << "\n\tOrbit\n\t{\n\t\t";
-		file << "RefPlane\t\t\t\"Equator\"";
-		file << "\n\t\tSemiMajorAxis\t\t" << (planet.semimajorAxis);
-		file << "\n\t\tEccentricity\t\t" << planet.eccentricity;
-		file << "\n\t\tInclination\t\t\t" << planet.inclination;
-		file << "\n\t\tAscendingNode\t\t" << planet.ascendingNode;
-		file << "\n\t\tArgOfPericenter\t\t" << planet.argofPericenter;
-		file << "\n\t\tMeanAnomaly\t\t\t" << planet.meanAnomaly;
-		file << "\n\t}\n}\n\n";
+		file << "\n\tOrbit\n\t{\n\t\t" 
+			<< "RefPlane\t\t\t\"Equator\""
+			<< "\n\t\tSemiMajorAxis\t\t" << (planet.semimajorAxis)
+			<< "\n\t\tEccentricity\t\t" << planet.eccentricity
+			<< "\n\t\tInclination\t\t\t" << planet.inclination
+			<< "\n\t\tAscendingNode\t\t" << planet.ascendingNode
+			<< "\n\t\tArgOfPericenter\t\t" << planet.argofPericenter
+			<< "\n\t\tMeanAnomaly\t\t\t" << planet.meanAnomaly
+			<< "\n\t}\n}\n\n";
 	}
 
 	void GeneratePlanet(STAR& star, PLANET& planet)
