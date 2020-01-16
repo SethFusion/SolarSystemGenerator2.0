@@ -25,6 +25,8 @@ std::uniform_int_distribution<int> genpercent{ 1, 100 };
 std::uniform_real_distribution<> gendegree{ 0, 360 };
 enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 	typeShipColony = 5, typeShipInstrument = 6, typeShipSatellite = 7, typeShipStation = 8};
+enum Screen {General = 1, System = 2, Life = 3, Ships = 4, Exotic = 5, Advanced = 6};
+Screen lastScreen;
 
 /*---------------------------------------------------------------------------------------#
 |	Function Declaration:																 |
@@ -334,12 +336,12 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 			UpdatePreset(preset.at(0), hWnd);
 			UpdateNamePreset(npreset.at(0), hWnd);
 			Clear_Screen();
-			//Load_Screen_General();
+			Load_Screen_General();
 			//Load_Screen_SystemPlanet();
 			//Load_Screen_Life();
 			//Load_Screen_Ships();
 			//Load_Screen_Exotic();
-			Load_Screen_Advanced();
+			//Load_Screen_Advanced();
 			break;
 		case WM_DESTROY:
 			PostQuitMessage(0);
@@ -669,6 +671,39 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 		/*###############################################################################
 			Main Buttons */ {
 		//###############################################################################
+			
+			// Stuff for tabs if I want to come back to it one day
+			/*
+			wchar_t tabGeneral[16] = L"General";
+			wchar_t tabSystem[16] = L"System / Planet";
+			wchar_t tabLife[16] = L"Life";
+			wchar_t tabShips[16] = L"Ships";
+			wchar_t tabExotic[16] = L"Exotic";
+			wchar_t tabAdvanced[16] = L"Advanced";
+
+			TCITEM tabStruct;
+			tabStruct.mask = TCIF_TEXT;
+
+			CONFIG.tabH = CreateWindow(WC_TABCONTROL, L"",
+				WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS | TCS_FIXEDWIDTH,
+				340, 280, 690, 400,
+				hWnd, NULL, hInst, NULL);
+			TabCtrl_SetItemSize(CONFIG.tabH, 114, 50);
+
+			tabStruct.pszText = tabGeneral;
+			TabCtrl_InsertItem(CONFIG.tabH, 0, &tabStruct);
+			tabStruct.pszText = tabSystem;
+			TabCtrl_InsertItem(CONFIG.tabH, 1, &tabStruct);
+			tabStruct.pszText = tabLife;
+			TabCtrl_InsertItem(CONFIG.tabH, 2, &tabStruct);
+			tabStruct.pszText = tabShips;
+			TabCtrl_InsertItem(CONFIG.tabH, 3, &tabStruct);
+			tabStruct.pszText = tabExotic;
+			TabCtrl_InsertItem(CONFIG.tabH, 4, &tabStruct);
+			tabStruct.pszText = tabAdvanced;
+			TabCtrl_InsertItem(CONFIG.tabH, 5, &tabStruct);
+			*/
+			
 			CreateWindowW(L"button", //type
 				L"General", //Text Field
 				WS_VISIBLE | WS_CHILD | WS_BORDER, // Effects
@@ -1261,15 +1296,15 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 
 				// save preset stuff
 				CONFIG.saveNamePresetButton.DESC = CreateWindowW(L"static", L"Save Name Preset...",
-					WS_CHILD | WS_VISIBLE | WS_BORDER,
+					WS_CHILD  | WS_BORDER,
 					630, 110, 140, 20,
 					hWnd, NULL, NULL, NULL);
 				CONFIG.saveNamePresetButton.HANDLE = CreateWindowW(L"edit", L"New Name Preset",
-					WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
+					WS_CHILD | WS_BORDER | ES_AUTOHSCROLL,
 					630, 130, 160, 20,
 					hWnd, NULL, NULL, NULL);
 				CONFIG.saveNamePresetButton.EXTRA = CreateWindowW(L"button", L"Save",
-					WS_CHILD | WS_VISIBLE | WS_BORDER,
+					WS_CHILD | WS_BORDER,
 					632, 152, 156, 20,
 					hWnd, (HMENU)BUTTON_NAME_SAVEPRESET, NULL, NULL);
 				CONFIG.saveNamePresetButton.INFOBUTTON = CreateWindowW(L"button", L"I",
@@ -2327,235 +2362,202 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 		This function clears all of the handles for every variable.
 		-----------------------------------------------------------*/
 
-		/*#####################################################
-			General Variables
-		#####################################################*/
+		switch (lastScreen)
+		{
+		case General:
+		{
+			//Header
+			ShowWindow(CONFIG.HEADER_GENERAL, 0);
+			//Handles
+			ShowWindow(CONFIG.seedH.HANDLE, 0);
+			ShowWindow(CONFIG.numberOfRunsH.HANDLE, 0);
+			ShowWindow(CONFIG.debugH.HANDLE, 0);
+			ShowWindow(CONFIG.starOutputFolderH.HANDLE, 0);
+			ShowWindow(CONFIG.planetOutputFolderH.HANDLE, 0);
+			ShowWindow(CONFIG.presetDropDown.HANDLE, 0);
+			ShowWindow(CONFIG.savePresetButton.HANDLE, 0);
+			ShowWindow(CONFIG.namePresetDropDown.HANDLE, 0);
+			//Desc
+			ShowWindow(CONFIG.seedH.DESC, 0);
+			ShowWindow(CONFIG.numberOfRunsH.DESC, 0);
+			ShowWindow(CONFIG.debugH.DESC, 0);
+			ShowWindow(CONFIG.starOutputFolderH.DESC, 0);
+			ShowWindow(CONFIG.planetOutputFolderH.DESC, 0);
+			ShowWindow(CONFIG.presetDropDown.DESC, 0);
+			ShowWindow(CONFIG.savePresetButton.DESC, 0);
+			ShowWindow(CONFIG.namePresetDropDown.DESC, 0);
+			//Info
+			ShowWindow(CONFIG.seedH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.numberOfRunsH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.debugH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.starOutputFolderH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.planetOutputFolderH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.presetDropDown.INFOBUTTON, 0);
+			ShowWindow(CONFIG.savePresetButton.INFOBUTTON, 0);
+			ShowWindow(CONFIG.namePresetDropDown.INFOBUTTON, 0);
+			//Extra
+			ShowWindow(CONFIG.presetDropDown.EXTRA, 0);
+			ShowWindow(CONFIG.savePresetButton.EXTRA, 0);
+			ShowWindow(CONFIG.namePresetDropDown.EXTRA, 0);
+		}
+			break;
+		case System:
+		{
+			//Header
+			ShowWindow(CONFIG.HEADER_SYSTEMPLANET, 0);
+			//Handles
+			ShowWindow(CONFIG.smartPlacementH.HANDLE, 0);
+			ShowWindow(CONFIG.generateDwarfPlanetsH.HANDLE, 0);
+			ShowWindow(CONFIG.dwarfPlanetChanceH.HANDLE, 0);
+			ShowWindow(CONFIG.minPlanetNumberH.HANDLE, 0);
+			ShowWindow(CONFIG.minDistanceH.HANDLE, 0);
+			ShowWindow(CONFIG.maxDistanceH.HANDLE, 0);
+			ShowWindow(CONFIG.planetSpacingH.HANDLE, 0);
+			ShowWindow(CONFIG.avgEccentricityH.HANDLE, 0);
+			ShowWindow(CONFIG.SDEccentricityH.HANDLE, 0);
+			ShowWindow(CONFIG.avgInclinationH.HANDLE, 0);
+			ShowWindow(CONFIG.SDInclinationH.HANDLE, 0);
+			ShowWindow(CONFIG.avgObliquityH.HANDLE, 0);
+			ShowWindow(CONFIG.SDObliquityH.HANDLE, 0);
+			//Desc
+			ShowWindow(CONFIG.smartPlacementH.DESC, 0);
+			ShowWindow(CONFIG.generateDwarfPlanetsH.DESC, 0);
+			ShowWindow(CONFIG.dwarfPlanetChanceH.DESC, 0);
+			ShowWindow(CONFIG.minPlanetNumberH.DESC, 0);
+			ShowWindow(CONFIG.minDistanceH.DESC, 0);
+			ShowWindow(CONFIG.maxDistanceH.DESC, 0);
+			ShowWindow(CONFIG.planetSpacingH.DESC, 0);
+			ShowWindow(CONFIG.avgEccentricityH.DESC, 0);
+			ShowWindow(CONFIG.SDEccentricityH.DESC, 0);
+			ShowWindow(CONFIG.avgInclinationH.DESC, 0);
+			ShowWindow(CONFIG.SDInclinationH.DESC, 0);
+			ShowWindow(CONFIG.avgObliquityH.DESC, 0);
+			ShowWindow(CONFIG.SDObliquityH.DESC, 0);
+			ShowWindow(CONFIG.starClassAH.DESC, 0);
+			ShowWindow(CONFIG.starClassBH.DESC, 0);
+			ShowWindow(CONFIG.starClassFH.DESC, 0);
+			ShowWindow(CONFIG.starClassGH.DESC, 0);
+			ShowWindow(CONFIG.starClassKH.DESC, 0);
+			ShowWindow(CONFIG.starClassMH.DESC, 0);
+			ShowWindow(CONFIG.starClassOH.DESC, 0);
+			ShowWindow(CONFIG.starClassQH.DESC, 0);
+			ShowWindow(CONFIG.starClassWDH.DESC, 0);
+			ShowWindow(CONFIG.starClassXH.DESC, 0);
+			//Info
+			ShowWindow(CONFIG.smartPlacementH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.generateDwarfPlanetsH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.dwarfPlanetChanceH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.minPlanetNumberH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.minDistanceH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.maxDistanceH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.planetSpacingH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.avgEccentricityH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.SDEccentricityH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.avgInclinationH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.SDInclinationH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.avgObliquityH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.SDObliquityH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.starClassAH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.starClassBH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.starClassFH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.starClassGH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.starClassKH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.starClassMH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.starClassOH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.starClassQH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.starClassWDH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.starClassXH.INFOBUTTON, 0);
+			//Extra
+			ShowWindow(CONFIG.starClassOH.EXTRA, 0);
+		}
+			break;
+		case Life:
+		{
+			//Header
+			ShowWindow(CONFIG.HEADER_LIFE, 0);
+			//Handles
+			ShowWindow(CONFIG.life_OrganicChanceH.HANDLE, 0);
+			ShowWindow(CONFIG.life_ExoticChanceH.HANDLE, 0);
+			ShowWindow(CONFIG.life_MulticellChanceH.HANDLE, 0);
+			ShowWindow(CONFIG.forceLifeH.HANDLE, 0);
+			ShowWindow(CONFIG.traditionalLifeH.HANDLE, 0);
+			//Desc
+			ShowWindow(CONFIG.life_OrganicChanceH.DESC, 0);
+			ShowWindow(CONFIG.life_ExoticChanceH.DESC, 0);
+			ShowWindow(CONFIG.life_MulticellChanceH.DESC, 0);
+			ShowWindow(CONFIG.forceLifeH.DESC, 0);
+			ShowWindow(CONFIG.traditionalLifeH.DESC, 0);
+			//Info
+			ShowWindow(CONFIG.life_OrganicChanceH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.life_ExoticChanceH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.life_MulticellChanceH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.forceLifeH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.traditionalLifeH.INFOBUTTON, 0);
+			//Extra
+		}
+			break;
+		case Ships:
+		{
+			//Header
+			ShowWindow(CONFIG.HEADER_SHIPS, 0);
+			//Handles
+			ShowWindow(CONFIG.exotic_ShipChanceH.HANDLE, 0);
+			ShowWindow(CONFIG.shipsNeedLifeH.HANDLE, 0);
+			ShowWindow(CONFIG.modelsFolderH.HANDLE, 0);
+			//Desc
+			ShowWindow(CONFIG.exotic_ShipChanceH.DESC, 0);
+			ShowWindow(CONFIG.shipsNeedLifeH.DESC, 0);
+			ShowWindow(CONFIG.modelsFolderH.DESC, 0);
+			//Info
+			ShowWindow(CONFIG.exotic_ShipChanceH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.shipsNeedLifeH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.modelsFolderH.INFOBUTTON, 0);
+			//Extra
+		}
+			break;
+		case Exotic:
+		{
+			//Header
+			ShowWindow(CONFIG.HEADER_EXOTIC, 0);
+			//Handles
+			ShowWindow(CONFIG.exotic_OrbitChanceH.HANDLE, 0);
+			ShowWindow(CONFIG.exotic_AxialTiltChanceH.HANDLE, 0);
+			ShowWindow(CONFIG.exotic_CompanionOrbitChanceH.HANDLE, 0);
+			ShowWindow(CONFIG.exotic_DebrisRingChanceH.HANDLE, 0);
+			//Desc
+			ShowWindow(CONFIG.exotic_OrbitChanceH.DESC, 0);
+			ShowWindow(CONFIG.exotic_AxialTiltChanceH.DESC, 0);
+			ShowWindow(CONFIG.exotic_CompanionOrbitChanceH.DESC, 0);
+			ShowWindow(CONFIG.exotic_DebrisRingChanceH.DESC, 0);
+			//Info
+			ShowWindow(CONFIG.exotic_OrbitChanceH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.exotic_AxialTiltChanceH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.exotic_CompanionOrbitChanceH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.exotic_DebrisRingChanceH.INFOBUTTON, 0);
+			//Extra
+		}
+			break;
+		case Advanced:
+		{
+			ShowWindow(CONFIG.HEADER_ADVANCED, 0);
+			ShowWindow(CONFIG.advNameGroup.EXTRA, 0);
+			ShowWindow(CONFIG.saveNamePresetButton.HANDLE, 0);
+			ShowWindow(CONFIG.saveNamePresetButton.DESC, 0);
+			ShowWindow(CONFIG.saveNamePresetButton.INFOBUTTON, 0);
+			ShowWindow(CONFIG.saveNamePresetButton.EXTRA, 0);
+			ShowWindow(CONFIG.buttonDwarfMoon, 0);
+			ShowWindow(CONFIG.buttonMoon, 0);
+			ShowWindow(CONFIG.buttonPlanet, 0);
+			ShowWindow(CONFIG.buttonUpdate, 0);
+			ShowWindow(CONFIG.buttonShip, 0);
+			ShowWindow(CONFIG.buttonStar, 0);
+			ShowWindow(CONFIG.buttonDataset, 0);
+			ShowWindow(CONFIG.buttonSimple, 0);
 
-		//Header
-		ShowWindow(CONFIG.HEADER_GENERAL, 0);
-
-		//Handles
-		ShowWindow(CONFIG.seedH.HANDLE, 0);
-		ShowWindow(CONFIG.numberOfRunsH.HANDLE, 0);
-		ShowWindow(CONFIG.debugH.HANDLE, 0);
-		ShowWindow(CONFIG.starOutputFolderH.HANDLE, 0);
-		ShowWindow(CONFIG.planetOutputFolderH.HANDLE, 0);
-
-		ShowWindow(CONFIG.presetDropDown.HANDLE, 0);
-		ShowWindow(CONFIG.savePresetButton.HANDLE, 0);
-		ShowWindow(CONFIG.namePresetDropDown.HANDLE, 0);
-
-
-		//Desc
-		ShowWindow(CONFIG.seedH.DESC, 0);
-		ShowWindow(CONFIG.numberOfRunsH.DESC, 0);
-		ShowWindow(CONFIG.debugH.DESC, 0);
-		ShowWindow(CONFIG.starOutputFolderH.DESC, 0);
-		ShowWindow(CONFIG.planetOutputFolderH.DESC, 0);
-
-		ShowWindow(CONFIG.presetDropDown.DESC, 0);
-		ShowWindow(CONFIG.savePresetButton.DESC, 0);
-		ShowWindow(CONFIG.namePresetDropDown.DESC, 0);
-
-		//Info
-		ShowWindow(CONFIG.seedH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.numberOfRunsH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.debugH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.starOutputFolderH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.planetOutputFolderH.INFOBUTTON, 0);
-
-		ShowWindow(CONFIG.presetDropDown.INFOBUTTON, 0);
-		ShowWindow(CONFIG.savePresetButton.INFOBUTTON, 0);
-		ShowWindow(CONFIG.namePresetDropDown.INFOBUTTON, 0);
-
-		//Extra
-		ShowWindow(CONFIG.presetDropDown.EXTRA, 0);
-		ShowWindow(CONFIG.savePresetButton.EXTRA, 0);
-		ShowWindow(CONFIG.namePresetDropDown.EXTRA, 0);
-
-		/*#####################################################
-			System and Planet Variables
-		#####################################################*/
-
-		//Header
-		ShowWindow(CONFIG.HEADER_SYSTEMPLANET, 0);
-
-		//Handles
-		ShowWindow(CONFIG.smartPlacementH.HANDLE, 0);
-		ShowWindow(CONFIG.generateDwarfPlanetsH.HANDLE, 0);
-		ShowWindow(CONFIG.dwarfPlanetChanceH.HANDLE, 0);
-		ShowWindow(CONFIG.minPlanetNumberH.HANDLE, 0);
-		ShowWindow(CONFIG.minDistanceH.HANDLE, 0);
-		ShowWindow(CONFIG.maxDistanceH.HANDLE, 0);
-		ShowWindow(CONFIG.planetSpacingH.HANDLE, 0);
-		ShowWindow(CONFIG.avgEccentricityH.HANDLE, 0);
-		ShowWindow(CONFIG.SDEccentricityH.HANDLE, 0);
-		ShowWindow(CONFIG.avgInclinationH.HANDLE, 0);
-		ShowWindow(CONFIG.SDInclinationH.HANDLE, 0);
-		ShowWindow(CONFIG.avgObliquityH.HANDLE, 0);
-		ShowWindow(CONFIG.SDObliquityH.HANDLE, 0);
-
-		//Desc
-		ShowWindow(CONFIG.smartPlacementH.DESC, 0);
-		ShowWindow(CONFIG.generateDwarfPlanetsH.DESC, 0);
-		ShowWindow(CONFIG.dwarfPlanetChanceH.DESC, 0);
-		ShowWindow(CONFIG.minPlanetNumberH.DESC, 0);
-		ShowWindow(CONFIG.minDistanceH.DESC, 0);
-		ShowWindow(CONFIG.maxDistanceH.DESC, 0);
-		ShowWindow(CONFIG.planetSpacingH.DESC, 0);
-		ShowWindow(CONFIG.avgEccentricityH.DESC, 0);
-		ShowWindow(CONFIG.SDEccentricityH.DESC, 0);
-		ShowWindow(CONFIG.avgInclinationH.DESC, 0);
-		ShowWindow(CONFIG.SDInclinationH.DESC, 0);
-		ShowWindow(CONFIG.avgObliquityH.DESC, 0);
-		ShowWindow(CONFIG.SDObliquityH.DESC, 0);
-
-		ShowWindow(CONFIG.starClassAH.DESC, 0);
-		ShowWindow(CONFIG.starClassBH.DESC, 0);
-		ShowWindow(CONFIG.starClassFH.DESC, 0);
-		ShowWindow(CONFIG.starClassGH.DESC, 0);
-		ShowWindow(CONFIG.starClassKH.DESC, 0);
-		ShowWindow(CONFIG.starClassMH.DESC, 0);
-		ShowWindow(CONFIG.starClassOH.DESC, 0);
-		ShowWindow(CONFIG.starClassQH.DESC, 0);
-		ShowWindow(CONFIG.starClassWDH.DESC, 0);
-		ShowWindow(CONFIG.starClassXH.DESC, 0);
-
-		//Info
-		ShowWindow(CONFIG.smartPlacementH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.generateDwarfPlanetsH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.dwarfPlanetChanceH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.minPlanetNumberH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.minDistanceH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.maxDistanceH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.planetSpacingH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.avgEccentricityH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.SDEccentricityH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.avgInclinationH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.SDInclinationH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.avgObliquityH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.SDObliquityH.INFOBUTTON, 0);
-
-		ShowWindow(CONFIG.starClassAH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.starClassBH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.starClassFH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.starClassGH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.starClassKH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.starClassMH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.starClassOH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.starClassQH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.starClassWDH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.starClassXH.INFOBUTTON, 0);
-
-		//Extra
-		ShowWindow(CONFIG.starClassOH.EXTRA, 0);
-
-		/*#####################################################
-			Life Variables
-		#####################################################*/
-
-		//Header
-		ShowWindow(CONFIG.HEADER_LIFE, 0);
-
-		//Handles
-		ShowWindow(CONFIG.life_OrganicChanceH.HANDLE, 0);
-		ShowWindow(CONFIG.life_ExoticChanceH.HANDLE, 0);
-		ShowWindow(CONFIG.life_MulticellChanceH.HANDLE, 0);
-		ShowWindow(CONFIG.forceLifeH.HANDLE, 0);
-		ShowWindow(CONFIG.traditionalLifeH.HANDLE, 0);
-
-		//Desc
-		ShowWindow(CONFIG.life_OrganicChanceH.DESC, 0);
-		ShowWindow(CONFIG.life_ExoticChanceH.DESC, 0);
-		ShowWindow(CONFIG.life_MulticellChanceH.DESC, 0);
-		ShowWindow(CONFIG.forceLifeH.DESC, 0);
-		ShowWindow(CONFIG.traditionalLifeH.DESC, 0);
-
-		//Info
-		ShowWindow(CONFIG.life_OrganicChanceH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.life_ExoticChanceH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.life_MulticellChanceH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.forceLifeH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.traditionalLifeH.INFOBUTTON, 0);
-
-		//Extra
-
-		/*#####################################################
-			Ships Variables
-		#####################################################*/
-
-		//Header
-		ShowWindow(CONFIG.HEADER_SHIPS, 0);
-
-		//Handles
-		ShowWindow(CONFIG.exotic_ShipChanceH.HANDLE, 0);
-		ShowWindow(CONFIG.shipsNeedLifeH.HANDLE, 0);
-		ShowWindow(CONFIG.modelsFolderH.HANDLE, 0);
-
-		//Desc
-		ShowWindow(CONFIG.exotic_ShipChanceH.DESC, 0);
-		ShowWindow(CONFIG.shipsNeedLifeH.DESC, 0);
-		ShowWindow(CONFIG.modelsFolderH.DESC, 0);
-
-		//Info
-		ShowWindow(CONFIG.exotic_ShipChanceH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.shipsNeedLifeH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.modelsFolderH.INFOBUTTON, 0);
-
-		//Extra
-
-		/*#####################################################
-			Exotic Variables
-		#####################################################*/
-
-		//Header
-		ShowWindow(CONFIG.HEADER_EXOTIC, 0);
-
-		//Handles
-		ShowWindow(CONFIG.exotic_OrbitChanceH.HANDLE, 0);
-		ShowWindow(CONFIG.exotic_AxialTiltChanceH.HANDLE, 0);
-		ShowWindow(CONFIG.exotic_CompanionOrbitChanceH.HANDLE, 0);
-		ShowWindow(CONFIG.exotic_DebrisRingChanceH.HANDLE, 0);
-
-		//Desc
-		ShowWindow(CONFIG.exotic_OrbitChanceH.DESC, 0);
-		ShowWindow(CONFIG.exotic_AxialTiltChanceH.DESC, 0);
-		ShowWindow(CONFIG.exotic_CompanionOrbitChanceH.DESC, 0);
-		ShowWindow(CONFIG.exotic_DebrisRingChanceH.DESC, 0);
-
-		//Info
-		ShowWindow(CONFIG.exotic_OrbitChanceH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.exotic_AxialTiltChanceH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.exotic_CompanionOrbitChanceH.INFOBUTTON, 0);
-		ShowWindow(CONFIG.exotic_DebrisRingChanceH.INFOBUTTON, 0);
-
-		//Extra
-
-		/*#####################################################
-			Advanced Variables
-		#####################################################*/
-
-		//Header
-		ShowWindow(CONFIG.HEADER_ADVANCED, 0);
-
-		ShowWindow(CONFIG.advNameGroup.EXTRA, 0);
-
-		ShowWindow(CONFIG.saveNamePresetButton.HANDLE, 0);
-		ShowWindow(CONFIG.saveNamePresetButton.DESC, 0);
-		ShowWindow(CONFIG.saveNamePresetButton.INFOBUTTON, 0);
-		ShowWindow(CONFIG.saveNamePresetButton.EXTRA, 0);
-
-		ShowWindow(CONFIG.buttonDwarfMoon, 0);
-		ShowWindow(CONFIG.buttonMoon, 0);
-		ShowWindow(CONFIG.buttonPlanet, 0);
-		ShowWindow(CONFIG.buttonUpdate, 0);
-		ShowWindow(CONFIG.buttonShip, 0);
-		ShowWindow(CONFIG.buttonStar, 0);
-		ShowWindow(CONFIG.buttonDataset, 0);
-		ShowWindow(CONFIG.buttonSimple, 0);
-
-
-		Clear_Advanced();
+			Clear_Advanced();
+		}
+			break;
+		}
 	}
 	void Load_Screen_General()
 	{
@@ -2599,6 +2601,8 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 		ShowWindow(CONFIG.presetDropDown.EXTRA, 1);
 		ShowWindow(CONFIG.savePresetButton.EXTRA, 1);
 		ShowWindow(CONFIG.namePresetDropDown.EXTRA, 1);
+
+		lastScreen = General;
 	}
 	void Load_Screen_SystemPlanet()
 	{
@@ -2674,6 +2678,8 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 
 		//Extra
 		ShowWindow(CONFIG.starClassOH.EXTRA, 1);
+
+		lastScreen = System;
 	}
 	void Load_Screen_Life()
 	{
@@ -2702,6 +2708,8 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 		ShowWindow(CONFIG.traditionalLifeH.INFOBUTTON, 1);
 
 		//Extra
+
+		lastScreen = Life;
 	}
 	void Load_Screen_Ships()
 	{
@@ -2722,6 +2730,8 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 		ShowWindow(CONFIG.exotic_ShipChanceH.INFOBUTTON, 1);
 		ShowWindow(CONFIG.shipsNeedLifeH.INFOBUTTON, 1);
 		ShowWindow(CONFIG.modelsFolderH.INFOBUTTON, 1);
+
+		lastScreen = Ships;
 	}
 	void Load_Screen_Exotic()
 	{
@@ -2745,6 +2755,8 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 		ShowWindow(CONFIG.exotic_AxialTiltChanceH.INFOBUTTON, 1);
 		ShowWindow(CONFIG.exotic_CompanionOrbitChanceH.INFOBUTTON, 1);
 		ShowWindow(CONFIG.exotic_DebrisRingChanceH.INFOBUTTON, 1);
+
+		lastScreen = Exotic;
 	}
 	void Load_Screen_Advanced()
 	{
@@ -2766,6 +2778,8 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 		ShowWindow(CONFIG.buttonShip, 1);
 		ShowWindow(CONFIG.buttonDataset, 1);
 		ShowWindow(CONFIG.buttonSimple, 1);
+
+		lastScreen = Advanced;
 	}
 
 	void Clear_Advanced()

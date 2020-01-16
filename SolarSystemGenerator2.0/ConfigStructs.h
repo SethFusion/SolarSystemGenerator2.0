@@ -46,6 +46,8 @@ struct Configuration
 	|																|
 	#--------------------------------------------------------------*/
 
+	HWND tabH;
+
 	/*#####################################################
 		*/	HWND INFO_BOX; /*
 		This handles the leftside info panel on the
