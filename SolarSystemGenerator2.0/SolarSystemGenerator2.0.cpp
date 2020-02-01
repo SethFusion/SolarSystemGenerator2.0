@@ -4207,7 +4207,7 @@ Screen lastScreen;
 		starFile.close();
 		return;
 	}
-	static void SortVector(std::vector<PLANET>& vector, int low, int high)
+	void SortVector(std::vector<PLANET>& vector, int low, int high)
 	{
 		if (low < high)
 		{
@@ -4216,7 +4216,7 @@ Screen lastScreen;
 			SortVector(vector, part + 1, high);
 		}
 	}
-	static int Partition(std::vector<PLANET>& vector, int low, int high)
+	int Partition(std::vector<PLANET>& vector, int low, int high)
 	{
 		double pivot = vector.at(high).semimajorAxis;
 		int i = (low - 1);
