@@ -146,7 +146,7 @@ static void SetVariableToWindow(HWND& window, double number)
 {
 	wchar_t genVar[16];
 	char genChar[26];
-	_gcvt_s(genChar, sizeof(genChar), number, 10);
+	_gcvt_s(genChar, sizeof(genChar), number, 5);
 	mbstowcs_s(NULL, genVar, sizeof(genVar) / 2, genChar, sizeof(genChar));
 	SetWindowTextW(window, genVar);
 }

@@ -66,6 +66,8 @@ Screen lastScreen;
 	void Load_Screen_Exotic();
 	void Load_Screen_Advanced();
 
+	//void WINAPI TBNotifications(WPARAM wParam, HWND hwndTrack, UINT iSelMin, UINT iSelMax);
+
 	void Clear_Advanced();
 	void Load_Name_Star();
 	void Load_Name_Planet();
@@ -98,10 +100,17 @@ Screen lastScreen;
 		void GenerateStar(STAR&);
 		void PrintStar(STAR&, std::ofstream&);
 		void PrintPlanet(PLANET&, std::ofstream&);
-		void GeneratePlanet(STAR&, PLANET&); /*
+		void GeneratePlanet(STAR&, PLANET&);
+		void GenerateDwarfPlanet(STAR&, PLANET&);
+		void GenerateMajorMoon(STAR&, PLANET&, PLANET&, int);
+		void GenerateMinorMoon(PLANET&, PLANET&);
+		void GenerateDwarfMinor(PLANET& parent, PLANET& moon);
+		/*
 	Generator Functions
 
 #####################################################*/
+
+		
 
 /*---------------------------------------------------------------------------------------#
 |	THE WINDOW:																			 |
@@ -320,6 +329,13 @@ Screen lastScreen;
 			}
 		}
 		break;
+		// for trackbar stuff
+		/*case WM_HSCROLL:
+			UINT min, max;
+			min = SendMessage((HWND)lParam, TBM_GETRANGEMIN, 0, 0);
+			max = SendMessage((HWND)lParam, TBM_GETRANGEMAX, 0, 0);
+			TBNotifications(wParam, (HWND)lParam, min, max);
+			break;*/
 		case WM_PAINT:
 		{
 			PAINTSTRUCT ps;
@@ -1018,6 +1034,21 @@ Screen lastScreen;
 				WS_CHILD | WS_BORDER,
 				702, 264, 16, 16,
 				hWnd, (HMENU)IB_ECCENTRICITY, NULL, NULL);
+
+			// Trackbar stuff
+			/*
+			CONFIG.avgEccentricityH.HANDLE = CreateWindowW(TRACKBAR_CLASS, L"Track Test",
+				WS_CHILD | WS_BORDER | TBS_NOTICKS,
+				600, 400, 100, 20,
+				hWnd, NULL, NULL, NULL);
+			SendMessage(CONFIG.avgEccentricityH.HANDLE, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(1, 9999));
+			SendMessage(CONFIG.avgEccentricityH.HANDLE, TBM_SETPAGESIZE, 0, (LPARAM)100);
+			CONFIG.avgEccentricityH.EXTRA = CreateWindowW(L"static", L"",
+				WS_CHILD | WS_VISIBLE | SS_RIGHT,
+				0, 0, 70, 20,
+				hWnd, NULL, NULL, NULL);
+			SendMessage(CONFIG.avgEccentricityH.HANDLE, TBM_SETBUDDY, (WPARAM)FALSE, (LPARAM)CONFIG.avgEccentricityH.EXTRA);
+			*/
 
 			//Star class Stuff
 			//I used the O class's EXTRA to create the groupbox for all the classes,
@@ -2059,8 +2090,8 @@ Screen lastScreen;
 		SetWindowTextW(CONFIG.generateDwarfPlanetsH.HANDLE, P.generateDwarfPlanetsState);
 		SetVariableToWindow(CONFIG.dwarfPlanetChanceH.HANDLE, P.dwarfPlanetChance);
 		SetVariableToWindow(CONFIG.avgEccentricityH.HANDLE, P.avgEccentricity);
-		SetVariableToWindow(CONFIG.SDEccentricityH.HANDLE, P.SDEccentricity);
-		SetVariableToWindow(CONFIG.avgInclinationH.HANDLE, P.avgInclination);
+		SetVariableToWindow(CONFIG.SDEccentricityH.HANDLE, P.SDEccentricity); 
+		SetVariableToWindow(CONFIG.avgInclinationH.HANDLE, P.avgInclination); // change to extra for trackbar
 		SetVariableToWindow(CONFIG.SDInclinationH.HANDLE, P.SDInclination);
 		SetVariableToWindow(CONFIG.avgObliquityH.HANDLE, P.avgObliquity);
 		SetVariableToWindow(CONFIG.SDObliquityH.HANDLE, P.SDObliquity);
@@ -2782,6 +2813,16 @@ Screen lastScreen;
 		lastScreen = Advanced;
 	}
 
+	// for trackbar calls
+	/*
+	void __stdcall TBNotifications(WPARAM wParam, HWND hwndTrack, UINT iSelMin, UINT iSelMax)
+	{
+		HWND temp;
+		temp = (HWND)SendMessage(hwndTrack, TBM_GETBUDDY, (WPARAM)FALSE, 0);
+		SetVariableToWindow(temp, (SendMessage(hwndTrack, TBM_GETPOS, 0, 0) / 10000.0));
+
+	}*/
+
 	void Clear_Advanced()
 	{
 		ShowWindow(NV.PreMod_INFO.DESC, 0);
@@ -3021,7 +3062,7 @@ Screen lastScreen;
 		GetVariableFromWindow(CONFIG.planetSpacingH.HANDLE, CONFIG.planetSpacing);
 		CONFIG.generateDwarfPlanets = (IsDlgButtonChecked(hWnd, CB_GENERATEDWARFPLANET) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(CONFIG.dwarfPlanetChanceH.HANDLE, CONFIG.dwarfPlanetChance);
-		GetVariableFromWindow(CONFIG.avgEccentricityH.HANDLE, CONFIG.avgEccentricity);
+		GetVariableFromWindow(CONFIG.avgEccentricityH.HANDLE, CONFIG.avgEccentricity); // change to extra for trackbar
 		GetVariableFromWindow(CONFIG.SDEccentricityH.HANDLE, CONFIG.SDEccentricity);
 		GetVariableFromWindow(CONFIG.avgInclinationH.HANDLE, CONFIG.avgInclination);
 		GetVariableFromWindow(CONFIG.SDInclinationH.HANDLE, CONFIG.SDInclination);
@@ -4416,9 +4457,6 @@ Screen lastScreen;
 		star.semimajorStaticList = star.semimajorList; // keeps a copy of the original semimajor points
 
 		star.maxPlanetNumber = star.semimajorList.size();
-
-
-
 	}
 
 	void PrintStar(STAR& star, std::ofstream& file)
@@ -4501,6 +4539,1328 @@ Screen lastScreen;
 		planet.semimajorAxis = star.semimajorList.at(holder);
 		star.semimajorList.erase(star.semimajorList.begin() + holder);
 
-	}
+		//######################################################################################################
+			//	CLASS GENERATION
 
+		// If Smart Generation is turned on
+		if (CONFIG.smartPlacement == 1)
+		{
+			// Classes less than Habit Zone / 2
+			if (planet.semimajorAxis < (star.habitZoneInnerLimit / 2))
+			{
+				std::wstring planetClassList[4] = { L"Terra", L"Ferria", L"Carbonia", L"Neptune" };
+				std::discrete_distribution<int> genclass{ 30, 5, 5, 10 };
+				planet.class_ = planetClassList[genclass(mt_planet)];
+			}
+			// Classes around the HZ
+			if (planet.semimajorAxis > (star.habitZoneInnerLimit / 2) && planet.semimajorAxis < (star.habitZoneOuterLimit * 2))
+			{
+				std::wstring planetClassList[4] = { L"Terra", L"Ferria", L"Carbonia", L"Aquaria" };
+				std::discrete_distribution<int> genclass{ 25, 5, 5, 15 };
+				planet.class_ = planetClassList[genclass(mt_planet)];
+			}
+			// Classes before frost line
+			if (planet.semimajorAxis > (star.habitZoneOuterLimit * 2) && planet.semimajorAxis < star.frostLine)
+			{
+				std::wstring planetClassList[5] = { L"Terra", L"Ferria", L"Carbonia", L"Neptune", L"Aquaria" };
+				std::discrete_distribution<int> genclass{ 10, 5, 5, 15, 15 };
+				planet.class_ = planetClassList[genclass(mt_planet)];
+			}
+			// Classes after frost line
+			if (planet.semimajorAxis > star.frostLine)
+			{
+				std::wstring planetClassList[6] = { L"Terra", L"Ferria", L"Carbonia", L"Neptune", L"Aquaria", L"Jupiter" };
+				std::discrete_distribution<int> genclass{ 5, 5, 5, 10, 5, 20 };
+				planet.class_ = planetClassList[genclass(mt_planet)];
+			}
+		}
+		// If Smart Generation is turned off
+		else
+		{
+			const int PCSIZE = 6;
+			std::wstring planetClassList[PCSIZE] = { L"Terra", L"Ferria", L"Carbonia", L"Aquaria", L"Neptune", L"Jupiter" }; // All classes for every position
+			std::uniform_int_distribution<int> genclass{ 0, (PCSIZE - 1) };
+			planet.class_ = planetClassList[genclass(mt_planet)];
+		}
+
+		/*################################
+			TEST BOX
+		################################*/
+			//planet.class_ = L"Terra";
+		//################################
+
+		//######################################################################################################
+			//	MASS + RADIUS GENERATION
+
+		if (planet.class_ == L"Jupiter")
+		{
+			if (genpercent(mt_planet) <= 60)
+			{
+				std::uniform_real_distribution<> genm{ 10, 320 };
+				planet.mass = genm(mt_planet);
+			}
+			else
+			{
+				std::uniform_real_distribution<> genm{ 320, 2000 };
+				planet.mass = genm(mt_planet);
+			}
+
+			if (planet.mass < 60)
+			{
+				std::normal_distribution<> genr{ 20000, 5000 };
+				do planet.radius = genr(mt_planet);
+				while (planet.radius <= 13000 || planet.radius > 33000);
+			}
+			else if (planet.mass < 150)
+			{
+				std::normal_distribution<> genr{ 55000, 2000 };
+				do planet.radius = genr(mt_planet);
+				while (planet.radius <= 30000 || planet.radius > 80000);
+			}
+			else if (planet.mass < 320)
+			{
+				std::normal_distribution<> genr{ 71492, 7000 };
+				do planet.radius = genr(mt_planet);
+				while (planet.radius <= 60000 || planet.radius > 80000);
+			}
+			else
+			{
+				std::normal_distribution<> genr{ 71492, 15000 };
+				do planet.radius = genr(mt_planet);
+				while (planet.radius <= 20000 || planet.radius > 72000);
+			}
+
+			planet.earthRadius = planet.radius / 6378.14;
+			planet.gravity = planet.mass / (pow(planet.earthRadius, 2));
+			planet.density = planet.gravity / planet.earthRadius;
+			//		density = (gravity / earthRadius) * 5.514;
+			//		cout << L"desnity : L" << density << L" g/cm^3" << endl;
+		}
+		else if (planet.class_ == L"Neptune")
+		{
+			std::uniform_real_distribution<> genm{ 2, 70 };
+			planet.mass = genm(mt_planet);
+
+			if (planet.mass < 8)
+			{
+				std::normal_distribution<> genr{ 10000, 500 };
+				do planet.radius = genr(mt_planet);
+				while (planet.radius <= 7000 || planet.radius > 15000);
+			}
+			else if (planet.mass < 17)
+			{
+				std::normal_distribution<> genr{ 20000, 1000 };
+				do planet.radius = genr(mt_planet);
+				while (planet.radius <= 15000 || planet.radius > 25000);
+			}
+			else if (planet.mass < 25)
+			{
+				std::normal_distribution<> genr{ 23000, 1000 };
+				do planet.radius = genr(mt_planet);
+				while (planet.radius <= 18000 || planet.radius > 28000);
+			}
+			else if (planet.mass < 35)
+			{
+				std::normal_distribution<> genr{ 26000, 750 };
+				do planet.radius = genr(mt_planet);
+				while (planet.radius <= 21000 || planet.radius > 30000);
+			}
+			else if (planet.mass < 60)
+			{
+				std::normal_distribution<> genr{ 28000, 750 };
+				do planet.radius = genr(mt_planet);
+				while (planet.radius <= 25000 || planet.radius > 30000);
+			}
+			else if (planet.mass <= 70)
+			{
+				std::normal_distribution<> genr{ 30000, 500 };
+				do planet.radius = genr(mt_planet);
+				while (planet.radius <= 28000 || planet.radius > 32000);
+			}
+
+			planet.earthRadius = planet.radius / 6378.14;
+			planet.gravity = planet.mass / (pow(planet.earthRadius, 2));
+			planet.density = planet.gravity / planet.earthRadius;
+		}
+
+		else if (planet.class_ == L"Terra")
+		{
+			do
+			{
+				if (genpercent(mt_planet) <= 50)
+				{
+					std::uniform_real_distribution<> genm{ 0.2, 2 };
+					planet.mass = genm(mt_planet);
+				}
+				else
+				{
+					std::uniform_real_distribution<> genm{ 2, 6 };
+					planet.mass = genm(mt_planet);
+				}
+
+				if (planet.mass < 1)
+				{
+					std::uniform_real_distribution<> genr{ 2000, 6500 };
+					planet.radius = genr(mt_planet);
+				}
+				else
+				{
+					std::uniform_real_distribution<> genr{ 6500, 13000 };
+					planet.radius = genr(mt_planet);
+				}
+
+				planet.earthRadius = planet.radius / 6378.14;
+				planet.gravity = planet.mass / (pow(planet.earthRadius, 2));
+				planet.density = planet.gravity / planet.earthRadius;
+
+			} while (planet.density < 0.75 || planet.density > 1.3);
+		}
+		else if (planet.class_ == L"Ferria")
+		{
+			do
+			{
+				if (genpercent(mt_planet) <= 50)
+				{
+					std::uniform_real_distribution<> genm{ 0.2, 2 };
+					planet.mass = genm(mt_planet);
+				}
+				else
+				{
+					std::uniform_real_distribution<> genm{ 2, 6 };
+					planet.mass = genm(mt_planet);
+				}
+
+				if (planet.mass < 1)
+				{
+					std::uniform_real_distribution<> genr{ 2000, 6500 };
+					planet.radius = genr(mt_planet);
+				}
+				else
+				{
+					std::uniform_real_distribution<> genr{ 6500, 13000 };
+					planet.radius = genr(mt_planet);
+				}
+
+				planet.earthRadius = planet.radius / 6378.14;
+				planet.gravity = planet.mass / (pow(planet.earthRadius, 2));
+				planet.density = planet.gravity / planet.earthRadius;
+
+			} while (planet.density < 1 || planet.density > 2);
+		}
+		else if (planet.class_ == L"Carbonia")
+		{
+			do
+			{
+				if (genpercent(mt_planet) <= 50)
+				{
+					std::uniform_real_distribution<> genm{ 0.2, 2 };
+					planet.mass = genm(mt_planet);
+				}
+				else
+				{
+					std::uniform_real_distribution<> genm{ 2, 6 };
+					planet.mass = genm(mt_planet);
+				}
+
+				if (planet.mass < 1)
+				{
+					std::uniform_real_distribution<> genr{ 2000, 6500 };
+					planet.radius = genr(mt_planet);
+				}
+				else
+				{
+					std::uniform_real_distribution<> genr{ 6500, 13000 };
+					planet.radius = genr(mt_planet);
+				}
+
+				planet.earthRadius = planet.radius / 6378.14;
+				planet.gravity = planet.mass / (pow(planet.earthRadius, 2));
+				planet.density = planet.gravity / planet.earthRadius;
+
+			} while (planet.density < 0.6 || planet.density > 1);
+		}
+		else if (planet.class_ == L"Aquaria")
+		{
+			do
+			{
+				if (genpercent(mt_planet) <= 50)
+				{
+					std::uniform_real_distribution<> genm{ 0.2, 2 };
+					planet.mass = genm(mt_planet);
+				}
+				else
+				{
+					std::uniform_real_distribution<> genm{ 2, 6 };
+					planet.mass = genm(mt_planet);
+				}
+
+				if (planet.mass < 1)
+				{
+					std::uniform_real_distribution<> genr{ 2000, 7000 };
+					planet.radius = genr(mt_planet);
+				}
+				else
+				{
+					std::uniform_real_distribution<> genr{ 6500, 13000 };
+					planet.radius = genr(mt_planet);
+				}
+
+				planet.earthRadius = planet.radius / 6378.14;
+				planet.gravity = planet.mass / (pow(planet.earthRadius, 2));
+				planet.density = planet.gravity / planet.earthRadius;
+
+			} while (planet.density < 0.5 || planet.density > 0.75);
+		}
+
+		//######################################################################################################
+			//	ORBIT GENERATION
+
+		planet.obliquity = genobliquity(mt_planet);
+		do planet.eccentricity = geneccentricity(mt_planet);
+		while (planet.eccentricity <= 0 || planet.eccentricity >= 1);
+		planet.inclination = geninclination(mt_planet);
+		planet.ascendingNode = gendegree(mt_planet);
+		planet.argofPericenter = gendegree(mt_planet);
+		planet.meanAnomaly = gendegree(mt_planet);
+
+		//######################################################################################################
+		//	EXOTIC GENERATION
+
+
+		// FUNCTION CALLS ARE TURNED OFF RIGHT NOW
+
+
+		// Determines an exotic orbit
+		if (genpercent(mt_planet) <= CONFIG.exotic_OrbitChance)
+		{
+			if (genpercent(mt_planet) <= 50)
+				planet.inclination += 180;
+			else
+			{
+				std::normal_distribution<> genhighinclination{ 60, 10 };
+				planet.inclination = genhighinclination(mt_planet);
+			}
+		}
+
+		// Determines an exotic rotation
+		if (genpercent(mt_planet) <= CONFIG.exotic_AxialTiltChance)
+		{
+			if (genpercent(mt_planet) <= 50)
+				planet.obliquity += 180;
+			else
+			{
+				std::normal_distribution<> genhighobliquity{ 90, 20 };
+				planet.obliquity = genhighobliquity(mt_planet);
+			}
+		}
+
+		planet.debrisCount = 0;
+		// Determines Debris Ring
+		if (genpercent(mt_planet) <= CONFIG.exotic_DebrisRingChance)
+		{
+			std::uniform_int_distribution<> GenDebrisNumber{ 15, 60 };
+			planet.debrisCount = GenDebrisNumber(mt_planet);
+		}
+
+		// Determines Ship
+		if (genpercent(mt_planet) <= CONFIG.exotic_ShipChance)
+			planet.hasShip = true;
+
+		// Determines Life
+		if (CONFIG.traditionalLife == true)
+		{
+			if (planet.semimajorAxis > (star.habitZoneInnerLimit * 0.7) && planet.semimajorAxis < (star.habitZoneOuterLimit * 1.3)
+				&& planet.class_ != L"Jupiter" && planet.class_ != L"Neptune"
+				&& genpercent(mt_planet) <= CONFIG.life_OrganicChance)
+			{
+				planet.life_organic.haslife = true;
+			//	ExoticGenerateLife<Planet>(CONFIG, planet);
+			}
+			if (genpercent(mt_planet) <= CONFIG.life_ExoticChance)
+			{
+				planet.life_exotic.haslife = true;
+			//	ExoticGenerateLife<Planet>(CONFIG, planet);
+			}
+		}
+		else
+		{
+			if (genpercent(mt_planet) <= CONFIG.life_OrganicChance)
+			{
+				planet.life_organic.haslife = true;
+			//	ExoticGenerateLife<Planet>(CONFIG, planet);
+			}
+			if (genpercent(mt_planet) <= CONFIG.life_ExoticChance)
+			{
+				planet.life_exotic.haslife = true;
+			//	ExoticGenerateLife<Planet>(CONFIG, planet);
+			}
+		}
+
+		//######################################################################################################
+			//	MOON NUMBER GENERATION
+
+		if (planet.mass > 10)
+			planet.hillSphereOuterLimit = planet.semimajorAxis * pow(((planet.mass / 317.832) / star.mass), (1.0 / 3.0)) * 235;
+		else
+			planet.hillSphereOuterLimit = planet.semimajorAxis * pow((planet.mass / star.mass), (1.0 / 3.0)) * 235;
+		planet.hillSphereOuterLimit *= planet.radius;
+
+		// Hill Sphere Caps
+		if (planet.class_ == L"Jupiter" && planet.mass > 600 && planet.hillSphereOuterLimit > 74799000)
+			planet.hillSphereOuterLimit = 74799000; // hillSphereOuterLimit Limit Capped at 0.5 AU
+		else if (planet.class_ == L"Jupiter" && planet.hillSphereOuterLimit > 37399500)
+			planet.hillSphereOuterLimit = 37399500; // hillSphereOuterLimit Limit Capped at 0.25 AU
+		else if (planet.class_ == L"Neptune" && planet.hillSphereOuterLimit > 14959800)
+			planet.hillSphereOuterLimit = 14959800; // hillSphereOuterLimit Limit Capped at 0.1 AU
+		else if (planet.class_ != L"Neptune" && planet.class_ != L"Jupiter" && planet.hillSphereOuterLimit > 1495980)
+			planet.hillSphereOuterLimit = 1495980;  // hillSphereOuterLimit Limit Capped at 0.01 AU
+
+		if (planet.semimajorAxis < star.frostLine)
+		{ // major up to 3, minor up to 15; ice/gas giants major up to 5, minor up to 20
+
+			if (planet.class_ == L"Jupiter" || planet.class_ == L"Neptune")
+			{
+				std::discrete_distribution<int> genmajorc{ 1, 3, 5, 3, 2, 1 };
+				std::discrete_distribution<int> genminorc{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
+
+				planet.numberOfMajorMoons = genmajorc(mt_planet);
+				planet.numberOfMinorMoons = genminorc(mt_planet);
+			}
+			else if (planet.planetType == L"DwarfPlanet")
+			{
+				std::discrete_distribution<int> genminorc{ 5, 1 };
+				planet.numberOfMinorMoons = genminorc(mt_planet);
+				planet.numberOfMajorMoons = 0;
+			}
+			else
+			{
+				std::discrete_distribution<int> genmajorc{ 7, 15, 5, 1 };
+				std::discrete_distribution<int> genminorc{ 32, 30, 28, 26, 24, 22, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
+
+				planet.numberOfMajorMoons = genmajorc(mt_planet);
+				planet.numberOfMinorMoons = genminorc(mt_planet);
+			}
+
+		}
+		else // planets above the frost line
+		{ // major up to 5, minor up to 25; ice giants major up to 8, minor up to 40; gas giant major up to 12, minor up to 70
+
+			if (planet.class_ == L"Jupiter")
+			{
+				std::discrete_distribution<int> genmajorc{ 0, 1, 3, 5, 7, 9, 10, 10, 9, 7, 5, 3, 1 };
+				std::discrete_distribution<int> genminorc{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+														21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 35, 34, 33,
+														32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15,
+														14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
+
+				planet.numberOfMajorMoons = genmajorc(mt_planet);
+				planet.numberOfMinorMoons = genminorc(mt_planet);
+			}
+			else if (planet.class_ == L"Neptune")
+			{
+				std::discrete_distribution<int> genmajorc{ 0, 1, 3, 5, 7, 7, 5, 3, 1 };
+				std::discrete_distribution<int> genminorc{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+														20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
+
+				planet.numberOfMajorMoons = genmajorc(mt_planet);
+				planet.numberOfMinorMoons = genminorc(mt_planet);
+			}
+			else if (planet.planetType == L"DwarfPlanet")
+			{
+				std::discrete_distribution<int> genminorc{ 5, 3, 2, 1 };
+				planet.numberOfMinorMoons = genminorc(mt_planet);
+				planet.numberOfMajorMoons = 0;
+			}
+			else
+			{
+				std::discrete_distribution<int> genmajorc{ 5, 15, 10, 5, 3, 1 };
+				std::discrete_distribution<int> genminorc{ 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
+
+				planet.numberOfMajorMoons = genmajorc(mt_planet);
+				planet.numberOfMinorMoons = genminorc(mt_planet);
+			}
+		}
+
+		// If hill sphere inner is larger than outer, then moons are set to 0
+		if ((2.44 * pow((planet.density / 0.05), (1.0 / 3.0)) * planet.radius) > planet.hillSphereOuterLimit)
+		{
+			planet.numberOfMajorMoons = 0;
+			planet.numberOfMinorMoons = 0;
+		}
+	}
+	void GenerateDwarfPlanet(STAR& star, PLANET& planet)
+	{
+		std::normal_distribution<> genobliquity{ CONFIG.avgObliquity, CONFIG.SDObliquity };
+		planet.planetType = L"DwarfPlanet";
+		planet.name = GenName(typePlanet);
+		planet.parentBody = star.name;
+
+		//######################################################################################################
+			//	CLASS / RADIUS GENERATION
+
+		if (genpercent(mt_planet) <= 50)
+			planet.class_ = L"Terra";
+		else
+			planet.class_ = L"Aquaria";
+
+		if (planet.class_ == L"Terra")
+		{
+			std::uniform_real_distribution<> gend{ 0.7, 1.5 };
+			std::uniform_real_distribution<> genr{ 190, 2000 };
+
+			planet.density = gend(mt_planet);
+			planet.radius = genr(mt_planet);
+			planet.earthRadius = planet.radius / 6378.14;
+			planet.mass = pow(planet.earthRadius, 3) * planet.density;
+			planet.gravity = planet.mass / pow(planet.earthRadius, 2);
+		}
+		else if (planet.class_ == L"Aquaria")
+		{
+			std::uniform_real_distribution<> gend{ 0.01, 0.5 };
+			std::uniform_real_distribution<> genr{ 190, 2000 };
+
+			planet.density = gend(mt_planet);
+			planet.radius = genr(mt_planet);
+			planet.earthRadius = planet.radius / 6378.14;
+			planet.mass = pow(planet.earthRadius, 3) * planet.density;
+			planet.gravity = planet.mass / pow(planet.earthRadius, 2);
+		}
+
+		//######################################################################################################
+			//	semimajorAxis GENERATION
+
+		if (CONFIG.smartPlacement == 1)
+		{
+			//Class is Selena...
+			if (planet.class_ == L"Terra")
+			{
+				int percent = genpercent(mt_planet);
+				if (percent <= 40)
+				{
+					std::uniform_real_distribution<> gensemimajorAxis{ (star.outerLimit / 1.5), (star.outerLimit * 3) };
+					planet.semimajorAxis = gensemimajorAxis(mt_planet);
+				}
+				else if (percent >= 60)
+				{
+					std::uniform_real_distribution<> gensemimajorAxis{ star.innerLimit, (star.innerLimit * 1.5) };
+					planet.semimajorAxis = gensemimajorAxis(mt_planet);
+				}
+				else
+				{
+					if (star.frostLine < star.innerLimit)
+					{
+						std::uniform_real_distribution<> gensemimajorAxis{ (star.outerLimit / 1.5), (star.outerLimit * 3) };
+						planet.semimajorAxis = gensemimajorAxis(mt_planet);
+					}
+					else
+					{
+						std::uniform_real_distribution<> gensemimajorAxis{ (star.frostLine / 1.5), (star.frostLine * 1.5) };
+						planet.semimajorAxis = gensemimajorAxis(mt_planet);
+					}
+				}
+			}
+			// Class is Ice World...
+			else if (star.frostLine > star.outerLimit) // for large stars like O
+			{
+				std::uniform_real_distribution<> gensemimajorAxis{ (star.frostLine / 1.2), (star.frostLine * 3) };
+				planet.semimajorAxis = gensemimajorAxis(mt_planet);
+			}
+			else if (star.frostLine < star.innerLimit) // for some Q class and low luminosity
+			{
+				int percent = genpercent(mt_planet);
+				if (percent <= 60)
+				{
+					std::uniform_real_distribution<> gensemimajorAxis{ (star.outerLimit / 1.5), (star.outerLimit * 3) };
+					planet.semimajorAxis = gensemimajorAxis(mt_planet);
+				}
+				else
+				{
+					std::uniform_real_distribution<> gensemimajorAxis{ (star.innerLimit / 1.2), (star.innerLimit * 3) };
+					planet.semimajorAxis = gensemimajorAxis(mt_planet);
+				}
+			}
+			else // for normal case stars
+			{
+				int percent = genpercent(mt_planet);
+				if (percent <= 60)
+				{
+					std::uniform_real_distribution<> gensemimajorAxis{ (star.outerLimit / 1.5), (star.outerLimit * 3) };
+					planet.semimajorAxis = gensemimajorAxis(mt_planet);
+				}
+				else
+				{
+					std::uniform_real_distribution<> gensemimajorAxis{ (star.frostLine / 1.5), (star.frostLine * 1.5) };
+					planet.semimajorAxis = gensemimajorAxis(mt_planet);
+				}
+			}
+		}
+		// If Smart Placement is off
+		else
+		{
+			std::uniform_real_distribution<> gensemimajorAxis{ (star.innerLimit), (star.outerLimit * 3) };
+			planet.semimajorAxis = gensemimajorAxis(mt_planet);
+		}
+
+		//######################################################################################################
+			//	ORBIT GENERATION
+
+		if (planet.semimajorAxis > star.outerLimit)
+		{
+			std::normal_distribution<> geneccentricity{ (CONFIG.avgEccentricity * 2), (CONFIG.SDEccentricity * 3) };
+			std::normal_distribution<> geninclination{ CONFIG.avgInclination, (CONFIG.SDInclination * 4) };
+
+			do planet.eccentricity = geneccentricity(mt_planet);
+			while (planet.eccentricity <= 0 || planet.eccentricity >= 1);
+			planet.inclination = geninclination(mt_planet);
+		}
+		else if (planet.semimajorAxis <= (star.frostLine * 1.5) && planet.semimajorAxis > (star.frostLine / 1.5))
+		{
+			std::normal_distribution<> geneccentricity{ CONFIG.avgEccentricity, (CONFIG.SDEccentricity * 1.25) };
+			std::normal_distribution<> geninclination{ CONFIG.avgInclination, (CONFIG.SDInclination * 2) };
+
+			do planet.eccentricity = geneccentricity(mt_planet);
+			while (planet.eccentricity <= 0 || planet.eccentricity >= 1);
+			planet.inclination = geninclination(mt_planet);
+		}
+		else
+		{
+			std::normal_distribution<> geneccentricity{ CONFIG.avgEccentricity, CONFIG.SDEccentricity };
+			std::normal_distribution<> geninclination{ CONFIG.avgInclination, CONFIG.SDInclination };
+
+			do planet.eccentricity = geneccentricity(mt_planet);
+			while (planet.eccentricity <= 0 || planet.eccentricity >= 1);
+			planet.inclination = geninclination(mt_planet);
+		}
+
+		planet.obliquity = genobliquity(mt_planet);
+		planet.ascendingNode = gendegree(mt_planet);
+		planet.argofPericenter = gendegree(mt_planet);
+		planet.meanAnomaly = gendegree(mt_planet);
+
+		//######################################################################################################
+			//	MOON NUMBER GENERATION
+
+		planet.hillSphereOuterLimit = planet.semimajorAxis * pow((planet.mass / star.mass), (1.0 / 3.0)) * 235;
+		planet.hillSphereOuterLimit *= planet.radius;
+
+		// Hill Sphere Caps
+		if (planet.hillSphereOuterLimit > 1495980)
+			planet.hillSphereOuterLimit = 1495980; // hillSphereOuterLimit Limit Capped at 0.01 AU
+
+		planet.numberOfMajorMoons = 0;
+
+		if (planet.semimajorAxis < star.frostLine)
+		{ // up to three
+			std::discrete_distribution<int> genminorc{ 10, 5, 3, 1 };
+			planet.numberOfMinorMoons = genminorc(mt_planet);
+		}
+		else // planets above the frost line
+		{ // up to 10
+			std::discrete_distribution<int> genminorc{ 20, 20, 20, 10, 10, 10, 5, 5, 5, 3, 1 };
+			planet.numberOfMinorMoons = genminorc(mt_planet);
+		}
+
+		// if hill sphere inner is larger than outer
+		if ((2.44 * planet.radius * pow((planet.density / 0.5), (1.0 / 3.0))) > planet.hillSphereOuterLimit)
+			planet.numberOfMinorMoons = 0; 
+	}
+	void GenerateMajorMoon(STAR& star, PLANET& parent, PLANET& moon, int spacer)
+	{
+		int testsemi;
+		moon.planetType = L"Moon";
+		moon.parentBody = parent.name;
+
+		if (NV.nameTerraMoons == true && parent.class_ != L"Jupiter" && parent.class_ != L"Neptune")
+			moon.name = GenName(typeMoon);
+		else if (NV.nameGasMoons == true && (parent.class_ == L"Jupiter" || parent.class_ == L"Neptune"))
+			moon.name = GenName(typeMoon);
+		else
+			moon.name = L"Major Moon";
+
+		//######################################################################################################
+			//	CLASS GENERATION
+
+		const int PCSIZE = 4;
+		std::wstring moonClassList[PCSIZE] = { L"Terra", L"Ferria", L"Carbonia", L"Aquaria" };
+		std::discrete_distribution<int> genclass{ 20, 5, 5, 20 };
+		moon.class_ = moonClassList[genclass(mt_moon)];
+
+		//class_ = L"Terra";
+
+		//######################################################################################################
+			//	MASS / RADIUS GENERATION
+
+		if (parent.mass >= 320)
+		{
+			if (moon.class_ == L"Terra")
+			{
+				std::uniform_real_distribution<> gend{ 0.7, 1.3 };
+				std::uniform_real_distribution<> genr{ 3000, 12000 };
+
+				moon.density = gend(mt_moon);
+				moon.radius = genr(mt_moon);
+			}
+			else if (moon.class_ == L"Aquaria")
+			{
+				std::uniform_real_distribution<> gend{ 0.1, 1 };
+				std::uniform_real_distribution<> genr{ 500, 12000 };
+
+				moon.density = gend(mt_moon);
+				moon.radius = genr(mt_moon);
+			}
+			else if (moon.class_ == L"Ferria")
+			{
+				std::uniform_real_distribution<> gend{ 1, 2 };
+				std::uniform_real_distribution<> genr{ 500, 12000 };
+
+				moon.density = gend(mt_moon);
+				moon.radius = genr(mt_moon);
+			}
+			else if (moon.class_ == L"Carbonia")
+			{
+				std::uniform_real_distribution<> gend{ 0.5, 1 };
+				std::uniform_real_distribution<> genr{ 3000, 12000 };
+
+				moon.density = gend(mt_moon);
+				moon.radius = genr(mt_moon);
+			}
+		}
+		else if (parent.mass >= 100)
+		{
+			if (moon.class_ == L"Terra")
+			{
+				std::uniform_real_distribution<> gend{ 0.7, 1.3 };
+				std::uniform_real_distribution<> genr{ 1000, 4500 };
+
+				moon.density = gend(mt_moon);
+				moon.radius = genr(mt_moon);
+			}
+			else if (moon.class_ == L"Aquaria")
+			{
+				std::uniform_real_distribution<> gend{ 0.1, 1 };
+				std::uniform_real_distribution<> genr{ 500, 4500 };
+
+				moon.density = gend(mt_moon);
+				moon.radius = genr(mt_moon);
+			}
+			else if (moon.class_ == L"Ferria")
+			{
+				std::uniform_real_distribution<> gend{ 1, 2 };
+				std::uniform_real_distribution<> genr{ 500, 4500 };
+
+				moon.density = gend(mt_moon);
+				moon.radius = genr(mt_moon);
+			}
+			else if (moon.class_ == L"Carbonia")
+			{
+				std::uniform_real_distribution<> gend{ 0.5, 1 };
+				std::uniform_real_distribution<> genr{ 1000, 4500 };
+
+				moon.density = gend(mt_moon);
+				moon.radius = genr(mt_moon);
+			}
+		}
+		else if (parent.mass >= 30)
+		{
+			if (moon.class_ == L"Terra")
+			{
+				std::uniform_real_distribution<> gend{ 0.7, 1.3 };
+				std::uniform_real_distribution<> genr{ 500, 3000 };
+
+				moon.density = gend(mt_moon);
+				moon.radius = genr(mt_moon);
+			}
+			else if (moon.class_ == L"Aquaria")
+			{
+				std::uniform_real_distribution<> gend{ 0.1, 1 };
+				std::uniform_real_distribution<> genr{ 500, 3000 };
+
+				moon.density = gend(mt_moon);
+				moon.radius = genr(mt_moon);
+			}
+			else if (moon.class_ == L"Ferria")
+			{
+				std::uniform_real_distribution<> gend{ 1, 2 };
+				std::uniform_real_distribution<> genr{ 500, 3000 };
+
+				moon.density = gend(mt_moon);
+				moon.radius = genr(mt_moon);
+			}
+			else if (moon.class_ == L"Carbonia")
+			{
+				std::uniform_real_distribution<> gend{ 0.5, 1 };
+				std::uniform_real_distribution<> genr{ 500, 3000 };
+
+				moon.density = gend(mt_moon);
+				moon.radius = genr(mt_moon);
+			}
+		}
+		else
+		{
+			if (moon.class_ == L"Terra")
+			{
+				std::uniform_real_distribution<> gend{ 0.7, 1.3 };
+				std::uniform_real_distribution<> genr{ 500, 2000 };
+
+				moon.density = gend(mt_moon);
+				moon.radius = genr(mt_moon);
+			}
+			else if (moon.class_ == L"Aquaria")
+			{
+				std::uniform_real_distribution<> gend{ 0.1, 1 };
+				std::uniform_real_distribution<> genr{ 500, 2000 };
+
+				moon.density = gend(mt_moon);
+				moon.radius = genr(mt_moon);
+			}
+			else if (moon.class_ == L"Ferria")
+			{
+				std::uniform_real_distribution<> gend{ 1, 2 };
+				std::uniform_real_distribution<> genr{ 500, 2000 };
+
+				moon.density = gend(mt_moon);
+				moon.radius = genr(mt_moon);
+			}
+			else if (moon.class_ == L"Carbonia")
+			{
+				std::uniform_real_distribution<> gend{ 0.5, 1 };
+				std::uniform_real_distribution<> genr{ 500, 2000 };
+
+				moon.density = gend(mt_moon);
+				moon.radius = genr(mt_moon);
+			}
+		}
+
+		moon.earthRadius = moon.radius / 6378.14;
+		moon.mass = pow(moon.earthRadius, 3) * moon.density;
+		moon.gravity = moon.mass / pow(moon.earthRadius, 2);
+
+		parent.usedRadius_moon.push_back(moon.radius);
+
+		//######################################################################################################
+			//	SEMI MAJOR GENERATION
+
+		if (moon.class_ == L"Jupiter")
+			moon.hillSphereInnerLimit = 2.44 * pow((parent.density / 0.1), (1.0 / 3.0));
+		else
+			moon.hillSphereInnerLimit = 2.44 * pow((parent.density / 0.05), (1.0 / 3.0));
+		moon.hillSphereInnerLimit *= parent.radius;
+
+		do
+		{
+			testsemi = 0;
+
+			// If the planet is a Gas/Ice Giant, it will use the spacers, if not, it will generate a random num.
+			if (parent.class_ == L"Jupiter" || parent.class_ == L"Neptune")
+			{
+				do
+				{
+					//do spacer = (spacer + 1) * genspacer(mt_moon);
+					//while (spacer <= 1);
+					std::uniform_real_distribution<> genfirstsemi{ 1, 1.3 };
+
+					moon.semimajorAxis = moon.hillSphereInnerLimit * genfirstsemi(mt_moon);
+					for (int count = 0; count < spacer; count++)
+					{
+						std::normal_distribution<> genspacer{ 1.7, 0.2 };
+						moon.semimajorAxis *= genspacer(mt_moon);
+					}
+
+					if (moon.semimajorAxis > (parent.hillSphereOuterLimit + moon.hillSphereInnerLimit) / 10)
+					{
+						std::uniform_real_distribution<> gensemi{ ((parent.hillSphereOuterLimit + moon.hillSphereInnerLimit) / 5), parent.hillSphereOuterLimit };
+						moon.semimajorAxis = gensemi(mt_moon);
+					}
+
+				} while (moon.semimajorAxis <= (moon.radius * 6) || moon.semimajorAxis > parent.hillSphereOuterLimit || moon.semimajorAxis < moon.hillSphereInnerLimit);
+			}
+			else
+			{
+				std::uniform_real_distribution<> gensemi{ moon.hillSphereInnerLimit, parent.hillSphereOuterLimit };
+				moon.semimajorAxis = gensemi(mt_moon);
+			}
+
+			// Checks the semi major against others to make sure no moons are too close. if they are, it re-gens.
+			for (int count = 0; count < parent.usedSemimajor_moon.size(); count++)
+			{
+				if ((moon.semimajorAxis - (moon.radius * 2)) < (parent.usedSemimajor_moon.at(count) + (parent.usedRadius_moon.at(count) * 2)) &&
+					(moon.semimajorAxis + (moon.radius * 2)) > (parent.usedSemimajor_moon.at(count) - (parent.usedRadius_moon.at(count) * 2)))
+					testsemi = 1; // means moons were too close
+				else if (testsemi != 1)
+					testsemi = 0;
+			}
+		} while (testsemi == 1);
+		parent.usedSemimajor_moon.push_back(moon.semimajorAxis);
+
+		//######################################################################################################
+			//	ORBIT GENERATION
+
+		if (parent.class_ == L"Jupiter")
+		{
+			if (moon.semimajorAxis < ((parent.hillSphereOuterLimit + moon.hillSphereInnerLimit) / 15))
+			{
+				// Set 1
+				std::normal_distribution<> genobliquity{ 0, 1 };
+				std::normal_distribution<> geneccentricity{ 0, 0.001 };
+				std::normal_distribution<> geninclination{ 0, 0.1 };
+
+				moon.obliquity = genobliquity(mt_moon);
+				do moon.eccentricity = geneccentricity(mt_moon);
+				while (moon.eccentricity <= 0 || moon.eccentricity >= 1);
+				moon.inclination = geninclination(mt_moon);
+			}
+			else if (moon.semimajorAxis < ((parent.hillSphereOuterLimit + moon.hillSphereInnerLimit) / 10))
+			{
+				// Set 2
+				std::normal_distribution<> genobliquity{ 0, 1 };
+				std::normal_distribution<> geneccentricity{ 0.03, 0.01 };
+				std::normal_distribution<> geninclination{ 0, 1 };
+
+				moon.obliquity = genobliquity(mt_moon);
+				do moon.eccentricity = geneccentricity(mt_moon);
+				while (moon.eccentricity <= 0 || moon.eccentricity >= 1);
+				moon.inclination = geninclination(mt_moon);
+			}
+			else
+			{
+				// Set 3
+				std::normal_distribution<> genobliquity{ 0, 10 };
+				std::normal_distribution<> geneccentricity{ 0.1, 0.2 };
+				std::normal_distribution<> geninclination{ 0, 25 };
+
+				moon.obliquity = genobliquity(mt_moon);
+				do moon.eccentricity = geneccentricity(mt_moon);
+				while (moon.eccentricity <= 0 || moon.eccentricity >= 1);
+				moon.inclination = geninclination(mt_moon);
+			}
+		}
+		else if (parent.class_ == L"Neptune")
+		{
+			if (moon.semimajorAxis < ((parent.hillSphereOuterLimit + moon.hillSphereInnerLimit) / 15))
+			{
+				// Set 4
+				std::normal_distribution<> genobliquity{ 0, 1 };
+				std::normal_distribution<> geneccentricity{ 0, 0.001 };
+				std::normal_distribution<> geninclination{ 0, 0.1 };
+
+				moon.obliquity = genobliquity(mt_moon);
+				do moon.eccentricity = geneccentricity(mt_moon);
+				while (moon.eccentricity <= 0 || moon.eccentricity >= 1);
+				moon.inclination = geninclination(mt_moon);
+			}
+			else if (moon.semimajorAxis < ((parent.hillSphereOuterLimit + moon.hillSphereInnerLimit) / 10))
+			{
+				// Set 5
+				std::normal_distribution<> genobliquity{ 0, 1 };
+				std::normal_distribution<> geneccentricity{ 0.03, 0.01 };
+				std::normal_distribution<> geninclination{ 0, 1 };
+
+				moon.obliquity = genobliquity(mt_moon);
+				do moon.eccentricity = geneccentricity(mt_moon);
+				while (moon.eccentricity <= 0 || moon.eccentricity >= 1);
+				moon.inclination = geninclination(mt_moon);
+			}
+			else
+			{
+				// Set 6
+				std::normal_distribution<> genobliquity{ 0, 10 };
+				std::normal_distribution<> geneccentricity{ 0.1, 0.2 };
+				std::normal_distribution<> geninclination{ 0, 25 };
+
+				moon.obliquity = genobliquity(mt_moon);
+				do moon.eccentricity = geneccentricity(mt_moon);
+				while (moon.eccentricity <= 0 || moon.eccentricity >= 1);
+				moon.inclination = geninclination(mt_moon);
+			}
+		}
+		else
+		{
+			if (moon.semimajorAxis < ((parent.hillSphereOuterLimit + moon.hillSphereInnerLimit) / 3))
+			{
+				// Set 7
+				std::normal_distribution<> genobliquity{ 0, 1 };
+				std::normal_distribution<> geneccentricity{ 0, 0.02 };
+				std::normal_distribution<> geninclination{ 0, 0.5 };
+
+				moon.obliquity = genobliquity(mt_moon);
+				do moon.eccentricity = geneccentricity(mt_moon);
+				while (moon.eccentricity <= 0 || moon.eccentricity >= 1);
+				moon.inclination = geninclination(mt_moon);
+			}
+			else if (moon.semimajorAxis < ((parent.hillSphereOuterLimit + moon.hillSphereInnerLimit) / 2))
+			{
+				// Set 8
+				std::normal_distribution<> genobliquity{ 0, 1 };
+				std::normal_distribution<> geneccentricity{ 0.05, 0.05 };
+				std::normal_distribution<> geninclination{ 0, 5 };
+
+				moon.obliquity = genobliquity(mt_moon);
+				do moon.eccentricity = geneccentricity(mt_moon);
+				while (moon.eccentricity <= 0 || moon.eccentricity >= 1);
+				moon.inclination = geninclination(mt_moon);
+			}
+			else
+			{
+				// Set 9
+				std::normal_distribution<> genobliquity{ 0, 10 };
+				std::normal_distribution<> geneccentricity{ 0.1, 0.1 };
+				std::normal_distribution<> geninclination{ 0, 20 };
+
+				moon.obliquity = genobliquity(mt_moon);
+				do moon.eccentricity = geneccentricity(mt_moon);
+				while (moon.eccentricity <= 0 || moon.eccentricity >= 1);
+				moon.inclination = geninclination(mt_moon);
+			}
+		}
+
+		moon.ascendingNode = gendegree(mt_moon);
+		moon.argofPericenter = gendegree(mt_moon);
+		moon.meanAnomaly = gendegree(mt_moon);
+
+		//######################################################################################################
+			//	EXOTIC GENERATION
+
+		// FUNCTION CALLS ARE TURNED OFF
+
+		// Determines an exotic orbit
+		if (genpercent(mt_moon) <= CONFIG.exotic_OrbitChance)
+			moon.inclination += 180;
+
+		// Determines an exotic rotation
+		if (genpercent(mt_moon) <= CONFIG.exotic_AxialTiltChance)
+		{
+			if (genpercent(mt_moon) <= 50)
+				moon.obliquity += 180;
+			else
+			{
+				std::normal_distribution<> genhighobliquity{ 90, 20 };
+				moon.obliquity = genhighobliquity(mt_moon);
+			}
+		}
+
+		// Determines Ship
+		if (genpercent(mt_moon) <= CONFIG.exotic_ShipChance)
+			moon.hasShip = true;
+
+		// Determines Life
+		if (CONFIG.traditionalLife == true)
+		{
+			if (parent.semimajorAxis > (star.habitZoneInnerLimit * 0.7) && parent.semimajorAxis < (star.habitZoneOuterLimit * 1.3)
+				&& moon.radius > 1000
+				&& genpercent(mt_moon) <= CONFIG.life_OrganicChance)
+			{
+				moon.life_organic.haslife = true;
+				//ExoticGenerateLife<Moon>(CONFIG, moon);
+			}
+			if (moon.radius > 1000 && genpercent(mt_moon) <= CONFIG.life_ExoticChance)
+			{
+				moon.life_exotic.haslife = true;
+				//ExoticGenerateLife<Moon>(CONFIG, moon);
+			}
+		}
+		else
+		{
+			if (genpercent(mt_moon) <= CONFIG.life_OrganicChance)
+			{
+				moon.life_organic.haslife = true;
+				//ExoticGenerateLife<Moon>(CONFIG, moon);
+			}
+			if (genpercent(mt_moon) <= CONFIG.life_ExoticChance)
+			{
+				moon.life_exotic.haslife = true;
+				//ExoticGenerateLife<Moon>(CONFIG, moon);
+			}
+		}
+	}
+	void GenerateMinorMoon(PLANET& parent, PLANET& moon)
+	{
+		int astSize, testsemi;
+		moon.planetType = L"DwarfMoon";
+		moon.parentBody = parent.name;
+
+		if (NV.nameTerraDwarfMoons == true && parent.class_ != L"Jupiter" && parent.class_ != L"Neptune")
+			moon.name = GenName(typeDwarfMoon);
+		else if (NV.nameGasDwarfMoons == true && (parent.class_ == L"Jupiter" || parent.class_ == L"Neptune"))
+			moon.name = GenName(typeDwarfMoon);
+		else
+			moon.name = L"Minor Moon";
+
+		//######################################################################################################
+			//	RADIUS GENERATION
+
+		astSize = genpercent(mt_moon);
+		if (parent.class_ == L"Jupiter" || parent.class_ == L"Neptune")
+		{
+			if (astSize <= 65)
+			{
+				std::uniform_real_distribution<> genr{ 0.5, 30 };
+				moon.radius = genr(mt_moon);
+			}
+			else if (astSize <= 80)
+			{
+				std::uniform_real_distribution<> genr{ 30, 80 };
+				moon.radius = genr(mt_moon);
+			}
+			else if (astSize <= 95)
+			{
+				std::uniform_real_distribution<> genr{ 80, 120 };
+				moon.radius = genr(mt_moon);
+			}
+			else
+			{
+				std::uniform_real_distribution<> genr{ 120, 200 };
+				moon.radius = genr(mt_moon);
+			}
+		}
+		else
+		{
+			if (astSize <= 80)
+			{
+				std::uniform_real_distribution<> genr{ 0.3, 15 };
+				moon.radius = genr(mt_moon);
+			}
+			else if (astSize <= 95)
+			{
+				std::uniform_real_distribution<> genr{ 15, 50 };
+				moon.radius = genr(mt_moon);
+			}
+			else
+			{
+				std::uniform_real_distribution<> genr{ 50, 80 };
+				moon.radius = genr(mt_moon);
+			}
+		}
+
+		//######################################################################################################
+			//	SEMI MAJOR GENERATION
+
+		if (parent.class_ == L"Jupiter")
+			moon.hillSphereInnerLimit = 2.44 * pow((parent.density), (1.0 / 3.0));
+		else
+			moon.hillSphereInnerLimit = 2.44 * pow((parent.density / 0.5), (1.0 / 3.0));
+		moon.hillSphereInnerLimit *= parent.radius;
+
+		do
+		{
+			testsemi = 0;
+
+			if (parent.class_ == L"Jupiter" || parent.class_ == L"Neptune")
+			{
+				if (genpercent(mt_moon) <= 10)
+				{
+					std::uniform_real_distribution<> gensemi{ moon.hillSphereInnerLimit, moon.hillSphereInnerLimit * 3 };
+					moon.semimajorAxis = gensemi(mt_moon);
+				}
+				else
+				{
+					std::uniform_real_distribution<> gensemi{ ((parent.hillSphereOuterLimit + moon.hillSphereInnerLimit) / 3), parent.hillSphereOuterLimit };
+					moon.semimajorAxis = gensemi(mt_moon);
+				}
+			}
+			else
+			{
+				if (genpercent(mt_moon) <= 40)
+				{
+					std::uniform_real_distribution<> gensemi{ moon.hillSphereInnerLimit, moon.hillSphereInnerLimit * 4 };
+					moon.semimajorAxis = gensemi(mt_moon);
+				}
+				else
+				{
+					std::uniform_real_distribution<> gensemi{ moon.hillSphereInnerLimit, parent.hillSphereOuterLimit };
+					moon.semimajorAxis = gensemi(mt_moon);
+				}
+			}
+
+			// Checks the semi major againts others to make sure no moons are too close. if they are, it re-gens.
+			for (int count = 0; count < parent.usedSemimajor_moon.size(); count++)
+			{
+				if ((moon.semimajorAxis - (moon.radius * 2)) < (parent.usedSemimajor_moon.at(count) + (parent.usedRadius_moon.at(count) * 2)) &&
+					(moon.semimajorAxis + (moon.radius * 2)) > (parent.usedSemimajor_moon.at(count) - (parent.usedRadius_moon.at(count) * 2)))
+					testsemi = 1; // means it was too close to major moon
+				else if (testsemi != 1)
+					testsemi = 0;
+			}
+		} while (testsemi == 1);
+
+		//######################################################################################################
+			//	ORBIT GENERATION
+
+		if (parent.class_ == L"Jupiter")
+		{
+			if (moon.semimajorAxis < moon.hillSphereInnerLimit * 3)
+			{
+				// Set 1
+				std::normal_distribution<> genobliquity{ 0, 1 };
+				std::normal_distribution<> geneccentricity{ 0, 0.001 };
+				std::normal_distribution<> geninclination{ 0, 0.01 };
+
+				moon.obliquity = genobliquity(mt_moon);
+				do moon.eccentricity = geneccentricity(mt_moon);
+				while (moon.eccentricity <= 0 || moon.eccentricity >= 1);
+				moon.inclination = geninclination(mt_moon);
+			}
+			else
+			{
+				// Set 2
+				std::normal_distribution<> genobliquity{ 0, 10 };
+				std::normal_distribution<> geneccentricity{ 0.1, 0.2 };
+				std::normal_distribution<> geninclination{ 0, 25 };
+
+				moon.obliquity = genobliquity(mt_moon);
+				do moon.eccentricity = geneccentricity(mt_moon);
+				while (moon.eccentricity <= 0 || moon.eccentricity >= 1);
+				moon.inclination = geninclination(mt_moon);
+			}
+		}
+		else if (parent.class_ == L"Neptune")
+		{
+			if (moon.semimajorAxis < moon.hillSphereInnerLimit * 3)
+			{
+				// Set 3
+				std::normal_distribution<> genobliquity{ 0, 1 };
+				std::normal_distribution<> geneccentricity{ 0, 0.001 };
+				std::normal_distribution<> geninclination{ 0, 0.01 };
+
+				moon.obliquity = genobliquity(mt_moon);
+				do moon.eccentricity = geneccentricity(mt_moon);
+				while (moon.eccentricity <= 0 || moon.eccentricity >= 1);
+				moon.inclination = geninclination(mt_moon);
+			}
+			else
+			{
+				// Set 4
+				std::normal_distribution<> genobliquity{ 0, 10 };
+				std::normal_distribution<> geneccentricity{ 0.2, 0.3 };
+				std::normal_distribution<> geninclination{ 0, 25 };
+
+				moon.obliquity = genobliquity(mt_moon);
+				do moon.eccentricity = geneccentricity(mt_moon);
+				while (moon.eccentricity <= 0 || moon.eccentricity >= 1);
+				moon.inclination = geninclination(mt_moon);
+			}
+		}
+		else
+		{
+			if (moon.semimajorAxis < moon.hillSphereInnerLimit * 2)
+			{
+				// Set 5
+				std::normal_distribution<> genobliquity{ 0, 1 };
+				std::normal_distribution<> geneccentricity{ 0, 0.001 };
+				std::normal_distribution<> geninclination{ 0, 0.1 };
+
+				moon.obliquity = genobliquity(mt_moon);
+				do moon.eccentricity = geneccentricity(mt_moon);
+				while (moon.eccentricity <= 0 || moon.eccentricity >= 1);
+				moon.inclination = geninclination(mt_moon);
+			}
+			else
+			{
+				// Set 6
+				std::normal_distribution<> genobliquity{ 0, 10 };
+				std::normal_distribution<> geneccentricity{ 0.2, 0.15 };
+				std::normal_distribution<> geninclination{ 0, 40 };
+
+				moon.obliquity = genobliquity(mt_moon);
+				do moon.eccentricity = geneccentricity(mt_moon);
+				while (moon.eccentricity <= 0 || moon.eccentricity >= 1);
+				moon.inclination = geninclination(mt_moon);
+			}
+		}
+
+		moon.ascendingNode = gendegree(mt_moon);
+		moon.argofPericenter = gendegree(mt_moon);
+		moon.meanAnomaly = gendegree(mt_moon);
+	}
+	void GenerateDwarfMinor(PLANET& parent, PLANET& moon)
+	{
+		int astSize;
+		moon.planetType = L"DwarfMoon";
+		moon.parentBody = parent.name;
+
+		if (NV.nameTerraDwarfMoons == true && parent.class_ != L"Jupiter" && parent.class_ != L"Neptune")
+			moon.name = GenName(typeDwarfMoon);
+		else if (NV.nameGasDwarfMoons == true && (parent.class_ == L"Jupiter" || parent.class_ == L"Neptune"))
+			moon.name = GenName(typeDwarfMoon);
+		else
+			moon.name = L"Minor Moon";
+
+		//######################################################################################################
+			//	RADIUS GENERATION
+
+		astSize = genpercent(mt_moon);
+
+		if (astSize <= 80)
+		{
+			std::uniform_real_distribution<> genr{ 0.3, 15 };
+			moon.radius = genr(mt_moon);
+		}
+		else if (astSize <= 95)
+		{
+			std::uniform_real_distribution<> genr{ 15, 50 };
+			moon.radius = genr(mt_moon);
+		}
+		else
+		{
+			std::uniform_real_distribution<> genr{ 50, 100 };
+			moon.radius = genr(mt_moon);
+		}
+
+
+		//######################################################################################################
+			//	SEMI MAJOR GENERATION
+
+		moon.hillSphereInnerLimit = 2.44 * pow((parent.density / 1), (1.0 / 3.0));
+		moon.hillSphereInnerLimit *= parent.radius;
+
+		if (moon.hillSphereInnerLimit < parent.hillSphereOuterLimit)
+		{
+			if (genpercent(mt_moon) <= 50)
+			{
+				std::uniform_real_distribution<> gensemi{ moon.hillSphereInnerLimit, moon.hillSphereInnerLimit * 3 };
+				moon.semimajorAxis = gensemi(mt_moon);
+			}
+			else
+			{
+				std::uniform_real_distribution<> gensemi{ moon.hillSphereInnerLimit, parent.hillSphereOuterLimit };
+				moon.semimajorAxis = gensemi(mt_moon);
+			}
+		}
+		else
+		{
+			std::uniform_real_distribution<> gensemi{ parent.hillSphereOuterLimit, parent.hillSphereOuterLimit * 5 };
+			moon.semimajorAxis = gensemi(mt_moon);
+		}
+
+		//######################################################################################################
+			//	ORBIT GENERATION
+
+		if (moon.semimajorAxis < moon.hillSphereInnerLimit * 3)
+		{
+			// Set 5
+			std::normal_distribution<> genobliquity{ 0, 5 };
+			std::normal_distribution<> geneccentricity{ 0.1, 0.05 };
+			std::normal_distribution<> geninclination{ 0, 5 };
+
+			moon.obliquity = genobliquity(mt_moon);
+			do moon.eccentricity = geneccentricity(mt_moon);
+			while (moon.eccentricity <= 0 || moon.eccentricity >= 1);
+			moon.inclination = geninclination(mt_moon);
+		}
+		else
+		{
+			// Set 6
+			std::normal_distribution<> genobliquity{ 0, 10 };
+			std::normal_distribution<> geneccentricity{ 0.1, 0.15 };
+			std::normal_distribution<> geninclination{ 0, 40 };
+
+			moon.obliquity = genobliquity(mt_moon);
+			do moon.eccentricity = geneccentricity(mt_moon);
+			while (moon.eccentricity <= 0 || moon.eccentricity >= 1);
+			moon.inclination = geninclination(mt_moon);
+		}
+
+		moon.ascendingNode = gendegree(mt_moon);
+		moon.argofPericenter = gendegree(mt_moon);
+		moon.meanAnomaly = gendegree(mt_moon);
+	}
 

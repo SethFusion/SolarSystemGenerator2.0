@@ -21,6 +21,7 @@
 // reference additional headers your program requires here
 #include <shobjidl.h>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <string>
 #include <vector>
