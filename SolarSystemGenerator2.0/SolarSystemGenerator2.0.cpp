@@ -107,6 +107,7 @@ Screen lastScreen;
 		void GenerateDwarfMinor(PLANET&, PLANET&, int);
 
 		void ExoticGenerateLife(PLANET&);
+		void ExoticDebrisRing(PLANET&, PLANET&, double, double, double, double);
 		/*
 	Generator Functions
 
@@ -3049,9 +3050,6 @@ Screen lastScreen;
 
 	void GetConfigData(HWND hWnd)
 	{
-		wchar_t genvar[WSIZE];
-		int i = 0;
-
 		GetVariableFromWindow(CONFIG.starOutputFolderH.HANDLE, CONFIG.starOutputFolder);
 		GetVariableFromWindow(CONFIG.planetOutputFolderH.HANDLE, CONFIG.planetOutputFolder);
 		GetVariableFromWindow(CONFIG.seedH.HANDLE, CONFIG.seed);
@@ -3081,6 +3079,10 @@ Screen lastScreen;
 		CONFIG.starClassWD = (IsDlgButtonChecked(CONFIG.starClassOH.EXTRA, CB_WDCLASS) == BST_CHECKED) ? true : false;
 		CONFIG.starClassQ = (IsDlgButtonChecked(CONFIG.starClassOH.EXTRA, CB_QCLASS) == BST_CHECKED) ? true : false;
 		CONFIG.starClassX = (IsDlgButtonChecked(CONFIG.starClassOH.EXTRA, CB_XCLASS) == BST_CHECKED) ? true : false;
+
+		CONFIG.classListSize = CONFIG.classList.size();
+		for (int count = 0; count < CONFIG.classListSize; count++)
+				CONFIG.classList.pop_back();
 		if (CONFIG.starClassO)
 			CONFIG.classList.push_back(L"O");
 		if (CONFIG.starClassB)
@@ -4383,8 +4385,6 @@ Screen lastScreen;
 					EXOTIC STUFF
 				###############################################################################*/
 
-				/*
-
 				// Generates Debris Ring
 				if (planetList.at(currentPlanet).debrisCount > 0 && currentPlanet != 0)
 				{
@@ -4478,12 +4478,12 @@ Screen lastScreen;
 					{
 						for (int count = 0; count < planetList.at(currentPlanet).debrisCount; count++)
 						{
-							ExoticDebrisRing(NV, planetList.at(currentPlanet), debrisMoon, inclinationCenter, inclinationSD, DebrisSpread, SMCenterPoint);
+							ExoticDebrisRing(planetList.at(currentPlanet), debrisMoon, inclinationCenter, inclinationSD, DebrisSpread, SMCenterPoint);
 							PrintPlanet(debrisMoon, planetFile);
 						}
 					}
 				}
-
+				/*
 				// Generates Ships for the current planet
 				if (planetList.at(currentPlanet).hasShip == true)
 				{
@@ -4889,7 +4889,7 @@ Screen lastScreen;
 		tempSol = (star.temperatureK / 5778.0);
 		star.luminosity = (pow(star.radius, 2) * pow(tempSol, 4));
 		star.innerLimit = 0.1 * star.mass;
-		star.outerLimit = 45 * star.mass;
+		star.outerLimit = 40 * star.mass;
 		star.frostLine = (4.85 * sqrt(star.luminosity));
 		star.habitZoneInnerLimit = sqrt(star.luminosity / 1.1);
 		star.habitZoneOuterLimit = sqrt(star.luminosity / 0.53);
@@ -6271,3 +6271,162 @@ Screen lastScreen;
 				body.life_exotic.panspermia = true;
 		}
 	}
+	void ExoticDebrisRing(PLANET& parent, PLANET& debris, double inclinationationCenter, double inclinationationSD, double DebrisSpread, double SMCenterPoint)
+	{
+		debris.name = L"Debris Moon";
+
+		//######################################################################################################
+			//	RADIUS GENERATION
+
+		if (parent.class_ == L"Jupiter" || parent.class_ == L"Neptune")
+		{
+			std::uniform_real_distribution<> genr{ 1, 5 };
+			debris.radius = genr(mt_moon);
+		}
+		else
+		{
+			std::uniform_real_distribution<> genr{ 0.01, 1.5 };
+			debris.radius = genr(mt_moon);
+		}
+
+		//######################################################################################################
+			//	SEMI MAJOR GENERATION
+
+		std::uniform_real_distribution<> gensemi{ SMCenterPoint, SMCenterPoint * DebrisSpread };
+		debris.semimajorAxis = gensemi(mt_moon);
+
+		//######################################################################################################
+			//	ORBIT GENERATION
+
+		std::normal_distribution<> genobliquity{ 0, 1 };
+		std::normal_distribution<> geneccentricity{ 0, 0.001 };
+		std::normal_distribution<> geninclination{ inclinationationCenter, inclinationationSD };
+
+		debris.obliquity = genobliquity(mt_moon);
+		do debris.eccentricity = geneccentricity(mt_moon);
+		while (debris.eccentricity <= 0 || debris.eccentricity >= 1);
+		debris.inclination = geninclination(mt_moon);
+
+		debris.ascendingNode = gendegree(mt_moon);
+		debris.argofPericenter = gendegree(mt_moon);
+		debris.meanAnomaly = gendegree(mt_moon);
+	}
+	/*
+	void ExoticGeneratePlanetShip(PLANET& parent, PLANET& ship, Object_Type shipType)
+	{
+		ship.name = GenName(shipType);
+		ship.name = GenShipName(ship.name, shipType);
+
+		switch (shipType)
+		{
+		case typeShipColony:
+		{
+			int listSize = CONFIG.shipList_Colony.size();
+			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+			ship.model = CONFIG.shipList_Colony.at(genmodel(mt_ship));
+
+			std::uniform_real_distribution<> gensemi{ parent.radius + 300, parent.radius + 1000 };
+			ship.semimajorAxis = gensemi(mt_ship);
+			break;
+		}
+		case typeShipInstrument:
+		{
+			int listSize = CONFIG.shipList_Instrument.size();
+			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+			ship.model = CONFIG.shipList_Instrument.at(genmodel(mt_ship));
+
+			std::uniform_real_distribution<> gensemi{ parent.radius + 300, parent.radius + 10000 };
+			ship.semimajorAxis = gensemi(mt_ship);
+			break;
+		}
+		case typeShipSatellite:
+		{
+			int listSize = CONFIG.shipList_Satellite.size();
+			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+			ship.model = CONFIG.shipList_Satellite.at(genmodel(mt_ship));
+
+			std::uniform_real_distribution<> gensemi{ parent.radius + 2000, parent.radius + 20000 };
+			ship.semimajorAxis = gensemi(mt_ship);
+			break;
+		}
+		case typeShipStation:
+		{
+			int listSize = CONFIG.shipList_Station.size();
+			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+			ship.model = CONFIG.shipList_Station.at(genmodel(mt_ship));
+
+			std::uniform_real_distribution<> gensemi{ parent.radius + 300, parent.radius + 1000 };
+			ship.semimajorAxis = gensemi(mt_ship);
+			break;
+		}
+		}
+
+		std::normal_distribution<> genobliquity{ 0, 1 };
+		std::normal_distribution<> geneccentricity{ 0, 0.001 };
+
+		ship.obliquity = genobliquity(mt_ship);
+		do ship.eccentricity = geneccentricity(mt_ship);
+		while (ship.eccentricity <= 0 || ship.eccentricity >= 1);
+		ship.inclination = gendegree(mt_ship);
+		ship.ascendingNode = gendegree(mt_ship);
+		ship.argofPericenter = gendegree(mt_ship);
+		ship.meanAnomaly = gendegree(mt_ship);
+	}
+	void ExoticGenerateSystemShip(STAR& parent, PLANET& ship, Object_Type shipType)
+	{
+		ship.name = GenName(shipType);
+		ship.name = GenShipName(ship.name, shipType);
+
+		switch (shipType)
+		{
+		case typeShipColony:
+		{
+			int listSize = CONFIG.shipList_Colony.size();
+			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+			ship.model = CONFIG.shipList_Colony.at(genmodel(mt_ship));
+
+			std::uniform_real_distribution<> gensemi{ parent.innerLimit, parent.outerLimit };
+			ship.semimajorAxis = gensemi(mt_ship);
+			break;
+		}
+		/*case typeShipInstrument:
+			int listSize = CONFIG.shipList_Instrument.size();
+			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+			ship.model = CONFIG.shipList_Instrument.at(genmodel(mt));
+
+			std::uniform_real_distribution<> gensemi{ parent.radius + 300, parent.radius + 10000 };
+			ship.semimajorAxis = gensemi(mt);
+			break;
+		case typeShipSatellite:
+			int listSize = CONFIG.shipList_Satellite.size();
+			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+			ship.model = CONFIG.shipList_Satellite.at(genmodel(mt));
+
+			std::uniform_real_distribution<> gensemi{ parent.radius + 2000, parent.radius + 20000 };
+			ship.semimajorAxis = gensemi(mt);
+			break; // put end comma here
+		case typeShipStation:
+		{
+			int listSize = CONFIG.shipList_Station.size();
+			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+			ship.model = CONFIG.shipList_Station.at(genmodel(mt_ship));
+
+			std::uniform_real_distribution<> gensemi{ parent.innerLimit, parent.outerLimit };
+			ship.semimajorAxis = gensemi(mt_ship);
+			break;
+		}
+		}
+
+		std::normal_distribution<> genobliquity{ CONFIG.avgObliquity, CONFIG.SDObliquity };
+		std::normal_distribution<> geneccentricity{ CONFIG.avgEccentricity, CONFIG.SDEccentricity };
+		std::normal_distribution<> geninclinationation{ CONFIG.avgInclination, CONFIG.SDInclination };
+
+		ship.obliquity = genobliquity(mt_ship);
+		do ship.eccentricity = geneccentricity(mt_ship);
+		while (ship.eccentricity <= 0 || ship.eccentricity >= 1);
+		ship.inclination = geninclinationation(mt_ship);
+		ship.ascendingNode = gendegree(mt_ship);
+		ship.argofPericenter = gendegree(mt_ship);
+		ship.meanAnomaly = gendegree(mt_ship);
+	}
+	*/
