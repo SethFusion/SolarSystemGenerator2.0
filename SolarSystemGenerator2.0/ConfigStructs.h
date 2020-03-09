@@ -26,8 +26,8 @@ struct Configuration
 	|		* UpdatePreset - to distribute the values across		|
 	|			the window handles as text inside the window		|
 	|			boxes.												|
-	|		* SavePreset - to put current the values from the		|
-	|			window boxes into files to be read.					|
+	|		* SavePreset - to put the values from the				|
+	|			window boxes into preset files.						|
 	|		* GetConfigData - to get the current values from		|
 	|			the window boxes.									|
 	|		* LoadMainScreen - to create the handles for the		|
@@ -77,8 +77,8 @@ struct Configuration
 		*/	HWND HEADER_SYSTEMPLANET; /*
 	#####################################################*/
 
-	bool smartPlacement, generateDwarfPlanets;
-	var smartPlacementH, generateDwarfPlanetsH;
+	bool smartPlacement, generateDwarfPlanets, weightedMoons;
+	var smartPlacementH, generateDwarfPlanetsH, weightedMoonsH;
 	int	minPlanetNumber, dwarfPlanetChance;
 	var minPlanetNumberH, dwarfPlanetChanceH;
 	double minDistance, maxDistance, planetSpacing, avgEccentricity, SDEccentricity, avgInclination, SDInclination, avgObliquity, SDObliquity;
@@ -163,8 +163,8 @@ struct Preset
 		System + Planet Stuff
 	#####################################################*/
 
-	bool smartPlacement, generateDwarfPlanets;
-	wchar_t const* smartPlacementState, * generateDwarfPlanetsState;
+	bool smartPlacement, generateDwarfPlanets, weightedMoons;
+	wchar_t const* smartPlacementState, * generateDwarfPlanetsState, * weightedMoonsState;
 	int	minPlanetNumber, dwarfPlanetChance;
 	double minDistance, maxDistance, planetSpacing, avgEccentricity, SDEccentricity, avgInclination, SDInclination, avgObliquity, SDObliquity;
 	bool starClassO, starClassB, starClassA, starClassF, starClassG, starClassK, starClassM, starClassWD, starClassQ, starClassX;

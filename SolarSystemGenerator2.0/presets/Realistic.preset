@@ -10,6 +10,7 @@ maxDistance=1000
 planetSpacing=0
 generateDwarfPlanets=1
 dwarfPlanetChance=20
+weightedMoons=1
 avgEccentricity=0.05
 SDEccentricity=0.05
 avgInclination=0

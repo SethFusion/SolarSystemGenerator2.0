@@ -452,7 +452,9 @@ Screen lastScreen;
 			LoadVariableFromFile(Buffer, parse, temp.planetSpacing);		
 			LoadVariableFromFile(Buffer, parse, temp.generateDwarfPlanets);
 			temp.generateDwarfPlanetsState = (temp.generateDwarfPlanets == true) ? L"Enabled" : L"Disabled";		
-			LoadVariableFromFile(Buffer, parse, temp.dwarfPlanetChance);		
+			LoadVariableFromFile(Buffer, parse, temp.dwarfPlanetChance);
+			LoadVariableFromFile(Buffer, parse, temp.weightedMoons);
+			temp.weightedMoonsState = (temp.weightedMoons == true) ? L"Enabled" : L"Disabled";
 			LoadVariableFromFile(Buffer, parse, temp.avgEccentricity);		
 			LoadVariableFromFile(Buffer, parse, temp.SDEccentricity);		
 			LoadVariableFromFile(Buffer, parse, temp.avgInclination);		
@@ -943,6 +945,20 @@ Screen lastScreen;
 				WS_CHILD | WS_BORDER,
 				702, 302, 16, 16,
 				hWnd, (HMENU)IB_GENERATEDWARFPLANET, NULL, NULL);
+
+			//weighted moons
+			CONFIG.weightedMoonsH.DESC = CreateWindowW(L"static", L"Weighted Moons:",
+				WS_CHILD | WS_BORDER,
+				370, 400, 230, 20,
+				hWnd, NULL, NULL, NULL);
+			CONFIG.weightedMoonsH.HANDLE = CreateWindowW(L"button", L"",
+				WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
+				600, 400, 100, 20,
+				hWnd, (HMENU)CB_WEIGHTEDMOONS, NULL, NULL);
+			CONFIG.weightedMoonsH.INFOBUTTON = CreateWindowW(L"button", L"I",
+				WS_CHILD | WS_BORDER,
+				702, 402, 16, 16,
+				hWnd, (HMENU)IB_WEIGHTEDMOONS, NULL, NULL);
 
 			//min planet number
 			CONFIG.dwarfPlanetChanceH.DESC = CreateWindowW(L"static", L"Dwarf Planet % Chance:",
@@ -2091,6 +2107,8 @@ Screen lastScreen;
 		SetVariableToWindow(CONFIG.planetSpacingH.HANDLE, P.planetSpacing);
 		CheckDlgButton(hWnd, CB_GENERATEDWARFPLANET, P.generateDwarfPlanets);
 		SetWindowTextW(CONFIG.generateDwarfPlanetsH.HANDLE, P.generateDwarfPlanetsState);
+		CheckDlgButton(hWnd, CB_WEIGHTEDMOONS, P.weightedMoons);
+		SetWindowTextW(CONFIG.weightedMoonsH.HANDLE, P.weightedMoonsState);
 		SetVariableToWindow(CONFIG.dwarfPlanetChanceH.HANDLE, P.dwarfPlanetChance);
 		SetVariableToWindow(CONFIG.avgEccentricityH.HANDLE, P.avgEccentricity);
 		SetVariableToWindow(CONFIG.SDEccentricityH.HANDLE, P.SDEccentricity); 
@@ -2249,6 +2267,7 @@ Screen lastScreen;
 			<< "planetSpacing=" << CONFIG.planetSpacing << "\n"
 			<< "generateDwarfPlanets=" << CONFIG.generateDwarfPlanets << "\n"
 			<< "dwarfPlanetChance=" << CONFIG.dwarfPlanetChance << "\n"
+			<< "weightedMoons=" << CONFIG.weightedMoons << "\n"
 			<< "avgEccentricity=" << CONFIG.avgEccentricity << "\n"
 			<< "SDEccentricity=" << CONFIG.SDEccentricity << "\n"
 			<< "avgInclination=" << CONFIG.avgInclination << "\n"
@@ -2443,6 +2462,7 @@ Screen lastScreen;
 			ShowWindow(CONFIG.smartPlacementH.HANDLE, 0);
 			ShowWindow(CONFIG.generateDwarfPlanetsH.HANDLE, 0);
 			ShowWindow(CONFIG.dwarfPlanetChanceH.HANDLE, 0);
+			ShowWindow(CONFIG.weightedMoonsH.HANDLE, 0);
 			ShowWindow(CONFIG.minPlanetNumberH.HANDLE, 0);
 			ShowWindow(CONFIG.minDistanceH.HANDLE, 0);
 			ShowWindow(CONFIG.maxDistanceH.HANDLE, 0);
@@ -2457,6 +2477,7 @@ Screen lastScreen;
 			ShowWindow(CONFIG.smartPlacementH.DESC, 0);
 			ShowWindow(CONFIG.generateDwarfPlanetsH.DESC, 0);
 			ShowWindow(CONFIG.dwarfPlanetChanceH.DESC, 0);
+			ShowWindow(CONFIG.weightedMoonsH.DESC, 0);
 			ShowWindow(CONFIG.minPlanetNumberH.DESC, 0);
 			ShowWindow(CONFIG.minDistanceH.DESC, 0);
 			ShowWindow(CONFIG.maxDistanceH.DESC, 0);
@@ -2481,6 +2502,7 @@ Screen lastScreen;
 			ShowWindow(CONFIG.smartPlacementH.INFOBUTTON, 0);
 			ShowWindow(CONFIG.generateDwarfPlanetsH.INFOBUTTON, 0);
 			ShowWindow(CONFIG.dwarfPlanetChanceH.INFOBUTTON, 0);
+			ShowWindow(CONFIG.weightedMoonsH.INFOBUTTON, 0);
 			ShowWindow(CONFIG.minPlanetNumberH.INFOBUTTON, 0);
 			ShowWindow(CONFIG.minDistanceH.INFOBUTTON, 0);
 			ShowWindow(CONFIG.maxDistanceH.INFOBUTTON, 0);
@@ -2647,6 +2669,7 @@ Screen lastScreen;
 		ShowWindow(CONFIG.smartPlacementH.HANDLE, 1);
 		ShowWindow(CONFIG.generateDwarfPlanetsH.HANDLE, 1);
 		ShowWindow(CONFIG.dwarfPlanetChanceH.HANDLE, 1);
+		ShowWindow(CONFIG.weightedMoonsH.HANDLE, 1);
 		ShowWindow(CONFIG.minPlanetNumberH.HANDLE, 1);
 		ShowWindow(CONFIG.minDistanceH.HANDLE, 1);
 		ShowWindow(CONFIG.maxDistanceH.HANDLE, 1);
@@ -2673,6 +2696,7 @@ Screen lastScreen;
 		ShowWindow(CONFIG.smartPlacementH.DESC, 1);
 		ShowWindow(CONFIG.generateDwarfPlanetsH.DESC, 1);
 		ShowWindow(CONFIG.dwarfPlanetChanceH.DESC, 1);
+		ShowWindow(CONFIG.weightedMoonsH.DESC, 1);
 		ShowWindow(CONFIG.minPlanetNumberH.DESC, 1);
 		ShowWindow(CONFIG.minDistanceH.DESC, 1);
 		ShowWindow(CONFIG.maxDistanceH.DESC, 1);
@@ -2688,6 +2712,7 @@ Screen lastScreen;
 		ShowWindow(CONFIG.smartPlacementH.INFOBUTTON, 1);
 		ShowWindow(CONFIG.generateDwarfPlanetsH.INFOBUTTON, 1);
 		ShowWindow(CONFIG.dwarfPlanetChanceH.INFOBUTTON, 1);
+		ShowWindow(CONFIG.weightedMoonsH.INFOBUTTON, 1);
 		ShowWindow(CONFIG.minPlanetNumberH.INFOBUTTON, 1);
 		ShowWindow(CONFIG.minDistanceH.INFOBUTTON, 1);
 		ShowWindow(CONFIG.maxDistanceH.INFOBUTTON, 1);
@@ -3062,6 +3087,7 @@ Screen lastScreen;
 		GetVariableFromWindow(CONFIG.planetSpacingH.HANDLE, CONFIG.planetSpacing);
 		CONFIG.generateDwarfPlanets = (IsDlgButtonChecked(hWnd, CB_GENERATEDWARFPLANET) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(CONFIG.dwarfPlanetChanceH.HANDLE, CONFIG.dwarfPlanetChance);
+		CONFIG.weightedMoons = (IsDlgButtonChecked(hWnd, CB_WEIGHTEDMOONS) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(CONFIG.avgEccentricityH.HANDLE, CONFIG.avgEccentricity); // change to extra for trackbar
 		GetVariableFromWindow(CONFIG.SDEccentricityH.HANDLE, CONFIG.SDEccentricity);
 		GetVariableFromWindow(CONFIG.avgInclinationH.HANDLE, CONFIG.avgInclination);
@@ -3611,6 +3637,17 @@ Screen lastScreen;
 				break;
 			case BST_CHECKED:
 				SetWindowTextW(CONFIG.generateDwarfPlanetsH.HANDLE, L"Enabled");
+				break;
+			}
+			break;
+		case CB_WEIGHTEDMOONS:
+			switch (msg)
+			{
+			case BST_UNCHECKED:
+				SetWindowTextW(CONFIG.weightedMoonsH.HANDLE, L"Disabled");
+				break;
+			case BST_CHECKED:
+				SetWindowTextW(CONFIG.weightedMoonsH.HANDLE, L"Enabled");
 				break;
 			}
 			break;
@@ -4245,16 +4282,16 @@ Screen lastScreen;
 			GenerateStar(currentStar);
 
 			std::wstring starFileName = CONFIG.starOutputFolder;	//Creates the star file
-			//starFileName += currentStar.name;
-			//starFileName += L" Star.sc";
-			starFileName += L"Test Star.sc";
+			starFileName += currentStar.name;
+			starFileName += L" Star.sc";
+			//starFileName += L"Test Star.sc";
 			std::ofstream starFile(starFileName.c_str());
 			PrintStar(currentStar, starFile);
 
 			std::wstring planetFileName = CONFIG.planetOutputFolder;	//Creates the planet file
-			//planetFileName += mainStar.name;
-			//planetFileName += " System.sc";
-			planetFileName += L"Test System.sc";
+			planetFileName += currentStar.name;
+			planetFileName += L" System.sc";
+			//planetFileName += L"Test System.sc";
 			std::ofstream planetFile(planetFileName.c_str());
 
 			if (CheckSeed(CONFIG.seed, starFile, planetFile))
@@ -4275,6 +4312,7 @@ Screen lastScreen;
 				planetList.push_back(currentPlanet);
 
 				// Debug moon orbits
+				/*
 				if (CONFIG.debug == 1)
 				{
 					PLANET Debug;
@@ -4341,6 +4379,7 @@ Screen lastScreen;
 						PrintPlanet(Debug, planetFile);
 					}
 				}
+				*/
 			}
 			while (genpercent(mt_planet) < CONFIG.dwarfPlanetChance)
 			{
@@ -4355,16 +4394,55 @@ Screen lastScreen;
 			###############################################################################*/
 			for (int currentPlanet = 0; currentPlanet < planetList.size(); currentPlanet++)
 			{
-				// For Major Moons
-				std::vector<PLANET> majorMoon(planetList.at(currentPlanet).numberOfMajorMoons);
-				for (int currentMoon = 0; currentMoon < planetList.at(currentPlanet).numberOfMajorMoons; currentMoon++)
-					GenerateMajorMoon(currentStar, planetList.at(currentPlanet), majorMoon.at(currentMoon), currentMoon);
-				SortVector(majorMoon, 0, majorMoon.size() - 1);
+				std::vector<PLANET> majorMoon, minorMoon;
+				// weighted moons uses new system, else old system
+				if (CONFIG.weightedMoons)
+				{
+					planetList.at(currentPlanet).numberOfMajorMoons = 0;
+					planetList.at(currentPlanet).numberOfMinorMoons = 0;
 
-				// For Minor Moons
-				std::vector<PLANET> minorMoon(planetList.at(currentPlanet).numberOfMinorMoons);
-				for (int currentMoon = 0; currentMoon < planetList.at(currentPlanet).numberOfMinorMoons; currentMoon++)
-					GenerateMinorMoon(planetList.at(currentPlanet), minorMoon.at(currentMoon), currentMoon);
+					while (genpercent(mt_moon) < planetList.at(currentPlanet).majorMoonPercent)
+					{
+						PLANET currentMoon;
+						GenerateMajorMoon(currentStar, planetList.at(currentPlanet), currentMoon, planetList.at(currentPlanet).numberOfMajorMoons);
+						majorMoon.push_back(currentMoon);
+						planetList.at(currentPlanet).numberOfMajorMoons++;
+						std::uniform_int_distribution<int> gennumber{ 1, planetList.at(currentPlanet).numberOfMajorMoons };
+						planetList.at(currentPlanet).majorMoonPercent -= gennumber(mt_moon);
+					}
+				
+					while (genpercent(mt_moon) < planetList.at(currentPlanet).minorMoonPercent)
+					{
+						PLANET currentMoon;
+						GenerateMinorMoon(planetList.at(currentPlanet), currentMoon, planetList.at(currentPlanet).numberOfMinorMoons);
+						minorMoon.push_back(currentMoon);
+						planetList.at(currentPlanet).numberOfMinorMoons++;
+						std::uniform_int_distribution<int> gennumber { 1, planetList.at(currentPlanet).numberOfMinorMoons };
+						planetList.at(currentPlanet).minorMoonPercent -= gennumber(mt_moon);
+					}
+				}
+				else
+				{
+					int Moon_Count = 0;
+					while (Moon_Count < planetList.at(currentPlanet).numberOfMajorMoons)
+					{
+						PLANET currentMoon;
+						GenerateMajorMoon(currentStar, planetList.at(currentPlanet), currentMoon, Moon_Count);
+						majorMoon.push_back(currentMoon);
+						Moon_Count++;
+					}
+					Moon_Count = 0;
+
+					while (Moon_Count < planetList.at(currentPlanet).numberOfMinorMoons)
+					{
+						PLANET currentMoon;
+						GenerateMinorMoon(planetList.at(currentPlanet), currentMoon, Moon_Count);
+						minorMoon.push_back(currentMoon);
+						Moon_Count++;
+					}
+				}
+
+				SortVector(majorMoon, 0, majorMoon.size() - 1);
 				SortVector(minorMoon, 0, minorMoon.size() - 1);
 
 				/*###############################################################################
@@ -4893,6 +4971,7 @@ Screen lastScreen;
 		star.frostLine = (4.85 * sqrt(star.luminosity));
 		star.habitZoneInnerLimit = sqrt(star.luminosity / 1.1);
 		star.habitZoneOuterLimit = sqrt(star.luminosity / 0.53);
+		star.totalDist = star.outerLimit - star.innerLimit;
 
 		star.RA[0] = genhour(mt_star);
 		star.RA[1] = genminute(mt_star);
@@ -5297,72 +5376,96 @@ Screen lastScreen;
 		else if (planet.class_ != L"Neptune" && planet.class_ != L"Jupiter" && planet.hillSphereOuterLimit > 1495980)
 			planet.hillSphereOuterLimit = 1495980;  // hillSphereOuterLimit Limit Capped at 0.01 AU
 
-		if (planet.semimajorAxis < star.frostLine)
-		{ // major up to 3, minor up to 15; ice/gas giants major up to 5, minor up to 20
-
+		if (CONFIG.weightedMoons)
+		{
+			int relativeDist = ceil(((planet.semimajorAxis - star.innerLimit) / star.totalDist) * 100);
 			if (planet.class_ == L"Jupiter" || planet.class_ == L"Neptune")
-			{
-				std::discrete_distribution<int> genmajorc{ 1, 3, 5, 3, 2, 1 };
-				std::discrete_distribution<int> genminorc{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
-
-				planet.numberOfMajorMoons = genmajorc(mt_planet);
-				planet.numberOfMinorMoons = genminorc(mt_planet);
-			}
-			else if (planet.planetType == L"DwarfPlanet")
-			{
-				std::discrete_distribution<int> genminorc{ 5, 1 };
-				planet.numberOfMinorMoons = genminorc(mt_planet);
-				planet.numberOfMajorMoons = 0;
-			}
+				planet.majorMoonPercent = relativeDist + ceil(planet.mass / 158.0); // gas giants add half jupiter mass
 			else
-			{
-				std::discrete_distribution<int> genmajorc{ 7, 15, 5, 1 };
-				std::discrete_distribution<int> genminorc{ 32, 30, 28, 26, 24, 22, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
+				planet.majorMoonPercent = relativeDist + ceil(planet.mass); // terra add earth mass
 
-				planet.numberOfMajorMoons = genmajorc(mt_planet);
-				planet.numberOfMinorMoons = genminorc(mt_planet);
-			}
+			// bonus percents
+			if (planet.semimajorAxis > star.habitZoneInnerLimit && planet.semimajorAxis < star.habitZoneOuterLimit)
+				planet.majorMoonPercent += 15; // if in the habitable zone, extra chance for moons
+			if (planet.semimajorAxis > star.habitZoneOuterLimit)
+				planet.majorMoonPercent += 5;
+			if (planet.semimajorAxis > star.frostLine && (planet.class_ == L"Jupiter" || planet.class_ == L"Neptune"))
+				planet.majorMoonPercent += 15; // past frost line
 
+			//if (planet.class_ == L"Jupiter" || planet.class_ == L"Neptune")
+				planet.minorMoonPercent = planet.majorMoonPercent * 3; // gas giants multiply by 3
+			//else
+			//	planet.minorMoonPercent = planet.majorMoonPercent * 2;
 		}
-		else // planets above the frost line
-		{ // major up to 5, minor up to 25; ice giants major up to 8, minor up to 40; gas giant major up to 12, minor up to 70
+		else
+		{
+			if (planet.semimajorAxis < star.frostLine)
+			{ // major up to 3, minor up to 15; ice/gas giants major up to 5, minor up to 20
 
-			if (planet.class_ == L"Jupiter")
-			{
-				std::discrete_distribution<int> genmajorc{ 0, 1, 3, 5, 7, 9, 10, 10, 9, 7, 5, 3, 1 };
-				std::discrete_distribution<int> genminorc{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-														21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 35, 34, 33,
-														32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15,
-														14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
+				if (planet.class_ == L"Jupiter" || planet.class_ == L"Neptune")
+				{
+					std::discrete_distribution<int> genmajorc{ 1, 3, 5, 3, 2, 1 };
+					std::discrete_distribution<int> genminorc{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
 
-				planet.numberOfMajorMoons = genmajorc(mt_planet);
-				planet.numberOfMinorMoons = genminorc(mt_planet);
+					planet.numberOfMajorMoons = genmajorc(mt_planet);
+					planet.numberOfMinorMoons = genminorc(mt_planet);
+				}
+				else if (planet.planetType == L"DwarfPlanet")
+				{
+					std::discrete_distribution<int> genminorc{ 5, 1 };
+					planet.numberOfMinorMoons = genminorc(mt_planet);
+					planet.numberOfMajorMoons = 0;
+				}
+				else
+				{
+					std::discrete_distribution<int> genmajorc{ 7, 15, 5, 1 };
+					std::discrete_distribution<int> genminorc{ 32, 30, 28, 26, 24, 22, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
+
+					planet.numberOfMajorMoons = genmajorc(mt_planet);
+					planet.numberOfMinorMoons = genminorc(mt_planet);
+				}
+
 			}
-			else if (planet.class_ == L"Neptune")
-			{
-				std::discrete_distribution<int> genmajorc{ 0, 1, 3, 5, 7, 7, 5, 3, 1 };
-				std::discrete_distribution<int> genminorc{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-														20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
+			else // planets above the frost line
+			{ // major up to 5, minor up to 25; ice giants major up to 8, minor up to 40; gas giant major up to 12, minor up to 70
 
-				planet.numberOfMajorMoons = genmajorc(mt_planet);
-				planet.numberOfMinorMoons = genminorc(mt_planet);
-			}
-			else if (planet.planetType == L"DwarfPlanet")
-			{
-				std::discrete_distribution<int> genminorc{ 5, 3, 2, 1 };
-				planet.numberOfMinorMoons = genminorc(mt_planet);
-				planet.numberOfMajorMoons = 0;
-			}
-			else
-			{
-				std::discrete_distribution<int> genmajorc{ 5, 15, 10, 5, 3, 1 };
-				std::discrete_distribution<int> genminorc{ 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
+				if (planet.class_ == L"Jupiter")
+				{
+					std::discrete_distribution<int> genmajorc{ 0, 1, 3, 5, 7, 9, 10, 10, 9, 7, 5, 3, 1 };
+					std::discrete_distribution<int> genminorc{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+															21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 35, 34, 33,
+															32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15,
+															14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
 
-				planet.numberOfMajorMoons = genmajorc(mt_planet);
-				planet.numberOfMinorMoons = genminorc(mt_planet);
+					planet.numberOfMajorMoons = genmajorc(mt_planet);
+					planet.numberOfMinorMoons = genminorc(mt_planet);
+				}
+				else if (planet.class_ == L"Neptune")
+				{
+					std::discrete_distribution<int> genmajorc{ 0, 1, 3, 5, 7, 7, 5, 3, 1 };
+					std::discrete_distribution<int> genminorc{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+															20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
+
+					planet.numberOfMajorMoons = genmajorc(mt_planet);
+					planet.numberOfMinorMoons = genminorc(mt_planet);
+				}
+				else if (planet.planetType == L"DwarfPlanet")
+				{
+					std::discrete_distribution<int> genminorc{ 5, 3, 2, 1 };
+					planet.numberOfMinorMoons = genminorc(mt_planet);
+					planet.numberOfMajorMoons = 0;
+				}
+				else
+				{
+					std::discrete_distribution<int> genmajorc{ 5, 15, 10, 5, 3, 1 };
+					std::discrete_distribution<int> genminorc{ 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
+
+					planet.numberOfMajorMoons = genmajorc(mt_planet);
+					planet.numberOfMinorMoons = genminorc(mt_planet);
+				}
 			}
 		}
-
+		
 		// If hill sphere inner is larger than outer, then moons are set to 0
 		if ((2.44 * pow((planet.density / 0.05), (1.0 / 3.0)) * planet.radius) > planet.hillSphereOuterLimit)
 		{
@@ -5925,10 +6028,14 @@ Screen lastScreen;
 		if (genpercent(mt_moon) <= CONFIG.exotic_ShipChance)
 			moon.hasShip = true;
 
+		moon.life_exotic.haslife = false;
+		moon.life_exotic.panspermia = false;
+		moon.life_organic.haslife = false;
+		moon.life_organic.panspermia = false;
 		// Determines Life
 		if (CONFIG.traditionalLife)
 		{
-			if (parent.semimajorAxis > (star.habitZoneInnerLimit * 0.7) && parent.semimajorAxis < (star.habitZoneOuterLimit * 1.3)
+			if (parent.semimajorAxis > star.habitZoneInnerLimit && parent.semimajorAxis < star.habitZoneOuterLimit
 				&& moon.radius > 1000
 				&& genpercent(mt_moon) <= CONFIG.life_OrganicChance)
 

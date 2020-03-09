@@ -13,6 +13,9 @@ struct STAR
 	//calculated
 	double luminosity, innerLimit, outerLimit, frostLine, habitZoneInnerLimit, habitZoneOuterLimit;
 	std::vector<double> semimajorList, semimajorStaticList; //semimajorOuterList, semimajorInnerList;
+
+	//for weighted moons
+	double totalDist;
 };
 
 struct PLANET
@@ -21,13 +24,14 @@ struct PLANET
 	std::wstring planetType, parentBody, name, class_;
 	double mass, radius, semimajorAxis, eccentricity, inclination,
 		ascendingNode, argofPericenter, meanAnomaly, obliquity;
-	std::vector<double> usedSemimajor_moon, usedRadius_moon;
+	std::vector<double> usedSemimajor_moon, usedRadius_moon; //Lists used to check the spacing of moons
 	//calculated for planets/moons
 	double earthRadius, gravity, density;
 
 	//generated for planets
-	int numberOfMajorMoons, numberOfMinorMoons; //Lists used to check the spacing of moons
+	int numberOfMajorMoons, numberOfMinorMoons; // for old moon generation
 	//calculated for planets
+	int majorMoonPercent, minorMoonPercent; // used for weighted moon generation
 	double hillSphereOuterLimit, hillSphereInnerLimit; // HSInner used to be for moons
 
 	//exotic stuff
