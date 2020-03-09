@@ -20,7 +20,7 @@ std::vector<Preset> preset;
 NameVariables NV;
 std::vector<NamePreset> npreset;
 
-std::mt19937 mt_star, mt_planet, mt_moon, mt_ships, mt_name;
+std::mt19937 mt_star, mt_planet, mt_moon, mt_ship, mt_name;
 std::uniform_int_distribution<int> genpercent{ 1, 100 };
 std::uniform_real_distribution<> gendegree{ 0, 360 };
 enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
@@ -103,8 +103,10 @@ Screen lastScreen;
 		void GeneratePlanet(STAR&, PLANET&);
 		void GenerateDwarfPlanet(STAR&, PLANET&);
 		void GenerateMajorMoon(STAR&, PLANET&, PLANET&, int);
-		void GenerateMinorMoon(PLANET&, PLANET&);
-		void GenerateDwarfMinor(PLANET& parent, PLANET& moon);
+		void GenerateMinorMoon(PLANET&, PLANET&, int);
+		void GenerateDwarfMinor(PLANET&, PLANET&, int);
+
+		void ExoticGenerateLife(PLANET&);
 		/*
 	Generator Functions
 
@@ -3114,6 +3116,9 @@ Screen lastScreen;
 		GetVariableFromWindow(CONFIG.exotic_AxialTiltChanceH.HANDLE, CONFIG.exotic_AxialTiltChance);
 		GetVariableFromWindow(CONFIG.exotic_DebrisRingChanceH.HANDLE, CONFIG.exotic_DebrisRingChance);
 		GetVariableFromWindow(CONFIG.exotic_CompanionOrbitChanceH.HANDLE, CONFIG.exotic_CompanionOrbitChance);
+
+		CONFIG.debug = true;
+		CONFIG.planetSpacing = 1.0;
 	}
 	void CreateNameVectors(HWND hWnd)
 	{	
@@ -3678,7 +3683,7 @@ Screen lastScreen;
 			finalName = L"";
 			wordCount = 1;
 			wordPercent = 5;
-			testName = 0;
+			testName = false;
 			has_prename_mod = false;
 			has_postname_mod = false;
 			has_number_mod = false;
@@ -4102,7 +4107,7 @@ Screen lastScreen;
 					count = NV.usedNames.size();
 				}
 			}
-		} while (testName == true);
+		} while (testName);
 
 		//######################################################################################################
 			// FINAL NAME OUTPUT
@@ -4181,73 +4186,6 @@ Screen lastScreen;
 		return FinalNumber;
 	}
 
-	void BeginGenerate()
-	{
-		if (CONFIG.seed == 0)
-		{
-			std::mt19937 mtseed;
-			mtseed.seed(time(0));
-			std::uniform_int_distribution<int> genseed{ 0, 2147483647 };
-			CONFIG.seed = genseed(mtseed);
-		}
-
-		mt_star.seed(CONFIG.seed);
-		mt_planet.seed(CONFIG.seed);
-		mt_moon.seed(CONFIG.seed);
-		mt_ships.seed(CONFIG.seed);
-		mt_name.seed(CONFIG.seed);
-
-		STAR currentStar;
-		GenerateStar(currentStar);
-
-		std::wstring starFileName = CONFIG.starOutputFolder;	//Creates the star file
-		//starFileName += currentStar.name;
-		//starFileName += L" Star.sc";
-		starFileName += L"Test Star.sc";
-		std::ofstream starFile(starFileName.c_str());
-		PrintStar(currentStar, starFile);
-
-		std::wstring planetFileName = CONFIG.planetOutputFolder;	//Creates the planet file
-		//planetFileName += mainStar.name;
-		//planetFileName += " System.sc";
-		planetFileName += L"Test System.sc";
-		std::ofstream planetFile(planetFileName.c_str());
-
-		if (CheckSeed(CONFIG.seed, starFile, planetFile))
-			return;
-
-		std::uniform_int_distribution<int> genplanetnum{ CONFIG.minPlanetNumber, currentStar.maxPlanetNumber };
-		int planetNumber = genplanetnum(mt_planet);
-		std::vector<PLANET> planetList;
-		
-		for (int planetCounter = 0; planetCounter < planetNumber; planetCounter++)
-		{
-			PLANET curentPlanet;
-			GeneratePlanet(currentStar, curentPlanet);
-			planetList.push_back(curentPlanet);
-		}
-		while (genpercent(mt_planet) < CONFIG.dwarfPlanetChance)
-		{
-			//Dwarf Planets will be generated here
-		}
-		SortVector(planetList, 0, planetList.size() - 1);
-
-		for (int i = 0; i < planetList.size(); i++)
-			PrintPlanet(planetList.at(i), planetFile);
-
-
-
-		/*#########################################
-				Used for numbered names
-			#########################################
-			wchar_t temp[3];
-			_itow_s(planetCounter + 1, temp, 10);
-
-			curentPlanet.name += temp;
-			########################################*/
-		starFile.close();
-		return;
-	}
 	void SortVector(std::vector<PLANET>& vector, int low, int high)
 	{
 		if (low < high)
@@ -4279,10 +4217,527 @@ Screen lastScreen;
 		return (i + 1);
 	}
 
+	// Generation starts here:
+	void BeginGenerate()
+	{
+		if (CONFIG.seed == 0)
+		{
+			std::mt19937 mtseed;
+			mtseed.seed(time(0));
+			std::uniform_int_distribution<int> genseed{ 0, 2147483647 };
+			CONFIG.seed = genseed(mtseed);
+		}
+
+		mt_star.seed(CONFIG.seed);
+		mt_planet.seed(CONFIG.seed);
+		mt_moon.seed(CONFIG.seed);
+		mt_ship.seed(CONFIG.seed);
+		mt_name.seed(CONFIG.seed);
+
+		/*###############################################################################
+				OUTER LOOP
+		###############################################################################*/
+		for (int run = 0; run < CONFIG.numberOfRuns; run++)
+		{
+			STAR currentStar;
+			GenerateStar(currentStar);
+
+			std::wstring starFileName = CONFIG.starOutputFolder;	//Creates the star file
+			//starFileName += currentStar.name;
+			//starFileName += L" Star.sc";
+			starFileName += L"Test Star.sc";
+			std::ofstream starFile(starFileName.c_str());
+			PrintStar(currentStar, starFile);
+
+			std::wstring planetFileName = CONFIG.planetOutputFolder;	//Creates the planet file
+			//planetFileName += mainStar.name;
+			//planetFileName += " System.sc";
+			planetFileName += L"Test System.sc";
+			std::ofstream planetFile(planetFileName.c_str());
+
+			if (CheckSeed(CONFIG.seed, starFile, planetFile))
+				return;
+
+			std::uniform_int_distribution<int> genplanetnum{ CONFIG.minPlanetNumber, currentStar.maxPlanetNumber };
+			int planetNumber = genplanetnum(mt_planet);
+			std::vector<PLANET> planetList;
+
+			/*###############################################################################
+					PLANET GENERATOR
+			###############################################################################*/
+
+			for (int planetCounter = 0; planetCounter < planetNumber; planetCounter++)
+			{
+				PLANET currentPlanet;
+				GeneratePlanet(currentStar, currentPlanet);
+				planetList.push_back(currentPlanet);
+
+				// Debug moon orbits
+				if (CONFIG.debug == 1)
+				{
+					PLANET Debug;
+
+					Debug.planetType = L"Star";
+					Debug.parentBody = currentPlanet.name;
+					Debug.class_ = L"Z";
+					Debug.mass = 0.000000001;
+					Debug.radius = 0.000000001;
+					Debug.obliquity = 0;
+					Debug.eccentricity = 0;
+					Debug.inclination = 0;
+					Debug.ascendingNode = 0;
+					Debug.argofPericenter = 0;
+					Debug.meanAnomaly = 0;
+
+					Debug.name = L"Hill Sphere Outer Limit";
+					Debug.semimajorAxis = (currentPlanet.hillSphereOuterLimit / 149598000);
+					PrintPlanet(Debug, planetFile);
+
+					Debug.name = L"Hill Sphere Inner Limit";
+					if (currentPlanet.class_ == L"Jupiter")
+						Debug.semimajorAxis = ((2.44 * pow((currentPlanet.density / 0.1), (1.0 / 3.0))) * currentPlanet.radius) / 149598000;
+					else
+						Debug.semimajorAxis = ((2.44 * pow((currentPlanet.density / 0.05), (1.0 / 3.0))) * currentPlanet.radius) / 149598000;
+					PrintPlanet(Debug, planetFile);
+
+					if (currentPlanet.class_ == L"Jupiter")
+					{
+						Debug.name = L"Hill Sphere Fifteenth Limit";
+						Debug.semimajorAxis = (((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.1), (1.0 / 3.0))) * currentPlanet.radius) / 15) / 149598000);
+						PrintPlanet(Debug, planetFile);
+
+						Debug.name = L"Hill Sphere Tenth Limit";
+						Debug.semimajorAxis = (((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.1), (1.0 / 3.0))) * currentPlanet.radius) / 10) / 149598000);
+						PrintPlanet(Debug, planetFile);
+
+						Debug.name = L"Hill Sphere Fifth Limit";
+						Debug.semimajorAxis = (((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.1), (1.0 / 3.0))) * currentPlanet.radius) / 5) / 149598000);
+						PrintPlanet(Debug, planetFile);
+					}
+					else if (currentPlanet.class_ == L"Neptune")
+					{
+						Debug.name = L"Hill Sphere Fifteenth Limit";
+						Debug.semimajorAxis = (((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.05), (1.0 / 3.0))) * currentPlanet.radius) / 15) / 149598000);
+						PrintPlanet(Debug, planetFile);
+
+						Debug.name = L"Hill Sphere Tenth Limit";
+						Debug.semimajorAxis = (((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.05), (1.0 / 3.0))) * currentPlanet.radius) / 10) / 149598000);
+						PrintPlanet(Debug, planetFile);
+
+						Debug.name = L"Hill Sphere Fifth Limit";
+						Debug.semimajorAxis = (((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.1), (1.0 / 3.0))) * currentPlanet.radius) / 5) / 149598000);
+						PrintPlanet(Debug, planetFile);
+					}
+					else
+					{
+						Debug.name = L"Hill Sphere Third Limit";
+						Debug.semimajorAxis = (((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.05), (1.0 / 3.0))) * currentPlanet.radius) / 3) / 149598000);
+						PrintPlanet(Debug, planetFile);
+
+						Debug.name = L"Hill Sphere Half Limit";
+						Debug.semimajorAxis = (((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.05), (1.0 / 3.0))) * currentPlanet.radius) / 2) / 149598000);
+						PrintPlanet(Debug, planetFile);
+					}
+				}
+			}
+			while (genpercent(mt_planet) < CONFIG.dwarfPlanetChance)
+			{
+				PLANET currentDwarf;
+				GeneratePlanet(currentStar, currentDwarf);
+				planetList.push_back(currentDwarf);
+			}
+			SortVector(planetList, 0, planetList.size() - 1);
+
+			/*###############################################################################
+					MOON GENERATOR PER PLANET
+			###############################################################################*/
+			for (int currentPlanet = 0; currentPlanet < planetList.size(); currentPlanet++)
+			{
+				// For Major Moons
+				std::vector<PLANET> majorMoon(planetList.at(currentPlanet).numberOfMajorMoons);
+				for (int currentMoon = 0; currentMoon < planetList.at(currentPlanet).numberOfMajorMoons; currentMoon++)
+					GenerateMajorMoon(currentStar, planetList.at(currentPlanet), majorMoon.at(currentMoon), currentMoon);
+				SortVector(majorMoon, 0, majorMoon.size() - 1);
+
+				// For Minor Moons
+				std::vector<PLANET> minorMoon(planetList.at(currentPlanet).numberOfMinorMoons);
+				for (int currentMoon = 0; currentMoon < planetList.at(currentPlanet).numberOfMinorMoons; currentMoon++)
+					GenerateMinorMoon(planetList.at(currentPlanet), minorMoon.at(currentMoon), currentMoon);
+				SortVector(minorMoon, 0, minorMoon.size() - 1);
+
+				/*###############################################################################
+					PRINTING
+				###############################################################################*/
+				if ((planetList.at(currentPlanet).semimajorAxis * CONFIG.planetSpacing) > currentStar.innerLimit)
+				{
+					planetList.at(currentPlanet).semimajorAxis *= CONFIG.planetSpacing;
+
+					PrintPlanet(planetList.at(currentPlanet), planetFile);
+					for (int currentMoon = 0; currentMoon < planetList.at(currentPlanet).numberOfMajorMoons; currentMoon++)
+						PrintPlanet(majorMoon.at(currentMoon), planetFile);
+					for (int currentMoon = 0; currentMoon < planetList.at(currentPlanet).numberOfMinorMoons; currentMoon++)
+						PrintPlanet(minorMoon.at(currentMoon), planetFile);
+				}
+
+				/*###############################################################################
+					EXOTIC STUFF
+				###############################################################################*/
+
+				/*
+
+				// Generates Debris Ring
+				if (planetList.at(currentPlanet).debrisCount > 0 && currentPlanet != 0)
+				{
+					// Generates data for debris to spawn around
+					double SMCenterSpread, SMCenterPoint, inclinationCenter, inclinationSD, DebrisSpread;
+
+					std::uniform_int_distribution<int> genpreset{ 1, 6 };
+					int preset = genpreset(mt_planet);
+
+					//##############################
+							// CONTROL PANEL
+							// preset =	1	;
+					//##############################
+
+					if (preset == 1) // Classic, thin ring around the equator, moderate distance from planet
+					{
+						std::uniform_real_distribution<> gensd{ 0.1, 1 };
+						std::uniform_real_distribution<> genspread{ 1.05, 1.2 };
+						std::uniform_real_distribution<> gensmspread{ 1.8, 4 };
+
+						inclinationCenter = 0.0;
+						inclinationSD = gensd(mt_planet);
+						DebrisSpread = genspread(mt_planet);
+						SMCenterSpread = gensmspread(mt_planet);
+					}
+					else if (preset == 2) // Classic, thin ring around the equator, close to planet
+					{
+						std::uniform_real_distribution<> gensd{ 0.1, 1 };
+						std::uniform_real_distribution<> genspread{ 1.05, 1.2 };
+						std::uniform_real_distribution<> gensmspread{ 1.2, 1.5 };
+
+						inclinationCenter = 0.0;
+						inclinationSD = gensd(mt_planet);
+						DebrisSpread = genspread(mt_planet);
+						SMCenterSpread = gensmspread(mt_planet);
+					}
+					else if (preset == 3) // Classic, thin ring around the equator, far from planet
+					{
+						std::uniform_real_distribution<> gensd{ 0.1, 1 };
+						std::uniform_real_distribution<> genspread{ 1.05, 1.2 };
+						std::uniform_real_distribution<> gensmspread{ 5, 6 };
+
+						inclinationCenter = 0.0;
+						inclinationSD = gensd(mt_planet);
+						DebrisSpread = genspread(mt_planet);
+						SMCenterSpread = gensmspread(mt_planet);
+					}
+					else if (preset == 4) // Wide ring around the equator
+					{
+						std::uniform_real_distribution<> gensd{ 0.1, 1 };
+						std::uniform_real_distribution<> genspread{ 1.3, 2 };
+						std::uniform_real_distribution<> gensmspread{ 1.5, 5 };
+
+						inclinationCenter = 0.0;
+						inclinationSD = gensd(mt_planet);
+						DebrisSpread = genspread(mt_planet);
+						SMCenterSpread = gensmspread(mt_planet);
+					}
+					else if (preset == 5) // Thin ring around the equator, higher inclination
+					{
+						std::uniform_real_distribution<> gensd{ 2, 7 };
+						std::uniform_real_distribution<> genspread{ 1.05, 1.2 };
+						std::uniform_real_distribution<> gensmspread{ 1.2, 4 };
+
+						inclinationCenter = 0.0;
+						inclinationSD = gensd(mt_planet);
+						DebrisSpread = genspread(mt_planet);
+						SMCenterSpread = gensmspread(mt_planet);
+					}
+					else if (preset == 6) // Wide ring around the equator, higher inclination
+					{
+						std::uniform_real_distribution<> gensd{ 2, 7 };
+						std::uniform_real_distribution<> genspread{ 1.3, 2 };
+						std::uniform_real_distribution<> gensmspread{ 1.5, 4 };
+
+						inclinationCenter = 0.0;
+						inclinationSD = gensd(mt_planet);
+						DebrisSpread = genspread(mt_planet);
+						SMCenterSpread = gensmspread(mt_planet);
+					}
+
+					SMCenterPoint = planetList.at(currentPlanet).radius * SMCenterSpread;
+
+					// generates and prints the debris
+					PLANET debrisMoon;
+					debrisMoon.planetType = L"DwarfMoon";
+					debrisMoon.class_ = L"Asteroid";
+					debrisMoon.parentBody = planetList.at(currentPlanet).name;
+
+					if (planetList.at(currentPlanet).semimajorAxis > currentStar.innerLimit)
+					{
+						for (int count = 0; count < planetList.at(currentPlanet).debrisCount; count++)
+						{
+							ExoticDebrisRing(NV, planetList.at(currentPlanet), debrisMoon, inclinationCenter, inclinationSD, DebrisSpread, SMCenterPoint);
+							PrintPlanet(debrisMoon, planetFile);
+						}
+					}
+				}
+
+				// Generates Ships for the current planet
+				if (planetList.at(currentPlanet).hasShip == true)
+				{
+					int shipCount;
+					Object_Type shipType;
+
+					if (planetList.at(currentPlanet).class_ == L"Jupiter" || planetList.at(currentPlanet).class_ == L"Neptune")
+					{
+						std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, 0, 1, 0, 1 };
+						shipType = static_cast<Object_Type>(genshiptype(mt_ship));
+					}
+					else if (planetList.at(currentPlanet).class_ == L"Aquaria")
+					{
+						std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, 1, 1, 0, 1 };
+						shipType = static_cast<Object_Type>(genshiptype(mt_ship));
+					}
+					else
+					{
+						std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, 1, 1, 1, 1 };
+						shipType = static_cast<Object_Type>(genshiptype(mt_ship));
+					}
+					
+					if (shipType == typeShipColony && CONFIG.shipList_Colony.size() == 0)
+						goto NoShip_Planet;
+					if (shipType == typeShipInstrument && CONFIG.shipList_Instrument.size() == 0)
+						goto NoShip_Planet;
+					if (shipType == typeShipSatellite && CONFIG.shipList_Satellite.size() == 0)
+						goto NoShip_Planet;
+					if (shipType == typeShipStation && CONFIG.shipList_Station.size() == 0)
+						goto NoShip_Planet;
+
+					switch (shipType)
+					{
+					case typeShipColony:
+						shipCount = 1;
+						break;
+					case typeShipInstrument:
+					{
+						std::uniform_int_distribution<int> genshipcount{ 1, 3 };
+						shipCount = genshipcount(mt_ship);
+						break;
+					}
+					case typeShipSatellite:
+					{
+						std::uniform_int_distribution<int> genshipcount{ 5, 20 };
+						shipCount = genshipcount(mt_ship);
+						break;
+					}
+					case typeShipStation:
+						shipCount = 1;
+						break;
+					}
+
+					PLANET ship;
+					ship.planetType = L"Spacecraft";
+
+					if (planetList.at(currentPlanet).semimajorAxis > currentStar.innerLimit)
+					{
+						for (int j = 0; j < shipCount; j++)
+						{
+							ExoticGeneratePlanetShip(CONFIG, NV, planetList.at(currentPlanet), ship, shipType);
+							PrintPlanetShip(planetList.at(currentPlanet), ship, planetFile);
+						}
+					}
+
+				}
+			NoShip_Planet:;
+
+				// Generate ships for the current planet's moons
+				for (int currentMoon = 0; currentMoon < planetList.at(currentPlanet).numberOfMajorMoons; currentMoon++)
+				{
+					if (majorMoon.at(currentMoon).hasShip == true)
+					{
+						int shipCount;
+						Object_Type shipType;
+						/*
+						if (majorMoon.at(currentMoon).class_ == L"Aquaria")
+						{
+							std::discrete_distribution<int> genshiptype{ 0, 0, 1, 0, 1 };
+							shipType = static_cast<Ship_Type>(genshiptype(mt));
+						}
+						else
+						{
+							std::discrete_distribution<int> genshiptype{ 0, 0, 1, 0, 1 };
+							shipType = static_cast<Ship_Type>(genshiptype(mt));
+						}
+						// Put a close comma here
+						std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, 0, 1, 0, 1 };
+						shipType = static_cast<Object_Type>(genshiptype(mt_ship));
+
+						switch (shipType)
+						{
+							/*case typeShipColony:
+								shipCount = 1;
+								break; // Put a close comma here 
+						case typeShipInstrument:
+						{
+							std::uniform_int_distribution<int> genshipcount{ 1, 3 };
+							shipCount = genshipcount(mt_ship);
+							break;
+						}
+						/*case typeShipSatellite:
+							std::uniform_int_distribution<int> genshipcount{ 3, 10 };
+							shipCount = genshipcount(mt);
+							break; // Put a close comma here
+						case typeShipStation:
+							shipCount = 1;
+							break;
+						}
+
+						//	if (shipType == Colony && CONFIG.shipList_Colony.size() == 0)
+						//		goto NoShip_Moon;
+						if (shipType == typeShipInstrument && CONFIG.shipList_Instrument.size() == 0)
+							goto NoShip_Moon;
+						//	if (shipType == Satellite && CONFIG.shipList_Satellite.size() == 0)
+						//		goto NoShip_Moon;
+						if (shipType == typeShipStation && CONFIG.shipList_Station.size() == 0)
+							goto NoShip_Moon;
+
+						PLANET ship;
+						ship.planetType = L"Spacecraft";
+
+						for (int j = 0; j < shipCount; j++)
+						{
+							ExoticGenerateMoonShip(CONFIG, NV, majorMoon.at(currentMoon), ship, shipType);
+							PrintMoonShip(majorMoon.at(currentMoon), ship, planetFile);
+						}
+					}
+				}
+			NoShip_Moon:;
+
+				*/
+
+				// end of every planet generated
+			}
+
+			// Debug star Orbits
+			if (CONFIG.debug == 1)
+			{
+				PLANET Debug;
+
+				Debug.planetType = L"Star";
+				Debug.parentBody = currentStar.name;
+
+				Debug.class_ = L"Z";
+				Debug.mass = 0.000000001;
+				Debug.radius = 0.000000001;
+				Debug.obliquity = 0;
+				Debug.eccentricity = 0;
+				Debug.inclination = 0;
+				Debug.ascendingNode = 0;
+				Debug.argofPericenter = 0;
+				Debug.meanAnomaly = 0;
+
+				Debug.name = L"Inner Limit";
+				Debug.semimajorAxis = currentStar.innerLimit;
+				PrintPlanet(Debug, planetFile);
+
+				Debug.name = L"Outer Limit";
+				Debug.semimajorAxis = currentStar.outerLimit;
+				PrintPlanet(Debug, planetFile);
+
+				Debug.name = L"Frost Limit";
+				Debug.semimajorAxis = currentStar.frostLine;
+				PrintPlanet(Debug, planetFile);
+
+				Debug.name = L"HZ Inner Limit";
+				Debug.semimajorAxis = currentStar.habitZoneInnerLimit;
+				PrintPlanet(Debug, planetFile);
+
+				Debug.name = L"HZ Outer Limit";
+				Debug.semimajorAxis = currentStar.habitZoneOuterLimit;
+				PrintPlanet(Debug, planetFile);
+			}
+
+			//end of every star generated
+			currentStar.maxPlanetNumber = 0;
+			currentStar.semimajorList.clear();
+			starFile.close();
+			planetFile.close();
+		}
+		return;
+	}
+
+	void PrintStar(STAR& star, std::ofstream& file)
+	{
+		file << "Star\t\t\t\"" << wstr_to_str(star.name) << "\"\n{"
+			<< "\n\tRA\t\t\t" << star.RA[0] << " " << star.RA[1] << " " << star.RA[2]
+			<< "\n\tDec\t\t\t" << star.DEC[0] << " " << star.DEC[1] << " " << star.DEC[2]
+			<< "\n\tDist\t\t" << star.distance
+			<< "\n\tClass\t\t\"" << wstr_to_str(star.class_) << "\""
+			<< "\n\tMassSol\t\t" << star.mass
+			<< "\n\tRadSol\t\t" << star.radius
+			<< "\n\tLum\t\t\t" << star.luminosity
+			<< "\n\tTeff\t\t" << star.temperatureK
+			<< "\n}";
+
+		file << "\n\n\t" << wstr_to_str(star.name) << " has an inner limit around " << star.innerLimit << " AU,"
+			<< " an outer limit around " << star.outerLimit << " AU,\n"
+			<< "and a frost line around " << star.frostLine << " AU. The habitable zone is between " << star.habitZoneInnerLimit << " AU\n"
+			<< "and " << star.habitZoneOuterLimit << " AU.";
+
+		file << "\n\n\tSeed: " << CONFIG.seed;
+	}
+	void PrintPlanet(PLANET& planet, std::ofstream& file)
+	{
+		if (planet.planetType == L"DwarfPlanet")
+			file << wstr_to_str(planet.planetType) << "\t\t\t\t\t\"" << wstr_to_str(planet.name) << "\"\n{";
+		else
+			file << wstr_to_str(planet.planetType) << "\t\t\t\t\t\t\"" << wstr_to_str(planet.name) << "\"\n{";
+		file << "\n\tParentBody\t\t\t\t\"" << wstr_to_str(planet.parentBody) << "\""
+			<< "\n\tClass\t\t\t\t\t\"" << wstr_to_str(planet.class_) << "\"\n";
+		if (planet.planetType != L"DwarfMoon")
+			file << "\n\tMass\t\t\t\t\t" << planet.mass << "\n";
+		file << "\tRadius\t\t\t\t\t" << planet.radius << "\n"
+			<< "\tObliquity\t\t\t\t" << planet.obliquity << "\n";
+
+		if (planet.life_organic.haslife == true)
+		{
+			file << "\n\tLife\n\t{"
+				<< "\n\t\tClass\t\"" << wstr_to_str(planet.life_organic._class) << "\""
+				<< "\n\t\tType\t\"" << wstr_to_str(planet.life_organic.type) << "\"";
+			if (planet.life_organic.panspermia == true)
+				file << "\n\t\tPanspermia\ttrue";
+			file << "\n\t}\n";
+		}
+		if (planet.life_exotic.haslife == true)
+		{
+			file << "\n\tLife\n\t{"
+				<< "\n\t\tClass\t\"" << wstr_to_str(planet.life_exotic._class) << "\""
+				<< "\n\t\tType\t\"" << wstr_to_str(planet.life_exotic.type) << "\"";
+			if (planet.life_exotic.panspermia == true)
+				file << "\n\t\tPanspermia\ttrue";
+			file << "\n\t}\n";
+		}
+
+		file << "\n\tOrbit\n\t{\n\t\t"
+			<< "RefPlane\t\t\t\"Equator\"";
+		if (planet.planetType == L"Moon" || planet.planetType == L"DwarfMoon")
+			file << "\n\t\tSemiMajorAxis\t\t" << (planet.semimajorAxis / 149598000);
+		else
+			file << "\n\t\tSemiMajorAxis\t\t" << planet.semimajorAxis;
+		file << "\n\t\tEccentricity\t\t" << planet.eccentricity
+			<< "\n\t\tInclination\t\t\t" << planet.inclination
+			<< "\n\t\tAscendingNode\t\t" << planet.ascendingNode
+			<< "\n\t\tArgOfPericenter\t\t" << planet.argofPericenter
+			<< "\n\t\tMeanAnomaly\t\t\t" << planet.meanAnomaly
+			<< "\n\t}\n}\n\n";
+	}
+
 	void GenerateStar(STAR& star)
 	{
 		double SMpoint, tempSol;
-		
+
 		std::uniform_int_distribution<int> genhour{ 0, 23 };
 		std::uniform_int_distribution<int> genminute{ 0, 59 };
 		std::uniform_real_distribution<> gensec{ 0, 60 };
@@ -4297,8 +4752,8 @@ Screen lastScreen;
 		CONFIG.classListSize = CONFIG.classList.size();
 		std::uniform_int_distribution<int> genclass{ 0, (CONFIG.classListSize - 1) };
 		star.class_ = CONFIG.classList.at(genclass(mt_star));
-		
-		
+
+
 		if (star.class_ == L"M")
 		{
 			std::normal_distribution<> genm{ 0.265, 0.185 };
@@ -4330,7 +4785,7 @@ Screen lastScreen;
 			std::normal_distribution<> genm{ 0.92, 0.12 };
 			std::normal_distribution<> genr{ 1.055, 0.095 };
 			std::uniform_int_distribution<int> gent{ 5200, 6100 };
-			
+
 			do star.mass = genm(mt_star);
 			while (star.mass <= 0.45);
 
@@ -4421,7 +4876,7 @@ Screen lastScreen;
 		{
 			int c = 299792458;
 			int G = 190809;
-		
+
 			std::uniform_real_distribution<> genm{ 1, 100 };
 			star.mass = genm(mt_star);
 			star.radius = ((2 * star.mass * G) / (pow(c, 2)) * 1000000);
@@ -4458,69 +4913,6 @@ Screen lastScreen;
 
 		star.maxPlanetNumber = star.semimajorList.size();
 	}
-
-	void PrintStar(STAR& star, std::ofstream& file)
-	{
-		file << "Star\t\t\t\"" << wstr_to_str(star.name) << "\"\n{"
-			<< "\n\tRA\t\t\t" << star.RA[0] << " " << star.RA[1] << " " << star.RA[2]
-			<< "\n\tDec\t\t\t" << star.DEC[0] << " " << star.DEC[1] << " " << star.DEC[2]
-			<< "\n\tDist\t\t" << star.distance
-			<< "\n\tClass\t\t\"" << wstr_to_str(star.class_) << "\""
-			<< "\n\tMassSol\t\t" << star.mass
-			<< "\n\tRadSol\t\t" << star.radius
-			<< "\n\tLum\t\t\t" << star.luminosity
-			<< "\n\tTeff\t\t" << star.temperatureK
-			<< "\n}";
-
-		file << "\n\n\t" << wstr_to_str(star.name) << " has an inner limit around " << star.innerLimit << " AU,"
-			<< " an outer limit around " << star.outerLimit << " AU,\n"
-			<< "and a frost line around " << star.frostLine << " AU. The habitable zone is between " << star.habitZoneInnerLimit << " AU\n"
-			<< "and " << star.habitZoneOuterLimit << " AU.";
-
-		file << "\n\n\tSeed: " << CONFIG.seed;
-	}
-	void PrintPlanet(PLANET& planet, std::ofstream& file)
-	{
-		if (planet.planetType == L"DwarfPlanet")
-			file << wstr_to_str(planet.planetType) << "\t\t\t\t\t\"" << wstr_to_str(planet.name) << "\"\n{";
-		else
-			file << wstr_to_str(planet.planetType) << "\t\t\t\t\t\t\"" << wstr_to_str(planet.name) << "\"\n{";
-		file << "\n\tParentBody\t\t\t\t\"" << wstr_to_str(planet.parentBody) << "\"" 
-			<< "\n\tClass\t\t\t\t\t\"" << wstr_to_str(planet.class_) << "\"\n"
-			<< "\n\tMass\t\t\t\t\t" << planet.mass << "\n"
-			<< "\tRadius\t\t\t\t\t" << planet.radius << "\n"
-			<< "\tObliquity\t\t\t\t" << planet.obliquity << "\n";
-
-		if (planet.life_organic.haslife == true)
-		{
-			file << "\n\tLife\n\t{"
-				<< "\n\t\tClass\t\"" << wstr_to_str(planet.life_organic._class) << "\""
-				<< "\n\t\tType\t\"" << wstr_to_str(planet.life_organic.type) << "\"";
-			if (planet.life_organic.panspermia == true)
-				file << "\n\t\tPanspermia\ttrue";
-			file << "\n\t}\n";
-		}
-		if (planet.life_exotic.haslife == true)
-		{
-			file << "\n\tLife\n\t{"
-				<< "\n\t\tClass\t\"" << wstr_to_str(planet.life_exotic._class) << "\""
-				<< "\n\t\tType\t\"" << wstr_to_str(planet.life_exotic.type) << "\"";
-			if (planet.life_exotic.panspermia == true)
-				file << "\n\t\tPanspermia\ttrue";
-			file << "\n\t}\n";
-		}
-
-		file << "\n\tOrbit\n\t{\n\t\t" 
-			<< "RefPlane\t\t\t\"Equator\""
-			<< "\n\t\tSemiMajorAxis\t\t" << (planet.semimajorAxis)
-			<< "\n\t\tEccentricity\t\t" << planet.eccentricity
-			<< "\n\t\tInclination\t\t\t" << planet.inclination
-			<< "\n\t\tAscendingNode\t\t" << planet.ascendingNode
-			<< "\n\t\tArgOfPericenter\t\t" << planet.argofPericenter
-			<< "\n\t\tMeanAnomaly\t\t\t" << planet.meanAnomaly
-			<< "\n\t}\n}\n\n";
-	}
-
 	void GeneratePlanet(STAR& star, PLANET& planet)
 	{
 		std::normal_distribution<> genobliquity{ CONFIG.avgObliquity, CONFIG.SDObliquity };
@@ -4826,10 +5218,6 @@ Screen lastScreen;
 		//######################################################################################################
 		//	EXOTIC GENERATION
 
-
-		// FUNCTION CALLS ARE TURNED OFF RIGHT NOW
-
-
 		// Determines an exotic orbit
 		if (genpercent(mt_planet) <= CONFIG.exotic_OrbitChance)
 		{
@@ -4866,35 +5254,29 @@ Screen lastScreen;
 		if (genpercent(mt_planet) <= CONFIG.exotic_ShipChance)
 			planet.hasShip = true;
 
+		planet.life_exotic.haslife = false;
+		planet.life_exotic.panspermia = false;
+		planet.life_organic.haslife = false;
+		planet.life_organic.panspermia = false;
 		// Determines Life
-		if (CONFIG.traditionalLife == true)
+		if (CONFIG.traditionalLife)
 		{
-			if (planet.semimajorAxis > (star.habitZoneInnerLimit * 0.7) && planet.semimajorAxis < (star.habitZoneOuterLimit * 1.3)
+			if (planet.semimajorAxis > star.habitZoneInnerLimit && planet.semimajorAxis < star.habitZoneOuterLimit
 				&& planet.class_ != L"Jupiter" && planet.class_ != L"Neptune"
 				&& genpercent(mt_planet) <= CONFIG.life_OrganicChance)
-			{
+
 				planet.life_organic.haslife = true;
-			//	ExoticGenerateLife<Planet>(CONFIG, planet);
-			}
 			if (genpercent(mt_planet) <= CONFIG.life_ExoticChance)
-			{
 				planet.life_exotic.haslife = true;
-			//	ExoticGenerateLife<Planet>(CONFIG, planet);
-			}
 		}
 		else
 		{
 			if (genpercent(mt_planet) <= CONFIG.life_OrganicChance)
-			{
 				planet.life_organic.haslife = true;
-			//	ExoticGenerateLife<Planet>(CONFIG, planet);
-			}
 			if (genpercent(mt_planet) <= CONFIG.life_ExoticChance)
-			{
 				planet.life_exotic.haslife = true;
-			//	ExoticGenerateLife<Planet>(CONFIG, planet);
-			}
 		}
+		ExoticGenerateLife(planet);
 
 		//######################################################################################################
 			//	MOON NUMBER GENERATION
@@ -5170,12 +5552,15 @@ Screen lastScreen;
 		moon.planetType = L"Moon";
 		moon.parentBody = parent.name;
 
-		if (NV.nameTerraMoons == true && parent.class_ != L"Jupiter" && parent.class_ != L"Neptune")
+		if (NV.nameTerraMoons && parent.class_ != L"Jupiter" && parent.class_ != L"Neptune")
 			moon.name = GenName(typeMoon);
-		else if (NV.nameGasMoons == true && (parent.class_ == L"Jupiter" || parent.class_ == L"Neptune"))
+		else if (NV.nameGasMoons && (parent.class_ == L"Jupiter" || parent.class_ == L"Neptune"))
 			moon.name = GenName(typeMoon);
 		else
-			moon.name = L"Major Moon";
+		{
+			moon.name = L"Major Moon ";
+			moon.name += std::to_wstring(spacer + 1);
+		}	
 
 		//######################################################################################################
 			//	CLASS GENERATION
@@ -5520,8 +5905,6 @@ Screen lastScreen;
 		//######################################################################################################
 			//	EXOTIC GENERATION
 
-		// FUNCTION CALLS ARE TURNED OFF
-
 		// Determines an exotic orbit
 		if (genpercent(mt_moon) <= CONFIG.exotic_OrbitChance)
 			moon.inclination += 180;
@@ -5543,47 +5926,41 @@ Screen lastScreen;
 			moon.hasShip = true;
 
 		// Determines Life
-		if (CONFIG.traditionalLife == true)
+		if (CONFIG.traditionalLife)
 		{
 			if (parent.semimajorAxis > (star.habitZoneInnerLimit * 0.7) && parent.semimajorAxis < (star.habitZoneOuterLimit * 1.3)
 				&& moon.radius > 1000
 				&& genpercent(mt_moon) <= CONFIG.life_OrganicChance)
-			{
+
 				moon.life_organic.haslife = true;
-				//ExoticGenerateLife<Moon>(CONFIG, moon);
-			}
 			if (moon.radius > 1000 && genpercent(mt_moon) <= CONFIG.life_ExoticChance)
-			{
 				moon.life_exotic.haslife = true;
-				//ExoticGenerateLife<Moon>(CONFIG, moon);
-			}
 		}
 		else
 		{
 			if (genpercent(mt_moon) <= CONFIG.life_OrganicChance)
-			{
 				moon.life_organic.haslife = true;
-				//ExoticGenerateLife<Moon>(CONFIG, moon);
-			}
 			if (genpercent(mt_moon) <= CONFIG.life_ExoticChance)
-			{
 				moon.life_exotic.haslife = true;
-				//ExoticGenerateLife<Moon>(CONFIG, moon);
-			}
 		}
+		ExoticGenerateLife(moon);
 	}
-	void GenerateMinorMoon(PLANET& parent, PLANET& moon)
+	void GenerateMinorMoon(PLANET& parent, PLANET& moon, int currentMoon)
 	{
 		int astSize, testsemi;
 		moon.planetType = L"DwarfMoon";
+		moon.class_ = L"Asteroid";
 		moon.parentBody = parent.name;
 
-		if (NV.nameTerraDwarfMoons == true && parent.class_ != L"Jupiter" && parent.class_ != L"Neptune")
+		if (NV.nameTerraDwarfMoons && parent.class_ != L"Jupiter" && parent.class_ != L"Neptune")
 			moon.name = GenName(typeDwarfMoon);
-		else if (NV.nameGasDwarfMoons == true && (parent.class_ == L"Jupiter" || parent.class_ == L"Neptune"))
+		else if (NV.nameGasDwarfMoons && (parent.class_ == L"Jupiter" || parent.class_ == L"Neptune"))
 			moon.name = GenName(typeDwarfMoon);
 		else
-			moon.name = L"Minor Moon";
+		{
+			moon.name = L"Minor Moon ";
+			moon.name += std::to_wstring(currentMoon + 1);
+		}		
 
 		//######################################################################################################
 			//	RADIUS GENERATION
@@ -5771,18 +6148,20 @@ Screen lastScreen;
 		moon.argofPericenter = gendegree(mt_moon);
 		moon.meanAnomaly = gendegree(mt_moon);
 	}
-	void GenerateDwarfMinor(PLANET& parent, PLANET& moon)
+	void GenerateDwarfMinor(PLANET& parent, PLANET& moon, int currentMoon)
 	{
 		int astSize;
 		moon.planetType = L"DwarfMoon";
+		moon.class_ = L"Asteroid";
 		moon.parentBody = parent.name;
 
-		if (NV.nameTerraDwarfMoons == true && parent.class_ != L"Jupiter" && parent.class_ != L"Neptune")
-			moon.name = GenName(typeDwarfMoon);
-		else if (NV.nameGasDwarfMoons == true && (parent.class_ == L"Jupiter" || parent.class_ == L"Neptune"))
+		if (NV.nameTerraDwarfMoons)
 			moon.name = GenName(typeDwarfMoon);
 		else
-			moon.name = L"Minor Moon";
+		{
+			moon.name = L"Minor Moon ";
+			moon.name += std::to_wstring(currentMoon + 1);
+		}
 
 		//######################################################################################################
 			//	RADIUS GENERATION
@@ -5864,3 +6243,31 @@ Screen lastScreen;
 		moon.meanAnomaly = gendegree(mt_moon);
 	}
 
+	void ExoticGenerateLife(PLANET& body)
+	{
+		if (body.life_organic.haslife)
+		{
+			body.life_organic._class = L"Organic";
+
+			if (genpercent(mt_planet) <= CONFIG.life_MulticellChance)
+				body.life_organic.type = L"Multicellular";
+			else
+				body.life_organic.type = L"Unicellular";
+
+			if (genpercent(mt_planet) <= 50)
+				body.life_organic.panspermia = true;
+		}
+
+		if (body.life_exotic.haslife)
+		{
+			body.life_exotic._class = L"Exotic";
+
+			if (genpercent(mt_planet) <= CONFIG.life_MulticellChance)
+				body.life_exotic.type = L"Multicellular";
+			else
+				body.life_exotic.type = L"Unicellular";
+
+			if (genpercent(mt_planet) <= 50)
+				body.life_exotic.panspermia = true;
+		}
+	}

@@ -1,6 +1,6 @@
 PresetName=Default
-starOutputFolder=C:\Program Files (x86)\Steam\steamapps\common\SpaceEngine\addons\Generator\catalogs\stars\
-planetOutputFolder=C:\Program Files (x86)\Steam\steamapps\common\SpaceEngine\addons\Generator\catalogs\planets\
+starOutputFolder=E:\Program Files (x86)\Steam\steamapps\common\SpaceEngine\addons\Generator\catalogs\stars\
+planetOutputFolder=E:\Program Files (x86)\Steam\steamapps\common\SpaceEngine\addons\Generator\catalogs\planets\
 seed=0
 numberOfRuns=1
 smartPlacement=1
@@ -27,7 +27,7 @@ starClassWD=0
 starClassQ=0
 starClassX=0
 life_OrganicChance=70
-life_ExoticChance=5
+life_ExoticChance=2
 life_MulticellChance=80
 forceLife=0
 traditionalLife=1

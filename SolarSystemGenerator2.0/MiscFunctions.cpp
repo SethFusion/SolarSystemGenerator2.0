@@ -193,6 +193,7 @@ static void FillDataset(HWND& dataH, std::vector<std::wstring> &list, std::vecto
 			i++;
 		}
 		list.push_back(strholder);
+		strholder.at(0) = toupper(strholder.at(0));
 		usedNames.push_back(strholder);
 		i++;
 	}
