@@ -115,6 +115,8 @@ struct Configuration
 	wchar_t modelsFolder[WSIZE];
 	var		modelsFolderH;
 
+	std::vector<std::wstring> shipList_Colony, shipList_Instrument, shipList_Satellite, shipList_Station;
+
 	/*#####################################################
 		*/	HWND HEADER_EXOTIC; /*
 	#####################################################*/

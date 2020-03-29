@@ -100,6 +100,7 @@ Screen lastScreen;
 		void GenerateStar(STAR&);
 		void PrintStar(STAR&, std::ofstream&);
 		void PrintPlanet(PLANET&, std::ofstream&);
+		void PrintShip(PLANET& ship, std::ofstream& planetFile);
 		void GeneratePlanet(STAR&, PLANET&);
 		void GenerateDwarfPlanet(STAR&, PLANET&);
 		void GenerateMajorMoon(STAR&, PLANET&, PLANET&, int);
@@ -108,6 +109,11 @@ Screen lastScreen;
 
 		void ExoticGenerateLife(PLANET&);
 		void ExoticDebrisRing(PLANET&, PLANET&, double, double, double, double);
+
+		void ExoticGeneratePlanetShip(PLANET&, PLANET&, Object_Type);
+		void ExoticGenerateMoonShip(PLANET&, PLANET&, Object_Type);
+		void ExoticGenerateSystemShip(STAR&, PLANET&, Object_Type);
+		std::wstring GenShipName(std::wstring, Object_Type);
 		/*
 	Generator Functions
 
@@ -3140,6 +3146,87 @@ Screen lastScreen;
 		GetVariableFromWindow(CONFIG.modelsFolderH.HANDLE, CONFIG.modelsFolder);
 		CONFIG.shipsNeedLife = (IsDlgButtonChecked(hWnd, CB_SHIPSNEEDLIFE) == BST_CHECKED) ? true : false;
 
+		int size = CONFIG.shipList_Colony.size();
+		for (int count = 0; count < size; count++)
+			CONFIG.shipList_Colony.pop_back();
+		size = CONFIG.shipList_Instrument.size();
+		for (int count = 0; count < size; count++)
+			CONFIG.shipList_Instrument.pop_back();
+		size = CONFIG.shipList_Satellite.size();
+		for (int count = 0; count < size; count++)
+			CONFIG.shipList_Satellite.pop_back();
+		size = CONFIG.shipList_Station.size();
+		for (int count = 0; count < size; count++)
+			CONFIG.shipList_Station.pop_back();
+
+		int counter = 1;
+		std::ifstream ShipInputTest;
+		std::wstring shipFilePath, shipPrintHolder; // file path is used to open file, print is pushed onto vector
+
+		shipFilePath = L"Spacecraft\\SFSG_Ships\\Colony\\colony_" + std::to_wstring(counter) + L".sss";
+		shipFilePath = CONFIG.modelsFolder + shipFilePath;
+		ShipInputTest.open(shipFilePath.c_str());
+
+		while (ShipInputTest)
+		{
+			shipPrintHolder = L"Spacecraft/SFSG_Ships/Colony/colony_" + std::to_wstring(counter) + L".sss"; //  this is different because of how SE handles slashes: '/'
+			CONFIG.shipList_Colony.push_back(shipPrintHolder);
+			ShipInputTest.close();
+
+			counter++;
+			shipFilePath = L"Spacecraft\\SFSG_Ships\\Colony\\colony_" + std::to_wstring(counter) + L".sss";
+			shipFilePath = CONFIG.modelsFolder + shipFilePath;
+			ShipInputTest.open(shipFilePath.c_str());
+		}
+
+		counter = 1;
+		shipFilePath = L"Spacecraft\\SFSG_Ships\\Instrument\\instrument_" + std::to_wstring(counter) + L".sss";
+		shipFilePath = CONFIG.modelsFolder + shipFilePath;
+		ShipInputTest.open(shipFilePath.c_str());
+		while (ShipInputTest)
+		{
+			shipPrintHolder = L"Spacecraft/SFSG_Ships/Instrument/instrument_" + std::to_wstring(counter) + L".sss";
+			CONFIG.shipList_Instrument.push_back(shipPrintHolder);
+			ShipInputTest.close();
+
+			counter++;
+			shipFilePath = L"Spacecraft\\SFSG_Ships\\Instrument\\instrument_" + std::to_wstring(counter) + L".sss";
+			shipFilePath = CONFIG.modelsFolder + shipFilePath;
+			ShipInputTest.open(shipFilePath.c_str());
+		}
+
+		counter = 1;
+		shipFilePath = L"Spacecraft\\SFSG_Ships\\Satellite\\satellite_" + std::to_wstring(counter) + L".sss";
+		shipFilePath = CONFIG.modelsFolder + shipFilePath;
+		ShipInputTest.open(shipFilePath.c_str());
+		while (ShipInputTest)
+		{
+			shipPrintHolder = L"Spacecraft/SFSG_Ships/Satellite/satellite_" + std::to_wstring(counter) + L".sss";
+			CONFIG.shipList_Satellite.push_back(shipPrintHolder);
+			ShipInputTest.close();
+
+			counter++;
+			shipFilePath = L"Spacecraft\\SFSG_Ships\\Satellite\\satellite_" + std::to_wstring(counter) + L".sss";
+			shipFilePath = CONFIG.modelsFolder + shipFilePath;
+			ShipInputTest.open(shipFilePath.c_str());
+		}
+
+		counter = 1;
+		shipFilePath = L"Spacecraft\\SFSG_Ships\\Station\\station_" + std::to_wstring(counter) + L".sss";
+		shipFilePath = CONFIG.modelsFolder + shipFilePath;
+		ShipInputTest.open(shipFilePath.c_str());
+		while (ShipInputTest)
+		{
+			shipPrintHolder = L"Spacecraft/SFSG_Ships/Station/station_" + std::to_wstring(counter) + L".sss";
+			CONFIG.shipList_Station.push_back(shipPrintHolder);
+			ShipInputTest.close();
+
+			counter++;
+			shipFilePath = L"Spacecraft\\SFSG_Ships\\Station\\station_" + std::to_wstring(counter) + L".sss";
+			shipFilePath = CONFIG.modelsFolder + shipFilePath;
+			ShipInputTest.open(shipFilePath.c_str());
+		}
+
 		GetVariableFromWindow(CONFIG.exotic_OrbitChanceH.HANDLE, CONFIG.exotic_OrbitChance);
 		GetVariableFromWindow(CONFIG.exotic_AxialTiltChanceH.HANDLE, CONFIG.exotic_AxialTiltChance);
 		GetVariableFromWindow(CONFIG.exotic_DebrisRingChanceH.HANDLE, CONFIG.exotic_DebrisRingChance);
@@ -4282,16 +4369,16 @@ Screen lastScreen;
 			GenerateStar(currentStar);
 
 			std::wstring starFileName = CONFIG.starOutputFolder;	//Creates the star file
-			starFileName += currentStar.name;
-			starFileName += L" Star.sc";
-			//starFileName += L"Test Star.sc";
+			//starFileName += currentStar.name;
+			//starFileName += L" Star.sc";
+			starFileName += L"Test Star.sc";
 			std::ofstream starFile(starFileName.c_str());
 			PrintStar(currentStar, starFile);
 
 			std::wstring planetFileName = CONFIG.planetOutputFolder;	//Creates the planet file
-			planetFileName += currentStar.name;
-			planetFileName += L" System.sc";
-			//planetFileName += L"Test System.sc";
+			//planetFileName += currentStar.name;
+			//planetFileName += L" System.sc";
+			planetFileName += L"Test System.sc";
 			std::ofstream planetFile(planetFileName.c_str());
 
 			if (CheckSeed(CONFIG.seed, starFile, planetFile))
@@ -4389,6 +4476,33 @@ Screen lastScreen;
 			}
 			SortVector(planetList, 0, planetList.size() - 1);
 
+			// force life function
+			if (CONFIG.forceLife)
+			{
+				bool lifeTest = false;
+				for (int i = 0; i < planetList.size(); i++)
+				{
+					if (planetList.at(i).life_organic.haslife || planetList.at(i).life_exotic.haslife)
+					{
+						lifeTest = true;
+						break;
+					}
+				}
+
+				if (!lifeTest)
+				{
+					int position;
+					do
+					{
+						int vectSize = planetList.size() - 1;
+						std::uniform_int_distribution<int> genplanetposition{ 0, vectSize };
+						position = genplanetposition(mt_planet);
+					} while (planetList.at(position).planetType == L"DwarfPlanet");
+					planetList.at(position).life_exotic.haslife = true;
+					ExoticGenerateLife(planetList.at(position));
+				}
+			}
+
 			/*###############################################################################
 					MOON GENERATOR PER PLANET
 			###############################################################################*/
@@ -4467,7 +4581,7 @@ Screen lastScreen;
 				if (planetList.at(currentPlanet).debrisCount > 0 && currentPlanet != 0)
 				{
 					// Generates data for debris to spawn around
-					double SMCenterSpread, SMCenterPoint, inclinationCenter, inclinationSD, DebrisSpread;
+					double SMCenterSpread, SMCenterPoint, inclinationCenter = 0.0, inclinationSD = 0.0, DebrisSpread = 0.0;
 
 					std::uniform_int_distribution<int> genpreset{ 1, 6 };
 					int preset = genpreset(mt_planet);
@@ -4561,9 +4675,9 @@ Screen lastScreen;
 						}
 					}
 				}
-				/*
+				
 				// Generates Ships for the current planet
-				if (planetList.at(currentPlanet).hasShip == true)
+				if (planetList.at(currentPlanet).hasShip)
 				{
 					int shipCount;
 					Object_Type shipType;
@@ -4617,13 +4731,14 @@ Screen lastScreen;
 
 					PLANET ship;
 					ship.planetType = L"Spacecraft";
+					ship.parentBody = planetList.at(currentPlanet).name;
 
 					if (planetList.at(currentPlanet).semimajorAxis > currentStar.innerLimit)
 					{
 						for (int j = 0; j < shipCount; j++)
 						{
-							ExoticGeneratePlanetShip(CONFIG, NV, planetList.at(currentPlanet), ship, shipType);
-							PrintPlanetShip(planetList.at(currentPlanet), ship, planetFile);
+							ExoticGeneratePlanetShip(planetList.at(currentPlanet), ship, shipType);
+							PrintShip(ship, planetFile);
 						}
 					}
 
@@ -4633,7 +4748,7 @@ Screen lastScreen;
 				// Generate ships for the current planet's moons
 				for (int currentMoon = 0; currentMoon < planetList.at(currentPlanet).numberOfMajorMoons; currentMoon++)
 				{
-					if (majorMoon.at(currentMoon).hasShip == true)
+					if (majorMoon.at(currentMoon).hasShip)
 					{
 						int shipCount;
 						Object_Type shipType;
@@ -4648,15 +4763,15 @@ Screen lastScreen;
 							std::discrete_distribution<int> genshiptype{ 0, 0, 1, 0, 1 };
 							shipType = static_cast<Ship_Type>(genshiptype(mt));
 						}
-						// Put a close comma here
+						*/
 						std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, 0, 1, 0, 1 };
 						shipType = static_cast<Object_Type>(genshiptype(mt_ship));
 
 						switch (shipType)
 						{
-							/*case typeShipColony:
+						/*case typeShipColony:
 								shipCount = 1;
-								break; // Put a close comma here 
+								break; */
 						case typeShipInstrument:
 						{
 							std::uniform_int_distribution<int> genshipcount{ 1, 3 };
@@ -4666,7 +4781,7 @@ Screen lastScreen;
 						/*case typeShipSatellite:
 							std::uniform_int_distribution<int> genshipcount{ 3, 10 };
 							shipCount = genshipcount(mt);
-							break; // Put a close comma here
+							break; */
 						case typeShipStation:
 							shipCount = 1;
 							break;
@@ -4683,20 +4798,73 @@ Screen lastScreen;
 
 						PLANET ship;
 						ship.planetType = L"Spacecraft";
+						ship.parentBody = majorMoon.at(currentMoon).name;
 
 						for (int j = 0; j < shipCount; j++)
 						{
-							ExoticGenerateMoonShip(CONFIG, NV, majorMoon.at(currentMoon), ship, shipType);
-							PrintMoonShip(majorMoon.at(currentMoon), ship, planetFile);
+							ExoticGenerateMoonShip(majorMoon.at(currentMoon), ship, shipType);
+							PrintShip(ship, planetFile);
 						}
 					}
 				}
 			NoShip_Moon:;
 
-				*/
-
 				// end of every planet generated
 			}
+
+			// Generates ship(s) arond the star itself
+			if (genpercent(mt_ship) <= CONFIG.exotic_ShipChance)
+			{
+				int shipCount;
+				Object_Type shipType;
+
+				std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, 1, 0, 0, 1 };
+				shipType = static_cast<Object_Type>(genshiptype(mt_ship));
+
+				switch (shipType)
+				{
+				case typeShipColony:
+				{
+					std::uniform_int_distribution<int> genshipcount{ 1, 4 };
+					shipCount = genshipcount(mt_ship);
+					break;
+				}
+				/*case Instrument: // Unused
+					std::uniform_int_distribution<int> genshipcount{ 1, 3 };
+					shipCount = genshipcount(mt_ship);
+					break;
+				case Satellite: // Unused
+					std::uniform_int_distribution<int> genshipcount{ 3, 10 };
+					shipCount = genshipcount(mt_ship);
+					break;*/
+				case typeShipStation:
+				{
+					std::uniform_int_distribution<int> genshipcount{ 1, 2 };
+					shipCount = genshipcount(mt_ship);
+					break;
+				}
+				}
+
+				if (shipType == typeShipColony && CONFIG.shipList_Colony.size() == 0)
+					goto NoShip_Star;
+				/*if (shipType == Instrument && CONFIG.shipList_Instrument.size() == 0)
+					goto NoShip_Star;
+				if (shipType == Satellite && CONFIG.shipList_Satellite.size() == 0)
+					goto NoShip_Star;*/
+				if (shipType == typeShipStation && CONFIG.shipList_Station.size() == 0)
+					goto NoShip_Star;
+
+				PLANET ship;
+				ship.planetType = L"Spacecraft";
+				ship.parentBody = currentStar.name;
+
+				for (int j = 0; j < shipCount; j++)
+				{
+					ExoticGenerateSystemShip(currentStar, ship, shipType);
+					PrintShip(ship, planetFile);
+				}
+			}
+		NoShip_Star:;
 
 			// Debug star Orbits
 			if (CONFIG.debug == 1)
@@ -4811,6 +4979,24 @@ Screen lastScreen;
 			<< "\n\t\tMeanAnomaly\t\t\t" << planet.meanAnomaly
 			<< "\n\t}\n}\n\n";
 	}
+	void PrintShip(PLANET& ship, std::ofstream& planetFile)
+	{
+		planetFile << wstr_to_str(ship.planetType) << "\t\t\t\t\t\t\"" << wstr_to_str(ship.name) << "\"\n{"
+			<< "\n\tModel\t\t\"" << wstr_to_str(ship.model) << "\""
+			<< "\n\tParentBody\t\t\t\t\"" << wstr_to_str(ship.parentBody) << "\""
+			<< "\n\tObliquity\t\t\t\t" << ship.obliquity << "\n"
+			<< "\n\tOrbit\n\t{"
+			<< "\n\t\tRefPlane\t\t\t\"Equator\""
+			<< "\n\t\tSemiMajorAxis\t\t" << (ship.semimajorAxis / 149598000)
+			<< "\n\t\tEccentricity\t\t" << ship.eccentricity
+			<< "\n\t\tInclination\t\t\t" << ship.inclination
+			<< "\n\t\tAscendingNode\t\t" << ship.ascendingNode
+			<< "\n\t\tArgOfPericenter\t\t" << ship.argofPericenter
+			<< "\n\t\tMeanAnomaly\t\t\t" << ship.meanAnomaly
+			<< "\n\t}\n}\n\n";
+	}
+
+
 
 	void GenerateStar(STAR& star)
 	{
@@ -6418,8 +6604,8 @@ Screen lastScreen;
 		debris.argofPericenter = gendegree(mt_moon);
 		debris.meanAnomaly = gendegree(mt_moon);
 	}
-	/*
-	void ExoticGeneratePlanetShip(PLANET& parent, PLANET& ship, Object_Type shipType)
+	
+	void ExoticGeneratePlanetShip(PLANET& parentPlanet, PLANET& ship, Object_Type shipType)
 	{
 		ship.name = GenName(shipType);
 		ship.name = GenShipName(ship.name, shipType);
@@ -6432,7 +6618,7 @@ Screen lastScreen;
 			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
 			ship.model = CONFIG.shipList_Colony.at(genmodel(mt_ship));
 
-			std::uniform_real_distribution<> gensemi{ parent.radius + 300, parent.radius + 1000 };
+			std::uniform_real_distribution<> gensemi{ parentPlanet.radius + 300, parentPlanet.radius + 1000 };
 			ship.semimajorAxis = gensemi(mt_ship);
 			break;
 		}
@@ -6442,7 +6628,7 @@ Screen lastScreen;
 			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
 			ship.model = CONFIG.shipList_Instrument.at(genmodel(mt_ship));
 
-			std::uniform_real_distribution<> gensemi{ parent.radius + 300, parent.radius + 10000 };
+			std::uniform_real_distribution<> gensemi{ parentPlanet.radius + 300, parentPlanet.radius + 10000 };
 			ship.semimajorAxis = gensemi(mt_ship);
 			break;
 		}
@@ -6452,7 +6638,7 @@ Screen lastScreen;
 			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
 			ship.model = CONFIG.shipList_Satellite.at(genmodel(mt_ship));
 
-			std::uniform_real_distribution<> gensemi{ parent.radius + 2000, parent.radius + 20000 };
+			std::uniform_real_distribution<> gensemi{ parentPlanet.radius + 2000, parentPlanet.radius + 20000 };
 			ship.semimajorAxis = gensemi(mt_ship);
 			break;
 		}
@@ -6462,7 +6648,7 @@ Screen lastScreen;
 			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
 			ship.model = CONFIG.shipList_Station.at(genmodel(mt_ship));
 
-			std::uniform_real_distribution<> gensemi{ parent.radius + 300, parent.radius + 1000 };
+			std::uniform_real_distribution<> gensemi{ parentPlanet.radius + 300, parentPlanet.radius + 1000 };
 			ship.semimajorAxis = gensemi(mt_ship);
 			break;
 		}
@@ -6479,7 +6665,63 @@ Screen lastScreen;
 		ship.argofPericenter = gendegree(mt_ship);
 		ship.meanAnomaly = gendegree(mt_ship);
 	}
-	void ExoticGenerateSystemShip(STAR& parent, PLANET& ship, Object_Type shipType)
+	void ExoticGenerateMoonShip(PLANET& parentMoon, PLANET& ship, Object_Type shipType)
+	{
+		ship.name = GenName(shipType);
+		ship.name = GenShipName(ship.name, shipType);
+
+		switch (shipType)
+		{
+			/*case Colony:
+				int listSize = CONFIG.shipList_Colony.size();
+				std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+				ship.model = CONFIG.shipList_Colony.at(genmodel(mt_ship));
+
+				std::uniform_real_distribution<> gensemi{ parentMoon.radius + 300, parentMoon.radius + 1000 };
+				ship.semimajorAxis = gensemi(mt_ship);
+				break; */
+		case typeShipInstrument:
+		{
+			int listSize = CONFIG.shipList_Instrument.size();
+			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+			ship.model = CONFIG.shipList_Instrument.at(genmodel(mt_ship));
+
+			std::uniform_real_distribution<> gensemi{ parentMoon.radius + 300, parentMoon.radius + 10000 };
+			ship.semimajorAxis = gensemi(mt_ship);
+			break;
+		}
+		/*case Satellite:
+			int listSize = CONFIG.shipList_Satellite.size();
+			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+			ship.model = CONFIG.shipList_Satellite.at(genmodel(mt_ship));
+
+			std::uniform_real_distribution<> gensemi{ parentMoon.radius + 2000, parentMoon.radius + 20000 };
+			ship.semimajorAxis = gensemi(mt_ship);
+			break; */
+		case typeShipStation:
+		{
+			int listSize = CONFIG.shipList_Station.size();
+			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+			ship.model = CONFIG.shipList_Station.at(genmodel(mt_ship));
+
+			std::uniform_real_distribution<> gensemi{ parentMoon.radius + 300, parentMoon.radius + 1000 };
+			ship.semimajorAxis = gensemi(mt_ship);
+			break;
+		}
+		}
+
+		std::normal_distribution<> genobliquity{ 0, 1 };
+		std::normal_distribution<> geneccentricity{ 0, 0.001 };
+
+		ship.obliquity = genobliquity(mt_ship);
+		do ship.eccentricity = geneccentricity(mt_ship);
+		while (ship.eccentricity <= 0 || ship.eccentricity >= 1);
+		ship.inclination = gendegree(mt_ship);
+		ship.ascendingNode = gendegree(mt_ship);
+		ship.argofPericenter = gendegree(mt_ship);
+		ship.meanAnomaly = gendegree(mt_ship);
+	}
+	void ExoticGenerateSystemShip(STAR& parentStar, PLANET& ship, Object_Type shipType)
 	{
 		ship.name = GenName(shipType);
 		ship.name = GenShipName(ship.name, shipType);
@@ -6492,33 +6734,33 @@ Screen lastScreen;
 			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
 			ship.model = CONFIG.shipList_Colony.at(genmodel(mt_ship));
 
-			std::uniform_real_distribution<> gensemi{ parent.innerLimit, parent.outerLimit };
+			std::uniform_real_distribution<> gensemi{ parentStar.innerLimit, parentStar.outerLimit };
 			ship.semimajorAxis = gensemi(mt_ship);
 			break;
 		}
-		/*case typeShipInstrument:
+		/*case Instrument:
 			int listSize = CONFIG.shipList_Instrument.size();
 			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
-			ship.model = CONFIG.shipList_Instrument.at(genmodel(mt));
+			ship.model = CONFIG.shipList_Instrument.at(genmodel(mt_ship));
 
-			std::uniform_real_distribution<> gensemi{ parent.radius + 300, parent.radius + 10000 };
-			ship.semimajorAxis = gensemi(mt);
+			std::uniform_real_distribution<> gensemi{ parentStar.radius + 300, parentStar.radius + 10000 };
+			ship.semimajorAxis = gensemi(mt_ship);
 			break;
-		case typeShipSatellite:
+		case Satellite:
 			int listSize = CONFIG.shipList_Satellite.size();
 			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
-			ship.model = CONFIG.shipList_Satellite.at(genmodel(mt));
+			ship.model = CONFIG.shipList_Satellite.at(genmodel(mt_ship));
 
-			std::uniform_real_distribution<> gensemi{ parent.radius + 2000, parent.radius + 20000 };
-			ship.semimajorAxis = gensemi(mt);
-			break; // put end comma here
+			std::uniform_real_distribution<> gensemi{ parentStar.radius + 2000, parentStar.radius + 20000 };
+			ship.semimajorAxis = gensemi(mt_ship);
+			break; */
 		case typeShipStation:
 		{
 			int listSize = CONFIG.shipList_Station.size();
 			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
 			ship.model = CONFIG.shipList_Station.at(genmodel(mt_ship));
 
-			std::uniform_real_distribution<> gensemi{ parent.innerLimit, parent.outerLimit };
+			std::uniform_real_distribution<> gensemi{ parentStar.innerLimit, parentStar.outerLimit };
 			ship.semimajorAxis = gensemi(mt_ship);
 			break;
 		}
@@ -6536,4 +6778,116 @@ Screen lastScreen;
 		ship.argofPericenter = gendegree(mt_ship);
 		ship.meanAnomaly = gendegree(mt_ship);
 	}
-	*/
+	std::wstring GenShipName(std::wstring baseName, Object_Type shipType)
+	{
+		switch (shipType)
+		{
+		case typeShipColony:
+		{
+			if (NV.useShipPreMods_Colony && genpercent(mt_ship) < NV.probShipPreMod_Colony)
+			{
+				int listsize = NV.ShipPreMods_Colony.size() - 1;
+				std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+				baseName = NV.ShipPreMods_Colony.at(gen_mod_position(mt_ship)) + L" " + baseName;
+			}
+			if (NV.useShipPostMods_Colony && genpercent(mt_ship) < NV.probShipPostMod_Colony)
+			{
+				int listsize = NV.ShipPostMods_Colony.size() - 1;
+				std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+				baseName += L" " + NV.ShipPostMods_Colony.at(gen_mod_position(mt_ship));
+			}
+			if (NV.useShipNumberMods_Colony && genpercent(mt_ship) < NV.probShipNumberMod_Colony)
+			{
+				if (genpercent(mt_ship) < 50)
+					baseName += L" " + GenNumberModifier();
+				else
+					baseName = GenNumberModifier() + L" " + baseName;
+			}
+			break;
+		}
+		case typeShipInstrument:
+		{
+			if (NV.useShipPreMods_Instrument && genpercent(mt_ship) < NV.probShipPreMod_Instrument)
+			{
+				int listsize = NV.ShipPreMods_Instrument.size() - 1;
+				std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+				baseName = NV.ShipPreMods_Instrument.at(gen_mod_position(mt_ship)) + L" " + baseName;
+			}
+			if (NV.useShipPostMods_Instrument && genpercent(mt_ship) < NV.probShipPostMod_Instrument)
+			{
+				int listsize = NV.ShipPostMods_Instrument.size() - 1;
+				std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+				baseName += L" " + NV.ShipPostMods_Instrument.at(gen_mod_position(mt_ship));
+			}
+			if (NV.useShipNumberMods_Instrument && genpercent(mt_ship) < NV.probShipNumberMod_Instrument)
+			{
+				if (genpercent(mt_ship) < 50)
+					baseName += L" " + GenNumberModifier();
+				else
+					baseName = GenNumberModifier() + L" " + baseName;
+			}
+			break;
+		}
+		case typeShipSatellite:
+		{
+			if (NV.useShipPreMods_Satellite && genpercent(mt_ship) < NV.probShipPreMod_Satellite)
+			{
+				int listsize = NV.ShipPreMods_Satellite.size() - 1;
+				std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+				baseName = NV.ShipPreMods_Satellite.at(gen_mod_position(mt_ship)) + L" " + baseName;
+			}
+			if (NV.useShipPostMods_Satellite && genpercent(mt_ship) < NV.probShipPostMod_Satellite)
+			{
+				int listsize = NV.ShipPostMods_Satellite.size() - 1;
+				std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+				baseName += L" " + NV.ShipPostMods_Satellite.at(gen_mod_position(mt_ship));
+			}
+			if (NV.useShipNumberMods_Satellite && genpercent(mt_ship) < NV.probShipNumberMod_Satellite)
+			{
+				if (genpercent(mt_ship) < 50)
+					baseName += L" " + GenNumberModifier();
+				else
+					baseName = GenNumberModifier() + L" " + baseName;
+			}
+			break;
+		}
+		case typeShipStation:
+		{
+			if (NV.useShipPreMods_Station && genpercent(mt_ship) < NV.probShipPreMod_Station)
+			{
+				int listsize = NV.ShipPreMods_Station.size() - 1;
+				std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+				baseName = NV.ShipPreMods_Station.at(gen_mod_position(mt_ship)) + L" " + baseName;
+			}
+			if (NV.useShipPostMods_Station && genpercent(mt_ship) < NV.probShipPostMod_Station)
+			{
+				int listsize = NV.ShipPostMods_Station.size() - 1;
+				std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+				baseName += L" " + NV.ShipPostMods_Station.at(gen_mod_position(mt_ship));
+			}
+			if (NV.useShipNumberMods_Station && genpercent(mt_ship) < NV.probShipNumberMod_Station)
+			{
+				if (genpercent(mt_ship) < 50)
+					baseName += L" " + GenNumberModifier();
+				else
+					baseName = GenNumberModifier() + L" " + baseName;
+			}
+			break;
+		}
+		}
+
+		if (genpercent(mt_ship) < NV.probShipPreMod_All && NV.useShipPreMods_All)
+		{
+			int listsize = NV.ShipPreMods_All.size() - 1;
+			std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+			baseName = NV.ShipPreMods_All.at(gen_mod_position(mt_ship)) + L" " + baseName;
+		}
+		if (genpercent(mt_ship) < NV.probShipPostMod_All && NV.useShipPostMods_All)
+		{
+			int listsize = NV.ShipPostMods_All.size() - 1;
+			std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+			baseName += L" " + NV.ShipPostMods_All.at(gen_mod_position(mt_ship));
+		}
+
+		return baseName;
+	}
