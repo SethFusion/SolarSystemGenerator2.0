@@ -113,7 +113,6 @@ Screen lastScreen;
 		void ExoticGeneratePlanetShip(PLANET&, PLANET&, Object_Type);
 		void ExoticGenerateMoonShip(PLANET&, PLANET&, Object_Type);
 		void ExoticGenerateSystemShip(STAR&, PLANET&, Object_Type);
-		std::wstring GenShipName(std::wstring, Object_Type);
 		/*
 	Generator Functions
 
@@ -4164,32 +4163,33 @@ Screen lastScreen;
 				{
 					int listsize = NV.ShipPostMods_Colony.size() - 1;
 					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
-					finalName += NV.ShipPostMods_Colony.at(gen_mod_position(mt_name));
 					finalName += L" ";
+					finalName += NV.ShipPostMods_Colony.at(gen_mod_position(mt_name));
+					
 				}
 					break;
 				case typeShipInstrument:
 				{
 					int listsize = NV.ShipPostMods_Instrument.size() - 1;
 					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
-					finalName += NV.ShipPostMods_Instrument.at(gen_mod_position(mt_name));
 					finalName += L" ";
+					finalName += NV.ShipPostMods_Instrument.at(gen_mod_position(mt_name));
 				}
 					break;
 				case typeShipSatellite:
 				{
 					int listsize = NV.ShipPostMods_Satellite.size() - 1;
 					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
-					finalName += NV.ShipPostMods_Satellite.at(gen_mod_position(mt_name));
 					finalName += L" ";
+					finalName += NV.ShipPostMods_Satellite.at(gen_mod_position(mt_name));
 				}
 					break;
 				case typeShipStation:
 				{
 					int listsize = NV.ShipPostMods_Station.size() - 1;
 					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
-					finalName += NV.ShipPostMods_Station.at(gen_mod_position(mt_name));
 					finalName += L" ";
+					finalName += NV.ShipPostMods_Station.at(gen_mod_position(mt_name));
 				}
 					break;
 				case typeStar:
@@ -5016,6 +5016,8 @@ Screen lastScreen;
 		CONFIG.classListSize = CONFIG.classList.size();
 		std::uniform_int_distribution<int> genclass{ 0, (CONFIG.classListSize - 1) };
 		star.class_ = CONFIG.classList.at(genclass(mt_star));
+
+		//std::discrete_distribution<> test{ , , 4, 7};
 
 
 		if (star.class_ == L"M")
@@ -6608,7 +6610,6 @@ Screen lastScreen;
 	void ExoticGeneratePlanetShip(PLANET& parentPlanet, PLANET& ship, Object_Type shipType)
 	{
 		ship.name = GenName(shipType);
-		ship.name = GenShipName(ship.name, shipType);
 
 		switch (shipType)
 		{
@@ -6668,7 +6669,6 @@ Screen lastScreen;
 	void ExoticGenerateMoonShip(PLANET& parentMoon, PLANET& ship, Object_Type shipType)
 	{
 		ship.name = GenName(shipType);
-		ship.name = GenShipName(ship.name, shipType);
 
 		switch (shipType)
 		{
@@ -6724,7 +6724,6 @@ Screen lastScreen;
 	void ExoticGenerateSystemShip(STAR& parentStar, PLANET& ship, Object_Type shipType)
 	{
 		ship.name = GenName(shipType);
-		ship.name = GenShipName(ship.name, shipType);
 
 		switch (shipType)
 		{
@@ -6777,117 +6776,4 @@ Screen lastScreen;
 		ship.ascendingNode = gendegree(mt_ship);
 		ship.argofPericenter = gendegree(mt_ship);
 		ship.meanAnomaly = gendegree(mt_ship);
-	}
-	std::wstring GenShipName(std::wstring baseName, Object_Type shipType)
-	{
-		switch (shipType)
-		{
-		case typeShipColony:
-		{
-			if (NV.useShipPreMods_Colony && genpercent(mt_ship) < NV.probShipPreMod_Colony)
-			{
-				int listsize = NV.ShipPreMods_Colony.size() - 1;
-				std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
-				baseName = NV.ShipPreMods_Colony.at(gen_mod_position(mt_ship)) + L" " + baseName;
-			}
-			if (NV.useShipPostMods_Colony && genpercent(mt_ship) < NV.probShipPostMod_Colony)
-			{
-				int listsize = NV.ShipPostMods_Colony.size() - 1;
-				std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
-				baseName += L" " + NV.ShipPostMods_Colony.at(gen_mod_position(mt_ship));
-			}
-			if (NV.useShipNumberMods_Colony && genpercent(mt_ship) < NV.probShipNumberMod_Colony)
-			{
-				if (genpercent(mt_ship) < 50)
-					baseName += L" " + GenNumberModifier();
-				else
-					baseName = GenNumberModifier() + L" " + baseName;
-			}
-			break;
-		}
-		case typeShipInstrument:
-		{
-			if (NV.useShipPreMods_Instrument && genpercent(mt_ship) < NV.probShipPreMod_Instrument)
-			{
-				int listsize = NV.ShipPreMods_Instrument.size() - 1;
-				std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
-				baseName = NV.ShipPreMods_Instrument.at(gen_mod_position(mt_ship)) + L" " + baseName;
-			}
-			if (NV.useShipPostMods_Instrument && genpercent(mt_ship) < NV.probShipPostMod_Instrument)
-			{
-				int listsize = NV.ShipPostMods_Instrument.size() - 1;
-				std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
-				baseName += L" " + NV.ShipPostMods_Instrument.at(gen_mod_position(mt_ship));
-			}
-			if (NV.useShipNumberMods_Instrument && genpercent(mt_ship) < NV.probShipNumberMod_Instrument)
-			{
-				if (genpercent(mt_ship) < 50)
-					baseName += L" " + GenNumberModifier();
-				else
-					baseName = GenNumberModifier() + L" " + baseName;
-			}
-			break;
-		}
-		case typeShipSatellite:
-		{
-			if (NV.useShipPreMods_Satellite && genpercent(mt_ship) < NV.probShipPreMod_Satellite)
-			{
-				int listsize = NV.ShipPreMods_Satellite.size() - 1;
-				std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
-				baseName = NV.ShipPreMods_Satellite.at(gen_mod_position(mt_ship)) + L" " + baseName;
-			}
-			if (NV.useShipPostMods_Satellite && genpercent(mt_ship) < NV.probShipPostMod_Satellite)
-			{
-				int listsize = NV.ShipPostMods_Satellite.size() - 1;
-				std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
-				baseName += L" " + NV.ShipPostMods_Satellite.at(gen_mod_position(mt_ship));
-			}
-			if (NV.useShipNumberMods_Satellite && genpercent(mt_ship) < NV.probShipNumberMod_Satellite)
-			{
-				if (genpercent(mt_ship) < 50)
-					baseName += L" " + GenNumberModifier();
-				else
-					baseName = GenNumberModifier() + L" " + baseName;
-			}
-			break;
-		}
-		case typeShipStation:
-		{
-			if (NV.useShipPreMods_Station && genpercent(mt_ship) < NV.probShipPreMod_Station)
-			{
-				int listsize = NV.ShipPreMods_Station.size() - 1;
-				std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
-				baseName = NV.ShipPreMods_Station.at(gen_mod_position(mt_ship)) + L" " + baseName;
-			}
-			if (NV.useShipPostMods_Station && genpercent(mt_ship) < NV.probShipPostMod_Station)
-			{
-				int listsize = NV.ShipPostMods_Station.size() - 1;
-				std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
-				baseName += L" " + NV.ShipPostMods_Station.at(gen_mod_position(mt_ship));
-			}
-			if (NV.useShipNumberMods_Station && genpercent(mt_ship) < NV.probShipNumberMod_Station)
-			{
-				if (genpercent(mt_ship) < 50)
-					baseName += L" " + GenNumberModifier();
-				else
-					baseName = GenNumberModifier() + L" " + baseName;
-			}
-			break;
-		}
-		}
-
-		if (genpercent(mt_ship) < NV.probShipPreMod_All && NV.useShipPreMods_All)
-		{
-			int listsize = NV.ShipPreMods_All.size() - 1;
-			std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
-			baseName = NV.ShipPreMods_All.at(gen_mod_position(mt_ship)) + L" " + baseName;
-		}
-		if (genpercent(mt_ship) < NV.probShipPostMod_All && NV.useShipPostMods_All)
-		{
-			int listsize = NV.ShipPostMods_All.size() - 1;
-			std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
-			baseName += L" " + NV.ShipPostMods_All.at(gen_mod_position(mt_ship));
-		}
-
-		return baseName;
 	}
