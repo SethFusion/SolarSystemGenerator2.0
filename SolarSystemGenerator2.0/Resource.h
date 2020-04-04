@@ -97,23 +97,13 @@
 #define CB_DEBUG				1500
 
 #define CB_SMARTPLACEMENT		1501
-#define CB_OCLASS				1502
-#define CB_BCLASS				1503
-#define CB_ACLASS				1504
-#define CB_FCLASS				1505
-#define CB_GCLASS				1506
-#define CB_KCLASS				1507
-#define CB_MCLASS				1508
-#define CB_WDCLASS				1509
-#define CB_QCLASS				1510
-#define CB_XCLASS				1511
-#define CB_GENERATEDWARFPLANET	1515
-#define CB_WEIGHTEDMOONS		1516
+#define CB_GENERATEDWARFPLANET	1502
+#define CB_WEIGHTEDMOONS		1503
 
-#define CB_TRADITIONALLIFE		1512
-#define CB_FORCELIFE			1513
+#define CB_TRADITIONALLIFE		1504
+#define CB_FORCELIFE			1505
 
-#define CB_SHIPSNEEDLIFE		1514
+#define CB_SHIPSNEEDLIFE		1506
 
 /*---------------------------------------------
 		Trackbar IDs

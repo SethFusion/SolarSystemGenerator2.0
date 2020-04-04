@@ -83,17 +83,8 @@ struct Configuration
 	var minPlanetNumberH, dwarfPlanetChanceH;
 	double minDistance, maxDistance, planetSpacing, avgEccentricity, SDEccentricity, avgInclination, SDInclination, avgObliquity, SDObliquity;
 	var    minDistanceH, maxDistanceH, planetSpacingH, avgEccentricityH, SDEccentricityH, avgInclinationH, SDInclinationH, avgObliquityH, SDObliquityH;
-	bool starClassO, starClassB, starClassA, starClassF, starClassG, starClassK, starClassM, starClassWD, starClassQ, starClassX;
+	double starClassO, starClassB, starClassA, starClassF, starClassG, starClassK, starClassM, starClassWD, starClassQ, starClassX;
 	var  starClassOH, starClassBH, starClassAH, starClassFH, starClassGH, starClassKH, starClassMH, starClassWDH, starClassQH, starClassXH;
-
-		/*=====================================================
-			*/	std::vector<std::wstring> classList;
-				int classListSize; /*
-			If a star class is enabled via its checkbox, 
-			it is added to this vector, which is used
-			to select a random class.
-
-		=====================================================*/
 
 	/*#####################################################
 		*/	HWND HEADER_LIFE; /*
@@ -169,7 +160,7 @@ struct Preset
 	wchar_t const* smartPlacementState, * generateDwarfPlanetsState, * weightedMoonsState;
 	int	minPlanetNumber, dwarfPlanetChance;
 	double minDistance, maxDistance, planetSpacing, avgEccentricity, SDEccentricity, avgInclination, SDInclination, avgObliquity, SDObliquity;
-	bool starClassO, starClassB, starClassA, starClassF, starClassG, starClassK, starClassM, starClassWD, starClassQ, starClassX;
+	double starClassO, starClassB, starClassA, starClassF, starClassG, starClassK, starClassM, starClassWD, starClassQ, starClassX; // now represents weight
 
 	/*#####################################################
 		Life Stuff

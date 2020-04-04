@@ -465,7 +465,7 @@ Screen lastScreen;
 			LoadVariableFromFile(Buffer, parse, temp.avgInclination);		
 			LoadVariableFromFile(Buffer, parse, temp.SDInclination);		
 			LoadVariableFromFile(Buffer, parse, temp.avgObliquity);		
-			LoadVariableFromFile(Buffer, parse, temp.SDObliquity);		
+			LoadVariableFromFile(Buffer, parse, temp.SDObliquity);
 			LoadVariableFromFile(Buffer, parse, temp.starClassO);		
 			LoadVariableFromFile(Buffer, parse, temp.starClassB);		
 			LoadVariableFromFile(Buffer, parse, temp.starClassA);		
@@ -475,7 +475,7 @@ Screen lastScreen;
 			LoadVariableFromFile(Buffer, parse, temp.starClassM);		
 			LoadVariableFromFile(Buffer, parse, temp.starClassWD);		
 			LoadVariableFromFile(Buffer, parse, temp.starClassQ);		
-			LoadVariableFromFile(Buffer, parse, temp.starClassX);		
+			LoadVariableFromFile(Buffer, parse, temp.starClassX);	
 			LoadVariableFromFile(Buffer, parse, temp.life_OrganicChance);		
 			LoadVariableFromFile(Buffer, parse, temp.life_ExoticChance);		
 			LoadVariableFromFile(Buffer, parse, temp.life_MulticellChance);		
@@ -1077,7 +1077,7 @@ Screen lastScreen;
 			//Star class Stuff
 			//I used the O class's EXTRA to create the groupbox for all the classes,
 			//therefore, it is the parent for all the class checkboxes
-			CONFIG.starClassOH.EXTRA = CreateWindowW(L"button", L"Star Classes to Choose From:",
+			CONFIG.starClassOH.EXTRA = CreateWindowW(L"button", L"Star Class Weights:",
 				WS_CHILD | BS_GROUPBOX,
 				750, 100, 250, 170,
 				hWnd, NULL, NULL, NULL);
@@ -1086,47 +1086,96 @@ Screen lastScreen;
 				960, 102, 16, 16,
 				hWnd, (HMENU)IB_STARCLASS, NULL, NULL);
 
-			CONFIG.starClassOH.HANDLE = CreateWindowW(L"button", L"O",
-				WS_CHILD | WS_VISIBLE | WS_GROUP | WS_BORDER | BS_AUTOCHECKBOX,
-				10, 20, 50, 20,
-				CONFIG.starClassOH.EXTRA, (HMENU)CB_OCLASS, NULL, NULL);
-			CONFIG.starClassBH.HANDLE = CreateWindowW(L"button", L"B",
-				WS_CHILD | WS_VISIBLE | WS_GROUP | WS_BORDER | BS_AUTOCHECKBOX,
-				10, 40, 50, 20,
-				CONFIG.starClassOH.EXTRA, (HMENU)CB_BCLASS, NULL, NULL);
-			CONFIG.starClassAH.HANDLE = CreateWindowW(L"button", L"A",
-				WS_CHILD | WS_VISIBLE | WS_GROUP | WS_BORDER | BS_AUTOCHECKBOX,
-				10, 60, 50, 20,
-				CONFIG.starClassOH.EXTRA, (HMENU)CB_ACLASS, NULL, NULL);
-			CONFIG.starClassFH.HANDLE = CreateWindowW(L"button", L"F",
-				WS_CHILD | WS_VISIBLE | WS_GROUP | WS_BORDER | BS_AUTOCHECKBOX,
-				10, 80, 50, 20,
-				CONFIG.starClassOH.EXTRA, (HMENU)CB_FCLASS, NULL, NULL);
-			CONFIG.starClassGH.HANDLE = CreateWindowW(L"button", L"G",
-				WS_CHILD | WS_VISIBLE | WS_GROUP | WS_BORDER | BS_AUTOCHECKBOX,
-				10, 100, 50, 20,
-				CONFIG.starClassOH.EXTRA, (HMENU)CB_GCLASS, NULL, NULL);
-			CONFIG.starClassKH.HANDLE = CreateWindowW(L"button", L"K",
-				WS_CHILD | WS_VISIBLE | WS_GROUP | WS_BORDER | BS_AUTOCHECKBOX,
-				10, 120, 50, 20,
-				CONFIG.starClassOH.EXTRA, (HMENU)CB_KCLASS, NULL, NULL);
-			CONFIG.starClassMH.HANDLE = CreateWindowW(L"button", L"M",
-				WS_CHILD | WS_VISIBLE | WS_GROUP | WS_BORDER | BS_AUTOCHECKBOX,
-				10, 140, 50, 20,
-				CONFIG.starClassOH.EXTRA, (HMENU)CB_MCLASS, NULL, NULL);
 
-			CONFIG.starClassWDH.HANDLE = CreateWindowW(L"button", L"WD",
-				WS_CHILD | WS_VISIBLE | WS_GROUP | WS_BORDER | BS_AUTOCHECKBOX,
-				100, 20, 50, 20,
-				CONFIG.starClassOH.EXTRA, (HMENU)CB_WDCLASS, NULL, NULL);
-			CONFIG.starClassQH.HANDLE = CreateWindowW(L"button", L"Q",
-				WS_CHILD | WS_VISIBLE | WS_GROUP | WS_BORDER | BS_AUTOCHECKBOX,
-				100, 40, 50, 20,
-				CONFIG.starClassOH.EXTRA, (HMENU)CB_QCLASS, NULL, NULL);
-			CONFIG.starClassXH.HANDLE = CreateWindowW(L"button", L"X",
-				WS_CHILD | WS_VISIBLE | WS_GROUP | WS_BORDER | BS_AUTOCHECKBOX,
-				100, 60, 50, 20,
-				CONFIG.starClassOH.EXTRA, (HMENU)CB_XCLASS, NULL, NULL);
+			CONFIG.starClassOH.DESC = CreateWindowW(L"static", L"O:",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+				10, 20, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+			CONFIG.starClassOH.HANDLE = CreateWindowW(L"edit", L"",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+				50, 20, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+
+			CONFIG.starClassBH.DESC = CreateWindowW(L"static", L"B:",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+				10, 40, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+			CONFIG.starClassBH.HANDLE = CreateWindowW(L"edit", L"",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+				50, 40, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+
+			CONFIG.starClassAH.DESC = CreateWindowW(L"static", L"A:",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+				10, 60, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+			CONFIG.starClassAH.HANDLE = CreateWindowW(L"edit", L"",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+				50, 60, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+
+			CONFIG.starClassFH.DESC = CreateWindowW(L"static", L"F:",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+				10, 80, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+			CONFIG.starClassFH.HANDLE = CreateWindowW(L"edit", L"",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+				50, 80, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+
+			CONFIG.starClassGH.DESC = CreateWindowW(L"static", L"G:",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+				10, 100, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+			CONFIG.starClassGH.HANDLE = CreateWindowW(L"edit", L"",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+				50, 100, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+
+			CONFIG.starClassKH.DESC = CreateWindowW(L"static", L"K:",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+				10, 120, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+			CONFIG.starClassKH.HANDLE = CreateWindowW(L"edit", L"",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+				50, 120, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+
+			CONFIG.starClassMH.DESC = CreateWindowW(L"static", L"M:",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+				10, 140, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+			CONFIG.starClassMH.HANDLE = CreateWindowW(L"edit", L"",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+				50, 140, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+
+			CONFIG.starClassWDH.DESC = CreateWindowW(L"static", L"WD:",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+				100, 20, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+			CONFIG.starClassWDH.HANDLE = CreateWindowW(L"edit", L"",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+				140, 20, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+
+			CONFIG.starClassQH.DESC = CreateWindowW(L"static", L"Q:",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+				100, 40, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+			CONFIG.starClassQH.HANDLE = CreateWindowW(L"edit", L"",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+				140, 40, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+
+			CONFIG.starClassXH.DESC = CreateWindowW(L"static", L"X:",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+				100, 60, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+			CONFIG.starClassXH.HANDLE = CreateWindowW(L"edit", L"",
+				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+				140, 60, 40, 20,
+				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
 		}
 		//###############################################################################
 
@@ -2121,16 +2170,17 @@ Screen lastScreen;
 		SetVariableToWindow(CONFIG.SDInclinationH.HANDLE, P.SDInclination);
 		SetVariableToWindow(CONFIG.avgObliquityH.HANDLE, P.avgObliquity);
 		SetVariableToWindow(CONFIG.SDObliquityH.HANDLE, P.SDObliquity);
-		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_OCLASS, P.starClassO);
-		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_BCLASS, P.starClassB);
-		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_ACLASS, P.starClassA);
-		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_FCLASS, P.starClassF);
-		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_GCLASS, P.starClassG);
-		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_KCLASS, P.starClassK);
-		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_MCLASS, P.starClassM);
-		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_WDCLASS, P.starClassWD);
-		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_QCLASS, P.starClassQ);
-		CheckDlgButton(CONFIG.starClassOH.EXTRA, CB_XCLASS, P.starClassX);
+
+		SetVariableToWindow(CONFIG.starClassOH.HANDLE, P.starClassO);
+		SetVariableToWindow(CONFIG.starClassBH.HANDLE, P.starClassB);
+		SetVariableToWindow(CONFIG.starClassAH.HANDLE, P.starClassA);
+		SetVariableToWindow(CONFIG.starClassFH.HANDLE, P.starClassF);
+		SetVariableToWindow(CONFIG.starClassGH.HANDLE, P.starClassG);
+		SetVariableToWindow(CONFIG.starClassKH.HANDLE, P.starClassK);
+		SetVariableToWindow(CONFIG.starClassMH.HANDLE, P.starClassM);
+		SetVariableToWindow(CONFIG.starClassWDH.HANDLE, P.starClassWD);
+		SetVariableToWindow(CONFIG.starClassQH.HANDLE, P.starClassQ);
+		SetVariableToWindow(CONFIG.starClassXH.HANDLE, P.starClassX);
 
 		SetVariableToWindow(CONFIG.life_OrganicChanceH.HANDLE, P.life_OrganicChance);
 		SetVariableToWindow(CONFIG.life_ExoticChanceH.HANDLE, P.life_ExoticChance);
@@ -2493,16 +2543,6 @@ Screen lastScreen;
 			ShowWindow(CONFIG.SDInclinationH.DESC, 0);
 			ShowWindow(CONFIG.avgObliquityH.DESC, 0);
 			ShowWindow(CONFIG.SDObliquityH.DESC, 0);
-			ShowWindow(CONFIG.starClassAH.DESC, 0);
-			ShowWindow(CONFIG.starClassBH.DESC, 0);
-			ShowWindow(CONFIG.starClassFH.DESC, 0);
-			ShowWindow(CONFIG.starClassGH.DESC, 0);
-			ShowWindow(CONFIG.starClassKH.DESC, 0);
-			ShowWindow(CONFIG.starClassMH.DESC, 0);
-			ShowWindow(CONFIG.starClassOH.DESC, 0);
-			ShowWindow(CONFIG.starClassQH.DESC, 0);
-			ShowWindow(CONFIG.starClassWDH.DESC, 0);
-			ShowWindow(CONFIG.starClassXH.DESC, 0);
 			//Info
 			ShowWindow(CONFIG.smartPlacementH.INFOBUTTON, 0);
 			ShowWindow(CONFIG.generateDwarfPlanetsH.INFOBUTTON, 0);
@@ -3100,40 +3140,16 @@ Screen lastScreen;
 		GetVariableFromWindow(CONFIG.avgObliquityH.HANDLE, CONFIG.avgObliquity);
 		GetVariableFromWindow(CONFIG.SDObliquityH.HANDLE, CONFIG.SDObliquity);
 
-		CONFIG.starClassO = (IsDlgButtonChecked(CONFIG.starClassOH.EXTRA, CB_OCLASS) == BST_CHECKED) ? true : false;
-		CONFIG.starClassB = (IsDlgButtonChecked(CONFIG.starClassOH.EXTRA, CB_BCLASS) == BST_CHECKED) ? true : false;
-		CONFIG.starClassA = (IsDlgButtonChecked(CONFIG.starClassOH.EXTRA, CB_ACLASS) == BST_CHECKED) ? true : false;
-		CONFIG.starClassF = (IsDlgButtonChecked(CONFIG.starClassOH.EXTRA, CB_FCLASS) == BST_CHECKED) ? true : false;
-		CONFIG.starClassG = (IsDlgButtonChecked(CONFIG.starClassOH.EXTRA, CB_GCLASS) == BST_CHECKED) ? true : false;
-		CONFIG.starClassK = (IsDlgButtonChecked(CONFIG.starClassOH.EXTRA, CB_KCLASS) == BST_CHECKED) ? true : false;
-		CONFIG.starClassM = (IsDlgButtonChecked(CONFIG.starClassOH.EXTRA, CB_MCLASS) == BST_CHECKED) ? true : false;
-		CONFIG.starClassWD = (IsDlgButtonChecked(CONFIG.starClassOH.EXTRA, CB_WDCLASS) == BST_CHECKED) ? true : false;
-		CONFIG.starClassQ = (IsDlgButtonChecked(CONFIG.starClassOH.EXTRA, CB_QCLASS) == BST_CHECKED) ? true : false;
-		CONFIG.starClassX = (IsDlgButtonChecked(CONFIG.starClassOH.EXTRA, CB_XCLASS) == BST_CHECKED) ? true : false;
-
-		CONFIG.classListSize = CONFIG.classList.size();
-		for (int count = 0; count < CONFIG.classListSize; count++)
-				CONFIG.classList.pop_back();
-		if (CONFIG.starClassO)
-			CONFIG.classList.push_back(L"O");
-		if (CONFIG.starClassB)
-			CONFIG.classList.push_back(L"B");
-		if (CONFIG.starClassA)
-			CONFIG.classList.push_back(L"A");
-		if (CONFIG.starClassF)
-			CONFIG.classList.push_back(L"F");
-		if (CONFIG.starClassG)
-			CONFIG.classList.push_back(L"G");
-		if (CONFIG.starClassK)
-			CONFIG.classList.push_back(L"K");
-		if (CONFIG.starClassM)
-			CONFIG.classList.push_back(L"M");
-		if (CONFIG.starClassWD)
-			CONFIG.classList.push_back(L"WD");
-		if (CONFIG.starClassQ)
-			CONFIG.classList.push_back(L"Q");
-		if (CONFIG.starClassX)
-			CONFIG.classList.push_back(L"X");
+		GetVariableFromWindow(CONFIG.starClassOH.HANDLE, CONFIG.starClassO);
+		GetVariableFromWindow(CONFIG.starClassBH.HANDLE, CONFIG.starClassB);
+		GetVariableFromWindow(CONFIG.starClassAH.HANDLE, CONFIG.starClassA);
+		GetVariableFromWindow(CONFIG.starClassFH.HANDLE, CONFIG.starClassF);
+		GetVariableFromWindow(CONFIG.starClassGH.HANDLE, CONFIG.starClassG);
+		GetVariableFromWindow(CONFIG.starClassKH.HANDLE, CONFIG.starClassK);
+		GetVariableFromWindow(CONFIG.starClassMH.HANDLE, CONFIG.starClassM);
+		GetVariableFromWindow(CONFIG.starClassWDH.HANDLE, CONFIG.starClassWD);
+		GetVariableFromWindow(CONFIG.starClassQH.HANDLE, CONFIG.starClassQ);
+		GetVariableFromWindow(CONFIG.starClassXH.HANDLE, CONFIG.starClassX);
 
 		GetVariableFromWindow(CONFIG.life_OrganicChanceH.HANDLE, CONFIG.life_OrganicChance);
 		GetVariableFromWindow(CONFIG.life_ExoticChanceH.HANDLE, CONFIG.life_ExoticChance);
@@ -5013,93 +5029,18 @@ Screen lastScreen;
 		//######################################################################################################
 			//	CLASS GENERATION
 
-		CONFIG.classListSize = CONFIG.classList.size();
-		std::uniform_int_distribution<int> genclass{ 0, (CONFIG.classListSize - 1) };
-		star.class_ = CONFIG.classList.at(genclass(mt_star));
+		enum StarClass { O, B, A, F, G, K, M, WD, Q, X };
+		StarClass starclass;
+		std::discrete_distribution<int> genclass{ CONFIG.starClassO, CONFIG.starClassB, CONFIG.starClassA, CONFIG.starClassF, CONFIG.starClassG, 
+												CONFIG.starClassK, CONFIG.starClassM, CONFIG.starClassWD, CONFIG.starClassQ, CONFIG.starClassX };
+		starclass = static_cast<StarClass>(genclass(mt_star));
 
-		//std::discrete_distribution<> test{ , , 4, 7};
-
-
-		if (star.class_ == L"M")
+		switch (starclass)
 		{
-			std::normal_distribution<> genm{ 0.265, 0.185 };
-			std::normal_distribution<> genr{ 0.5, 0.2 };
-			std::uniform_int_distribution<int> gent{ 2200, 3800 };
-
-			do star.mass = genm(mt_star);
-			while (star.mass <= 0.07);
-
-			do star.radius = genr(mt_star);
-			while (star.radius <= 0);
-			star.temperatureK = gent(mt_star);
-		}
-		else if (star.class_ == L"K")
+		case O:
 		{
-			std::normal_distribution<> genm{ 0.625, 0.175 };
-			std::normal_distribution<> genr{ 0.83, 0.13 };
-			std::uniform_int_distribution<int> gent{ 3700, 5300 };
+			star.class_ = L"O";
 
-			do star.mass = genm(mt_star);
-			while (star.mass <= 0.08);
-
-			do star.radius = genr(mt_star);
-			while (star.radius <= 0);
-			star.temperatureK = gent(mt_star);
-		}
-		else if (star.class_ == L"G")
-		{
-			std::normal_distribution<> genm{ 0.92, 0.12 };
-			std::normal_distribution<> genr{ 1.055, 0.095 };
-			std::uniform_int_distribution<int> gent{ 5200, 6100 };
-
-			do star.mass = genm(mt_star);
-			while (star.mass <= 0.45);
-
-			do star.radius = genr(mt_star);
-			while (star.radius <= 0.7);
-			star.temperatureK = gent(mt_star);
-		}
-		else if (star.class_ == L"F")
-		{
-			std::normal_distribution<> genm{ 1.22, 0.18 };
-			std::normal_distribution<> genr{ 1.275, 0.125 };
-			std::uniform_int_distribution<int> gent{ 6000, 7600 };
-
-			do star.mass = genm(mt_star);
-			while (star.mass <= 0.8);
-
-			do star.radius = genr(mt_star);
-			while (star.radius <= 0.96);
-			star.temperatureK = gent(mt_star);
-		}
-		else if (star.class_ == L"A")
-		{
-			std::normal_distribution<> genm{ 1.75, 0.35 };
-			std::normal_distribution<> genr{ 1.6, 0.2 };
-			std::uniform_int_distribution<int> gent{ 7500, 11000 };
-
-			do star.mass = genm(mt_star);
-			while (star.mass <= 1.04);
-
-			do star.radius = genr(mt_star);
-			while (star.radius <= 1.15);
-			star.temperatureK = gent(mt_star);
-		}
-		else if (star.class_ == L"B")
-		{
-			std::normal_distribution<> genm{ 9.05, 6.95 };
-			std::normal_distribution<> genr{ 4.2, 2.4 };
-			std::uniform_int_distribution<int> gent{ 10000, 31000 };
-
-			do star.mass = genm(mt_star);
-			while (star.mass <= 1.4);
-
-			do star.radius = genr(mt_star);
-			while (star.radius <= 1.4);
-			star.temperatureK = gent(mt_star);
-		}
-		else if (star.class_ == L"O")
-		{
 			std::normal_distribution<> genm{ 24, 8 };
 			std::normal_distribution<> genr{ 9.9, 3.3 };
 			std::uniform_int_distribution<int> gent{ 30000, 55000 };
@@ -5110,9 +5051,124 @@ Screen lastScreen;
 			do star.radius = genr(mt_star);
 			while (star.radius <= 1.8);
 			star.temperatureK = gent(mt_star);
+			break;
 		}
-		else if (star.class_ == L"Q")
+		case B:
 		{
+			star.class_ = L"B";
+
+			std::normal_distribution<> genm{ 9.05, 6.95 };
+			std::normal_distribution<> genr{ 4.2, 2.4 };
+			std::uniform_int_distribution<int> gent{ 10000, 31000 };
+
+			do star.mass = genm(mt_star);
+			while (star.mass <= 1.4);
+
+			do star.radius = genr(mt_star);
+			while (star.radius <= 1.4);
+			star.temperatureK = gent(mt_star);
+			break;
+		}
+		case A:
+		{
+			star.class_ = L"A";
+
+			std::normal_distribution<> genm{ 1.75, 0.35 };
+			std::normal_distribution<> genr{ 1.6, 0.2 };
+			std::uniform_int_distribution<int> gent{ 7500, 11000 };
+
+			do star.mass = genm(mt_star);
+			while (star.mass <= 1.04);
+
+			do star.radius = genr(mt_star);
+			while (star.radius <= 1.15);
+			star.temperatureK = gent(mt_star);
+			break;
+		}
+		case F:
+		{
+			star.class_ = L"F";
+
+			std::normal_distribution<> genm{ 1.22, 0.18 };
+			std::normal_distribution<> genr{ 1.275, 0.125 };
+			std::uniform_int_distribution<int> gent{ 6000, 7600 };
+
+			do star.mass = genm(mt_star);
+			while (star.mass <= 0.8);
+
+			do star.radius = genr(mt_star);
+			while (star.radius <= 0.96);
+			star.temperatureK = gent(mt_star);
+			break;
+		}
+		case G:
+		{
+			star.class_ = L"G";
+
+			std::normal_distribution<> genm{ 0.92, 0.12 };
+			std::normal_distribution<> genr{ 1.055, 0.095 };
+			std::uniform_int_distribution<int> gent{ 5200, 6100 };
+
+			do star.mass = genm(mt_star);
+			while (star.mass <= 0.45);
+
+			do star.radius = genr(mt_star);
+			while (star.radius <= 0.7);
+			star.temperatureK = gent(mt_star);
+			break;
+		}
+		case K:
+		{
+			star.class_ = L"K";
+
+			std::normal_distribution<> genm{ 0.625, 0.175 };
+			std::normal_distribution<> genr{ 0.83, 0.13 };
+			std::uniform_int_distribution<int> gent{ 3700, 5300 };
+
+			do star.mass = genm(mt_star);
+			while (star.mass <= 0.08);
+
+			do star.radius = genr(mt_star);
+			while (star.radius <= 0);
+			star.temperatureK = gent(mt_star);
+			break;
+		}
+		case M:
+		{
+			star.class_ = L"M";
+
+			std::normal_distribution<> genm{ 0.265, 0.185 };
+			std::normal_distribution<> genr{ 0.5, 0.2 };
+			std::uniform_int_distribution<int> gent{ 2200, 3800 };
+
+			do star.mass = genm(mt_star);
+			while (star.mass <= 0.07);
+
+			do star.radius = genr(mt_star);
+			while (star.radius <= 0);
+			star.temperatureK = gent(mt_star);
+			break;
+		}
+		case WD:
+		{
+			star.class_ = L"WD";
+
+			std::normal_distribution<> genm{ 0.675, .2625 };
+			std::normal_distribution<> genr{ 0.009, 0.0005 };
+			std::uniform_int_distribution<int> gent{ 60000, 120000 };
+
+			do star.mass = genm(mt_star);
+			while (star.mass < 0.15 || star.mass > 1.4);
+
+			do star.radius = genr(mt_star);
+			while (star.radius < 0.005 || star.radius > 0.015);
+			star.temperatureK = gent(mt_star);
+			break;
+		}
+		case Q:
+		{
+			star.class_ = L"Q";
+
 			std::normal_distribution<> genm{ 1.8, 0.5 };
 			std::normal_distribution<> genr{ 10, 5 };
 			std::uniform_int_distribution<int> gent{ 100000, 1000000 };
@@ -5124,22 +5180,12 @@ Screen lastScreen;
 			while (star.radius < 5 || star.radius > 20);
 			star.radius /= 695508.0;
 			star.temperatureK = gent(mt_star);
+			break;
 		}
-		else if (star.class_ == L"WD")
+		case X:
 		{
-			std::normal_distribution<> genm{ 0.675, .2625 };
-			std::normal_distribution<> genr{ 0.009, 0.0005 };
-			std::uniform_int_distribution<int> gent{ 60000, 120000 };
+			star.class_ = L"X";
 
-			do star.mass = genm(mt_star);
-			while (star.mass < 0.15 || star.mass > 1.4);
-
-			do star.radius = genr(mt_star);
-			while (star.radius < 0.005 || star.radius > 0.015);
-			star.temperatureK = gent(mt_star);
-		}
-		else if (star.class_ == L"X")
-		{
 			int c = 299792458;
 			int G = 190809;
 
@@ -5150,6 +5196,8 @@ Screen lastScreen;
 			//std::uniform_int_distribution<int> gent{ 60000, 120000 };
 			//star.temperatureK = gent(mt_star);
 			star.temperatureK = 0;
+			break;
+		}
 		}
 
 		tempSol = (star.temperatureK / 5778.0);
