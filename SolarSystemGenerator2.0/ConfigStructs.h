@@ -61,7 +61,8 @@ struct Configuration
 		*/	HWND HEADER_GENERAL; /*
 	#####################################################*/
 
-	int seed, numberOfRuns;
+	long long seed;
+	int numberOfRuns;
 	var seedH, numberOfRunsH;
 	bool debug;
 	var  debugH;
@@ -147,7 +148,8 @@ struct Preset
 		General Things
 	#####################################################*/
 
-	int seed, numberOfRuns;
+	long long seed;
+	int numberOfRuns;
 	bool debug;
 	wchar_t const* debugState;
 	wchar_t starOutputFolder[WSIZE], planetOutputFolder[WSIZE];

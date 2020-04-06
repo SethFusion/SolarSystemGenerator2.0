@@ -59,7 +59,7 @@ static void LoadVariableFromFile(char* Buffer, int& parse, wchar_t* store)
 static void LoadVariableFromFile(char* Buffer, int& parse, int& store)
 {
 	FindNextEntry(Buffer, parse);
-	wchar_t holder, numholder[16];
+	wchar_t holder, numholder[11];
 	int i = 0;
 	do
 	{
@@ -70,6 +70,21 @@ static void LoadVariableFromFile(char* Buffer, int& parse, int& store)
 	} while (holder != '\n');
 	numholder[i] = '\0';
 	store = _wtoi(numholder);
+}
+static void LoadVariableFromFile(char* Buffer, int& parse, long long& store) // only used for seed
+{
+	FindNextEntry(Buffer, parse);
+	wchar_t holder, numholder[20];
+	int i = 0;
+	do
+	{
+		holder = Buffer[parse];
+		numholder[i] = holder;
+		parse++;
+		i++;
+	} while (holder != '\n');
+	numholder[i] = '\0';
+	store = _wtoll(numholder);
 }
 static void LoadVariableFromFile(char* Buffer, int& parse, double& store)
 {

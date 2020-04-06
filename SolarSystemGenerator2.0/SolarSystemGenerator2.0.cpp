@@ -2145,9 +2145,24 @@ Screen lastScreen;
 
 	void UpdatePreset(Preset P, HWND hWnd)
 	{
+		// this little part converts the seed to a wchar array
+
+		wchar_t seedarr[20] = L"";
+		std::wstring seedstr = std::to_wstring(P.seed);
+		int i = 0;
+		while (seedstr[i] != '\0')
+		{
+			seedarr[i] = seedstr[i];
+			i++;
+		}
+		SetWindowTextW(CONFIG.seedH.HANDLE, seedarr);
+
+
+
+
+
 		SetWindowTextW(CONFIG.starOutputFolderH.HANDLE, P.starOutputFolder);
 		SetWindowTextW(CONFIG.planetOutputFolderH.HANDLE, P.planetOutputFolder);
-		SetVariableToWindow(CONFIG.seedH.HANDLE, P.seed);
 		SetVariableToWindow(CONFIG.numberOfRunsH.HANDLE, P.numberOfRuns);
 		CheckDlgButton(hWnd, CB_DEBUG, P.debug);
 		SetWindowTextW(CONFIG.debugH.HANDLE, P.debugState);
@@ -3122,7 +3137,32 @@ Screen lastScreen;
 	{
 		GetVariableFromWindow(CONFIG.starOutputFolderH.HANDLE, CONFIG.starOutputFolder);
 		GetVariableFromWindow(CONFIG.planetOutputFolderH.HANDLE, CONFIG.planetOutputFolder);
-		GetVariableFromWindow(CONFIG.seedH.HANDLE, CONFIG.seed);
+
+		// this little maneuver generates the seed from the input
+		CONFIG.seed = 0;
+		wchar_t seedarray[WSIZE] = L"";
+		GetVariableFromWindow(CONFIG.seedH.HANDLE, seedarray);
+		std::wstring seedstr(seedarray);
+
+		//checks if seed is a number
+		bool isnumber = true;
+		for (int i = 0; i < seedstr.size(); i++)
+			if (!iswdigit(seedstr[i]) && seedstr[i] != '-')
+				isnumber = false;
+
+		// creates seed from string
+		if (isnumber)// if the string is just a number, use it
+			CONFIG.seed = std::stoll(wstr_to_str(seedstr));
+		else // else, turn the characters into a number
+		{
+			long long total = 0;
+			for (int i = 0; seedstr[i] != '\0'; i++)
+				total += ((int)seedstr[i] * (i + 1));
+			CONFIG.seed = total * pow(2, seedstr.size());
+			if ((int)seedstr[seedstr.size() / 2] % 2)
+				CONFIG.seed *= -1;
+		}
+
 		GetVariableFromWindow(CONFIG.numberOfRunsH.HANDLE, CONFIG.numberOfRuns);
 		CONFIG.smartPlacement = (IsDlgButtonChecked(hWnd, CB_SMARTPLACEMENT) == BST_CHECKED) ? true : false;
 
@@ -4362,11 +4402,14 @@ Screen lastScreen;
 	// Generation starts here:
 	void BeginGenerate()
 	{
+		if (CheckSeed(CONFIG.seed))
+			return;
+
 		if (CONFIG.seed == 0)
 		{
 			std::mt19937 mtseed;
 			mtseed.seed(time(0));
-			std::uniform_int_distribution<int> genseed{ 0, 2147483647 };
+			std::uniform_int_distribution<long long> genseed{ LLONG_MIN, LLONG_MAX };
 			CONFIG.seed = genseed(mtseed);
 		}
 
@@ -4396,9 +4439,6 @@ Screen lastScreen;
 			//planetFileName += L" System.sc";
 			planetFileName += L"Test System.sc";
 			std::ofstream planetFile(planetFileName.c_str());
-
-			if (CheckSeed(CONFIG.seed, starFile, planetFile))
-				return;
 
 			std::uniform_int_distribution<int> genplanetnum{ CONFIG.minPlanetNumber, currentStar.maxPlanetNumber };
 			int planetNumber = genplanetnum(mt_planet);
@@ -5218,9 +5258,6 @@ Screen lastScreen;
 		star.DEC[2] = gensec(mt_star);
 
 		star.distance = gendistance(mt_star);
-
-
-
 
 		for (SMpoint = star.innerLimit * genSM(mt_star); SMpoint < star.outerLimit; (SMpoint *= genSM(mt_star)))		//Set semimajor points
 			star.semimajorList.push_back(SMpoint);
