@@ -3147,7 +3147,7 @@ Screen lastScreen;
 		//checks if seed is a number
 		bool isnumber = true;
 		for (int i = 0; i < seedstr.size(); i++)
-			if (!iswdigit(seedstr[i]) && seedstr[i] != '-')
+			if (!iswdigit(seedstr[i]) && seedstr[0] != '-')
 				isnumber = false;
 
 		// creates seed from string
@@ -5614,10 +5614,10 @@ Screen lastScreen;
 		if (CONFIG.traditionalLife)
 		{
 			if (planet.semimajorAxis > star.habitZoneInnerLimit && planet.semimajorAxis < star.habitZoneOuterLimit
-				&& planet.class_ != L"Jupiter" && planet.class_ != L"Neptune"
-				&& genpercent(mt_planet) <= CONFIG.life_OrganicChance)
-
+					&& planet.class_ != L"Jupiter" && planet.class_ != L"Neptune"
+					&& genpercent(mt_planet) <= CONFIG.life_OrganicChance)
 				planet.life_organic.haslife = true;
+
 			if (genpercent(mt_planet) <= CONFIG.life_ExoticChance)
 				planet.life_exotic.haslife = true;
 		}
