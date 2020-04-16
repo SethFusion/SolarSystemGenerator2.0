@@ -36,7 +36,6 @@ struct PLANET
 
 	//exotic stuff
 	int debrisCount;
-	bool hasShip;
 	std::wstring model; // used for ships
 	//life stuff
 	struct Life
