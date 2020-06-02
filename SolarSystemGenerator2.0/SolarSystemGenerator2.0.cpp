@@ -109,7 +109,7 @@ Screen lastScreen;
 
 		void ExoticGenerateLife(PLANET&);
 		void ExoticDebrisRing(PLANET&, PLANET&, double, double, double, double);
-		void GenerateShip(PLANET&, double, double);
+		void GenerateShip(PLANET&, double, double, double, double, double, double);
 		/*
 	Generator Functions
 
@@ -4425,21 +4425,23 @@ Screen lastScreen;
 			GenerateStar(currentStar);
 
 			std::wstring starFileName = CONFIG.starOutputFolder;	//Creates the star file
-			//starFileName += currentStar.name;
-			//starFileName += L" Star.sc";
-			starFileName += L"Test Star.sc";
+			starFileName += currentStar.name;
+			starFileName += L" Star.sc";
+			//starFileName += L"Test Star.sc";
 			std::ofstream starFile(starFileName.c_str());
 			PrintStar(currentStar, starFile);
 
 			std::wstring planetFileName = CONFIG.planetOutputFolder;	//Creates the planet file
-			//planetFileName += currentStar.name;
-			//planetFileName += L" System.sc";
-			planetFileName += L"Test System.sc";
+			planetFileName += currentStar.name;
+			planetFileName += L" System.sc";
+			//planetFileName += L"Test System.sc";
 			std::ofstream planetFile(planetFileName.c_str());
 
 			std::uniform_int_distribution<int> genplanetnum{ CONFIG.minPlanetNumber, currentStar.maxPlanetNumber };
 			int planetNumber = genplanetnum(mt_planet);
 			std::vector<PLANET> planetList;
+
+			// test line
 
 			/*###############################################################################
 					PLANET GENERATOR
@@ -4524,7 +4526,7 @@ Screen lastScreen;
 			while (genpercent(mt_planet) < CONFIG.dwarfPlanetChance)
 			{
 				PLANET currentDwarf;
-				GeneratePlanet(currentStar, currentDwarf);
+				GenerateDwarfPlanet(currentStar, currentDwarf);
 				planetList.push_back(currentDwarf);
 			}
 			SortVector(planetList, 0, planetList.size() - 1);
@@ -4805,7 +4807,7 @@ Screen lastScreen;
 							}
 							}
 
-							GenerateShip(ship, min_dist, max_dist);
+							GenerateShip(ship, min_dist, max_dist, CONFIG.avgEccentricity, CONFIG.SDEccentricity, CONFIG.avgInclination, CONFIG.SDInclination);
 							PrintShip(ship, planetFile);
 						}
 					}
@@ -4819,14 +4821,11 @@ Screen lastScreen;
 							enable_colony = false;
 							enable_satellite = false;
 						}
-						else if (planetList.at(parent).class_ == L"Aquaria")
+						else if (!planetList.at(parent).life_exotic.haslife && !planetList.at(parent).life_organic.haslife)
 						{
-
+							enable_satellite = false;
 						}
-						else
-						{
 
-						}
 
 						// final check before the ship type is generated
 						if (enable_colony || enable_instrument || enable_satellite || enable_station)
@@ -4882,26 +4881,11 @@ Screen lastScreen;
 							}
 							}
 
-							GenerateShip(ship, min_dist, max_dist);
+							GenerateShip(ship, min_dist, max_dist, 0.0, 0.001, 0.0, 90.0);
 							PrintShip(ship, planetFile);
 						}
 					}
 				}
-				
-						
-
-
-
-
-
-
-
-
-
-			
-
-					
-
 			}
 
 			// Debug star Orbits
@@ -5025,7 +5009,7 @@ Screen lastScreen;
 			<< "\n\tObliquity\t\t\t\t" << ship.obliquity << "\n"
 			<< "\n\tOrbit\n\t{"
 			<< "\n\t\tRefPlane\t\t\t\"Equator\""
-			<< "\n\t\tSemiMajorAxisKM\t\t" << ship.semimajorAxis
+			<< "\n\t\tSemiMajorAxisKm\t\t" << ship.semimajorAxis
 			<< "\n\t\tEccentricity\t\t" << ship.eccentricity
 			<< "\n\t\tInclination\t\t\t" << ship.inclination
 			<< "\n\t\tAscendingNode\t\t" << ship.ascendingNode
@@ -6665,20 +6649,19 @@ Screen lastScreen;
 		debris.argofPericenter = gendegree(mt_moon);
 		debris.meanAnomaly = gendegree(mt_moon);
 	}
-	void GenerateShip(PLANET& ship, double min_dist, double max_dist)
+	void GenerateShip(PLANET& ship, double min_dist, double max_dist, double eccent_avg, double eccent_sd, double inclin_avg, double inclin_sd)
 	{
 		std::uniform_real_distribution<> gensemi{ min_dist, max_dist };
 		ship.semimajorAxis = gensemi(mt_ship);
 
 		std::normal_distribution<> genobliquity{ CONFIG.avgObliquity, CONFIG.SDObliquity };
-		std::normal_distribution<> geneccentricity{ CONFIG.avgEccentricity, CONFIG.SDEccentricity };
-		std::normal_distribution<> geninclinationation{ CONFIG.avgInclination, CONFIG.SDInclination };
+		std::normal_distribution<> geneccentricity{ eccent_avg, eccent_sd };
+		std::normal_distribution<> geninclinationtion{ inclin_avg, inclin_sd };
 
 		ship.obliquity = genobliquity(mt_ship);
 		do ship.eccentricity = geneccentricity(mt_ship);
 		while (ship.eccentricity <= 0 || ship.eccentricity >= 1);
-		ship.inclination = gendegree(mt_ship);
-		//ship.inclination = geninclinationation(mt_ship);
+		ship.inclination = geninclinationtion(mt_ship);
 		ship.ascendingNode = gendegree(mt_ship);
 		ship.argofPericenter = gendegree(mt_ship);
 		ship.meanAnomaly = gendegree(mt_ship);
