@@ -24,8 +24,6 @@ static std::string wstr_to_str(std::vector<std::wstring> vwstr)
 }
 
 
-
-
 static void FindNextEntry(char* Buffer, int& parse)
 {
 	wchar_t holder;

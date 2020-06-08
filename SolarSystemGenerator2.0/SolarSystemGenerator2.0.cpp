@@ -5613,24 +5613,32 @@ Screen lastScreen;
 
 		if (CONFIG.weightedMoons)
 		{
-			int relativeDist = ceil(((planet.semimajorAxis - star.innerLimit) / star.totalDist) * 100);
+			planet.majorMoonPercent = ceil(((planet.semimajorAxis - star.innerLimit) / star.totalDist) * 100); // the relative disatnce to the oyter limit
 			if (planet.class_ == L"Jupiter" || planet.class_ == L"Neptune")
-				planet.majorMoonPercent = relativeDist + ceil(planet.mass / 158.0); // gas giants add half jupiter mass
+			{
+				if (planet.majorMoonPercent > 60)
+					planet.majorMoonPercent = 60;
+				planet.majorMoonPercent += ceil(planet.mass / 158.0); // gas giants add half jupiter mass
+			}
 			else
-				planet.majorMoonPercent = relativeDist + ceil(planet.mass); // terra add earth mass
+			{
+				if (planet.majorMoonPercent > 50)
+					planet.majorMoonPercent = 50;
+				planet.majorMoonPercent += ceil(planet.mass); // terra add earth mass
+			}
 
 			// bonus percents
 			if (planet.semimajorAxis > star.habitZoneInnerLimit && planet.semimajorAxis < star.habitZoneOuterLimit)
-				planet.majorMoonPercent += 15; // if in the habitable zone, extra chance for moons
+				planet.majorMoonPercent += 33; // if in the habitable zone, extra chance for moons
 			if (planet.semimajorAxis > star.habitZoneOuterLimit)
-				planet.majorMoonPercent += 5;
+				planet.majorMoonPercent += 15;
 			if (planet.semimajorAxis > star.frostLine && (planet.class_ == L"Jupiter" || planet.class_ == L"Neptune"))
 				planet.majorMoonPercent += 15; // past frost line
 
-			//if (planet.class_ == L"Jupiter" || planet.class_ == L"Neptune")
-				planet.minorMoonPercent = planet.majorMoonPercent * 3; // gas giants multiply by 3
-			//else
-			//	planet.minorMoonPercent = planet.majorMoonPercent * 2;
+			if (planet.class_ == L"Jupiter" || planet.class_ == L"Neptune")
+				planet.minorMoonPercent = planet.majorMoonPercent * 7; // gas giants multiply by 7
+			else
+				planet.minorMoonPercent = planet.majorMoonPercent * 2; // terras multiply by 2
 		}
 		else
 		{
@@ -5701,11 +5709,13 @@ Screen lastScreen;
 			}
 		}
 		
-		// If hill sphere inner is larger than outer, then moons are set to 0
+		// If hill sphere inner is larger than outer, then moons are disabled
 		if ((2.44 * pow((planet.density / 0.05), (1.0 / 3.0)) * planet.radius) > planet.hillSphereOuterLimit)
 		{
-			planet.numberOfMajorMoons = 0;
-			planet.numberOfMinorMoons = 0;
+			planet.numberOfMajorMoons = -1;
+			planet.numberOfMinorMoons = -1;
+			planet.majorMoonPercent = -1;
+			planet.minorMoonPercent = -1;
 		}
 	}
 	void GenerateDwarfPlanet(STAR& star, PLANET& planet)
@@ -6445,7 +6455,7 @@ Screen lastScreen;
 			{
 				// Set 4
 				std::normal_distribution<> genobliquity{ 0, 10 };
-				std::normal_distribution<> geneccentricity{ 0.2, 0.3 };
+				std::normal_distribution<> geneccentricity{ 0.1, 0.2 };
 				std::normal_distribution<> geninclination{ 0, 25 };
 
 				moon.obliquity = genobliquity(mt_moon);
