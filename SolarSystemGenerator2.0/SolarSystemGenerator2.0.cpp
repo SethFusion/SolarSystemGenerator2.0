@@ -109,10 +109,7 @@ Screen lastScreen;
 
 		void ExoticGenerateLife(PLANET&);
 		void ExoticDebrisRing(PLANET&, PLANET&, double, double, double, double);
-
-		void ExoticGeneratePlanetShip(PLANET&, PLANET&, Object_Type);
-		void ExoticGenerateMoonShip(PLANET&, PLANET&, Object_Type);
-		void ExoticGenerateSystemShip(STAR&, PLANET&, Object_Type);
+		void GenerateShip(PLANET&, double, double, double, double, double, double);
 		/*
 	Generator Functions
 
@@ -3147,7 +3144,7 @@ Screen lastScreen;
 		//checks if seed is a number
 		bool isnumber = true;
 		for (int i = 0; i < seedstr.size(); i++)
-			if (!iswdigit(seedstr[i]) && seedstr[i] != '-')
+			if (!iswdigit(seedstr[i]) && seedstr[0] != '-')
 				isnumber = false;
 
 		// creates seed from string
@@ -4428,21 +4425,23 @@ Screen lastScreen;
 			GenerateStar(currentStar);
 
 			std::wstring starFileName = CONFIG.starOutputFolder;	//Creates the star file
-			//starFileName += currentStar.name;
-			//starFileName += L" Star.sc";
-			starFileName += L"Test Star.sc";
+			starFileName += currentStar.name;
+			starFileName += L" Star.sc";
+			//starFileName += L"Test Star.sc";
 			std::ofstream starFile(starFileName.c_str());
 			PrintStar(currentStar, starFile);
 
 			std::wstring planetFileName = CONFIG.planetOutputFolder;	//Creates the planet file
-			//planetFileName += currentStar.name;
-			//planetFileName += L" System.sc";
-			planetFileName += L"Test System.sc";
+			planetFileName += currentStar.name;
+			planetFileName += L" System.sc";
+			//planetFileName += L"Test System.sc";
 			std::ofstream planetFile(planetFileName.c_str());
 
 			std::uniform_int_distribution<int> genplanetnum{ CONFIG.minPlanetNumber, currentStar.maxPlanetNumber };
 			int planetNumber = genplanetnum(mt_planet);
 			std::vector<PLANET> planetList;
+
+			// test line
 
 			/*###############################################################################
 					PLANET GENERATOR
@@ -4527,15 +4526,15 @@ Screen lastScreen;
 			while (genpercent(mt_planet) < CONFIG.dwarfPlanetChance)
 			{
 				PLANET currentDwarf;
-				GeneratePlanet(currentStar, currentDwarf);
+				GenerateDwarfPlanet(currentStar, currentDwarf);
 				planetList.push_back(currentDwarf);
 			}
 			SortVector(planetList, 0, planetList.size() - 1);
 
 			// force life function
+			bool lifeTest = false;
 			if (CONFIG.forceLife)
 			{
-				bool lifeTest = false;
 				for (int i = 0; i < planetList.size(); i++)
 				{
 					if (planetList.at(i).life_organic.haslife || planetList.at(i).life_exotic.haslife)
@@ -4553,6 +4552,7 @@ Screen lastScreen;
 						int vectSize = planetList.size() - 1;
 						std::uniform_int_distribution<int> genplanetposition{ 0, vectSize };
 						position = genplanetposition(mt_planet);
+						lifeTest = true;
 					} while (planetList.at(position).planetType == L"DwarfPlanet");
 					planetList.at(position).life_exotic.haslife = true;
 					ExoticGenerateLife(planetList.at(position));
@@ -4730,197 +4730,163 @@ Screen lastScreen;
 							PrintPlanet(debrisMoon, planetFile);
 						}
 					}
-				}
-				
-				// Generates Ships for the current planet
-				if (planetList.at(currentPlanet).hasShip)
-				{
-					int shipCount;
-					Object_Type shipType;
-
-					if (planetList.at(currentPlanet).class_ == L"Jupiter" || planetList.at(currentPlanet).class_ == L"Neptune")
-					{
-						std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, 0, 1, 0, 1 };
-						shipType = static_cast<Object_Type>(genshiptype(mt_ship));
-					}
-					else if (planetList.at(currentPlanet).class_ == L"Aquaria")
-					{
-						std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, 1, 1, 0, 1 };
-						shipType = static_cast<Object_Type>(genshiptype(mt_ship));
-					}
-					else
-					{
-						std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, 1, 1, 1, 1 };
-						shipType = static_cast<Object_Type>(genshiptype(mt_ship));
-					}
-					
-					if (shipType == typeShipColony && CONFIG.shipList_Colony.size() == 0)
-						goto NoShip_Planet;
-					if (shipType == typeShipInstrument && CONFIG.shipList_Instrument.size() == 0)
-						goto NoShip_Planet;
-					if (shipType == typeShipSatellite && CONFIG.shipList_Satellite.size() == 0)
-						goto NoShip_Planet;
-					if (shipType == typeShipStation && CONFIG.shipList_Station.size() == 0)
-						goto NoShip_Planet;
-
-					switch (shipType)
-					{
-					case typeShipColony:
-						shipCount = 1;
-						break;
-					case typeShipInstrument:
-					{
-						std::uniform_int_distribution<int> genshipcount{ 1, 3 };
-						shipCount = genshipcount(mt_ship);
-						break;
-					}
-					case typeShipSatellite:
-					{
-						std::uniform_int_distribution<int> genshipcount{ 5, 20 };
-						shipCount = genshipcount(mt_ship);
-						break;
-					}
-					case typeShipStation:
-						shipCount = 1;
-						break;
-					}
-
-					PLANET ship;
-					ship.planetType = L"Spacecraft";
-					ship.parentBody = planetList.at(currentPlanet).name;
-
-					if (planetList.at(currentPlanet).semimajorAxis > currentStar.innerLimit)
-					{
-						for (int j = 0; j < shipCount; j++)
-						{
-							ExoticGeneratePlanetShip(planetList.at(currentPlanet), ship, shipType);
-							PrintShip(ship, planetFile);
-						}
-					}
-
-				}
-			NoShip_Planet:;
-
-				// Generate ships for the current planet's moons
-				for (int currentMoon = 0; currentMoon < planetList.at(currentPlanet).numberOfMajorMoons; currentMoon++)
-				{
-					if (majorMoon.at(currentMoon).hasShip)
-					{
-						int shipCount;
-						Object_Type shipType;
-						/*
-						if (majorMoon.at(currentMoon).class_ == L"Aquaria")
-						{
-							std::discrete_distribution<int> genshiptype{ 0, 0, 1, 0, 1 };
-							shipType = static_cast<Ship_Type>(genshiptype(mt));
-						}
-						else
-						{
-							std::discrete_distribution<int> genshiptype{ 0, 0, 1, 0, 1 };
-							shipType = static_cast<Ship_Type>(genshiptype(mt));
-						}
-						*/
-						std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, 0, 1, 0, 1 };
-						shipType = static_cast<Object_Type>(genshiptype(mt_ship));
-
-						switch (shipType)
-						{
-						/*case typeShipColony:
-								shipCount = 1;
-								break; */
-						case typeShipInstrument:
-						{
-							std::uniform_int_distribution<int> genshipcount{ 1, 3 };
-							shipCount = genshipcount(mt_ship);
-							break;
-						}
-						/*case typeShipSatellite:
-							std::uniform_int_distribution<int> genshipcount{ 3, 10 };
-							shipCount = genshipcount(mt);
-							break; */
-						case typeShipStation:
-							shipCount = 1;
-							break;
-						}
-
-						//	if (shipType == Colony && CONFIG.shipList_Colony.size() == 0)
-						//		goto NoShip_Moon;
-						if (shipType == typeShipInstrument && CONFIG.shipList_Instrument.size() == 0)
-							goto NoShip_Moon;
-						//	if (shipType == Satellite && CONFIG.shipList_Satellite.size() == 0)
-						//		goto NoShip_Moon;
-						if (shipType == typeShipStation && CONFIG.shipList_Station.size() == 0)
-							goto NoShip_Moon;
-
-						PLANET ship;
-						ship.planetType = L"Spacecraft";
-						ship.parentBody = majorMoon.at(currentMoon).name;
-
-						for (int j = 0; j < shipCount; j++)
-						{
-							ExoticGenerateMoonShip(majorMoon.at(currentMoon), ship, shipType);
-							PrintShip(ship, planetFile);
-						}
-					}
-				}
-			NoShip_Moon:;
+				}			
 
 				// end of every planet generated
 			}
-
-			// Generates ship(s) arond the star itself
-			if (genpercent(mt_ship) <= CONFIG.exotic_ShipChance)
+			
+			// This says if the system has life AND ships need it, we run the following code,
+			// otherwise run it anyway
+			if ((CONFIG.shipsNeedLife && lifeTest) || !CONFIG.shipsNeedLife)
 			{
-				int shipCount;
-				Object_Type shipType;
+				// this disables ships if their list is empty
+				bool enable_colony = true, enable_instrument = true, enable_satellite = true, enable_station = true;
+				if (CONFIG.shipList_Colony.size() == 0)
+					enable_colony = false;
+				if (CONFIG.shipList_Instrument.size() == 0)
+					enable_instrument = false;
+				if (CONFIG.shipList_Satellite.size() == 0)
+					enable_satellite = false;
+				if (CONFIG.shipList_Station.size() == 0)
+					enable_station = false;
 
-				std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, 1, 0, 0, 1 };
-				shipType = static_cast<Object_Type>(genshiptype(mt_ship));
-
-				switch (shipType)
+				while (genpercent(mt_ship) <= CONFIG.exotic_ShipChance)
 				{
-				case typeShipColony:
-				{
-					std::uniform_int_distribution<int> genshipcount{ 1, 4 };
-					shipCount = genshipcount(mt_ship);
-					break;
-				}
-				/*case Instrument: // Unused
-					std::uniform_int_distribution<int> genshipcount{ 1, 3 };
-					shipCount = genshipcount(mt_ship);
-					break;
-				case Satellite: // Unused
-					std::uniform_int_distribution<int> genshipcount{ 3, 10 };
-					shipCount = genshipcount(mt_ship);
-					break;*/
-				case typeShipStation:
-				{
-					std::uniform_int_distribution<int> genshipcount{ 1, 2 };
-					shipCount = genshipcount(mt_ship);
-					break;
-				}
-				}
+					int size = planetList.size(), parent;
+					PLANET ship;
+					ship.planetType = L"Spacecraft";
 
-				if (shipType == typeShipColony && CONFIG.shipList_Colony.size() == 0)
-					goto NoShip_Star;
-				/*if (shipType == Instrument && CONFIG.shipList_Instrument.size() == 0)
-					goto NoShip_Star;
-				if (shipType == Satellite && CONFIG.shipList_Satellite.size() == 0)
-					goto NoShip_Star;*/
-				if (shipType == typeShipStation && CONFIG.shipList_Station.size() == 0)
-					goto NoShip_Star;
+					std::uniform_int_distribution<int> genship{ 0, size };
+					parent = genship(mt_ship);
 
-				PLANET ship;
-				ship.planetType = L"Spacecraft";
-				ship.parentBody = currentStar.name;
+					// the star is the parent
+					if (parent == planetList.size())
+					{
+						ship.parentBody = currentStar.name;
 
-				for (int j = 0; j < shipCount; j++)
-				{
-					ExoticGenerateSystemShip(currentStar, ship, shipType);
-					PrintShip(ship, planetFile);
+						// final check before the ship type is generated
+						if (enable_colony || enable_instrument || enable_station)
+						{
+							double min_dist = 0, max_dist = 0;
+							std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, (double)enable_colony, (double)enable_instrument, 0, (double)enable_station };
+							Object_Type shipType = static_cast<Object_Type>(genshiptype(mt_ship));
+							ship.name = GenName(shipType);
+
+							// selects a model and creates the min & max orbit distances
+							switch (shipType)
+							{
+							case typeShipColony:
+							{
+								int listSize = CONFIG.shipList_Colony.size();
+								std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+								ship.model = CONFIG.shipList_Colony.at(genmodel(mt_ship));
+
+								min_dist = (currentStar.habitZoneInnerLimit / 2) * 149598000;
+								max_dist = (currentStar.habitZoneOuterLimit * 2) * 149598000;
+								break;
+							}
+							case typeShipInstrument:
+							{
+								int listSize = CONFIG.shipList_Instrument.size();
+								std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+								ship.model = CONFIG.shipList_Instrument.at(genmodel(mt_ship));
+
+								min_dist = currentStar.radius + 10000;
+								max_dist = currentStar.radius + 149598000;
+								break;
+							}							
+							case typeShipStation:
+							{
+								int listSize = CONFIG.shipList_Station.size();
+								std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+								ship.model = CONFIG.shipList_Station.at(genmodel(mt_ship));
+
+								min_dist = (currentStar.habitZoneInnerLimit / 2) * 149598000;
+								max_dist = currentStar.outerLimit * 149598000;
+								break;
+							}
+							}
+
+							GenerateShip(ship, min_dist, max_dist, CONFIG.avgEccentricity, CONFIG.SDEccentricity, CONFIG.avgInclination, CONFIG.SDInclination);
+							PrintShip(ship, planetFile);
+						}
+					}
+					// a planet is the parent
+					else
+					{
+						// weeds out some ship types based on the planet type
+						ship.parentBody = planetList.at(parent).name;
+						if (planetList.at(parent).class_ == L"Jupiter" || planetList.at(parent).class_ == L"Neptune")
+						{
+							enable_colony = false;
+							enable_satellite = false;
+						}
+						else if (!planetList.at(parent).life_exotic.haslife && !planetList.at(parent).life_organic.haslife)
+						{
+							enable_satellite = false;
+						}
+
+
+						// final check before the ship type is generated
+						if (enable_colony || enable_instrument || enable_satellite || enable_station)
+						{
+							// seelctes the ship type
+							double min_dist = 0, max_dist = 0;
+							std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, (double)enable_colony, (double)enable_instrument, (double)enable_satellite, (double)enable_station };
+							Object_Type shipType = static_cast<Object_Type>(genshiptype(mt_ship));
+							ship.name = GenName(shipType);
+
+							// selects a model and creates the min & max orbit distances
+							switch (shipType)
+							{
+							case typeShipColony:
+							{
+								int listSize = CONFIG.shipList_Colony.size();
+								std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+								ship.model = CONFIG.shipList_Colony.at(genmodel(mt_ship));
+
+								min_dist = planetList.at(parent).radius + 300;
+								max_dist = planetList.at(parent).radius + 1000;
+								break;
+							}
+							case typeShipInstrument:
+							{
+								int listSize = CONFIG.shipList_Instrument.size();
+								std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+								ship.model = CONFIG.shipList_Instrument.at(genmodel(mt_ship));
+
+								min_dist = planetList.at(parent).radius + 300;
+								max_dist = planetList.at(parent).radius + 10000;
+								break;
+							}
+							case typeShipSatellite:
+							{
+								int listSize = CONFIG.shipList_Satellite.size();
+								std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+								ship.model = CONFIG.shipList_Satellite.at(genmodel(mt_ship));
+
+								min_dist = planetList.at(parent).radius + 2000;
+								max_dist = planetList.at(parent).radius + 20000;
+								break;
+							}
+							case typeShipStation:
+							{
+								int listSize = CONFIG.shipList_Station.size();
+								std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+								ship.model = CONFIG.shipList_Station.at(genmodel(mt_ship));
+
+								min_dist = planetList.at(parent).radius + 300;
+								max_dist = planetList.at(parent).radius + 1000;
+								break;
+							}
+							}
+
+							GenerateShip(ship, min_dist, max_dist, 0.0, 0.001, 0.0, 90.0);
+							PrintShip(ship, planetFile);
+						}
+					}
 				}
 			}
-		NoShip_Star:;
 
 			// Debug star Orbits
 			if (CONFIG.debug == 1)
@@ -5043,7 +5009,7 @@ Screen lastScreen;
 			<< "\n\tObliquity\t\t\t\t" << ship.obliquity << "\n"
 			<< "\n\tOrbit\n\t{"
 			<< "\n\t\tRefPlane\t\t\t\"Equator\""
-			<< "\n\t\tSemiMajorAxis\t\t" << (ship.semimajorAxis / 149598000)
+			<< "\n\t\tSemiMajorAxisKm\t\t" << ship.semimajorAxis
 			<< "\n\t\tEccentricity\t\t" << ship.eccentricity
 			<< "\n\t\tInclination\t\t\t" << ship.inclination
 			<< "\n\t\tAscendingNode\t\t" << ship.ascendingNode
@@ -5602,10 +5568,6 @@ Screen lastScreen;
 			planet.debrisCount = GenDebrisNumber(mt_planet);
 		}
 
-		// Determines Ship
-		if (genpercent(mt_planet) <= CONFIG.exotic_ShipChance)
-			planet.hasShip = true;
-
 		planet.life_exotic.haslife = false;
 		planet.life_exotic.panspermia = false;
 		planet.life_organic.haslife = false;
@@ -5614,10 +5576,10 @@ Screen lastScreen;
 		if (CONFIG.traditionalLife)
 		{
 			if (planet.semimajorAxis > star.habitZoneInnerLimit && planet.semimajorAxis < star.habitZoneOuterLimit
-				&& planet.class_ != L"Jupiter" && planet.class_ != L"Neptune"
-				&& genpercent(mt_planet) <= CONFIG.life_OrganicChance)
-
+					&& planet.class_ != L"Jupiter" && planet.class_ != L"Neptune"
+					&& genpercent(mt_planet) <= CONFIG.life_OrganicChance)
 				planet.life_organic.haslife = true;
+
 			if (genpercent(mt_planet) <= CONFIG.life_ExoticChance)
 				planet.life_exotic.haslife = true;
 		}
@@ -5651,24 +5613,32 @@ Screen lastScreen;
 
 		if (CONFIG.weightedMoons)
 		{
-			int relativeDist = ceil(((planet.semimajorAxis - star.innerLimit) / star.totalDist) * 100);
+			planet.majorMoonPercent = ceil(((planet.semimajorAxis - star.innerLimit) / star.totalDist) * 100); // the relative disatnce to the oyter limit
 			if (planet.class_ == L"Jupiter" || planet.class_ == L"Neptune")
-				planet.majorMoonPercent = relativeDist + ceil(planet.mass / 158.0); // gas giants add half jupiter mass
+			{
+				if (planet.majorMoonPercent > 60)
+					planet.majorMoonPercent = 60;
+				planet.majorMoonPercent += ceil(planet.mass / 158.0); // gas giants add half jupiter mass
+			}
 			else
-				planet.majorMoonPercent = relativeDist + ceil(planet.mass); // terra add earth mass
+			{
+				if (planet.majorMoonPercent > 50)
+					planet.majorMoonPercent = 50;
+				planet.majorMoonPercent += ceil(planet.mass); // terra add earth mass
+			}
 
 			// bonus percents
 			if (planet.semimajorAxis > star.habitZoneInnerLimit && planet.semimajorAxis < star.habitZoneOuterLimit)
-				planet.majorMoonPercent += 15; // if in the habitable zone, extra chance for moons
+				planet.majorMoonPercent += 33; // if in the habitable zone, extra chance for moons
 			if (planet.semimajorAxis > star.habitZoneOuterLimit)
-				planet.majorMoonPercent += 5;
+				planet.majorMoonPercent += 15;
 			if (planet.semimajorAxis > star.frostLine && (planet.class_ == L"Jupiter" || planet.class_ == L"Neptune"))
 				planet.majorMoonPercent += 15; // past frost line
 
-			//if (planet.class_ == L"Jupiter" || planet.class_ == L"Neptune")
-				planet.minorMoonPercent = planet.majorMoonPercent * 3; // gas giants multiply by 3
-			//else
-			//	planet.minorMoonPercent = planet.majorMoonPercent * 2;
+			if (planet.class_ == L"Jupiter" || planet.class_ == L"Neptune")
+				planet.minorMoonPercent = planet.majorMoonPercent * 7; // gas giants multiply by 7
+			else
+				planet.minorMoonPercent = planet.majorMoonPercent * 2; // terras multiply by 2
 		}
 		else
 		{
@@ -5739,11 +5709,13 @@ Screen lastScreen;
 			}
 		}
 		
-		// If hill sphere inner is larger than outer, then moons are set to 0
+		// If hill sphere inner is larger than outer, then moons are disabled
 		if ((2.44 * pow((planet.density / 0.05), (1.0 / 3.0)) * planet.radius) > planet.hillSphereOuterLimit)
 		{
-			planet.numberOfMajorMoons = 0;
-			planet.numberOfMinorMoons = 0;
+			planet.numberOfMajorMoons = -1;
+			planet.numberOfMinorMoons = -1;
+			planet.majorMoonPercent = -1;
+			planet.minorMoonPercent = -1;
 		}
 	}
 	void GenerateDwarfPlanet(STAR& star, PLANET& planet)
@@ -6297,10 +6269,6 @@ Screen lastScreen;
 			}
 		}
 
-		// Determines Ship
-		if (genpercent(mt_moon) <= CONFIG.exotic_ShipChance)
-			moon.hasShip = true;
-
 		moon.life_exotic.haslife = false;
 		moon.life_exotic.panspermia = false;
 		moon.life_organic.haslife = false;
@@ -6487,7 +6455,7 @@ Screen lastScreen;
 			{
 				// Set 4
 				std::normal_distribution<> genobliquity{ 0, 10 };
-				std::normal_distribution<> geneccentricity{ 0.2, 0.3 };
+				std::normal_distribution<> geneccentricity{ 0.1, 0.2 };
 				std::normal_distribution<> geninclination{ 0, 25 };
 
 				moon.obliquity = genobliquity(mt_moon);
@@ -6691,173 +6659,19 @@ Screen lastScreen;
 		debris.argofPericenter = gendegree(mt_moon);
 		debris.meanAnomaly = gendegree(mt_moon);
 	}
-	
-	void ExoticGeneratePlanetShip(PLANET& parentPlanet, PLANET& ship, Object_Type shipType)
+	void GenerateShip(PLANET& ship, double min_dist, double max_dist, double eccent_avg, double eccent_sd, double inclin_avg, double inclin_sd)
 	{
-		ship.name = GenName(shipType);
-
-		switch (shipType)
-		{
-		case typeShipColony:
-		{
-			int listSize = CONFIG.shipList_Colony.size();
-			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
-			ship.model = CONFIG.shipList_Colony.at(genmodel(mt_ship));
-
-			std::uniform_real_distribution<> gensemi{ parentPlanet.radius + 300, parentPlanet.radius + 1000 };
-			ship.semimajorAxis = gensemi(mt_ship);
-			break;
-		}
-		case typeShipInstrument:
-		{
-			int listSize = CONFIG.shipList_Instrument.size();
-			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
-			ship.model = CONFIG.shipList_Instrument.at(genmodel(mt_ship));
-
-			std::uniform_real_distribution<> gensemi{ parentPlanet.radius + 300, parentPlanet.radius + 10000 };
-			ship.semimajorAxis = gensemi(mt_ship);
-			break;
-		}
-		case typeShipSatellite:
-		{
-			int listSize = CONFIG.shipList_Satellite.size();
-			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
-			ship.model = CONFIG.shipList_Satellite.at(genmodel(mt_ship));
-
-			std::uniform_real_distribution<> gensemi{ parentPlanet.radius + 2000, parentPlanet.radius + 20000 };
-			ship.semimajorAxis = gensemi(mt_ship);
-			break;
-		}
-		case typeShipStation:
-		{
-			int listSize = CONFIG.shipList_Station.size();
-			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
-			ship.model = CONFIG.shipList_Station.at(genmodel(mt_ship));
-
-			std::uniform_real_distribution<> gensemi{ parentPlanet.radius + 300, parentPlanet.radius + 1000 };
-			ship.semimajorAxis = gensemi(mt_ship);
-			break;
-		}
-		}
-
-		std::normal_distribution<> genobliquity{ 0, 1 };
-		std::normal_distribution<> geneccentricity{ 0, 0.001 };
-
-		ship.obliquity = genobliquity(mt_ship);
-		do ship.eccentricity = geneccentricity(mt_ship);
-		while (ship.eccentricity <= 0 || ship.eccentricity >= 1);
-		ship.inclination = gendegree(mt_ship);
-		ship.ascendingNode = gendegree(mt_ship);
-		ship.argofPericenter = gendegree(mt_ship);
-		ship.meanAnomaly = gendegree(mt_ship);
-	}
-	void ExoticGenerateMoonShip(PLANET& parentMoon, PLANET& ship, Object_Type shipType)
-	{
-		ship.name = GenName(shipType);
-
-		switch (shipType)
-		{
-			/*case Colony:
-				int listSize = CONFIG.shipList_Colony.size();
-				std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
-				ship.model = CONFIG.shipList_Colony.at(genmodel(mt_ship));
-
-				std::uniform_real_distribution<> gensemi{ parentMoon.radius + 300, parentMoon.radius + 1000 };
-				ship.semimajorAxis = gensemi(mt_ship);
-				break; */
-		case typeShipInstrument:
-		{
-			int listSize = CONFIG.shipList_Instrument.size();
-			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
-			ship.model = CONFIG.shipList_Instrument.at(genmodel(mt_ship));
-
-			std::uniform_real_distribution<> gensemi{ parentMoon.radius + 300, parentMoon.radius + 10000 };
-			ship.semimajorAxis = gensemi(mt_ship);
-			break;
-		}
-		/*case Satellite:
-			int listSize = CONFIG.shipList_Satellite.size();
-			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
-			ship.model = CONFIG.shipList_Satellite.at(genmodel(mt_ship));
-
-			std::uniform_real_distribution<> gensemi{ parentMoon.radius + 2000, parentMoon.radius + 20000 };
-			ship.semimajorAxis = gensemi(mt_ship);
-			break; */
-		case typeShipStation:
-		{
-			int listSize = CONFIG.shipList_Station.size();
-			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
-			ship.model = CONFIG.shipList_Station.at(genmodel(mt_ship));
-
-			std::uniform_real_distribution<> gensemi{ parentMoon.radius + 300, parentMoon.radius + 1000 };
-			ship.semimajorAxis = gensemi(mt_ship);
-			break;
-		}
-		}
-
-		std::normal_distribution<> genobliquity{ 0, 1 };
-		std::normal_distribution<> geneccentricity{ 0, 0.001 };
-
-		ship.obliquity = genobliquity(mt_ship);
-		do ship.eccentricity = geneccentricity(mt_ship);
-		while (ship.eccentricity <= 0 || ship.eccentricity >= 1);
-		ship.inclination = gendegree(mt_ship);
-		ship.ascendingNode = gendegree(mt_ship);
-		ship.argofPericenter = gendegree(mt_ship);
-		ship.meanAnomaly = gendegree(mt_ship);
-	}
-	void ExoticGenerateSystemShip(STAR& parentStar, PLANET& ship, Object_Type shipType)
-	{
-		ship.name = GenName(shipType);
-
-		switch (shipType)
-		{
-		case typeShipColony:
-		{
-			int listSize = CONFIG.shipList_Colony.size();
-			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
-			ship.model = CONFIG.shipList_Colony.at(genmodel(mt_ship));
-
-			std::uniform_real_distribution<> gensemi{ parentStar.innerLimit, parentStar.outerLimit };
-			ship.semimajorAxis = gensemi(mt_ship);
-			break;
-		}
-		/*case Instrument:
-			int listSize = CONFIG.shipList_Instrument.size();
-			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
-			ship.model = CONFIG.shipList_Instrument.at(genmodel(mt_ship));
-
-			std::uniform_real_distribution<> gensemi{ parentStar.radius + 300, parentStar.radius + 10000 };
-			ship.semimajorAxis = gensemi(mt_ship);
-			break;
-		case Satellite:
-			int listSize = CONFIG.shipList_Satellite.size();
-			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
-			ship.model = CONFIG.shipList_Satellite.at(genmodel(mt_ship));
-
-			std::uniform_real_distribution<> gensemi{ parentStar.radius + 2000, parentStar.radius + 20000 };
-			ship.semimajorAxis = gensemi(mt_ship);
-			break; */
-		case typeShipStation:
-		{
-			int listSize = CONFIG.shipList_Station.size();
-			std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
-			ship.model = CONFIG.shipList_Station.at(genmodel(mt_ship));
-
-			std::uniform_real_distribution<> gensemi{ parentStar.innerLimit, parentStar.outerLimit };
-			ship.semimajorAxis = gensemi(mt_ship);
-			break;
-		}
-		}
+		std::uniform_real_distribution<> gensemi{ min_dist, max_dist };
+		ship.semimajorAxis = gensemi(mt_ship);
 
 		std::normal_distribution<> genobliquity{ CONFIG.avgObliquity, CONFIG.SDObliquity };
-		std::normal_distribution<> geneccentricity{ CONFIG.avgEccentricity, CONFIG.SDEccentricity };
-		std::normal_distribution<> geninclinationation{ CONFIG.avgInclination, CONFIG.SDInclination };
+		std::normal_distribution<> geneccentricity{ eccent_avg, eccent_sd };
+		std::normal_distribution<> geninclinationtion{ inclin_avg, inclin_sd };
 
 		ship.obliquity = genobliquity(mt_ship);
 		do ship.eccentricity = geneccentricity(mt_ship);
 		while (ship.eccentricity <= 0 || ship.eccentricity >= 1);
-		ship.inclination = geninclinationation(mt_ship);
+		ship.inclination = geninclinationtion(mt_ship);
 		ship.ascendingNode = gendegree(mt_ship);
 		ship.argofPericenter = gendegree(mt_ship);
 		ship.meanAnomaly = gendegree(mt_ship);
