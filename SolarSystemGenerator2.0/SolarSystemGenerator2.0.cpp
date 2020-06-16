@@ -3286,6 +3286,7 @@ Screen lastScreen;
 
 		CONFIG.debug = true;
 		CONFIG.planetSpacing = 1.0;
+		CONFIG.moonSpacerCheck = 10.0; // WILL DELETE LATER, DEFAULT IS 10
 	}
 	void CreateNameVectors(HWND hWnd)
 	{	
@@ -4425,16 +4426,16 @@ Screen lastScreen;
 			GenerateStar(currentStar);
 
 			std::wstring starFileName = CONFIG.starOutputFolder;	//Creates the star file
-			starFileName += currentStar.name;
-			starFileName += L" Star.sc";
-			//starFileName += L"Test Star.sc";
+			//starFileName += currentStar.name;
+			//starFileName += L" Star.sc";
+			starFileName += L"Test Star.sc";
 			std::ofstream starFile(starFileName.c_str());
 			PrintStar(currentStar, starFile);
 
 			std::wstring planetFileName = CONFIG.planetOutputFolder;	//Creates the planet file
-			planetFileName += currentStar.name;
-			planetFileName += L" System.sc";
-			//planetFileName += L"Test System.sc";
+			//planetFileName += currentStar.name;
+			//planetFileName += L" System.sc";
+			planetFileName += L"Test System.sc";
 			std::ofstream planetFile(planetFileName.c_str());
 
 			std::uniform_int_distribution<int> genplanetnum{ CONFIG.minPlanetNumber, currentStar.maxPlanetNumber };
@@ -5922,18 +5923,6 @@ Screen lastScreen;
 
 		//class_ = L"Terra";
 
-
-
-
-
-
-
-
-
-
-
-
-
 		//######################################################################################################
 			//	DENSITY / MASS GENERATION
 
@@ -5975,8 +5964,6 @@ Screen lastScreen;
 
 		parent.usedRadius_moon.push_back(moon.radius);
 
-
-
 		//######################################################################################################
 			//	SEMI MAJOR GENERATION
 
@@ -6014,7 +6001,7 @@ Screen lastScreen;
 
 				// checks the semimajor of each moon to make sure they are not too close
 				for (int count = 0; count < parent.usedSemimajor_moon.size(); count++)
-					if (abs(moon.semimajorAxis - parent.usedSemimajor_moon.at(count)) < parent.radius)
+					if (abs(moon.semimajorAxis - parent.usedSemimajor_moon.at(count)) < parent.radius * (CONFIG.moonSpacerCheck / 10))
 						testsemi = 1; // means moons were too close
 				
 			}
@@ -6025,25 +6012,13 @@ Screen lastScreen;
 
 				// checks the semimajor of each moon to make sure they are not too close
 				for (int count = 0; count < parent.usedSemimajor_moon.size(); count++)
-					if (abs(moon.semimajorAxis - parent.usedSemimajor_moon.at(count)) < (parent.radius * 10))
+					if (abs(moon.semimajorAxis - parent.usedSemimajor_moon.at(count)) < (parent.radius * CONFIG.moonSpacerCheck))
 						testsemi = 1; // means moons were too close
 			}
 
 			testbreak++;
-			if (testbreak == 10)
+			if (testbreak > 10)
 				return 0;
-
-			/*
-			// Checks the semi major against others to make sure no moons are too close. if they are, it re-gens.
-			for (int count = 0; count < parent.usedSemimajor_moon.size(); count++)
-			{
-				if ((moon.semimajorAxis - (moon.radius * 2)) < (parent.usedSemimajor_moon.at(count) + (parent.usedRadius_moon.at(count) * 2)) &&
-					(moon.semimajorAxis + (moon.radius * 2)) > (parent.usedSemimajor_moon.at(count) - (parent.usedRadius_moon.at(count) * 2)))
-					testsemi = 1; // means moons were too close
-				else if (testsemi != 1)
-					testsemi = 0;
-			}
-			*/
 
 		} while (testsemi == 1);
 		parent.usedSemimajor_moon.push_back(moon.semimajorAxis);
