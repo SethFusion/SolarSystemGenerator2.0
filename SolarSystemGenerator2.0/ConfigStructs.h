@@ -1,24 +1,15 @@
 #include "framework.h"
 #include "resource.h"
 
-
-struct var
-{
-	HWND HANDLE,
-		DESC,
-		INFOBUTTON,
-		EXTRA;
-};
-
-struct Configuration
-{
 	/*--------------------------------------------------------------#
-	|																|				
-	|		Every variable needs a value holder, a var holder,		|
-	|		and a value holder in the Presets structure.			|
+	|																|
+	|		Every variable needs a value in the						|
+	|		ConfigurationVariables struct, a "var" in the			|
+	|		ConfigurationHWNDs struct, and a value in the			|
+	|		Presets structure.										|
 	|																|
 	|		EVERY variable neeeds to be added to these functions,	|
-	|		preferably in this order:								|
+	|		using the proper sturct, preferably in this order:		|
 	|																|
 	|		* LoadPresets - to get the information from the preset	|
 	|			files. It needs text inside the preset files		|
@@ -42,7 +33,89 @@ struct Configuration
 	|		SetCheckBoxText function if it is a boolean with		|
 	|		Enabled/Disabled displayed next to it. This means		|
 	|		every varible will need an IB_ number and may need		|
-	|		a CB_number under Resource.h.							|
+	|		a CB_ number under Resource.h							|
+	|																|
+	#--------------------------------------------------------------*/
+
+struct ConfigurationVariables
+{
+	/*--------------------------------------------------------------#
+	|																|
+	|		This structure only contains variables used				|
+	|		by the generator and I/O.								|
+	|																|
+	#--------------------------------------------------------------*/
+
+	/*#####################################################
+			GENERAL
+	#####################################################*/
+
+	long long seed;
+	int numberOfRuns;
+	bool debug;
+	wchar_t starOutputFolder[WSIZE], planetOutputFolder[WSIZE];
+
+	/*#####################################################
+			SYSTEM + PLANET
+	#####################################################*/
+
+	bool smartPlacement, generateDwarfPlanets, weightedMoons;
+	int	minPlanetNumber, dwarfPlanetChance;
+	double minDistance, maxDistance, 
+		planetSpacing, moonSpacerCheck,
+		avgEccentricity, SDEccentricity, 
+		avgInclination, SDInclination, 
+		avgObliquity, SDObliquity;
+	double starClassO, starClassB, starClassA, starClassF, starClassG, starClassK, starClassM, starClassWD, starClassQ, starClassX;
+
+	/*#####################################################
+			LIFE
+	#####################################################*/
+
+	int life_OrganicChance, life_ExoticChance, life_MulticellChance;
+	bool forceLife, traditionalLife;
+
+	/*#####################################################
+			SHIPS
+	#####################################################*/
+
+	int exotic_ShipChance;
+	bool shipsNeedLife;
+	wchar_t modelsFolder[WSIZE];
+
+	std::vector<std::wstring> shipList_Colony, shipList_Instrument, shipList_Satellite, shipList_Station;
+
+	/*#####################################################
+			EXOTIC
+	#####################################################*/
+
+	int exotic_OrbitChance, exotic_AxialTiltChance, exotic_CompanionOrbitChance, exotic_DebrisRingChance;
+
+	/*#####################################################
+			ADVANCED
+	#####################################################*/
+
+	// empty for now
+
+};
+
+struct var
+{
+	// A collection of handles needed for displaying a single variable in
+	// the COnfigurationVariables struct
+
+	HWND HANDLE, // a handle to the actual input field
+		DESC, // Description; the text displayed next to the input field
+		INFOBUTTON, // a handle to the info button displayed next to the input field
+		EXTRA; // used for anything else I might need
+};
+
+struct ConfigurationHWNDs
+{
+	/*--------------------------------------------------------------#
+	|																|
+	|		This structure only contains handles used for			|
+	|		creating and displaying the UI							|
 	|																|
 	#--------------------------------------------------------------*/
 
@@ -61,13 +134,9 @@ struct Configuration
 		*/	HWND HEADER_GENERAL; /*
 	#####################################################*/
 
-	long long seed;
-	int numberOfRuns;
-	var seedH, numberOfRunsH;
-	bool debug;
-	var  debugH;
-	wchar_t starOutputFolder[WSIZE], planetOutputFolder[WSIZE];
-	var starOutputFolderH, planetOutputFolderH;
+	var seed, numberOfRuns;
+	var debug;
+	var starOutputFolder, planetOutputFolder;
 
 	var presetDropDown;
 	var savePresetButton;
@@ -77,70 +146,56 @@ struct Configuration
 	/*#####################################################
 		*/	HWND HEADER_SYSTEMPLANET; /*
 	#####################################################*/
-
-	bool smartPlacement, generateDwarfPlanets, weightedMoons;
-	var smartPlacementH, generateDwarfPlanetsH, weightedMoonsH;
-	int	minPlanetNumber, dwarfPlanetChance;
-	var minPlanetNumberH, dwarfPlanetChanceH;
-	double minDistance, maxDistance, planetSpacing, avgEccentricity, SDEccentricity, avgInclination, SDInclination, avgObliquity, SDObliquity;
-	var    minDistanceH, maxDistanceH, planetSpacingH, avgEccentricityH, SDEccentricityH, avgInclinationH, SDInclinationH, avgObliquityH, SDObliquityH;
-	double starClassO, starClassB, starClassA, starClassF, starClassG, starClassK, starClassM, starClassWD, starClassQ, starClassX;
-	var  starClassOH, starClassBH, starClassAH, starClassFH, starClassGH, starClassKH, starClassMH, starClassWDH, starClassQH, starClassXH;
-
-	double moonSpacerCheck;
-	var moonSpacerCheckH;
+	
+	var smartPlacement, generateDwarfPlanets, weightedMoons;
+	var minPlanetNumber, dwarfPlanetChance;	
+	var minDistance, maxDistance, 
+		planetSpacing, moonSpacerCheck, // WILL ADD TO UI LATER
+		avgEccentricity, SDEccentricity, 
+		avgInclination, SDInclination, 
+		avgObliquity, SDObliquity;	
+	var starClassO, starClassB, starClassA, starClassF, starClassG, starClassK, starClassM, starClassWD, starClassQ, starClassX;
 
 	/*#####################################################
 		*/	HWND HEADER_LIFE; /*
 	#####################################################*/
-
-	int life_OrganicChance, life_ExoticChance, life_MulticellChance;
-	var life_OrganicChanceH, life_ExoticChanceH, life_MulticellChanceH;
-	bool forceLife, traditionalLife;
-	var  forceLifeH, traditionalLifeH;
+	
+	var life_OrganicChance, life_ExoticChance, life_MulticellChance;	
+	var forceLife, traditionalLife;
 
 	/*#####################################################
 		*/	HWND HEADER_SHIPS; /*
 	#####################################################*/
-
-	int exotic_ShipChance;
-	var exotic_ShipChanceH;
-	bool shipsNeedLife;
-	var  shipsNeedLifeH;
-	wchar_t modelsFolder[WSIZE];
-	var		modelsFolderH;
-
-	std::vector<std::wstring> shipList_Colony, shipList_Instrument, shipList_Satellite, shipList_Station;
+	
+	var exotic_ShipChance;
+	var shipsNeedLife;
+	var	modelsFolder;
 
 	/*#####################################################
 		*/	HWND HEADER_EXOTIC; /*
 	#####################################################*/
 
-	int exotic_OrbitChance, exotic_AxialTiltChance, exotic_CompanionOrbitChance, exotic_DebrisRingChance;
-	var exotic_OrbitChanceH, exotic_AxialTiltChanceH, exotic_CompanionOrbitChanceH, exotic_DebrisRingChanceH;
+	var exotic_OrbitChance, exotic_AxialTiltChance, exotic_CompanionOrbitChance, exotic_DebrisRingChance;
 
 	/*#####################################################
 		*/	HWND HEADER_ADVANCED; /*
 	#####################################################*/
 
-		var saveNamePresetButton;
+	var saveNamePresetButton;
 
-		/*=====================================================
-			*/	var advNameGroup;
-				HWND buttonStar, 
-				buttonPlanet, 
-				buttonMoon, 
-				buttonDwarfMoon, 
-				buttonShip, 
-				buttonDataset,
-				buttonSimple,
-				buttonUpdate; /*
-			buttons to load different screens for name
-			variables
-
-		=====================================================*/
-	
-
+	/*=====================================================
+		*/	var advNameGroup;
+			HWND buttonStar, 
+			buttonPlanet, 
+			buttonMoon, 
+			buttonDwarfMoon, 
+			buttonShip, 
+			buttonDataset,
+			buttonSimple,
+			buttonUpdate; /*
+		buttons to load different screens for name
+		variables
+	=====================================================*/
 };
 
 struct Preset
