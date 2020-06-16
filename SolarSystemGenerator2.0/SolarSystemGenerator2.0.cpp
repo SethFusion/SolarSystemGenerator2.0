@@ -103,7 +103,7 @@ Screen lastScreen;
 		void PrintShip(PLANET& ship, std::ofstream& planetFile);
 		void GeneratePlanet(STAR&, PLANET&);
 		void GenerateDwarfPlanet(STAR&, PLANET&);
-		void GenerateMajorMoon(STAR&, PLANET&, PLANET&, int);
+		bool GenerateMajorMoon(STAR&, PLANET&, PLANET&, int);
 		void GenerateMinorMoon(PLANET&, PLANET&, int);
 		void GenerateDwarfMinor(PLANET&, PLANET&, int);
 
@@ -3286,6 +3286,7 @@ Screen lastScreen;
 
 		CONFIG.debug = true;
 		CONFIG.planetSpacing = 1.0;
+		CONFIG.moonSpacerCheck = 10.0; // WILL DELETE LATER, DEFAULT IS 10
 	}
 	void CreateNameVectors(HWND hWnd)
 	{	
@@ -4425,16 +4426,16 @@ Screen lastScreen;
 			GenerateStar(currentStar);
 
 			std::wstring starFileName = CONFIG.starOutputFolder;	//Creates the star file
-			starFileName += currentStar.name;
-			starFileName += L" Star.sc";
-			//starFileName += L"Test Star.sc";
+			//starFileName += currentStar.name;
+			//starFileName += L" Star.sc";
+			starFileName += L"Test Star.sc";
 			std::ofstream starFile(starFileName.c_str());
 			PrintStar(currentStar, starFile);
 
 			std::wstring planetFileName = CONFIG.planetOutputFolder;	//Creates the planet file
-			planetFileName += currentStar.name;
-			planetFileName += L" System.sc";
-			//planetFileName += L"Test System.sc";
+			//planetFileName += currentStar.name;
+			//planetFileName += L" System.sc";
+			planetFileName += L"Test System.sc";
 			std::ofstream planetFile(planetFileName.c_str());
 
 			std::uniform_int_distribution<int> genplanetnum{ CONFIG.minPlanetNumber, currentStar.maxPlanetNumber };
@@ -4574,9 +4575,11 @@ Screen lastScreen;
 					while (genpercent(mt_moon) < planetList.at(currentPlanet).majorMoonPercent)
 					{
 						PLANET currentMoon;
-						GenerateMajorMoon(currentStar, planetList.at(currentPlanet), currentMoon, planetList.at(currentPlanet).numberOfMajorMoons);
-						majorMoon.push_back(currentMoon);
-						planetList.at(currentPlanet).numberOfMajorMoons++;
+						if (GenerateMajorMoon(currentStar, planetList.at(currentPlanet), currentMoon, planetList.at(currentPlanet).numberOfMajorMoons))
+						{
+							majorMoon.push_back(currentMoon);
+							planetList.at(currentPlanet).numberOfMajorMoons++;	
+						}
 						std::uniform_int_distribution<int> gennumber{ 1, planetList.at(currentPlanet).numberOfMajorMoons };
 						planetList.at(currentPlanet).majorMoonPercent -= gennumber(mt_moon);
 					}
@@ -5726,7 +5729,7 @@ Screen lastScreen;
 		planet.parentBody = star.name;
 
 		//######################################################################################################
-			//	CLASS / RADIUS GENERATION
+			//	CLASS / RADIUS / DENSITY GENERATION
 
 		if (genpercent(mt_planet) <= 50)
 			planet.class_ = L"Terra";
@@ -5894,9 +5897,9 @@ Screen lastScreen;
 		if ((2.44 * planet.radius * pow((planet.density / 0.5), (1.0 / 3.0))) > planet.hillSphereOuterLimit)
 			planet.numberOfMinorMoons = 0; 
 	}
-	void GenerateMajorMoon(STAR& star, PLANET& parent, PLANET& moon, int spacer)
+	bool GenerateMajorMoon(STAR& star, PLANET& parent, PLANET& moon, int spacer)
 	{
-		int testsemi;
+		int testsemi = 0, testbreak = -1;
 		moon.planetType = L"Moon";
 		moon.parentBody = parent.name;
 
@@ -5921,151 +5924,42 @@ Screen lastScreen;
 		//class_ = L"Terra";
 
 		//######################################################################################################
-			//	MASS / RADIUS GENERATION
+			//	DENSITY / MASS GENERATION
 
-		if (parent.mass >= 320)
+		if (parent.class_ == L"Jupiter" || parent.class_ == L"Neptune") // gas giants
 		{
-			if (moon.class_ == L"Terra")
-			{
-				std::uniform_real_distribution<> gend{ 0.7, 1.3 };
-				std::uniform_real_distribution<> genr{ 3000, 12000 };
-
-				moon.density = gend(mt_moon);
-				moon.radius = genr(mt_moon);
-			}
-			else if (moon.class_ == L"Aquaria")
-			{
-				std::uniform_real_distribution<> gend{ 0.1, 1 };
-				std::uniform_real_distribution<> genr{ 500, 12000 };
-
-				moon.density = gend(mt_moon);
-				moon.radius = genr(mt_moon);
-			}
-			else if (moon.class_ == L"Ferria")
-			{
-				std::uniform_real_distribution<> gend{ 1, 2 };
-				std::uniform_real_distribution<> genr{ 500, 12000 };
-
-				moon.density = gend(mt_moon);
-				moon.radius = genr(mt_moon);
-			}
-			else if (moon.class_ == L"Carbonia")
-			{
-				std::uniform_real_distribution<> gend{ 0.5, 1 };
-				std::uniform_real_distribution<> genr{ 3000, 12000 };
-
-				moon.density = gend(mt_moon);
-				moon.radius = genr(mt_moon);
-			}
+			std::uniform_real_distribution<> genm{ parent.mass * 0.000003, parent.mass * 0.0001 };
+			moon.mass = genm(mt_moon);
 		}
-		else if (parent.mass >= 100)
+		else // small planets
 		{
-			if (moon.class_ == L"Terra")
-			{
-				std::uniform_real_distribution<> gend{ 0.7, 1.3 };
-				std::uniform_real_distribution<> genr{ 1000, 4500 };
-
-				moon.density = gend(mt_moon);
-				moon.radius = genr(mt_moon);
-			}
-			else if (moon.class_ == L"Aquaria")
-			{
-				std::uniform_real_distribution<> gend{ 0.1, 1 };
-				std::uniform_real_distribution<> genr{ 500, 4500 };
-
-				moon.density = gend(mt_moon);
-				moon.radius = genr(mt_moon);
-			}
-			else if (moon.class_ == L"Ferria")
-			{
-				std::uniform_real_distribution<> gend{ 1, 2 };
-				std::uniform_real_distribution<> genr{ 500, 4500 };
-
-				moon.density = gend(mt_moon);
-				moon.radius = genr(mt_moon);
-			}
-			else if (moon.class_ == L"Carbonia")
-			{
-				std::uniform_real_distribution<> gend{ 0.5, 1 };
-				std::uniform_real_distribution<> genr{ 1000, 4500 };
-
-				moon.density = gend(mt_moon);
-				moon.radius = genr(mt_moon);
-			}
-		}
-		else if (parent.mass >= 30)
-		{
-			if (moon.class_ == L"Terra")
-			{
-				std::uniform_real_distribution<> gend{ 0.7, 1.3 };
-				std::uniform_real_distribution<> genr{ 500, 3000 };
-
-				moon.density = gend(mt_moon);
-				moon.radius = genr(mt_moon);
-			}
-			else if (moon.class_ == L"Aquaria")
-			{
-				std::uniform_real_distribution<> gend{ 0.1, 1 };
-				std::uniform_real_distribution<> genr{ 500, 3000 };
-
-				moon.density = gend(mt_moon);
-				moon.radius = genr(mt_moon);
-			}
-			else if (moon.class_ == L"Ferria")
-			{
-				std::uniform_real_distribution<> gend{ 1, 2 };
-				std::uniform_real_distribution<> genr{ 500, 3000 };
-
-				moon.density = gend(mt_moon);
-				moon.radius = genr(mt_moon);
-			}
-			else if (moon.class_ == L"Carbonia")
-			{
-				std::uniform_real_distribution<> gend{ 0.5, 1 };
-				std::uniform_real_distribution<> genr{ 500, 3000 };
-
-				moon.density = gend(mt_moon);
-				moon.radius = genr(mt_moon);
-			}
-		}
-		else
-		{
-			if (moon.class_ == L"Terra")
-			{
-				std::uniform_real_distribution<> gend{ 0.7, 1.3 };
-				std::uniform_real_distribution<> genr{ 500, 2000 };
-
-				moon.density = gend(mt_moon);
-				moon.radius = genr(mt_moon);
-			}
-			else if (moon.class_ == L"Aquaria")
-			{
-				std::uniform_real_distribution<> gend{ 0.1, 1 };
-				std::uniform_real_distribution<> genr{ 500, 2000 };
-
-				moon.density = gend(mt_moon);
-				moon.radius = genr(mt_moon);
-			}
-			else if (moon.class_ == L"Ferria")
-			{
-				std::uniform_real_distribution<> gend{ 1, 2 };
-				std::uniform_real_distribution<> genr{ 500, 2000 };
-
-				moon.density = gend(mt_moon);
-				moon.radius = genr(mt_moon);
-			}
-			else if (moon.class_ == L"Carbonia")
-			{
-				std::uniform_real_distribution<> gend{ 0.5, 1 };
-				std::uniform_real_distribution<> genr{ 500, 2000 };
-
-				moon.density = gend(mt_moon);
-				moon.radius = genr(mt_moon);
-			}
+			std::uniform_real_distribution<> genm{ parent.mass * 0.0001, parent.mass * 0.01 };
+			moon.mass = genm(mt_moon);
 		}
 
-		moon.earthRadius = moon.radius / 6378.14;
-		moon.mass = pow(moon.earthRadius, 3) * moon.density;
+		if (moon.class_ == L"Terra")
+		{
+			std::uniform_real_distribution<> gend{ 0.7, 1.3 };
+			moon.density = gend(mt_moon);
+		}
+		else if (moon.class_ == L"Aquaria")
+		{
+			std::uniform_real_distribution<> gend{ 0.1, 1 };
+			moon.density = gend(mt_moon);
+		}
+		else if (moon.class_ == L"Ferria")
+		{
+			std::uniform_real_distribution<> gend{ 1, 2 };
+			moon.density = gend(mt_moon);
+		}
+		else if (moon.class_ == L"Carbonia")
+		{
+			std::uniform_real_distribution<> gend{ 0.5, 1 };
+			moon.density = gend(mt_moon);
+		}
+
+		moon.earthRadius = cbrt(moon.mass / moon.density);
+		moon.radius = moon.earthRadius * 6378.14;
 		moon.gravity = moon.mass / pow(moon.earthRadius, 2);
 
 		parent.usedRadius_moon.push_back(moon.radius);
@@ -6081,8 +5975,6 @@ Screen lastScreen;
 
 		do
 		{
-			testsemi = 0;
-
 			// If the planet is a Gas/Ice Giant, it will use the spacers, if not, it will generate a random num.
 			if (parent.class_ == L"Jupiter" || parent.class_ == L"Neptune")
 			{
@@ -6106,22 +5998,28 @@ Screen lastScreen;
 					}
 
 				} while (moon.semimajorAxis <= (moon.radius * 6) || moon.semimajorAxis > parent.hillSphereOuterLimit || moon.semimajorAxis < moon.hillSphereInnerLimit);
+
+				// checks the semimajor of each moon to make sure they are not too close
+				for (int count = 0; count < parent.usedSemimajor_moon.size(); count++)
+					if (abs(moon.semimajorAxis - parent.usedSemimajor_moon.at(count)) < parent.radius * (CONFIG.moonSpacerCheck / 10))
+						testsemi = 1; // means moons were too close
+				
 			}
 			else
 			{
 				std::uniform_real_distribution<> gensemi{ moon.hillSphereInnerLimit, parent.hillSphereOuterLimit };
 				moon.semimajorAxis = gensemi(mt_moon);
+
+				// checks the semimajor of each moon to make sure they are not too close
+				for (int count = 0; count < parent.usedSemimajor_moon.size(); count++)
+					if (abs(moon.semimajorAxis - parent.usedSemimajor_moon.at(count)) < (parent.radius * CONFIG.moonSpacerCheck))
+						testsemi = 1; // means moons were too close
 			}
 
-			// Checks the semi major against others to make sure no moons are too close. if they are, it re-gens.
-			for (int count = 0; count < parent.usedSemimajor_moon.size(); count++)
-			{
-				if ((moon.semimajorAxis - (moon.radius * 2)) < (parent.usedSemimajor_moon.at(count) + (parent.usedRadius_moon.at(count) * 2)) &&
-					(moon.semimajorAxis + (moon.radius * 2)) > (parent.usedSemimajor_moon.at(count) - (parent.usedRadius_moon.at(count) * 2)))
-					testsemi = 1; // means moons were too close
-				else if (testsemi != 1)
-					testsemi = 0;
-			}
+			testbreak++;
+			if (testbreak > 10)
+				return 0;
+
 		} while (testsemi == 1);
 		parent.usedSemimajor_moon.push_back(moon.semimajorAxis);
 
@@ -6292,6 +6190,8 @@ Screen lastScreen;
 				moon.life_exotic.haslife = true;
 		}
 		ExoticGenerateLife(moon);
+
+		return 1;
 	}
 	void GenerateMinorMoon(PLANET& parent, PLANET& moon, int currentMoon)
 	{

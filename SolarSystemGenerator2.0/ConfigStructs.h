@@ -87,6 +87,9 @@ struct Configuration
 	double starClassO, starClassB, starClassA, starClassF, starClassG, starClassK, starClassM, starClassWD, starClassQ, starClassX;
 	var  starClassOH, starClassBH, starClassAH, starClassFH, starClassGH, starClassKH, starClassMH, starClassWDH, starClassQH, starClassXH;
 
+	double moonSpacerCheck;
+	var moonSpacerCheckH;
+
 	/*#####################################################
 		*/	HWND HEADER_LIFE; /*
 	#####################################################*/
