@@ -9,7 +9,7 @@
 	|		Presets structure.										|
 	|																|
 	|		EVERY variable neeeds to be added to these functions,	|
-	|		using the proper sturct, preferably in this order:		|
+	|		using the proper struct, preferably in this order:		|
 	|																|
 	|		* LoadPresets - to get the information from the preset	|
 	|			files. It needs text inside the preset files		|
@@ -62,7 +62,7 @@ struct ConfigurationVariables
 	bool smartPlacement, generateDwarfPlanets, weightedMoons;
 	int	minPlanetNumber, dwarfPlanetChance;
 	double minDistance, maxDistance, 
-		planetSpacing, moonSpacerCheck,
+		planetSpacing, moonDistanceBoundary,
 		avgEccentricity, SDEccentricity, 
 		avgInclination, SDInclination, 
 		avgObliquity, SDObliquity;
@@ -150,7 +150,7 @@ struct ConfigurationHWNDs
 	var smartPlacement, generateDwarfPlanets, weightedMoons;
 	var minPlanetNumber, dwarfPlanetChance;	
 	var minDistance, maxDistance, 
-		planetSpacing, moonSpacerCheck, // WILL ADD TO UI LATER
+		planetSpacing, moonDistanceBoundary,
 		avgEccentricity, SDEccentricity, 
 		avgInclination, SDInclination, 
 		avgObliquity, SDObliquity;	
@@ -219,7 +219,11 @@ struct Preset
 	bool smartPlacement, generateDwarfPlanets, weightedMoons;
 	wchar_t const* smartPlacementState, * generateDwarfPlanetsState, * weightedMoonsState;
 	int	minPlanetNumber, dwarfPlanetChance;
-	double minDistance, maxDistance, planetSpacing, avgEccentricity, SDEccentricity, avgInclination, SDInclination, avgObliquity, SDObliquity;
+	double minDistance, maxDistance, 
+		planetSpacing, moonDistanceBoundary,
+		avgEccentricity, SDEccentricity, 
+		avgInclination, SDInclination, 
+		avgObliquity, SDObliquity;
 	double starClassO, starClassB, starClassA, starClassF, starClassG, starClassK, starClassM, starClassWD, starClassQ, starClassX; // now represents weight
 
 	/*#####################################################

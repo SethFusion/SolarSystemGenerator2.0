@@ -453,7 +453,8 @@ Screen lastScreen;
 			LoadVariableFromFile(Buffer, parse, temp.minPlanetNumber);		
 			LoadVariableFromFile(Buffer, parse, temp.minDistance);		
 			LoadVariableFromFile(Buffer, parse, temp.maxDistance);		
-			LoadVariableFromFile(Buffer, parse, temp.planetSpacing);		
+			LoadVariableFromFile(Buffer, parse, temp.planetSpacing);
+			LoadVariableFromFile(Buffer, parse, temp.moonDistanceBoundary);
 			LoadVariableFromFile(Buffer, parse, temp.generateDwarfPlanets);
 			temp.generateDwarfPlanetsState = (temp.generateDwarfPlanets == true) ? L"Enabled" : L"Disabled";		
 			LoadVariableFromFile(Buffer, parse, temp.dwarfPlanetChance);
@@ -964,7 +965,21 @@ Screen lastScreen;
 				702, 402, 16, 16,
 				hWnd, (HMENU)IB_WEIGHTEDMOONS, NULL, NULL);
 
-			//min planet number
+			// moon spacer check
+			CONFIG_H.moonDistanceBoundary.DESC = CreateWindowW(L"static", L"Moon Distance Boundary:",
+				WS_CHILD | WS_BORDER,
+				370, 420, 230, 20,
+				hWnd, NULL, NULL, NULL);
+			CONFIG_H.moonDistanceBoundary.HANDLE = CreateWindowW(L"edit", L"",
+				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+				600, 420, 100, 20,
+				hWnd, NULL, NULL, NULL);
+			CONFIG_H.moonDistanceBoundary.INFOBUTTON = CreateWindowW(L"button", L"I",
+				WS_CHILD | WS_BORDER,
+				702, 422, 16, 16,
+				hWnd, (HMENU)IB_MOONDISTANCEBOUNDARY, NULL, NULL);
+
+			//min dwarf planet chance
 			CONFIG_H.dwarfPlanetChance.DESC = CreateWindowW(L"static", L"Dwarf Planet % Chance:",
 				WS_CHILD | WS_BORDER,
 				370, 320, 230, 20,
@@ -2128,8 +2143,6 @@ Screen lastScreen;
 		}
 		//###############################################################################
 
-
-
 		// Page Edges
 		CreateWindowW(L"button", L"Bottom Most Edge",
 			WS_VISIBLE | WS_CHILD,
@@ -2173,6 +2186,7 @@ Screen lastScreen;
 		SetVariableToWindow(CONFIG_H.minDistance.HANDLE, P.minDistance);
 		SetVariableToWindow(CONFIG_H.maxDistance.HANDLE, P.maxDistance);
 		SetVariableToWindow(CONFIG_H.planetSpacing.HANDLE, P.planetSpacing);
+		SetVariableToWindow(CONFIG_H.moonDistanceBoundary.HANDLE, P.moonDistanceBoundary);
 		CheckDlgButton(hWnd, CB_GENERATEDWARFPLANET, P.generateDwarfPlanets);
 		SetWindowTextW(CONFIG_H.generateDwarfPlanets.HANDLE, P.generateDwarfPlanetsState);
 		CheckDlgButton(hWnd, CB_WEIGHTEDMOONS, P.weightedMoons);
@@ -2334,6 +2348,7 @@ Screen lastScreen;
 			<< "minDistance=" << CONFIG.minDistance << "\n"
 			<< "maxDistance=" << CONFIG.maxDistance << "\n"
 			<< "planetSpacing=" << CONFIG.planetSpacing << "\n"
+			<< "moonDistanceBoundary=" << CONFIG.moonDistanceBoundary << "\n"
 			<< "generateDwarfPlanets=" << CONFIG.generateDwarfPlanets << "\n"
 			<< "dwarfPlanetChance=" << CONFIG.dwarfPlanetChance << "\n"
 			<< "weightedMoons=" << CONFIG.weightedMoons << "\n"
@@ -2536,6 +2551,7 @@ Screen lastScreen;
 			ShowWindow(CONFIG_H.minDistance.HANDLE, 0);
 			ShowWindow(CONFIG_H.maxDistance.HANDLE, 0);
 			ShowWindow(CONFIG_H.planetSpacing.HANDLE, 0);
+			ShowWindow(CONFIG_H.moonDistanceBoundary.HANDLE, 0);
 			ShowWindow(CONFIG_H.avgEccentricity.HANDLE, 0);
 			ShowWindow(CONFIG_H.SDEccentricity.HANDLE, 0);
 			ShowWindow(CONFIG_H.avgInclination.HANDLE, 0);
@@ -2551,6 +2567,7 @@ Screen lastScreen;
 			ShowWindow(CONFIG_H.minDistance.DESC, 0);
 			ShowWindow(CONFIG_H.maxDistance.DESC, 0);
 			ShowWindow(CONFIG_H.planetSpacing.DESC, 0);
+			ShowWindow(CONFIG_H.moonDistanceBoundary.DESC, 0);
 			ShowWindow(CONFIG_H.avgEccentricity.DESC, 0);
 			ShowWindow(CONFIG_H.SDEccentricity.DESC, 0);
 			ShowWindow(CONFIG_H.avgInclination.DESC, 0);
@@ -2566,6 +2583,7 @@ Screen lastScreen;
 			ShowWindow(CONFIG_H.minDistance.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.maxDistance.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.planetSpacing.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.moonDistanceBoundary.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.avgEccentricity.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.SDEccentricity.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.avgInclination.INFOBUTTON, 0);
@@ -2733,6 +2751,7 @@ Screen lastScreen;
 		ShowWindow(CONFIG_H.minDistance.HANDLE, 1);
 		ShowWindow(CONFIG_H.maxDistance.HANDLE, 1);
 		ShowWindow(CONFIG_H.planetSpacing.HANDLE, 1);
+		ShowWindow(CONFIG_H.moonDistanceBoundary.HANDLE, 1);
 		ShowWindow(CONFIG_H.avgEccentricity.HANDLE, 1);
 		ShowWindow(CONFIG_H.SDEccentricity.HANDLE, 1);
 		ShowWindow(CONFIG_H.avgInclination.HANDLE, 1);
@@ -2760,6 +2779,7 @@ Screen lastScreen;
 		ShowWindow(CONFIG_H.minDistance.DESC, 1);
 		ShowWindow(CONFIG_H.maxDistance.DESC, 1);
 		ShowWindow(CONFIG_H.planetSpacing.DESC, 1);
+		ShowWindow(CONFIG_H.moonDistanceBoundary.DESC, 1);
 		ShowWindow(CONFIG_H.avgEccentricity.DESC, 1);
 		ShowWindow(CONFIG_H.SDEccentricity.DESC, 1);
 		ShowWindow(CONFIG_H.avgInclination.DESC, 1);
@@ -2776,6 +2796,7 @@ Screen lastScreen;
 		ShowWindow(CONFIG_H.minDistance.INFOBUTTON, 1);
 		ShowWindow(CONFIG_H.maxDistance.INFOBUTTON, 1);
 		ShowWindow(CONFIG_H.planetSpacing.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.moonDistanceBoundary.INFOBUTTON, 1);
 		ShowWindow(CONFIG_H.avgEccentricity.INFOBUTTON, 1);
 		ShowWindow(CONFIG_H.SDEccentricity.INFOBUTTON, 1);
 		ShowWindow(CONFIG_H.avgInclination.INFOBUTTON, 1);
@@ -3169,6 +3190,7 @@ Screen lastScreen;
 		GetVariableFromWindow(CONFIG_H.minDistance.HANDLE, CONFIG.minDistance);
 		GetVariableFromWindow(CONFIG_H.maxDistance.HANDLE, CONFIG.maxDistance);
 		GetVariableFromWindow(CONFIG_H.planetSpacing.HANDLE, CONFIG.planetSpacing);
+		GetVariableFromWindow(CONFIG_H.moonDistanceBoundary.HANDLE, CONFIG.moonDistanceBoundary);
 		CONFIG.generateDwarfPlanets = (IsDlgButtonChecked(hWnd, CB_GENERATEDWARFPLANET) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(CONFIG_H.dwarfPlanetChance.HANDLE, CONFIG.dwarfPlanetChance);
 		CONFIG.weightedMoons = (IsDlgButtonChecked(hWnd, CB_WEIGHTEDMOONS) == BST_CHECKED) ? true : false;
@@ -3288,7 +3310,6 @@ Screen lastScreen;
 
 		CONFIG.debug = true;
 		CONFIG.planetSpacing = 1.0;
-		CONFIG.moonSpacerCheck = 10.0; // WILL DELETE LATER, DEFAULT IS 10
 	}
 	void CreateNameVectors(HWND hWnd)
 	{	
@@ -3683,6 +3704,18 @@ Screen lastScreen;
 		case IB_SAVEPRESET:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"Save the current variables as a new preset.");
 			break;
+		case IB_SELECTNAMEPRESET:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"select a name preset.");
+			break;
+		case IB_SAVENAMEPRESET:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"save a name preset.");
+			break;
+		case IB_MARKOV:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"the markov generator.");
+			break;
+		case IB_SIMPLEGENERATOR:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"the simple generator.");
+			break;
 		case IB_GENERATEDWARFPLANET:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"generate dwarf planets true/false.");
 			break;
@@ -3706,6 +3739,12 @@ Screen lastScreen;
 			break;
 		case IB_NAMEMOONS:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"enables moons or something");
+			break;
+		case IB_WEIGHTEDMOONS:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"moon weight system");
+			break;
+		case IB_MOONDISTANCEBOUNDARY:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"min distance between moons");
 			break;
 		}
 	}
@@ -6003,7 +6042,7 @@ Screen lastScreen;
 
 				// checks the semimajor of each moon to make sure they are not too close
 				for (int count = 0; count < parent.usedSemimajor_moon.size(); count++)
-					if (abs(moon.semimajorAxis - parent.usedSemimajor_moon.at(count)) < parent.radius * (CONFIG.moonSpacerCheck / 10))
+					if (abs(moon.semimajorAxis - parent.usedSemimajor_moon.at(count)) < parent.radius * (CONFIG.moonDistanceBoundary / 10))
 						testsemi = 1; // means moons were too close
 				
 			}
@@ -6014,7 +6053,7 @@ Screen lastScreen;
 
 				// checks the semimajor of each moon to make sure they are not too close
 				for (int count = 0; count < parent.usedSemimajor_moon.size(); count++)
-					if (abs(moon.semimajorAxis - parent.usedSemimajor_moon.at(count)) < (parent.radius * CONFIG.moonSpacerCheck))
+					if (abs(moon.semimajorAxis - parent.usedSemimajor_moon.at(count)) < (parent.radius * CONFIG.moonDistanceBoundary))
 						testsemi = 1; // means moons were too close
 			}
 
