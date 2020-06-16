@@ -8,6 +8,7 @@ minPlanetNumber=3
 minDistance=5.0
 maxDistance=1000.0
 planetSpacing=1.0
+moonDistanceBoundary=10.0
 generateDwarfPlanets=1
 dwarfPlanetChance=20
 weightedMoons=1

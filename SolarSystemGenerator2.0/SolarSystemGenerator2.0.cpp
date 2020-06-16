@@ -15,7 +15,9 @@ WCHAR WINDOW_TITLE[MAX_LOADSTRING] = (L"Seth Fusion's Solar System Generator V2.
 HWND Handle_Logo;
 HBITMAP Handle_Image_Logo;
 
-Configuration CONFIG;
+ConfigurationHWNDs CONFIG_H;
+ConfigurationVariables CONFIG;
+
 std::vector<Preset> preset;
 NameVariables NV;
 std::vector<NamePreset> npreset;
@@ -256,7 +258,7 @@ Screen lastScreen;
 				LoadPresets(hWnd);
 				break;
 			case BUTTON_UPDATEPRESET:
-				wmId = SendMessage(CONFIG.presetDropDown.HANDLE, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
+				wmId = SendMessage(CONFIG_H.presetDropDown.HANDLE, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
 				UpdatePreset(preset.at(wmId), hWnd);
 				break;
 			case BUTTON_GENERATE:
@@ -270,7 +272,7 @@ Screen lastScreen;
 				LoadNamePresets(hWnd);
 				break;
 			case BUTTON_NAME_UPDATE:
-				wmId = SendMessage(CONFIG.namePresetDropDown.HANDLE, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
+				wmId = SendMessage(CONFIG_H.namePresetDropDown.HANDLE, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
 				UpdateNamePreset(npreset.at(wmId), hWnd);
 				break;
 			case BUTTON_NAME_LOAD_VECTORS:
@@ -399,19 +401,19 @@ Screen lastScreen;
 			addresses.push_back(str);
 		} while (FindNextFileW(hFind, &FindFileData) != 0);
 
-		DestroyWindow(CONFIG.presetDropDown.HANDLE);
-		DestroyWindow(CONFIG.presetDropDown.DESC);
-		DestroyWindow(CONFIG.presetDropDown.INFOBUTTON);
-		DestroyWindow(CONFIG.presetDropDown.EXTRA);
-		CONFIG.presetDropDown.HANDLE = CreateWindowW(L"combobox", L"",
+		DestroyWindow(CONFIG_H.presetDropDown.HANDLE);
+		DestroyWindow(CONFIG_H.presetDropDown.DESC);
+		DestroyWindow(CONFIG_H.presetDropDown.INFOBUTTON);
+		DestroyWindow(CONFIG_H.presetDropDown.EXTRA);
+		CONFIG_H.presetDropDown.HANDLE = CreateWindowW(L"combobox", L"",
 			WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST,
 			760, 120, 200, 500,
 			hWnd, NULL, hInst, NULL);
-		CONFIG.presetDropDown.DESC = CreateWindowW(L"static", L"Select a Preset:",
+		CONFIG_H.presetDropDown.DESC = CreateWindowW(L"static", L"Select a Preset:",
 			WS_CHILD | WS_VISIBLE | WS_BORDER | SS_CENTER,
 			760, 100, 180, 20,
 			hWnd, NULL, hInst, NULL);
-		CONFIG.presetDropDown.INFOBUTTON = CreateWindowW(L"button", L"I",
+		CONFIG_H.presetDropDown.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_VISIBLE | WS_BORDER,
 			942, 102, 16, 16,
 			hWnd, (HMENU)IB_SELECTPRESET, NULL, NULL);
@@ -451,7 +453,8 @@ Screen lastScreen;
 			LoadVariableFromFile(Buffer, parse, temp.minPlanetNumber);		
 			LoadVariableFromFile(Buffer, parse, temp.minDistance);		
 			LoadVariableFromFile(Buffer, parse, temp.maxDistance);		
-			LoadVariableFromFile(Buffer, parse, temp.planetSpacing);		
+			LoadVariableFromFile(Buffer, parse, temp.planetSpacing);
+			LoadVariableFromFile(Buffer, parse, temp.moonDistanceBoundary);
 			LoadVariableFromFile(Buffer, parse, temp.generateDwarfPlanets);
 			temp.generateDwarfPlanetsState = (temp.generateDwarfPlanets == true) ? L"Enabled" : L"Disabled";		
 			LoadVariableFromFile(Buffer, parse, temp.dwarfPlanetChance);
@@ -494,13 +497,13 @@ Screen lastScreen;
 			temp.debugState = (temp.debug == true) ? L"Enabled" : L"Disabled";
 
 			preset.push_back(temp);
-			SendMessage(CONFIG.presetDropDown.HANDLE, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)preset.at(i).name);
+			SendMessage(CONFIG_H.presetDropDown.HANDLE, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)preset.at(i).name);
 			CloseHandle(presetFile);
 		}
 
-		SendMessage(CONFIG.presetDropDown.HANDLE, (UINT)CB_SETCURSEL, (WPARAM)0, NULL);
+		SendMessage(CONFIG_H.presetDropDown.HANDLE, (UINT)CB_SETCURSEL, (WPARAM)0, NULL);
 
-		CONFIG.presetDropDown.EXTRA = CreateWindowW(L"button", L"Update",
+		CONFIG_H.presetDropDown.EXTRA = CreateWindowW(L"button", L"Update",
 			WS_CHILD | WS_VISIBLE | WS_BORDER,
 			965, 98, 50, 50,
 			hWnd, (HMENU)BUTTON_UPDATEPRESET, NULL, NULL);
@@ -528,19 +531,19 @@ Screen lastScreen;
 			addresses.push_back(str);
 		} while (FindNextFileW(hFind, &FindFileData) != 0);
 
-		DestroyWindow(CONFIG.namePresetDropDown.HANDLE);
-		DestroyWindow(CONFIG.namePresetDropDown.DESC);
-		DestroyWindow(CONFIG.namePresetDropDown.INFOBUTTON);
-		DestroyWindow(CONFIG.namePresetDropDown.EXTRA);
-		CONFIG.namePresetDropDown.HANDLE = CreateWindowW(L"combobox", L"",
+		DestroyWindow(CONFIG_H.namePresetDropDown.HANDLE);
+		DestroyWindow(CONFIG_H.namePresetDropDown.DESC);
+		DestroyWindow(CONFIG_H.namePresetDropDown.INFOBUTTON);
+		DestroyWindow(CONFIG_H.namePresetDropDown.EXTRA);
+		CONFIG_H.namePresetDropDown.HANDLE = CreateWindowW(L"combobox", L"",
 			WS_CHILD | CBS_DROPDOWNLIST,
 			760, 240, 200, 500,
 			hWnd, NULL, hInst, NULL);
-		CONFIG.namePresetDropDown.DESC = CreateWindowW(L"static", L"Select a Name Preset:",
+		CONFIG_H.namePresetDropDown.DESC = CreateWindowW(L"static", L"Select a Name Preset:",
 			WS_CHILD | WS_BORDER | SS_CENTER,
 			760, 220, 180, 20,
 			hWnd, NULL, hInst, NULL);
-		CONFIG.namePresetDropDown.INFOBUTTON = CreateWindowW(L"button", L"I",
+		CONFIG_H.namePresetDropDown.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
 			942, 222, 16, 16,
 			hWnd, (HMENU)IB_SELECTNAMEPRESET, NULL, NULL);
@@ -666,13 +669,13 @@ Screen lastScreen;
 			LoadListFromFile(Buffer, parse, temp.Markov_RawDataset);
 
 			npreset.push_back(temp);
-			SendMessage(CONFIG.namePresetDropDown.HANDLE, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)temp.name);
+			SendMessage(CONFIG_H.namePresetDropDown.HANDLE, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)temp.name);
 			CloseHandle(presetFile);
 		}
 
-		SendMessage(CONFIG.namePresetDropDown.HANDLE, (UINT)CB_SETCURSEL, (WPARAM)0, NULL);
+		SendMessage(CONFIG_H.namePresetDropDown.HANDLE, (UINT)CB_SETCURSEL, (WPARAM)0, NULL);
 
-		CONFIG.namePresetDropDown.EXTRA = CreateWindowW(L"button", L"Update",
+		CONFIG_H.namePresetDropDown.EXTRA = CreateWindowW(L"button", L"Update",
 			WS_CHILD | WS_BORDER,
 			965, 218, 50, 50,
 			hWnd, (HMENU)BUTTON_NAME_UPDATE, NULL, NULL);
@@ -707,24 +710,24 @@ Screen lastScreen;
 			TCITEM tabStruct;
 			tabStruct.mask = TCIF_TEXT;
 
-			CONFIG.tabH = CreateWindow(WC_TABCONTROL, L"",
+			CONFIG_H.tabH = CreateWindow(WC_TABCONTROL, L"",
 				WS_VISIBLE | WS_CHILD | WS_CLIPSIBLINGS | TCS_FIXEDWIDTH,
 				340, 280, 690, 400,
 				hWnd, NULL, hInst, NULL);
-			TabCtrl_SetItemSize(CONFIG.tabH, 114, 50);
+			TabCtrl_SetItemSize(CONFIG_H.tabH, 114, 50);
 
 			tabStruct.pszText = tabGeneral;
-			TabCtrl_InsertItem(CONFIG.tabH, 0, &tabStruct);
+			TabCtrl_InsertItem(CONFIG_H.tabH, 0, &tabStruct);
 			tabStruct.pszText = tabSystem;
-			TabCtrl_InsertItem(CONFIG.tabH, 1, &tabStruct);
+			TabCtrl_InsertItem(CONFIG_H.tabH, 1, &tabStruct);
 			tabStruct.pszText = tabLife;
-			TabCtrl_InsertItem(CONFIG.tabH, 2, &tabStruct);
+			TabCtrl_InsertItem(CONFIG_H.tabH, 2, &tabStruct);
 			tabStruct.pszText = tabShips;
-			TabCtrl_InsertItem(CONFIG.tabH, 3, &tabStruct);
+			TabCtrl_InsertItem(CONFIG_H.tabH, 3, &tabStruct);
 			tabStruct.pszText = tabExotic;
-			TabCtrl_InsertItem(CONFIG.tabH, 4, &tabStruct);
+			TabCtrl_InsertItem(CONFIG_H.tabH, 4, &tabStruct);
 			tabStruct.pszText = tabAdvanced;
-			TabCtrl_InsertItem(CONFIG.tabH, 5, &tabStruct);
+			TabCtrl_InsertItem(CONFIG_H.tabH, 5, &tabStruct);
 			*/
 			
 			CreateWindowW(L"button", //type
@@ -782,7 +785,7 @@ Screen lastScreen;
 				WS_VISIBLE | WS_CHILD,
 				150, 300, 40, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.INFO_BOX = CreateWindowW(L"static", L"Welcome to the Science Fiction Solar System Generator!",
+			CONFIG_H.INFO_BOX = CreateWindowW(L"static", L"Welcome to the Science Fiction Solar System Generator!",
 				WS_VISIBLE | WS_CHILD | WS_BORDER | ES_CENTER,
 				10, 330, 320, 250,
 				hWnd, NULL, NULL, NULL);
@@ -796,74 +799,74 @@ Screen lastScreen;
 		/*###############################################################################
 			General Screen Handles */ {
 		//###############################################################################
-			CONFIG.HEADER_GENERAL = CreateWindowW(L"static", L"General Variables",
+			CONFIG_H.HEADER_GENERAL = CreateWindowW(L"static", L"General Variables",
 				WS_CHILD | WS_BORDER | ES_CENTER, //Effects
 				350, 60, 664, 30, //X, Y, Width & Height
 				hWnd, NULL, NULL, NULL); //Parent
 
-			CONFIG.seedH.DESC = CreateWindowW(L"static", L"Seed:",
+			CONFIG_H.seed.DESC = CreateWindowW(L"static", L"Seed:",
 				WS_CHILD | WS_BORDER,
 				370, 100, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.seedH.HANDLE = CreateWindowW(L"edit", L"",
+			CONFIG_H.seed.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 				600, 100, 100, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.seedH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.seed.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				702, 102, 16, 16,
 				hWnd, (HMENU)IB_SEED, NULL, NULL);
 
-			CONFIG.numberOfRunsH.DESC = CreateWindowW(L"static", L"# of Systems to Generate:",
+			CONFIG_H.numberOfRuns.DESC = CreateWindowW(L"static", L"# of Systems to Generate:",
 				WS_CHILD | WS_BORDER,
 				370, 120, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.numberOfRunsH.HANDLE = CreateWindowW(L"edit", L"",
+			CONFIG_H.numberOfRuns.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_NUMBER | ES_RIGHT,
 				600, 120, 100, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.numberOfRunsH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.numberOfRuns.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				702, 122, 16, 16,
 				hWnd, (HMENU)IB_NUMBEROFRUNS, NULL, NULL);
 
-			CONFIG.debugH.DESC = CreateWindowW(L"static", L"Debug:",
+			CONFIG_H.debug.DESC = CreateWindowW(L"static", L"Debug:",
 				WS_CHILD | WS_BORDER,
 				370, 140, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.debugH.HANDLE = CreateWindowW(L"button", L"",
+			CONFIG_H.debug.HANDLE = CreateWindowW(L"button", L"",
 				WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
 				600, 140, 100, 20,
 				hWnd, (HMENU)CB_DEBUG, NULL, NULL);
-			CONFIG.debugH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.debug.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				702, 142, 16, 16,
 				hWnd, (HMENU)IB_DEBUG, NULL, NULL);
 
 			//star output folder
-			CONFIG.starOutputFolderH.DESC = CreateWindowW(L"static", L"Star Output Folder:",
+			CONFIG_H.starOutputFolder.DESC = CreateWindowW(L"static", L"Star Output Folder:",
 				WS_CHILD | WS_BORDER,
 				370, 160, 100, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.starOutputFolderH.HANDLE = CreateWindowW(L"edit", L"",
+			CONFIG_H.starOutputFolder.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 				470, 160, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.starOutputFolderH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.starOutputFolder.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				702, 162, 16, 16,
 				hWnd, (HMENU)IB_STAROUTPUTFOLDER, NULL, NULL);
 
 			//planet output folder
-			CONFIG.planetOutputFolderH.DESC = CreateWindowW(L"static", L"Planet Output Folder:",
+			CONFIG_H.planetOutputFolder.DESC = CreateWindowW(L"static", L"Planet Output Folder:",
 				WS_CHILD | WS_BORDER,
 				370, 180, 100, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.planetOutputFolderH.HANDLE = CreateWindowW(L"edit", L"",
+			CONFIG_H.planetOutputFolder.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 				470, 180, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.planetOutputFolderH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.planetOutputFolder.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				702, 182, 16, 16,
 				hWnd, (HMENU)IB_PLANETOUTPUTFOLDER, NULL, NULL);
@@ -871,19 +874,19 @@ Screen lastScreen;
 
 			//Preset handles are in the Load Presets function!
 
-			CONFIG.savePresetButton.DESC = CreateWindowW(L"static", L"Save a Preset...",
+			CONFIG_H.savePresetButton.DESC = CreateWindowW(L"static", L"Save a Preset...",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER,
 				760, 160, 180, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.savePresetButton.HANDLE = CreateWindowW(L"edit", L"New Preset",
+			CONFIG_H.savePresetButton.HANDLE = CreateWindowW(L"edit", L"New Preset",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
 				760, 180, 200, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.savePresetButton.EXTRA = CreateWindowW(L"button", L"Save",
+			CONFIG_H.savePresetButton.EXTRA = CreateWindowW(L"button", L"Save",
 				WS_CHILD | WS_VISIBLE | WS_BORDER,
 				965, 158, 50, 50,
 				hWnd, (HMENU)BUTTON_SAVEPRESET, NULL, NULL);
-			CONFIG.savePresetButton.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.savePresetButton.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				942, 162, 16, 16,
 				hWnd, (HMENU)IB_SAVEPRESET, NULL, NULL);
@@ -893,363 +896,377 @@ Screen lastScreen;
 		/*###############################################################################
 			System and Planet Screen Handles */ {
 		//###############################################################################
-			CONFIG.HEADER_SYSTEMPLANET = CreateWindowW(L"static", L"System and Planet Variables",
+			CONFIG_H.HEADER_SYSTEMPLANET = CreateWindowW(L"static", L"System and Planet Variables",
 				WS_CHILD | WS_BORDER | ES_CENTER, //Effects
 				350, 60, 664, 30, //X, Y, Width & Height
 				hWnd, NULL, NULL, NULL); //Parent
 
 			//smart placement
-			CONFIG.smartPlacementH.DESC = CreateWindowW(L"static", L"Smart Placement:",
+			CONFIG_H.smartPlacement.DESC = CreateWindowW(L"static", L"Smart Placement:",
 				WS_CHILD | WS_BORDER,
 				370, 100, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.smartPlacementH.HANDLE = CreateWindowW(L"button", L"",
+			CONFIG_H.smartPlacement.HANDLE = CreateWindowW(L"button", L"",
 				WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
 				600, 100, 100, 20,
 				hWnd, (HMENU)CB_SMARTPLACEMENT, NULL, NULL);
-			CONFIG.smartPlacementH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.smartPlacement.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				702, 102, 16, 16,
 				hWnd, (HMENU)IB_SMARTPLACEMENT, NULL, NULL);
 
 			//min and max distance
-			CONFIG.minDistanceH.DESC = CreateWindowW(L"static", L"Minimum Distance:",
+			CONFIG_H.minDistance.DESC = CreateWindowW(L"static", L"Minimum Distance:",
 				WS_CHILD | WS_BORDER,
 				370, 120, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.minDistanceH.HANDLE = CreateWindowW(L"edit", L"",
+			CONFIG_H.minDistance.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 				600, 120, 100, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.maxDistanceH.DESC = CreateWindowW(L"static", L"Maximum Distance:",
+			CONFIG_H.maxDistance.DESC = CreateWindowW(L"static", L"Maximum Distance:",
 				WS_CHILD | WS_BORDER,
 				370, 140, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.maxDistanceH.HANDLE = CreateWindowW(L"edit", L"",
+			CONFIG_H.maxDistance.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 				600, 140, 100, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.maxDistanceH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.maxDistance.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				702, 132, 16, 16,
 				hWnd, (HMENU)IB_DISTANCE, NULL, NULL);
 
 			//generate dwarf planets
-			CONFIG.generateDwarfPlanetsH.DESC = CreateWindowW(L"static", L"Generate Dwarf Planets:",
+			CONFIG_H.generateDwarfPlanets.DESC = CreateWindowW(L"static", L"Generate Dwarf Planets:",
 				WS_CHILD | WS_BORDER,
 				370, 300, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.generateDwarfPlanetsH.HANDLE = CreateWindowW(L"button", L"",
+			CONFIG_H.generateDwarfPlanets.HANDLE = CreateWindowW(L"button", L"",
 				WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
 				600, 300, 100, 20,
 				hWnd, (HMENU)CB_GENERATEDWARFPLANET, NULL, NULL);
-			CONFIG.generateDwarfPlanetsH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.generateDwarfPlanets.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				702, 302, 16, 16,
 				hWnd, (HMENU)IB_GENERATEDWARFPLANET, NULL, NULL);
 
 			//weighted moons
-			CONFIG.weightedMoonsH.DESC = CreateWindowW(L"static", L"Weighted Moons:",
+			CONFIG_H.weightedMoons.DESC = CreateWindowW(L"static", L"Weighted Moons:",
 				WS_CHILD | WS_BORDER,
 				370, 400, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.weightedMoonsH.HANDLE = CreateWindowW(L"button", L"",
+			CONFIG_H.weightedMoons.HANDLE = CreateWindowW(L"button", L"",
 				WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
 				600, 400, 100, 20,
 				hWnd, (HMENU)CB_WEIGHTEDMOONS, NULL, NULL);
-			CONFIG.weightedMoonsH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.weightedMoons.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				702, 402, 16, 16,
 				hWnd, (HMENU)IB_WEIGHTEDMOONS, NULL, NULL);
 
-			//min planet number
-			CONFIG.dwarfPlanetChanceH.DESC = CreateWindowW(L"static", L"Dwarf Planet % Chance:",
+			// moon spacer check
+			CONFIG_H.moonDistanceBoundary.DESC = CreateWindowW(L"static", L"Moon Distance Boundary:",
+				WS_CHILD | WS_BORDER,
+				370, 420, 230, 20,
+				hWnd, NULL, NULL, NULL);
+			CONFIG_H.moonDistanceBoundary.HANDLE = CreateWindowW(L"edit", L"",
+				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+				600, 420, 100, 20,
+				hWnd, NULL, NULL, NULL);
+			CONFIG_H.moonDistanceBoundary.INFOBUTTON = CreateWindowW(L"button", L"I",
+				WS_CHILD | WS_BORDER,
+				702, 422, 16, 16,
+				hWnd, (HMENU)IB_MOONDISTANCEBOUNDARY, NULL, NULL);
+
+			//min dwarf planet chance
+			CONFIG_H.dwarfPlanetChance.DESC = CreateWindowW(L"static", L"Dwarf Planet % Chance:",
 				WS_CHILD | WS_BORDER,
 				370, 320, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.dwarfPlanetChanceH.HANDLE = CreateWindowW(L"edit", L"",
+			CONFIG_H.dwarfPlanetChance.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 				600, 320, 100, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.dwarfPlanetChanceH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.dwarfPlanetChance.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				702, 322, 16, 16,
 				hWnd, (HMENU)IB_DWARFPALNETCHANCE, NULL, NULL);
 
 			//min planet number
-			CONFIG.minPlanetNumberH.DESC = CreateWindowW(L"static", L"Minimum # of Planets:",
+			CONFIG_H.minPlanetNumber.DESC = CreateWindowW(L"static", L"Minimum # of Planets:",
 				WS_CHILD | WS_BORDER,
 				370, 500, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.minPlanetNumberH.HANDLE = CreateWindowW(L"edit", L"",
+			CONFIG_H.minPlanetNumber.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 				600, 500, 100, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.minPlanetNumberH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.minPlanetNumber.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				702, 502, 16, 16,
 				hWnd, (HMENU)IB_MINPLANETNUMBER, NULL, NULL);
 
 			//obliquity stuff
-			CONFIG.avgObliquityH.DESC = CreateWindowW(L"static", L"Axial Tilt Average:",
+			CONFIG_H.avgObliquity.DESC = CreateWindowW(L"static", L"Axial Tilt Average:",
 				WS_CHILD | WS_BORDER,
 				370, 170, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.avgObliquityH.HANDLE = CreateWindowW(L"edit", L"",
+			CONFIG_H.avgObliquity.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 				600, 170, 100, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.SDObliquityH.DESC = CreateWindowW(L"static", L"Axial Tilt Standard Deviation:",
+			CONFIG_H.SDObliquity.DESC = CreateWindowW(L"static", L"Axial Tilt Standard Deviation:",
 				WS_CHILD | WS_BORDER,
 				370, 190, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.SDObliquityH.HANDLE = CreateWindowW(L"edit", L"",
+			CONFIG_H.SDObliquity.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 				600, 190, 100, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.SDObliquityH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.SDObliquity.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				702, 182, 16, 16,
 				hWnd, (HMENU)IB_OBLIQUITY, NULL, NULL);
 
 			//inclination stuff
-			CONFIG.avgInclinationH.DESC = CreateWindowW(L"static", L"Inclination Average:",
+			CONFIG_H.avgInclination.DESC = CreateWindowW(L"static", L"Inclination Average:",
 				WS_CHILD | WS_BORDER,
 				370, 211, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.avgInclinationH.HANDLE = CreateWindowW(L"edit", L"",
+			CONFIG_H.avgInclination.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 				600, 211, 100, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.SDInclinationH.DESC = CreateWindowW(L"static", L"Inclination Standard Deviation:",
+			CONFIG_H.SDInclination.DESC = CreateWindowW(L"static", L"Inclination Standard Deviation:",
 				WS_CHILD | WS_BORDER,
 				370, 231, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.SDInclinationH.HANDLE = CreateWindowW(L"edit", L"",
+			CONFIG_H.SDInclination.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 				600, 231, 100, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.SDInclinationH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.SDInclination.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				702, 223, 16, 16,
 				hWnd, (HMENU)IB_INCLINATION, NULL, NULL);
 
 			//eccentricity stuff
-			CONFIG.avgEccentricityH.DESC = CreateWindowW(L"static", L"Eccentricity Average:",
+			CONFIG_H.avgEccentricity.DESC = CreateWindowW(L"static", L"Eccentricity Average:",
 				WS_CHILD | WS_BORDER,
 				370, 252, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.avgEccentricityH.HANDLE = CreateWindowW(L"edit", L"",
+			CONFIG_H.avgEccentricity.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 				600, 252, 100, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.SDEccentricityH.DESC = CreateWindowW(L"static", L"Eccentricity Standard Deviation:",
+			CONFIG_H.SDEccentricity.DESC = CreateWindowW(L"static", L"Eccentricity Standard Deviation:",
 				WS_CHILD | WS_BORDER,
 				370, 272, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.SDEccentricityH.HANDLE = CreateWindowW(L"edit", L"",
+			CONFIG_H.SDEccentricity.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 				600, 272, 100, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.SDEccentricityH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.SDEccentricity.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				702, 264, 16, 16,
 				hWnd, (HMENU)IB_ECCENTRICITY, NULL, NULL);
 
 			// Trackbar stuff
 			/*
-			CONFIG.avgEccentricityH.HANDLE = CreateWindowW(TRACKBAR_CLASS, L"Track Test",
+			CONFIG_H.avgEccentricity.HANDLE = CreateWindowW(TRACKBAR_CLASS, L"Track Test",
 				WS_CHILD | WS_BORDER | TBS_NOTICKS,
 				600, 400, 100, 20,
 				hWnd, NULL, NULL, NULL);
-			SendMessage(CONFIG.avgEccentricityH.HANDLE, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(1, 9999));
-			SendMessage(CONFIG.avgEccentricityH.HANDLE, TBM_SETPAGESIZE, 0, (LPARAM)100);
-			CONFIG.avgEccentricityH.EXTRA = CreateWindowW(L"static", L"",
+			SendMessage(CONFIG_H.avgEccentricity.HANDLE, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(1, 9999));
+			SendMessage(CONFIG_H.avgEccentricity.HANDLE, TBM_SETPAGESIZE, 0, (LPARAM)100);
+			CONFIG_H.avgEccentricity.EXTRA = CreateWindowW(L"static", L"",
 				WS_CHILD | WS_VISIBLE | SS_RIGHT,
 				0, 0, 70, 20,
 				hWnd, NULL, NULL, NULL);
-			SendMessage(CONFIG.avgEccentricityH.HANDLE, TBM_SETBUDDY, (WPARAM)FALSE, (LPARAM)CONFIG.avgEccentricityH.EXTRA);
+			SendMessage(CONFIG_H.avgEccentricity.HANDLE, TBM_SETBUDDY, (WPARAM)FALSE, (LPARAM)CONFIG_H.avgEccentricity.EXTRA);
 			*/
 
 			//Star class Stuff
 			//I used the O class's EXTRA to create the groupbox for all the classes,
 			//therefore, it is the parent for all the class checkboxes
-			CONFIG.starClassOH.EXTRA = CreateWindowW(L"button", L"Star Class Weights:",
+			CONFIG_H.starClassO.EXTRA = CreateWindowW(L"button", L"Star Class Weights:",
 				WS_CHILD | BS_GROUPBOX,
 				750, 100, 250, 170,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.starClassOH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.starClassO.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				960, 102, 16, 16,
 				hWnd, (HMENU)IB_STARCLASS, NULL, NULL);
 
 
-			CONFIG.starClassOH.DESC = CreateWindowW(L"static", L"O:",
+			CONFIG_H.starClassO.DESC = CreateWindowW(L"static", L"O:",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
 				10, 20, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
-			CONFIG.starClassOH.HANDLE = CreateWindowW(L"edit", L"",
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+			CONFIG_H.starClassO.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
 				50, 20, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 
-			CONFIG.starClassBH.DESC = CreateWindowW(L"static", L"B:",
+			CONFIG_H.starClassB.DESC = CreateWindowW(L"static", L"B:",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
 				10, 40, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
-			CONFIG.starClassBH.HANDLE = CreateWindowW(L"edit", L"",
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+			CONFIG_H.starClassB.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
 				50, 40, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 
-			CONFIG.starClassAH.DESC = CreateWindowW(L"static", L"A:",
+			CONFIG_H.starClassA.DESC = CreateWindowW(L"static", L"A:",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
 				10, 60, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
-			CONFIG.starClassAH.HANDLE = CreateWindowW(L"edit", L"",
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+			CONFIG_H.starClassA.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
 				50, 60, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 
-			CONFIG.starClassFH.DESC = CreateWindowW(L"static", L"F:",
+			CONFIG_H.starClassF.DESC = CreateWindowW(L"static", L"F:",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
 				10, 80, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
-			CONFIG.starClassFH.HANDLE = CreateWindowW(L"edit", L"",
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+			CONFIG_H.starClassF.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
 				50, 80, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 
-			CONFIG.starClassGH.DESC = CreateWindowW(L"static", L"G:",
+			CONFIG_H.starClassG.DESC = CreateWindowW(L"static", L"G:",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
 				10, 100, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
-			CONFIG.starClassGH.HANDLE = CreateWindowW(L"edit", L"",
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+			CONFIG_H.starClassG.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
 				50, 100, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 
-			CONFIG.starClassKH.DESC = CreateWindowW(L"static", L"K:",
+			CONFIG_H.starClassK.DESC = CreateWindowW(L"static", L"K:",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
 				10, 120, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
-			CONFIG.starClassKH.HANDLE = CreateWindowW(L"edit", L"",
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+			CONFIG_H.starClassK.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
 				50, 120, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 
-			CONFIG.starClassMH.DESC = CreateWindowW(L"static", L"M:",
+			CONFIG_H.starClassM.DESC = CreateWindowW(L"static", L"M:",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
 				10, 140, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
-			CONFIG.starClassMH.HANDLE = CreateWindowW(L"edit", L"",
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+			CONFIG_H.starClassM.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
 				50, 140, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 
-			CONFIG.starClassWDH.DESC = CreateWindowW(L"static", L"WD:",
+			CONFIG_H.starClassWD.DESC = CreateWindowW(L"static", L"WD:",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
 				100, 20, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
-			CONFIG.starClassWDH.HANDLE = CreateWindowW(L"edit", L"",
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+			CONFIG_H.starClassWD.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
 				140, 20, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 
-			CONFIG.starClassQH.DESC = CreateWindowW(L"static", L"Q:",
+			CONFIG_H.starClassQ.DESC = CreateWindowW(L"static", L"Q:",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
 				100, 40, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
-			CONFIG.starClassQH.HANDLE = CreateWindowW(L"edit", L"",
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+			CONFIG_H.starClassQ.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
 				140, 40, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 
-			CONFIG.starClassXH.DESC = CreateWindowW(L"static", L"X:",
+			CONFIG_H.starClassX.DESC = CreateWindowW(L"static", L"X:",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
 				100, 60, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
-			CONFIG.starClassXH.HANDLE = CreateWindowW(L"edit", L"",
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+			CONFIG_H.starClassX.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
 				140, 60, 40, 20,
-				CONFIG.starClassOH.EXTRA, NULL, NULL, NULL);
+				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 		}
 		//###############################################################################
 
 		/*###############################################################################
 			Life Screen Handles  */ 
 		//###############################################################################
-			CONFIG.HEADER_LIFE = CreateWindowW(L"static", L"Life Variables",
+			CONFIG_H.HEADER_LIFE = CreateWindowW(L"static", L"Life Variables",
 				WS_CHILD | WS_BORDER | ES_CENTER, //Effects
 				350, 60, 664, 30, //X, Y, Width & Height
 				hWnd, NULL, NULL, NULL); //Parent
 
 			//Organic Chance
-			CONFIG.life_OrganicChanceH.DESC = CreateWindowW(L"static", L"% Chance for Organic Life:",
+			CONFIG_H.life_OrganicChance.DESC = CreateWindowW(L"static", L"% Chance for Organic Life:",
 				WS_CHILD | WS_BORDER,
 				370, 100, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.life_OrganicChanceH.HANDLE = CreateWindowW(L"edit", L"",
+			CONFIG_H.life_OrganicChance.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 				600, 100, 100, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.life_OrganicChanceH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.life_OrganicChance.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				702, 102, 16, 16,
 				hWnd, (HMENU)IB_LIFEORGANICCHANCE, NULL, NULL);
 
 			//Exotic Chance
-			CONFIG.life_ExoticChanceH.DESC = CreateWindowW(L"static", L"% Chance for Exotic Life:",
+			CONFIG_H.life_ExoticChance.DESC = CreateWindowW(L"static", L"% Chance for Exotic Life:",
 				WS_CHILD | WS_BORDER,
 				370, 120, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.life_ExoticChanceH.HANDLE = CreateWindowW(L"edit", L"",
+			CONFIG_H.life_ExoticChance.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 				600, 120, 100, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.life_ExoticChanceH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.life_ExoticChance.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				702, 122, 16, 16,
 				hWnd, (HMENU)IB_LIFEEXOTICCHANCE, NULL, NULL);
 
 			//MultiCell Chance
-			CONFIG.life_MulticellChanceH.DESC = CreateWindowW(L"static", L"% Chance for Multicellular Life:",
+			CONFIG_H.life_MulticellChance.DESC = CreateWindowW(L"static", L"% Chance for Multicellular Life:",
 				WS_CHILD | WS_BORDER,
 				370, 140, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.life_MulticellChanceH.HANDLE = CreateWindowW(L"edit", L"",
+			CONFIG_H.life_MulticellChance.HANDLE = CreateWindowW(L"edit", L"",
 				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 				600, 140, 100, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.life_MulticellChanceH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.life_MulticellChance.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				702, 142, 16, 16,
 				hWnd, (HMENU)IB_LIFEMULTICHANCE, NULL, NULL);
 
 			//Traditional Life
-			CONFIG.traditionalLifeH.DESC = CreateWindowW(L"static", L"Traditional Life:",
+			CONFIG_H.traditionalLife.DESC = CreateWindowW(L"static", L"Traditional Life:",
 				WS_CHILD | WS_BORDER,
 				370, 160, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.traditionalLifeH.HANDLE = CreateWindowW(L"button", L"",
+			CONFIG_H.traditionalLife.HANDLE = CreateWindowW(L"button", L"",
 				WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
 				600, 160, 100, 20,
 				hWnd, (HMENU)CB_TRADITIONALLIFE, NULL, NULL);
-			CONFIG.traditionalLifeH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.traditionalLife.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				702, 162, 16, 16,
 				hWnd, (HMENU)IB_TRADITIONALLIFE, NULL, NULL);
 
 			//Force Life
-			CONFIG.forceLifeH.DESC = CreateWindowW(L"static", L"Force Life:",
+			CONFIG_H.forceLife.DESC = CreateWindowW(L"static", L"Force Life:",
 				WS_CHILD | WS_BORDER,
 				370, 180, 230, 20,
 				hWnd, NULL, NULL, NULL);
-			CONFIG.forceLifeH.HANDLE = CreateWindowW(L"button", L"",
+			CONFIG_H.forceLife.HANDLE = CreateWindowW(L"button", L"",
 				WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
 				600, 180, 100, 20,
 				hWnd, (HMENU)CB_FORCELIFE, NULL, NULL);
-			CONFIG.forceLifeH.INFOBUTTON = CreateWindowW(L"button", L"I",
+			CONFIG_H.forceLife.INFOBUTTON = CreateWindowW(L"button", L"I",
 				WS_CHILD | WS_BORDER,
 				702, 182, 16, 16,
 				hWnd, (HMENU)IB_FORCELIFE, NULL, NULL);
@@ -1260,49 +1277,49 @@ Screen lastScreen;
 			Ships Screen Handles */ {
 		//###############################################################################
 
-		CONFIG.HEADER_SHIPS = CreateWindowW(L"static", L"Ship Variables",
+		CONFIG_H.HEADER_SHIPS = CreateWindowW(L"static", L"Ship Variables",
 			WS_CHILD | WS_BORDER | ES_CENTER, //Effects
 			350, 60, 664, 30, //X, Y, Width & Height
 			hWnd, NULL, NULL, NULL); //Parent
 
 		//Ship Chance
-		CONFIG.exotic_ShipChanceH.DESC = CreateWindowW(L"static", L"% Chance for Ships to Spawn:",
+		CONFIG_H.exotic_ShipChance.DESC = CreateWindowW(L"static", L"% Chance for Ships to Spawn:",
 			WS_CHILD | WS_BORDER,
 			370, 100, 230, 20,
 			hWnd, NULL, NULL, NULL);
-		CONFIG.exotic_ShipChanceH.HANDLE = CreateWindowW(L"edit", L"",
+		CONFIG_H.exotic_ShipChance.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 			600, 100, 100, 20,
 			hWnd, NULL, NULL, NULL);
-		CONFIG.exotic_ShipChanceH.INFOBUTTON = CreateWindowW(L"button", L"I",
+		CONFIG_H.exotic_ShipChance.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
 			702, 102, 16, 16,
 			hWnd, (HMENU)IB_SHIPCHANCE, NULL, NULL);
 
 		//Models folder
-		CONFIG.modelsFolderH.DESC = CreateWindowW(L"static", L"Models Folder Path:",
+		CONFIG_H.modelsFolder.DESC = CreateWindowW(L"static", L"Models Folder Path:",
 			WS_CHILD | WS_BORDER,
 			370, 120, 100, 20,
 			hWnd, NULL, NULL, NULL);
-		CONFIG.modelsFolderH.HANDLE = CreateWindowW(L"edit", L"",
+		CONFIG_H.modelsFolder.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 			470, 120, 230, 20,
 			hWnd, NULL, NULL, NULL);
-		CONFIG.modelsFolderH.INFOBUTTON = CreateWindowW(L"button", L"I",
+		CONFIG_H.modelsFolder.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
 			702, 122, 16, 16,
 			hWnd, (HMENU)IB_MODELSFOLDER, NULL, NULL);
 
 		//Ships Need Life
-		CONFIG.shipsNeedLifeH.DESC = CreateWindowW(L"static", L"Ships Need Life to Spawn:",
+		CONFIG_H.shipsNeedLife.DESC = CreateWindowW(L"static", L"Ships Need Life to Spawn:",
 			WS_CHILD | WS_BORDER,
 			370, 140, 230, 20,
 			hWnd, NULL, NULL, NULL);
-		CONFIG.shipsNeedLifeH.HANDLE = CreateWindowW(L"button", L"",
+		CONFIG_H.shipsNeedLife.HANDLE = CreateWindowW(L"button", L"",
 			WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
 			600, 140, 100, 20,
 			hWnd, (HMENU)CB_SHIPSNEEDLIFE, NULL, NULL);
-		CONFIG.shipsNeedLifeH.INFOBUTTON = CreateWindowW(L"button", L"I",
+		CONFIG_H.shipsNeedLife.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
 			702, 142, 16, 16,
 			hWnd, (HMENU)IB_SHIPSNEEDLIFE, NULL, NULL);
@@ -1313,63 +1330,63 @@ Screen lastScreen;
 			Exotic Screen Handles */ {
 		//###############################################################################
 
-		CONFIG.HEADER_EXOTIC = CreateWindowW(L"static", L"Exotic Variables",
+		CONFIG_H.HEADER_EXOTIC = CreateWindowW(L"static", L"Exotic Variables",
 			WS_CHILD | WS_BORDER | ES_CENTER, //Effects
 			350, 60, 664, 30, //X, Y, Width & Height
 			hWnd, NULL, NULL, NULL); //Parent
 
 		//Exotic Orbit Chance
-		CONFIG.exotic_OrbitChanceH.DESC = CreateWindowW(L"static", L"% Chance for Exotic Orbit:",
+		CONFIG_H.exotic_OrbitChance.DESC = CreateWindowW(L"static", L"% Chance for Exotic Orbit:",
 			WS_CHILD | WS_BORDER,
 			370, 100, 230, 20,
 			hWnd, NULL, NULL, NULL);
-		CONFIG.exotic_OrbitChanceH.HANDLE = CreateWindowW(L"edit", L"",
+		CONFIG_H.exotic_OrbitChance.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 			600, 100, 100, 20,
 			hWnd, NULL, NULL, NULL);
-		CONFIG.exotic_OrbitChanceH.INFOBUTTON = CreateWindowW(L"button", L"I",
+		CONFIG_H.exotic_OrbitChance.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
 			702, 102, 16, 16,
 			hWnd, (HMENU)IB_EXOTICORBIT, NULL, NULL);
 
 		//Exotic Obliquity Chance
-		CONFIG.exotic_AxialTiltChanceH.DESC = CreateWindowW(L"static", L"% Chance for Exotic Axial Tilt:",
+		CONFIG_H.exotic_AxialTiltChance.DESC = CreateWindowW(L"static", L"% Chance for Exotic Axial Tilt:",
 			WS_CHILD | WS_BORDER,
 			370, 120, 230, 20,
 			hWnd, NULL, NULL, NULL);
-		CONFIG.exotic_AxialTiltChanceH.HANDLE = CreateWindowW(L"edit", L"",
+		CONFIG_H.exotic_AxialTiltChance.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 			600, 120, 100, 20,
 			hWnd, NULL, NULL, NULL);
-		CONFIG.exotic_AxialTiltChanceH.INFOBUTTON = CreateWindowW(L"button", L"I",
+		CONFIG_H.exotic_AxialTiltChance.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
 			702, 122, 16, 16,
 			hWnd, (HMENU)IB_EXOTICOBLIQUITY, NULL, NULL);
 
 		//Exotic Companion Chance
-		CONFIG.exotic_CompanionOrbitChanceH.DESC = CreateWindowW(L"static", L"% Chance for Comapnion Orbit:",
+		CONFIG_H.exotic_CompanionOrbitChance.DESC = CreateWindowW(L"static", L"% Chance for Comapnion Orbit:",
 			WS_CHILD | WS_BORDER,
 			370, 140, 230, 20,
 			hWnd, NULL, NULL, NULL);
-		CONFIG.exotic_CompanionOrbitChanceH.HANDLE = CreateWindowW(L"edit", L"",
+		CONFIG_H.exotic_CompanionOrbitChance.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 			600, 140, 100, 20,
 			hWnd, NULL, NULL, NULL);
-		CONFIG.exotic_CompanionOrbitChanceH.INFOBUTTON = CreateWindowW(L"button", L"I",
+		CONFIG_H.exotic_CompanionOrbitChance.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
 			702, 142, 16, 16,
 			hWnd, (HMENU)IB_EXOTICCOMPANION, NULL, NULL);
 
 		//Exotic Debris Ring Chance
-		CONFIG.exotic_DebrisRingChanceH.DESC = CreateWindowW(L"static", L"% Chance for Debris Ring:",
+		CONFIG_H.exotic_DebrisRingChance.DESC = CreateWindowW(L"static", L"% Chance for Debris Ring:",
 			WS_CHILD | WS_BORDER,
 			370, 160, 230, 20,
 			hWnd, NULL, NULL, NULL);
-		CONFIG.exotic_DebrisRingChanceH.HANDLE = CreateWindowW(L"edit", L"",
+		CONFIG_H.exotic_DebrisRingChance.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
 			600, 160, 100, 20,
 			hWnd, NULL, NULL, NULL);
-		CONFIG.exotic_DebrisRingChanceH.INFOBUTTON = CreateWindowW(L"button", L"I",
+		CONFIG_H.exotic_DebrisRingChance.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
 			702, 162, 16, 16,
 			hWnd, (HMENU)IB_EXOTICDEBRISRING, NULL, NULL);
@@ -1380,7 +1397,7 @@ Screen lastScreen;
 			Advanced Screen Handles */ {
 		//###############################################################################
 
-			CONFIG.HEADER_ADVANCED = CreateWindowW(L"static", L"Advanced Variables:",
+			CONFIG_H.HEADER_ADVANCED = CreateWindowW(L"static", L"Advanced Variables:",
 				WS_CHILD | WS_BORDER | ES_CENTER, //Effects
 				350, 60, 664, 30, //X, Y, Width & Height
 				hWnd, NULL, NULL, NULL); //Parent
@@ -1390,25 +1407,25 @@ Screen lastScreen;
 			//###############################################################################
 			{
 				// groupbox to hold the buttons
-				CONFIG.advNameGroup.EXTRA = CreateWindowW(L"button", L"Name Variables:",
+				CONFIG_H.advNameGroup.EXTRA = CreateWindowW(L"button", L"Name Variables:",
 					WS_CHILD | WS_GROUP | BS_GROUPBOX,
 					370, 100, 260, 130,
 					hWnd, NULL, hInst, NULL);
 
 				// save preset stuff
-				CONFIG.saveNamePresetButton.DESC = CreateWindowW(L"static", L"Save Name Preset...",
+				CONFIG_H.saveNamePresetButton.DESC = CreateWindowW(L"static", L"Save Name Preset...",
 					WS_CHILD  | WS_BORDER,
 					630, 110, 140, 20,
 					hWnd, NULL, NULL, NULL);
-				CONFIG.saveNamePresetButton.HANDLE = CreateWindowW(L"edit", L"New Name Preset",
+				CONFIG_H.saveNamePresetButton.HANDLE = CreateWindowW(L"edit", L"New Name Preset",
 					WS_CHILD | WS_BORDER | ES_AUTOHSCROLL,
 					630, 130, 160, 20,
 					hWnd, NULL, NULL, NULL);
-				CONFIG.saveNamePresetButton.EXTRA = CreateWindowW(L"button", L"Save",
+				CONFIG_H.saveNamePresetButton.EXTRA = CreateWindowW(L"button", L"Save",
 					WS_CHILD | WS_BORDER,
 					632, 152, 156, 20,
 					hWnd, (HMENU)BUTTON_NAME_SAVEPRESET, NULL, NULL);
-				CONFIG.saveNamePresetButton.INFOBUTTON = CreateWindowW(L"button", L"I",
+				CONFIG_H.saveNamePresetButton.INFOBUTTON = CreateWindowW(L"button", L"I",
 					WS_CHILD | WS_BORDER,
 					772, 112, 16, 16,
 					hWnd, (HMENU)IB_SAVENAMEPRESET, NULL, NULL);
@@ -1417,35 +1434,35 @@ Screen lastScreen;
 				// the buttons are only VISUALLY inside the groupbox, but their
 				// parent is still hWnd because they send messages to the
 				// window procedure
-				CONFIG.buttonUpdate = CreateWindowW(L"button", L"Update Names",
+				CONFIG_H.buttonUpdate = CreateWindowW(L"button", L"Update Names",
 					WS_CHILD | WS_BORDER | BS_MULTILINE,
 					550, 120, 70, 50,
 					hWnd, (HMENU)BUTTON_NAME_LOAD_VECTORS, NULL, NULL);
-				CONFIG.buttonStar = CreateWindowW(L"button", L"Star",
+				CONFIG_H.buttonStar = CreateWindowW(L"button", L"Star",
 					WS_CHILD | WS_BORDER,
 					380, 120, 50, 30,
 					hWnd, (HMENU)BUTTON_NAME_STAR, NULL, NULL);
-				CONFIG.buttonPlanet = CreateWindowW(L"button", L"Planet",
+				CONFIG_H.buttonPlanet = CreateWindowW(L"button", L"Planet",
 					WS_CHILD | WS_BORDER,
 					430, 120, 50, 30,
 					hWnd, (HMENU)BUTTON_NAME_PLANET, NULL, NULL);
-				CONFIG.buttonMoon = CreateWindowW(L"button", L"Moon",
+				CONFIG_H.buttonMoon = CreateWindowW(L"button", L"Moon",
 					WS_CHILD | WS_BORDER,
 					480, 120, 50, 30,
 					hWnd, (HMENU)BUTTON_NAME_MOON, NULL, NULL);
-				CONFIG.buttonDwarfMoon = CreateWindowW(L"button", L"Dwarf Moon",
+				CONFIG_H.buttonDwarfMoon = CreateWindowW(L"button", L"Dwarf Moon",
 					WS_CHILD | WS_BORDER,
 					380, 150, 90, 30,
 					hWnd, (HMENU)BUTTON_NAME_DWARFMOON, NULL, NULL);
-				CONFIG.buttonShip = CreateWindowW(L"button", L"Ship",
+				CONFIG_H.buttonShip = CreateWindowW(L"button", L"Ship",
 					WS_CHILD | WS_BORDER,
 					470, 150, 50, 30,
 					hWnd, (HMENU)BUTTON_NAME_SHIP_ALL, NULL, NULL);
-				CONFIG.buttonDataset = CreateWindowW(L"button", L"Name Dataset",
+				CONFIG_H.buttonDataset = CreateWindowW(L"button", L"Name Dataset",
 					WS_CHILD | WS_BORDER,
 					380, 180, 110, 30,
 					hWnd, (HMENU)BUTTON_NAME_DATASET, NULL, NULL);
-				CONFIG.buttonSimple = CreateWindowW(L"button", L"Simple Generator",
+				CONFIG_H.buttonSimple = CreateWindowW(L"button", L"Simple Generator",
 					WS_CHILD | WS_BORDER,
 					490, 180, 130, 30,
 					hWnd, (HMENU)BUTTON_NAME_SIMPLE, NULL, NULL);
@@ -2126,8 +2143,6 @@ Screen lastScreen;
 		}
 		//###############################################################################
 
-
-
 		// Page Edges
 		CreateWindowW(L"button", L"Bottom Most Edge",
 			WS_VISIBLE | WS_CHILD,
@@ -2152,65 +2167,66 @@ Screen lastScreen;
 			seedarr[i] = seedstr[i];
 			i++;
 		}
-		SetWindowTextW(CONFIG.seedH.HANDLE, seedarr);
+		SetWindowTextW(CONFIG_H.seed.HANDLE, seedarr);
 
 
 
 
 
-		SetWindowTextW(CONFIG.starOutputFolderH.HANDLE, P.starOutputFolder);
-		SetWindowTextW(CONFIG.planetOutputFolderH.HANDLE, P.planetOutputFolder);
-		SetVariableToWindow(CONFIG.numberOfRunsH.HANDLE, P.numberOfRuns);
+		SetWindowTextW(CONFIG_H.starOutputFolder.HANDLE, P.starOutputFolder);
+		SetWindowTextW(CONFIG_H.planetOutputFolder.HANDLE, P.planetOutputFolder);
+		SetVariableToWindow(CONFIG_H.numberOfRuns.HANDLE, P.numberOfRuns);
 		CheckDlgButton(hWnd, CB_DEBUG, P.debug);
-		SetWindowTextW(CONFIG.debugH.HANDLE, P.debugState);
+		SetWindowTextW(CONFIG_H.debug.HANDLE, P.debugState);
 
 		CheckDlgButton(hWnd, CB_SMARTPLACEMENT, P.smartPlacement);
-		SetWindowTextW(CONFIG.smartPlacementH.HANDLE, P.smartPlacementState);
-		SetVariableToWindow(CONFIG.minPlanetNumberH.HANDLE, P.minPlanetNumber);
+		SetWindowTextW(CONFIG_H.smartPlacement.HANDLE, P.smartPlacementState);
+		SetVariableToWindow(CONFIG_H.minPlanetNumber.HANDLE, P.minPlanetNumber);
 
-		SetVariableToWindow(CONFIG.minDistanceH.HANDLE, P.minDistance);
-		SetVariableToWindow(CONFIG.maxDistanceH.HANDLE, P.maxDistance);
-		SetVariableToWindow(CONFIG.planetSpacingH.HANDLE, P.planetSpacing);
+		SetVariableToWindow(CONFIG_H.minDistance.HANDLE, P.minDistance);
+		SetVariableToWindow(CONFIG_H.maxDistance.HANDLE, P.maxDistance);
+		SetVariableToWindow(CONFIG_H.planetSpacing.HANDLE, P.planetSpacing);
+		SetVariableToWindow(CONFIG_H.moonDistanceBoundary.HANDLE, P.moonDistanceBoundary);
 		CheckDlgButton(hWnd, CB_GENERATEDWARFPLANET, P.generateDwarfPlanets);
-		SetWindowTextW(CONFIG.generateDwarfPlanetsH.HANDLE, P.generateDwarfPlanetsState);
+		SetWindowTextW(CONFIG_H.generateDwarfPlanets.HANDLE, P.generateDwarfPlanetsState);
 		CheckDlgButton(hWnd, CB_WEIGHTEDMOONS, P.weightedMoons);
-		SetWindowTextW(CONFIG.weightedMoonsH.HANDLE, P.weightedMoonsState);
-		SetVariableToWindow(CONFIG.dwarfPlanetChanceH.HANDLE, P.dwarfPlanetChance);
-		SetVariableToWindow(CONFIG.avgEccentricityH.HANDLE, P.avgEccentricity);
-		SetVariableToWindow(CONFIG.SDEccentricityH.HANDLE, P.SDEccentricity); 
-		SetVariableToWindow(CONFIG.avgInclinationH.HANDLE, P.avgInclination); // change to extra for trackbar
-		SetVariableToWindow(CONFIG.SDInclinationH.HANDLE, P.SDInclination);
-		SetVariableToWindow(CONFIG.avgObliquityH.HANDLE, P.avgObliquity);
-		SetVariableToWindow(CONFIG.SDObliquityH.HANDLE, P.SDObliquity);
+		SetWindowTextW(CONFIG_H.weightedMoons.HANDLE, P.weightedMoonsState);
+		SetVariableToWindow(CONFIG_H.dwarfPlanetChance.HANDLE, P.dwarfPlanetChance);
+		SetVariableToWindow(CONFIG_H.avgEccentricity.HANDLE, P.avgEccentricity);
+		SetVariableToWindow(CONFIG_H.SDEccentricity.HANDLE, P.SDEccentricity); 
+		SetVariableToWindow(CONFIG_H.avgInclination.HANDLE, P.avgInclination); // change to extra for trackbar
+		SetVariableToWindow(CONFIG_H.SDInclination.HANDLE, P.SDInclination);
+		SetVariableToWindow(CONFIG_H.avgObliquity.HANDLE, P.avgObliquity);
+		SetVariableToWindow(CONFIG_H.SDObliquity.HANDLE, P.SDObliquity);
 
-		SetVariableToWindow(CONFIG.starClassOH.HANDLE, P.starClassO);
-		SetVariableToWindow(CONFIG.starClassBH.HANDLE, P.starClassB);
-		SetVariableToWindow(CONFIG.starClassAH.HANDLE, P.starClassA);
-		SetVariableToWindow(CONFIG.starClassFH.HANDLE, P.starClassF);
-		SetVariableToWindow(CONFIG.starClassGH.HANDLE, P.starClassG);
-		SetVariableToWindow(CONFIG.starClassKH.HANDLE, P.starClassK);
-		SetVariableToWindow(CONFIG.starClassMH.HANDLE, P.starClassM);
-		SetVariableToWindow(CONFIG.starClassWDH.HANDLE, P.starClassWD);
-		SetVariableToWindow(CONFIG.starClassQH.HANDLE, P.starClassQ);
-		SetVariableToWindow(CONFIG.starClassXH.HANDLE, P.starClassX);
+		SetVariableToWindow(CONFIG_H.starClassO.HANDLE, P.starClassO);
+		SetVariableToWindow(CONFIG_H.starClassB.HANDLE, P.starClassB);
+		SetVariableToWindow(CONFIG_H.starClassA.HANDLE, P.starClassA);
+		SetVariableToWindow(CONFIG_H.starClassF.HANDLE, P.starClassF);
+		SetVariableToWindow(CONFIG_H.starClassG.HANDLE, P.starClassG);
+		SetVariableToWindow(CONFIG_H.starClassK.HANDLE, P.starClassK);
+		SetVariableToWindow(CONFIG_H.starClassM.HANDLE, P.starClassM);
+		SetVariableToWindow(CONFIG_H.starClassWD.HANDLE, P.starClassWD);
+		SetVariableToWindow(CONFIG_H.starClassQ.HANDLE, P.starClassQ);
+		SetVariableToWindow(CONFIG_H.starClassX.HANDLE, P.starClassX);
 
-		SetVariableToWindow(CONFIG.life_OrganicChanceH.HANDLE, P.life_OrganicChance);
-		SetVariableToWindow(CONFIG.life_ExoticChanceH.HANDLE, P.life_ExoticChance);
-		SetVariableToWindow(CONFIG.life_MulticellChanceH.HANDLE, P.life_MulticellChance);
+		SetVariableToWindow(CONFIG_H.life_OrganicChance.HANDLE, P.life_OrganicChance);
+		SetVariableToWindow(CONFIG_H.life_ExoticChance.HANDLE, P.life_ExoticChance);
+		SetVariableToWindow(CONFIG_H.life_MulticellChance.HANDLE, P.life_MulticellChance);
 		CheckDlgButton(hWnd, CB_FORCELIFE, P.forceLife);
-		SetWindowTextW(CONFIG.forceLifeH.HANDLE, P.forceLifeState);
+		SetWindowTextW(CONFIG_H.forceLife.HANDLE, P.forceLifeState);
 		CheckDlgButton(hWnd, CB_TRADITIONALLIFE, P.traditionalLife);
-		SetWindowTextW(CONFIG.traditionalLifeH.HANDLE, P.traditonalLifeState);
+		SetWindowTextW(CONFIG_H.traditionalLife.HANDLE, P.traditonalLifeState);
 
-		SetVariableToWindow(CONFIG.exotic_ShipChanceH.HANDLE, P.exotic_ShipChance);
-		SetWindowTextW(CONFIG.modelsFolderH.HANDLE, P.modelsFolder);
+		SetVariableToWindow(CONFIG_H.exotic_ShipChance.HANDLE, P.exotic_ShipChance);
+		SetWindowTextW(CONFIG_H.modelsFolder.HANDLE, P.modelsFolder);
 		CheckDlgButton(hWnd, CB_SHIPSNEEDLIFE, P.shipsNeedLife);
-		SetWindowTextW(CONFIG.shipsNeedLifeH.HANDLE, P.shipsNeedLifeState);
+		SetWindowTextW(CONFIG_H.shipsNeedLife.HANDLE, P.shipsNeedLifeState);
 
-		SetVariableToWindow(CONFIG.exotic_OrbitChanceH.HANDLE, P.exotic_OrbitChance);
-		SetVariableToWindow(CONFIG.exotic_AxialTiltChanceH.HANDLE, P.exotic_AxialTiltChance);
-		SetVariableToWindow(CONFIG.exotic_DebrisRingChanceH.HANDLE, P.exotic_DebrisRingChance);
-		SetVariableToWindow(CONFIG.exotic_CompanionOrbitChanceH.HANDLE, P.exotic_CompanionOrbitChance);
+		SetVariableToWindow(CONFIG_H.exotic_OrbitChance.HANDLE, P.exotic_OrbitChance);
+		SetVariableToWindow(CONFIG_H.exotic_AxialTiltChance.HANDLE, P.exotic_AxialTiltChance);
+		SetVariableToWindow(CONFIG_H.exotic_DebrisRingChance.HANDLE, P.exotic_DebrisRingChance);
+		SetVariableToWindow(CONFIG_H.exotic_CompanionOrbitChance.HANDLE, P.exotic_CompanionOrbitChance);
 	}
 	void UpdateNamePreset(NamePreset P, HWND hWnd)
 	{
@@ -2317,7 +2333,7 @@ Screen lastScreen;
 		wchar_t wfileName[NAMESIZE];
 		std::wstring fileName;
 
-		GetWindowTextW(CONFIG.savePresetButton.HANDLE, wfileName, NAMESIZE);
+		GetWindowTextW(CONFIG_H.savePresetButton.HANDLE, wfileName, NAMESIZE);
 		fileName = wfileName;
 		filePath += fileName + L".preset";
 		std::ofstream outputFile(filePath.c_str()); // creates the file
@@ -2332,6 +2348,7 @@ Screen lastScreen;
 			<< "minDistance=" << CONFIG.minDistance << "\n"
 			<< "maxDistance=" << CONFIG.maxDistance << "\n"
 			<< "planetSpacing=" << CONFIG.planetSpacing << "\n"
+			<< "moonDistanceBoundary=" << CONFIG.moonDistanceBoundary << "\n"
 			<< "generateDwarfPlanets=" << CONFIG.generateDwarfPlanets << "\n"
 			<< "dwarfPlanetChance=" << CONFIG.dwarfPlanetChance << "\n"
 			<< "weightedMoons=" << CONFIG.weightedMoons << "\n"
@@ -2374,7 +2391,7 @@ Screen lastScreen;
 		wchar_t wfileName[NAMESIZE];
 		std::wstring fileName;
 
-		GetWindowTextW(CONFIG.saveNamePresetButton.HANDLE, wfileName, NAMESIZE);
+		GetWindowTextW(CONFIG_H.saveNamePresetButton.HANDLE, wfileName, NAMESIZE);
 		fileName = wfileName;
 		filePath += fileName + L".npreset";
 		std::ofstream outputFile(filePath.c_str()); // creates the file
@@ -2487,185 +2504,188 @@ Screen lastScreen;
 		case General:
 		{
 			//Header
-			ShowWindow(CONFIG.HEADER_GENERAL, 0);
+			ShowWindow(CONFIG_H.HEADER_GENERAL, 0);
 			//Handles
-			ShowWindow(CONFIG.seedH.HANDLE, 0);
-			ShowWindow(CONFIG.numberOfRunsH.HANDLE, 0);
-			ShowWindow(CONFIG.debugH.HANDLE, 0);
-			ShowWindow(CONFIG.starOutputFolderH.HANDLE, 0);
-			ShowWindow(CONFIG.planetOutputFolderH.HANDLE, 0);
-			ShowWindow(CONFIG.presetDropDown.HANDLE, 0);
-			ShowWindow(CONFIG.savePresetButton.HANDLE, 0);
-			ShowWindow(CONFIG.namePresetDropDown.HANDLE, 0);
+			ShowWindow(CONFIG_H.seed.HANDLE, 0);
+			ShowWindow(CONFIG_H.numberOfRuns.HANDLE, 0);
+			ShowWindow(CONFIG_H.debug.HANDLE, 0);
+			ShowWindow(CONFIG_H.starOutputFolder.HANDLE, 0);
+			ShowWindow(CONFIG_H.planetOutputFolder.HANDLE, 0);
+			ShowWindow(CONFIG_H.presetDropDown.HANDLE, 0);
+			ShowWindow(CONFIG_H.savePresetButton.HANDLE, 0);
+			ShowWindow(CONFIG_H.namePresetDropDown.HANDLE, 0);
 			//Desc
-			ShowWindow(CONFIG.seedH.DESC, 0);
-			ShowWindow(CONFIG.numberOfRunsH.DESC, 0);
-			ShowWindow(CONFIG.debugH.DESC, 0);
-			ShowWindow(CONFIG.starOutputFolderH.DESC, 0);
-			ShowWindow(CONFIG.planetOutputFolderH.DESC, 0);
-			ShowWindow(CONFIG.presetDropDown.DESC, 0);
-			ShowWindow(CONFIG.savePresetButton.DESC, 0);
-			ShowWindow(CONFIG.namePresetDropDown.DESC, 0);
+			ShowWindow(CONFIG_H.seed.DESC, 0);
+			ShowWindow(CONFIG_H.numberOfRuns.DESC, 0);
+			ShowWindow(CONFIG_H.debug.DESC, 0);
+			ShowWindow(CONFIG_H.starOutputFolder.DESC, 0);
+			ShowWindow(CONFIG_H.planetOutputFolder.DESC, 0);
+			ShowWindow(CONFIG_H.presetDropDown.DESC, 0);
+			ShowWindow(CONFIG_H.savePresetButton.DESC, 0);
+			ShowWindow(CONFIG_H.namePresetDropDown.DESC, 0);
 			//Info
-			ShowWindow(CONFIG.seedH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.numberOfRunsH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.debugH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.starOutputFolderH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.planetOutputFolderH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.presetDropDown.INFOBUTTON, 0);
-			ShowWindow(CONFIG.savePresetButton.INFOBUTTON, 0);
-			ShowWindow(CONFIG.namePresetDropDown.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.seed.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.numberOfRuns.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.debug.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.starOutputFolder.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.planetOutputFolder.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.presetDropDown.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.savePresetButton.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.namePresetDropDown.INFOBUTTON, 0);
 			//Extra
-			ShowWindow(CONFIG.presetDropDown.EXTRA, 0);
-			ShowWindow(CONFIG.savePresetButton.EXTRA, 0);
-			ShowWindow(CONFIG.namePresetDropDown.EXTRA, 0);
+			ShowWindow(CONFIG_H.presetDropDown.EXTRA, 0);
+			ShowWindow(CONFIG_H.savePresetButton.EXTRA, 0);
+			ShowWindow(CONFIG_H.namePresetDropDown.EXTRA, 0);
 		}
 			break;
 		case System:
 		{
 			//Header
-			ShowWindow(CONFIG.HEADER_SYSTEMPLANET, 0);
+			ShowWindow(CONFIG_H.HEADER_SYSTEMPLANET, 0);
 			//Handles
-			ShowWindow(CONFIG.smartPlacementH.HANDLE, 0);
-			ShowWindow(CONFIG.generateDwarfPlanetsH.HANDLE, 0);
-			ShowWindow(CONFIG.dwarfPlanetChanceH.HANDLE, 0);
-			ShowWindow(CONFIG.weightedMoonsH.HANDLE, 0);
-			ShowWindow(CONFIG.minPlanetNumberH.HANDLE, 0);
-			ShowWindow(CONFIG.minDistanceH.HANDLE, 0);
-			ShowWindow(CONFIG.maxDistanceH.HANDLE, 0);
-			ShowWindow(CONFIG.planetSpacingH.HANDLE, 0);
-			ShowWindow(CONFIG.avgEccentricityH.HANDLE, 0);
-			ShowWindow(CONFIG.SDEccentricityH.HANDLE, 0);
-			ShowWindow(CONFIG.avgInclinationH.HANDLE, 0);
-			ShowWindow(CONFIG.SDInclinationH.HANDLE, 0);
-			ShowWindow(CONFIG.avgObliquityH.HANDLE, 0);
-			ShowWindow(CONFIG.SDObliquityH.HANDLE, 0);
+			ShowWindow(CONFIG_H.smartPlacement.HANDLE, 0);
+			ShowWindow(CONFIG_H.generateDwarfPlanets.HANDLE, 0);
+			ShowWindow(CONFIG_H.dwarfPlanetChance.HANDLE, 0);
+			ShowWindow(CONFIG_H.weightedMoons.HANDLE, 0);
+			ShowWindow(CONFIG_H.minPlanetNumber.HANDLE, 0);
+			ShowWindow(CONFIG_H.minDistance.HANDLE, 0);
+			ShowWindow(CONFIG_H.maxDistance.HANDLE, 0);
+			ShowWindow(CONFIG_H.planetSpacing.HANDLE, 0);
+			ShowWindow(CONFIG_H.moonDistanceBoundary.HANDLE, 0);
+			ShowWindow(CONFIG_H.avgEccentricity.HANDLE, 0);
+			ShowWindow(CONFIG_H.SDEccentricity.HANDLE, 0);
+			ShowWindow(CONFIG_H.avgInclination.HANDLE, 0);
+			ShowWindow(CONFIG_H.SDInclination.HANDLE, 0);
+			ShowWindow(CONFIG_H.avgObliquity.HANDLE, 0);
+			ShowWindow(CONFIG_H.SDObliquity.HANDLE, 0);
 			//Desc
-			ShowWindow(CONFIG.smartPlacementH.DESC, 0);
-			ShowWindow(CONFIG.generateDwarfPlanetsH.DESC, 0);
-			ShowWindow(CONFIG.dwarfPlanetChanceH.DESC, 0);
-			ShowWindow(CONFIG.weightedMoonsH.DESC, 0);
-			ShowWindow(CONFIG.minPlanetNumberH.DESC, 0);
-			ShowWindow(CONFIG.minDistanceH.DESC, 0);
-			ShowWindow(CONFIG.maxDistanceH.DESC, 0);
-			ShowWindow(CONFIG.planetSpacingH.DESC, 0);
-			ShowWindow(CONFIG.avgEccentricityH.DESC, 0);
-			ShowWindow(CONFIG.SDEccentricityH.DESC, 0);
-			ShowWindow(CONFIG.avgInclinationH.DESC, 0);
-			ShowWindow(CONFIG.SDInclinationH.DESC, 0);
-			ShowWindow(CONFIG.avgObliquityH.DESC, 0);
-			ShowWindow(CONFIG.SDObliquityH.DESC, 0);
+			ShowWindow(CONFIG_H.smartPlacement.DESC, 0);
+			ShowWindow(CONFIG_H.generateDwarfPlanets.DESC, 0);
+			ShowWindow(CONFIG_H.dwarfPlanetChance.DESC, 0);
+			ShowWindow(CONFIG_H.weightedMoons.DESC, 0);
+			ShowWindow(CONFIG_H.minPlanetNumber.DESC, 0);
+			ShowWindow(CONFIG_H.minDistance.DESC, 0);
+			ShowWindow(CONFIG_H.maxDistance.DESC, 0);
+			ShowWindow(CONFIG_H.planetSpacing.DESC, 0);
+			ShowWindow(CONFIG_H.moonDistanceBoundary.DESC, 0);
+			ShowWindow(CONFIG_H.avgEccentricity.DESC, 0);
+			ShowWindow(CONFIG_H.SDEccentricity.DESC, 0);
+			ShowWindow(CONFIG_H.avgInclination.DESC, 0);
+			ShowWindow(CONFIG_H.SDInclination.DESC, 0);
+			ShowWindow(CONFIG_H.avgObliquity.DESC, 0);
+			ShowWindow(CONFIG_H.SDObliquity.DESC, 0);
 			//Info
-			ShowWindow(CONFIG.smartPlacementH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.generateDwarfPlanetsH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.dwarfPlanetChanceH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.weightedMoonsH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.minPlanetNumberH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.minDistanceH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.maxDistanceH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.planetSpacingH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.avgEccentricityH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.SDEccentricityH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.avgInclinationH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.SDInclinationH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.avgObliquityH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.SDObliquityH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.starClassAH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.starClassBH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.starClassFH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.starClassGH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.starClassKH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.starClassMH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.starClassOH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.starClassQH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.starClassWDH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.starClassXH.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.smartPlacement.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.generateDwarfPlanets.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.dwarfPlanetChance.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.weightedMoons.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.minPlanetNumber.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.minDistance.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.maxDistance.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.planetSpacing.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.moonDistanceBoundary.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.avgEccentricity.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.SDEccentricity.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.avgInclination.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.SDInclination.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.avgObliquity.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.SDObliquity.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.starClassA.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.starClassB.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.starClassF.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.starClassG.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.starClassK.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.starClassM.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.starClassO.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.starClassQ.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.starClassWD.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.starClassX.INFOBUTTON, 0);
 			//Extra
-			ShowWindow(CONFIG.starClassOH.EXTRA, 0);
+			ShowWindow(CONFIG_H.starClassO.EXTRA, 0);
 		}
 			break;
 		case Life:
 		{
 			//Header
-			ShowWindow(CONFIG.HEADER_LIFE, 0);
+			ShowWindow(CONFIG_H.HEADER_LIFE, 0);
 			//Handles
-			ShowWindow(CONFIG.life_OrganicChanceH.HANDLE, 0);
-			ShowWindow(CONFIG.life_ExoticChanceH.HANDLE, 0);
-			ShowWindow(CONFIG.life_MulticellChanceH.HANDLE, 0);
-			ShowWindow(CONFIG.forceLifeH.HANDLE, 0);
-			ShowWindow(CONFIG.traditionalLifeH.HANDLE, 0);
+			ShowWindow(CONFIG_H.life_OrganicChance.HANDLE, 0);
+			ShowWindow(CONFIG_H.life_ExoticChance.HANDLE, 0);
+			ShowWindow(CONFIG_H.life_MulticellChance.HANDLE, 0);
+			ShowWindow(CONFIG_H.forceLife.HANDLE, 0);
+			ShowWindow(CONFIG_H.traditionalLife.HANDLE, 0);
 			//Desc
-			ShowWindow(CONFIG.life_OrganicChanceH.DESC, 0);
-			ShowWindow(CONFIG.life_ExoticChanceH.DESC, 0);
-			ShowWindow(CONFIG.life_MulticellChanceH.DESC, 0);
-			ShowWindow(CONFIG.forceLifeH.DESC, 0);
-			ShowWindow(CONFIG.traditionalLifeH.DESC, 0);
+			ShowWindow(CONFIG_H.life_OrganicChance.DESC, 0);
+			ShowWindow(CONFIG_H.life_ExoticChance.DESC, 0);
+			ShowWindow(CONFIG_H.life_MulticellChance.DESC, 0);
+			ShowWindow(CONFIG_H.forceLife.DESC, 0);
+			ShowWindow(CONFIG_H.traditionalLife.DESC, 0);
 			//Info
-			ShowWindow(CONFIG.life_OrganicChanceH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.life_ExoticChanceH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.life_MulticellChanceH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.forceLifeH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.traditionalLifeH.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.life_OrganicChance.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.life_ExoticChance.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.life_MulticellChance.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.forceLife.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.traditionalLife.INFOBUTTON, 0);
 			//Extra
 		}
 			break;
 		case Ships:
 		{
 			//Header
-			ShowWindow(CONFIG.HEADER_SHIPS, 0);
+			ShowWindow(CONFIG_H.HEADER_SHIPS, 0);
 			//Handles
-			ShowWindow(CONFIG.exotic_ShipChanceH.HANDLE, 0);
-			ShowWindow(CONFIG.shipsNeedLifeH.HANDLE, 0);
-			ShowWindow(CONFIG.modelsFolderH.HANDLE, 0);
+			ShowWindow(CONFIG_H.exotic_ShipChance.HANDLE, 0);
+			ShowWindow(CONFIG_H.shipsNeedLife.HANDLE, 0);
+			ShowWindow(CONFIG_H.modelsFolder.HANDLE, 0);
 			//Desc
-			ShowWindow(CONFIG.exotic_ShipChanceH.DESC, 0);
-			ShowWindow(CONFIG.shipsNeedLifeH.DESC, 0);
-			ShowWindow(CONFIG.modelsFolderH.DESC, 0);
+			ShowWindow(CONFIG_H.exotic_ShipChance.DESC, 0);
+			ShowWindow(CONFIG_H.shipsNeedLife.DESC, 0);
+			ShowWindow(CONFIG_H.modelsFolder.DESC, 0);
 			//Info
-			ShowWindow(CONFIG.exotic_ShipChanceH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.shipsNeedLifeH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.modelsFolderH.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.exotic_ShipChance.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.shipsNeedLife.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.modelsFolder.INFOBUTTON, 0);
 			//Extra
 		}
 			break;
 		case Exotic:
 		{
 			//Header
-			ShowWindow(CONFIG.HEADER_EXOTIC, 0);
+			ShowWindow(CONFIG_H.HEADER_EXOTIC, 0);
 			//Handles
-			ShowWindow(CONFIG.exotic_OrbitChanceH.HANDLE, 0);
-			ShowWindow(CONFIG.exotic_AxialTiltChanceH.HANDLE, 0);
-			ShowWindow(CONFIG.exotic_CompanionOrbitChanceH.HANDLE, 0);
-			ShowWindow(CONFIG.exotic_DebrisRingChanceH.HANDLE, 0);
+			ShowWindow(CONFIG_H.exotic_OrbitChance.HANDLE, 0);
+			ShowWindow(CONFIG_H.exotic_AxialTiltChance.HANDLE, 0);
+			ShowWindow(CONFIG_H.exotic_CompanionOrbitChance.HANDLE, 0);
+			ShowWindow(CONFIG_H.exotic_DebrisRingChance.HANDLE, 0);
 			//Desc
-			ShowWindow(CONFIG.exotic_OrbitChanceH.DESC, 0);
-			ShowWindow(CONFIG.exotic_AxialTiltChanceH.DESC, 0);
-			ShowWindow(CONFIG.exotic_CompanionOrbitChanceH.DESC, 0);
-			ShowWindow(CONFIG.exotic_DebrisRingChanceH.DESC, 0);
+			ShowWindow(CONFIG_H.exotic_OrbitChance.DESC, 0);
+			ShowWindow(CONFIG_H.exotic_AxialTiltChance.DESC, 0);
+			ShowWindow(CONFIG_H.exotic_CompanionOrbitChance.DESC, 0);
+			ShowWindow(CONFIG_H.exotic_DebrisRingChance.DESC, 0);
 			//Info
-			ShowWindow(CONFIG.exotic_OrbitChanceH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.exotic_AxialTiltChanceH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.exotic_CompanionOrbitChanceH.INFOBUTTON, 0);
-			ShowWindow(CONFIG.exotic_DebrisRingChanceH.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.exotic_OrbitChance.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.exotic_AxialTiltChance.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.exotic_CompanionOrbitChance.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.exotic_DebrisRingChance.INFOBUTTON, 0);
 			//Extra
 		}
 			break;
 		case Advanced:
 		{
-			ShowWindow(CONFIG.HEADER_ADVANCED, 0);
-			ShowWindow(CONFIG.advNameGroup.EXTRA, 0);
-			ShowWindow(CONFIG.saveNamePresetButton.HANDLE, 0);
-			ShowWindow(CONFIG.saveNamePresetButton.DESC, 0);
-			ShowWindow(CONFIG.saveNamePresetButton.INFOBUTTON, 0);
-			ShowWindow(CONFIG.saveNamePresetButton.EXTRA, 0);
-			ShowWindow(CONFIG.buttonDwarfMoon, 0);
-			ShowWindow(CONFIG.buttonMoon, 0);
-			ShowWindow(CONFIG.buttonPlanet, 0);
-			ShowWindow(CONFIG.buttonUpdate, 0);
-			ShowWindow(CONFIG.buttonShip, 0);
-			ShowWindow(CONFIG.buttonStar, 0);
-			ShowWindow(CONFIG.buttonDataset, 0);
-			ShowWindow(CONFIG.buttonSimple, 0);
+			ShowWindow(CONFIG_H.HEADER_ADVANCED, 0);
+			ShowWindow(CONFIG_H.advNameGroup.EXTRA, 0);
+			ShowWindow(CONFIG_H.saveNamePresetButton.HANDLE, 0);
+			ShowWindow(CONFIG_H.saveNamePresetButton.DESC, 0);
+			ShowWindow(CONFIG_H.saveNamePresetButton.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.saveNamePresetButton.EXTRA, 0);
+			ShowWindow(CONFIG_H.buttonDwarfMoon, 0);
+			ShowWindow(CONFIG_H.buttonMoon, 0);
+			ShowWindow(CONFIG_H.buttonPlanet, 0);
+			ShowWindow(CONFIG_H.buttonUpdate, 0);
+			ShowWindow(CONFIG_H.buttonShip, 0);
+			ShowWindow(CONFIG_H.buttonStar, 0);
+			ShowWindow(CONFIG_H.buttonDataset, 0);
+			ShowWindow(CONFIG_H.buttonSimple, 0);
 
 			Clear_Advanced();
 		}
@@ -2675,153 +2695,156 @@ Screen lastScreen;
 	void Load_Screen_General()
 	{
 		//Header
-		ShowWindow(CONFIG.HEADER_GENERAL, 1);
+		ShowWindow(CONFIG_H.HEADER_GENERAL, 1);
 
 		//Handles
-		ShowWindow(CONFIG.seedH.HANDLE, 1);
-		ShowWindow(CONFIG.numberOfRunsH.HANDLE, 1);
-		ShowWindow(CONFIG.debugH.HANDLE, 1);
-		ShowWindow(CONFIG.starOutputFolderH.HANDLE, 1);
-		ShowWindow(CONFIG.planetOutputFolderH.HANDLE, 1);
+		ShowWindow(CONFIG_H.seed.HANDLE, 1);
+		ShowWindow(CONFIG_H.numberOfRuns.HANDLE, 1);
+		ShowWindow(CONFIG_H.debug.HANDLE, 1);
+		ShowWindow(CONFIG_H.starOutputFolder.HANDLE, 1);
+		ShowWindow(CONFIG_H.planetOutputFolder.HANDLE, 1);
 
-		ShowWindow(CONFIG.presetDropDown.HANDLE, 1);
-		ShowWindow(CONFIG.savePresetButton.HANDLE, 1);
-		ShowWindow(CONFIG.namePresetDropDown.HANDLE, 1);
+		ShowWindow(CONFIG_H.presetDropDown.HANDLE, 1);
+		ShowWindow(CONFIG_H.savePresetButton.HANDLE, 1);
+		ShowWindow(CONFIG_H.namePresetDropDown.HANDLE, 1);
 
 		//Desc
-		ShowWindow(CONFIG.seedH.DESC, 1);
-		ShowWindow(CONFIG.numberOfRunsH.DESC, 1);
-		ShowWindow(CONFIG.debugH.DESC, 1);
-		ShowWindow(CONFIG.starOutputFolderH.DESC, 1);
-		ShowWindow(CONFIG.planetOutputFolderH.DESC, 1);
+		ShowWindow(CONFIG_H.seed.DESC, 1);
+		ShowWindow(CONFIG_H.numberOfRuns.DESC, 1);
+		ShowWindow(CONFIG_H.debug.DESC, 1);
+		ShowWindow(CONFIG_H.starOutputFolder.DESC, 1);
+		ShowWindow(CONFIG_H.planetOutputFolder.DESC, 1);
 
-		ShowWindow(CONFIG.presetDropDown.DESC, 1);
-		ShowWindow(CONFIG.savePresetButton.DESC, 1);
-		ShowWindow(CONFIG.namePresetDropDown.DESC, 1);
+		ShowWindow(CONFIG_H.presetDropDown.DESC, 1);
+		ShowWindow(CONFIG_H.savePresetButton.DESC, 1);
+		ShowWindow(CONFIG_H.namePresetDropDown.DESC, 1);
 
 		//Info
-		ShowWindow(CONFIG.seedH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.numberOfRunsH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.debugH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.starOutputFolderH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.planetOutputFolderH.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.seed.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.numberOfRuns.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.debug.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.starOutputFolder.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.planetOutputFolder.INFOBUTTON, 1);
 
-		ShowWindow(CONFIG.presetDropDown.INFOBUTTON, 1);
-		ShowWindow(CONFIG.savePresetButton.INFOBUTTON, 1);
-		ShowWindow(CONFIG.namePresetDropDown.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.presetDropDown.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.savePresetButton.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.namePresetDropDown.INFOBUTTON, 1);
 
 		//Extra
-		ShowWindow(CONFIG.presetDropDown.EXTRA, 1);
-		ShowWindow(CONFIG.savePresetButton.EXTRA, 1);
-		ShowWindow(CONFIG.namePresetDropDown.EXTRA, 1);
+		ShowWindow(CONFIG_H.presetDropDown.EXTRA, 1);
+		ShowWindow(CONFIG_H.savePresetButton.EXTRA, 1);
+		ShowWindow(CONFIG_H.namePresetDropDown.EXTRA, 1);
 
 		lastScreen = General;
 	}
 	void Load_Screen_SystemPlanet()
 	{
 		//Header
-		ShowWindow(CONFIG.HEADER_SYSTEMPLANET, 1);
+		ShowWindow(CONFIG_H.HEADER_SYSTEMPLANET, 1);
 
 		//Handles
-		ShowWindow(CONFIG.smartPlacementH.HANDLE, 1);
-		ShowWindow(CONFIG.generateDwarfPlanetsH.HANDLE, 1);
-		ShowWindow(CONFIG.dwarfPlanetChanceH.HANDLE, 1);
-		ShowWindow(CONFIG.weightedMoonsH.HANDLE, 1);
-		ShowWindow(CONFIG.minPlanetNumberH.HANDLE, 1);
-		ShowWindow(CONFIG.minDistanceH.HANDLE, 1);
-		ShowWindow(CONFIG.maxDistanceH.HANDLE, 1);
-		ShowWindow(CONFIG.planetSpacingH.HANDLE, 1);
-		ShowWindow(CONFIG.avgEccentricityH.HANDLE, 1);
-		ShowWindow(CONFIG.SDEccentricityH.HANDLE, 1);
-		ShowWindow(CONFIG.avgInclinationH.HANDLE, 1);
-		ShowWindow(CONFIG.SDInclinationH.HANDLE, 1);
-		ShowWindow(CONFIG.avgObliquityH.HANDLE, 1);
-		ShowWindow(CONFIG.SDObliquityH.HANDLE, 1);
+		ShowWindow(CONFIG_H.smartPlacement.HANDLE, 1);
+		ShowWindow(CONFIG_H.generateDwarfPlanets.HANDLE, 1);
+		ShowWindow(CONFIG_H.dwarfPlanetChance.HANDLE, 1);
+		ShowWindow(CONFIG_H.weightedMoons.HANDLE, 1);
+		ShowWindow(CONFIG_H.minPlanetNumber.HANDLE, 1);
+		ShowWindow(CONFIG_H.minDistance.HANDLE, 1);
+		ShowWindow(CONFIG_H.maxDistance.HANDLE, 1);
+		ShowWindow(CONFIG_H.planetSpacing.HANDLE, 1);
+		ShowWindow(CONFIG_H.moonDistanceBoundary.HANDLE, 1);
+		ShowWindow(CONFIG_H.avgEccentricity.HANDLE, 1);
+		ShowWindow(CONFIG_H.SDEccentricity.HANDLE, 1);
+		ShowWindow(CONFIG_H.avgInclination.HANDLE, 1);
+		ShowWindow(CONFIG_H.SDInclination.HANDLE, 1);
+		ShowWindow(CONFIG_H.avgObliquity.HANDLE, 1);
+		ShowWindow(CONFIG_H.SDObliquity.HANDLE, 1);
 
-		ShowWindow(CONFIG.starClassAH.HANDLE, 1);
-		ShowWindow(CONFIG.starClassBH.HANDLE, 1);
-		ShowWindow(CONFIG.starClassFH.HANDLE, 1);
-		ShowWindow(CONFIG.starClassGH.HANDLE, 1);
-		ShowWindow(CONFIG.starClassKH.HANDLE, 1);
-		ShowWindow(CONFIG.starClassMH.HANDLE, 1);
-		ShowWindow(CONFIG.starClassOH.HANDLE, 1);
-		ShowWindow(CONFIG.starClassQH.HANDLE, 1);
-		ShowWindow(CONFIG.starClassWDH.HANDLE, 1);
-		ShowWindow(CONFIG.starClassXH.HANDLE, 1);
+		ShowWindow(CONFIG_H.starClassA.HANDLE, 1);
+		ShowWindow(CONFIG_H.starClassB.HANDLE, 1);
+		ShowWindow(CONFIG_H.starClassF.HANDLE, 1);
+		ShowWindow(CONFIG_H.starClassG.HANDLE, 1);
+		ShowWindow(CONFIG_H.starClassK.HANDLE, 1);
+		ShowWindow(CONFIG_H.starClassM.HANDLE, 1);
+		ShowWindow(CONFIG_H.starClassO.HANDLE, 1);
+		ShowWindow(CONFIG_H.starClassQ.HANDLE, 1);
+		ShowWindow(CONFIG_H.starClassWD.HANDLE, 1);
+		ShowWindow(CONFIG_H.starClassX.HANDLE, 1);
 
 		//Desc
-		ShowWindow(CONFIG.smartPlacementH.DESC, 1);
-		ShowWindow(CONFIG.generateDwarfPlanetsH.DESC, 1);
-		ShowWindow(CONFIG.dwarfPlanetChanceH.DESC, 1);
-		ShowWindow(CONFIG.weightedMoonsH.DESC, 1);
-		ShowWindow(CONFIG.minPlanetNumberH.DESC, 1);
-		ShowWindow(CONFIG.minDistanceH.DESC, 1);
-		ShowWindow(CONFIG.maxDistanceH.DESC, 1);
-		ShowWindow(CONFIG.planetSpacingH.DESC, 1);
-		ShowWindow(CONFIG.avgEccentricityH.DESC, 1);
-		ShowWindow(CONFIG.SDEccentricityH.DESC, 1);
-		ShowWindow(CONFIG.avgInclinationH.DESC, 1);
-		ShowWindow(CONFIG.SDInclinationH.DESC, 1);
-		ShowWindow(CONFIG.avgObliquityH.DESC, 1);
-		ShowWindow(CONFIG.SDObliquityH.DESC, 1);
+		ShowWindow(CONFIG_H.smartPlacement.DESC, 1);
+		ShowWindow(CONFIG_H.generateDwarfPlanets.DESC, 1);
+		ShowWindow(CONFIG_H.dwarfPlanetChance.DESC, 1);
+		ShowWindow(CONFIG_H.weightedMoons.DESC, 1);
+		ShowWindow(CONFIG_H.minPlanetNumber.DESC, 1);
+		ShowWindow(CONFIG_H.minDistance.DESC, 1);
+		ShowWindow(CONFIG_H.maxDistance.DESC, 1);
+		ShowWindow(CONFIG_H.planetSpacing.DESC, 1);
+		ShowWindow(CONFIG_H.moonDistanceBoundary.DESC, 1);
+		ShowWindow(CONFIG_H.avgEccentricity.DESC, 1);
+		ShowWindow(CONFIG_H.SDEccentricity.DESC, 1);
+		ShowWindow(CONFIG_H.avgInclination.DESC, 1);
+		ShowWindow(CONFIG_H.SDInclination.DESC, 1);
+		ShowWindow(CONFIG_H.avgObliquity.DESC, 1);
+		ShowWindow(CONFIG_H.SDObliquity.DESC, 1);
 
 		//Info
-		ShowWindow(CONFIG.smartPlacementH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.generateDwarfPlanetsH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.dwarfPlanetChanceH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.weightedMoonsH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.minPlanetNumberH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.minDistanceH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.maxDistanceH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.planetSpacingH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.avgEccentricityH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.SDEccentricityH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.avgInclinationH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.SDInclinationH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.avgObliquityH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.SDObliquityH.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.smartPlacement.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.generateDwarfPlanets.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.dwarfPlanetChance.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.weightedMoons.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.minPlanetNumber.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.minDistance.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.maxDistance.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.planetSpacing.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.moonDistanceBoundary.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.avgEccentricity.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.SDEccentricity.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.avgInclination.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.SDInclination.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.avgObliquity.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.SDObliquity.INFOBUTTON, 1);
 
-		ShowWindow(CONFIG.starClassAH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.starClassBH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.starClassFH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.starClassGH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.starClassKH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.starClassMH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.starClassOH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.starClassQH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.starClassWDH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.starClassXH.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.starClassA.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.starClassB.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.starClassF.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.starClassG.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.starClassK.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.starClassM.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.starClassO.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.starClassQ.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.starClassWD.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.starClassX.INFOBUTTON, 1);
 
 		//Extra
-		ShowWindow(CONFIG.starClassOH.EXTRA, 1);
+		ShowWindow(CONFIG_H.starClassO.EXTRA, 1);
 
 		lastScreen = System;
 	}
 	void Load_Screen_Life()
 	{
 		//Header
-		ShowWindow(CONFIG.HEADER_LIFE, 1);
+		ShowWindow(CONFIG_H.HEADER_LIFE, 1);
 
 		//Handles
-		ShowWindow(CONFIG.life_OrganicChanceH.HANDLE, 1);
-		ShowWindow(CONFIG.life_ExoticChanceH.HANDLE, 1);
-		ShowWindow(CONFIG.life_MulticellChanceH.HANDLE, 1);
-		ShowWindow(CONFIG.forceLifeH.HANDLE, 1);
-		ShowWindow(CONFIG.traditionalLifeH.HANDLE, 1);
+		ShowWindow(CONFIG_H.life_OrganicChance.HANDLE, 1);
+		ShowWindow(CONFIG_H.life_ExoticChance.HANDLE, 1);
+		ShowWindow(CONFIG_H.life_MulticellChance.HANDLE, 1);
+		ShowWindow(CONFIG_H.forceLife.HANDLE, 1);
+		ShowWindow(CONFIG_H.traditionalLife.HANDLE, 1);
 
 		//Desc
-		ShowWindow(CONFIG.life_OrganicChanceH.DESC, 1);
-		ShowWindow(CONFIG.life_ExoticChanceH.DESC, 1);
-		ShowWindow(CONFIG.life_MulticellChanceH.DESC, 1);
-		ShowWindow(CONFIG.forceLifeH.DESC, 1);
-		ShowWindow(CONFIG.traditionalLifeH.DESC, 1);
+		ShowWindow(CONFIG_H.life_OrganicChance.DESC, 1);
+		ShowWindow(CONFIG_H.life_ExoticChance.DESC, 1);
+		ShowWindow(CONFIG_H.life_MulticellChance.DESC, 1);
+		ShowWindow(CONFIG_H.forceLife.DESC, 1);
+		ShowWindow(CONFIG_H.traditionalLife.DESC, 1);
 
 		//Info
-		ShowWindow(CONFIG.life_OrganicChanceH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.life_ExoticChanceH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.life_MulticellChanceH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.forceLifeH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.traditionalLifeH.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.life_OrganicChance.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.life_ExoticChance.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.life_MulticellChance.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.forceLife.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.traditionalLife.INFOBUTTON, 1);
 
 		//Extra
 
@@ -2830,70 +2853,70 @@ Screen lastScreen;
 	void Load_Screen_Ships()
 	{
 		//Header
-		ShowWindow(CONFIG.HEADER_SHIPS, 1);
+		ShowWindow(CONFIG_H.HEADER_SHIPS, 1);
 
 		//Handles
-		ShowWindow(CONFIG.exotic_ShipChanceH.HANDLE, 1);
-		ShowWindow(CONFIG.shipsNeedLifeH.HANDLE, 1);
-		ShowWindow(CONFIG.modelsFolderH.HANDLE, 1);
+		ShowWindow(CONFIG_H.exotic_ShipChance.HANDLE, 1);
+		ShowWindow(CONFIG_H.shipsNeedLife.HANDLE, 1);
+		ShowWindow(CONFIG_H.modelsFolder.HANDLE, 1);
 
 		//Desc
-		ShowWindow(CONFIG.exotic_ShipChanceH.DESC, 1);
-		ShowWindow(CONFIG.shipsNeedLifeH.DESC, 1);
-		ShowWindow(CONFIG.modelsFolderH.DESC, 1);
+		ShowWindow(CONFIG_H.exotic_ShipChance.DESC, 1);
+		ShowWindow(CONFIG_H.shipsNeedLife.DESC, 1);
+		ShowWindow(CONFIG_H.modelsFolder.DESC, 1);
 
 		//Info
-		ShowWindow(CONFIG.exotic_ShipChanceH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.shipsNeedLifeH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.modelsFolderH.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.exotic_ShipChance.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.shipsNeedLife.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.modelsFolder.INFOBUTTON, 1);
 
 		lastScreen = Ships;
 	}
 	void Load_Screen_Exotic()
 	{
 		//Header
-		ShowWindow(CONFIG.HEADER_EXOTIC, 1);
+		ShowWindow(CONFIG_H.HEADER_EXOTIC, 1);
 
 		//Handles
-		ShowWindow(CONFIG.exotic_OrbitChanceH.HANDLE, 1);
-		ShowWindow(CONFIG.exotic_AxialTiltChanceH.HANDLE, 1);
-		ShowWindow(CONFIG.exotic_CompanionOrbitChanceH.HANDLE, 1);
-		ShowWindow(CONFIG.exotic_DebrisRingChanceH.HANDLE, 1);
+		ShowWindow(CONFIG_H.exotic_OrbitChance.HANDLE, 1);
+		ShowWindow(CONFIG_H.exotic_AxialTiltChance.HANDLE, 1);
+		ShowWindow(CONFIG_H.exotic_CompanionOrbitChance.HANDLE, 1);
+		ShowWindow(CONFIG_H.exotic_DebrisRingChance.HANDLE, 1);
 
 		//Desc
-		ShowWindow(CONFIG.exotic_OrbitChanceH.DESC, 1);
-		ShowWindow(CONFIG.exotic_AxialTiltChanceH.DESC, 1);
-		ShowWindow(CONFIG.exotic_CompanionOrbitChanceH.DESC, 1);
-		ShowWindow(CONFIG.exotic_DebrisRingChanceH.DESC, 1);
+		ShowWindow(CONFIG_H.exotic_OrbitChance.DESC, 1);
+		ShowWindow(CONFIG_H.exotic_AxialTiltChance.DESC, 1);
+		ShowWindow(CONFIG_H.exotic_CompanionOrbitChance.DESC, 1);
+		ShowWindow(CONFIG_H.exotic_DebrisRingChance.DESC, 1);
 
 		//Info
-		ShowWindow(CONFIG.exotic_OrbitChanceH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.exotic_AxialTiltChanceH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.exotic_CompanionOrbitChanceH.INFOBUTTON, 1);
-		ShowWindow(CONFIG.exotic_DebrisRingChanceH.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.exotic_OrbitChance.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.exotic_AxialTiltChance.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.exotic_CompanionOrbitChance.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.exotic_DebrisRingChance.INFOBUTTON, 1);
 
 		lastScreen = Exotic;
 	}
 	void Load_Screen_Advanced()
 	{
 		//Header
-		ShowWindow(CONFIG.HEADER_ADVANCED, 1);
+		ShowWindow(CONFIG_H.HEADER_ADVANCED, 1);
 
-		ShowWindow(CONFIG.saveNamePresetButton.HANDLE, 1);
-		ShowWindow(CONFIG.saveNamePresetButton.DESC, 1);
-		ShowWindow(CONFIG.saveNamePresetButton.INFOBUTTON, 1);
-		ShowWindow(CONFIG.saveNamePresetButton.EXTRA, 1);
+		ShowWindow(CONFIG_H.saveNamePresetButton.HANDLE, 1);
+		ShowWindow(CONFIG_H.saveNamePresetButton.DESC, 1);
+		ShowWindow(CONFIG_H.saveNamePresetButton.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.saveNamePresetButton.EXTRA, 1);
 
-		ShowWindow(CONFIG.advNameGroup.EXTRA, 1);
+		ShowWindow(CONFIG_H.advNameGroup.EXTRA, 1);
 
-		ShowWindow(CONFIG.buttonUpdate, 1);
-		ShowWindow(CONFIG.buttonStar, 1);
-		ShowWindow(CONFIG.buttonPlanet, 1);
-		ShowWindow(CONFIG.buttonMoon, 1);
-		ShowWindow(CONFIG.buttonDwarfMoon, 1);
-		ShowWindow(CONFIG.buttonShip, 1);
-		ShowWindow(CONFIG.buttonDataset, 1);
-		ShowWindow(CONFIG.buttonSimple, 1);
+		ShowWindow(CONFIG_H.buttonUpdate, 1);
+		ShowWindow(CONFIG_H.buttonStar, 1);
+		ShowWindow(CONFIG_H.buttonPlanet, 1);
+		ShowWindow(CONFIG_H.buttonMoon, 1);
+		ShowWindow(CONFIG_H.buttonDwarfMoon, 1);
+		ShowWindow(CONFIG_H.buttonShip, 1);
+		ShowWindow(CONFIG_H.buttonDataset, 1);
+		ShowWindow(CONFIG_H.buttonSimple, 1);
 
 		lastScreen = Advanced;
 	}
@@ -3132,13 +3155,13 @@ Screen lastScreen;
 
 	void GetConfigData(HWND hWnd)
 	{
-		GetVariableFromWindow(CONFIG.starOutputFolderH.HANDLE, CONFIG.starOutputFolder);
-		GetVariableFromWindow(CONFIG.planetOutputFolderH.HANDLE, CONFIG.planetOutputFolder);
+		GetVariableFromWindow(CONFIG_H.starOutputFolder.HANDLE, CONFIG.starOutputFolder);
+		GetVariableFromWindow(CONFIG_H.planetOutputFolder.HANDLE, CONFIG.planetOutputFolder);
 
 		// this little maneuver generates the seed from the input
 		CONFIG.seed = 0;
 		wchar_t seedarray[WSIZE] = L"";
-		GetVariableFromWindow(CONFIG.seedH.HANDLE, seedarray);
+		GetVariableFromWindow(CONFIG_H.seed.HANDLE, seedarray);
 		std::wstring seedstr(seedarray);
 
 		//checks if seed is a number
@@ -3160,42 +3183,43 @@ Screen lastScreen;
 				CONFIG.seed *= -1;
 		}
 
-		GetVariableFromWindow(CONFIG.numberOfRunsH.HANDLE, CONFIG.numberOfRuns);
+		GetVariableFromWindow(CONFIG_H.numberOfRuns.HANDLE, CONFIG.numberOfRuns);
 		CONFIG.smartPlacement = (IsDlgButtonChecked(hWnd, CB_SMARTPLACEMENT) == BST_CHECKED) ? true : false;
 
-		GetVariableFromWindow(CONFIG.minPlanetNumberH.HANDLE, CONFIG.minPlanetNumber);
-		GetVariableFromWindow(CONFIG.minDistanceH.HANDLE, CONFIG.minDistance);
-		GetVariableFromWindow(CONFIG.maxDistanceH.HANDLE, CONFIG.maxDistance);
-		GetVariableFromWindow(CONFIG.planetSpacingH.HANDLE, CONFIG.planetSpacing);
+		GetVariableFromWindow(CONFIG_H.minPlanetNumber.HANDLE, CONFIG.minPlanetNumber);
+		GetVariableFromWindow(CONFIG_H.minDistance.HANDLE, CONFIG.minDistance);
+		GetVariableFromWindow(CONFIG_H.maxDistance.HANDLE, CONFIG.maxDistance);
+		GetVariableFromWindow(CONFIG_H.planetSpacing.HANDLE, CONFIG.planetSpacing);
+		GetVariableFromWindow(CONFIG_H.moonDistanceBoundary.HANDLE, CONFIG.moonDistanceBoundary);
 		CONFIG.generateDwarfPlanets = (IsDlgButtonChecked(hWnd, CB_GENERATEDWARFPLANET) == BST_CHECKED) ? true : false;
-		GetVariableFromWindow(CONFIG.dwarfPlanetChanceH.HANDLE, CONFIG.dwarfPlanetChance);
+		GetVariableFromWindow(CONFIG_H.dwarfPlanetChance.HANDLE, CONFIG.dwarfPlanetChance);
 		CONFIG.weightedMoons = (IsDlgButtonChecked(hWnd, CB_WEIGHTEDMOONS) == BST_CHECKED) ? true : false;
-		GetVariableFromWindow(CONFIG.avgEccentricityH.HANDLE, CONFIG.avgEccentricity); // change to extra for trackbar
-		GetVariableFromWindow(CONFIG.SDEccentricityH.HANDLE, CONFIG.SDEccentricity);
-		GetVariableFromWindow(CONFIG.avgInclinationH.HANDLE, CONFIG.avgInclination);
-		GetVariableFromWindow(CONFIG.SDInclinationH.HANDLE, CONFIG.SDInclination);
-		GetVariableFromWindow(CONFIG.avgObliquityH.HANDLE, CONFIG.avgObliquity);
-		GetVariableFromWindow(CONFIG.SDObliquityH.HANDLE, CONFIG.SDObliquity);
+		GetVariableFromWindow(CONFIG_H.avgEccentricity.HANDLE, CONFIG.avgEccentricity); // change to extra for trackbar
+		GetVariableFromWindow(CONFIG_H.SDEccentricity.HANDLE, CONFIG.SDEccentricity);
+		GetVariableFromWindow(CONFIG_H.avgInclination.HANDLE, CONFIG.avgInclination);
+		GetVariableFromWindow(CONFIG_H.SDInclination.HANDLE, CONFIG.SDInclination);
+		GetVariableFromWindow(CONFIG_H.avgObliquity.HANDLE, CONFIG.avgObliquity);
+		GetVariableFromWindow(CONFIG_H.SDObliquity.HANDLE, CONFIG.SDObliquity);
 
-		GetVariableFromWindow(CONFIG.starClassOH.HANDLE, CONFIG.starClassO);
-		GetVariableFromWindow(CONFIG.starClassBH.HANDLE, CONFIG.starClassB);
-		GetVariableFromWindow(CONFIG.starClassAH.HANDLE, CONFIG.starClassA);
-		GetVariableFromWindow(CONFIG.starClassFH.HANDLE, CONFIG.starClassF);
-		GetVariableFromWindow(CONFIG.starClassGH.HANDLE, CONFIG.starClassG);
-		GetVariableFromWindow(CONFIG.starClassKH.HANDLE, CONFIG.starClassK);
-		GetVariableFromWindow(CONFIG.starClassMH.HANDLE, CONFIG.starClassM);
-		GetVariableFromWindow(CONFIG.starClassWDH.HANDLE, CONFIG.starClassWD);
-		GetVariableFromWindow(CONFIG.starClassQH.HANDLE, CONFIG.starClassQ);
-		GetVariableFromWindow(CONFIG.starClassXH.HANDLE, CONFIG.starClassX);
+		GetVariableFromWindow(CONFIG_H.starClassO.HANDLE, CONFIG.starClassO);
+		GetVariableFromWindow(CONFIG_H.starClassB.HANDLE, CONFIG.starClassB);
+		GetVariableFromWindow(CONFIG_H.starClassA.HANDLE, CONFIG.starClassA);
+		GetVariableFromWindow(CONFIG_H.starClassF.HANDLE, CONFIG.starClassF);
+		GetVariableFromWindow(CONFIG_H.starClassG.HANDLE, CONFIG.starClassG);
+		GetVariableFromWindow(CONFIG_H.starClassK.HANDLE, CONFIG.starClassK);
+		GetVariableFromWindow(CONFIG_H.starClassM.HANDLE, CONFIG.starClassM);
+		GetVariableFromWindow(CONFIG_H.starClassWD.HANDLE, CONFIG.starClassWD);
+		GetVariableFromWindow(CONFIG_H.starClassQ.HANDLE, CONFIG.starClassQ);
+		GetVariableFromWindow(CONFIG_H.starClassX.HANDLE, CONFIG.starClassX);
 
-		GetVariableFromWindow(CONFIG.life_OrganicChanceH.HANDLE, CONFIG.life_OrganicChance);
-		GetVariableFromWindow(CONFIG.life_ExoticChanceH.HANDLE, CONFIG.life_ExoticChance);
-		GetVariableFromWindow(CONFIG.life_MulticellChanceH.HANDLE, CONFIG.life_MulticellChance);
+		GetVariableFromWindow(CONFIG_H.life_OrganicChance.HANDLE, CONFIG.life_OrganicChance);
+		GetVariableFromWindow(CONFIG_H.life_ExoticChance.HANDLE, CONFIG.life_ExoticChance);
+		GetVariableFromWindow(CONFIG_H.life_MulticellChance.HANDLE, CONFIG.life_MulticellChance);
 		CONFIG.forceLife = (IsDlgButtonChecked(hWnd, CB_FORCELIFE) == BST_CHECKED) ? true : false;
 		CONFIG.traditionalLife = (IsDlgButtonChecked(hWnd, CB_TRADITIONALLIFE) == BST_CHECKED) ? true : false;
 
-		GetVariableFromWindow(CONFIG.exotic_ShipChanceH.HANDLE, CONFIG.exotic_ShipChance);
-		GetVariableFromWindow(CONFIG.modelsFolderH.HANDLE, CONFIG.modelsFolder);
+		GetVariableFromWindow(CONFIG_H.exotic_ShipChance.HANDLE, CONFIG.exotic_ShipChance);
+		GetVariableFromWindow(CONFIG_H.modelsFolder.HANDLE, CONFIG.modelsFolder);
 		CONFIG.shipsNeedLife = (IsDlgButtonChecked(hWnd, CB_SHIPSNEEDLIFE) == BST_CHECKED) ? true : false;
 
 		int size = CONFIG.shipList_Colony.size();
@@ -3279,14 +3303,13 @@ Screen lastScreen;
 			ShipInputTest.open(shipFilePath.c_str());
 		}
 
-		GetVariableFromWindow(CONFIG.exotic_OrbitChanceH.HANDLE, CONFIG.exotic_OrbitChance);
-		GetVariableFromWindow(CONFIG.exotic_AxialTiltChanceH.HANDLE, CONFIG.exotic_AxialTiltChance);
-		GetVariableFromWindow(CONFIG.exotic_DebrisRingChanceH.HANDLE, CONFIG.exotic_DebrisRingChance);
-		GetVariableFromWindow(CONFIG.exotic_CompanionOrbitChanceH.HANDLE, CONFIG.exotic_CompanionOrbitChance);
+		GetVariableFromWindow(CONFIG_H.exotic_OrbitChance.HANDLE, CONFIG.exotic_OrbitChance);
+		GetVariableFromWindow(CONFIG_H.exotic_AxialTiltChance.HANDLE, CONFIG.exotic_AxialTiltChance);
+		GetVariableFromWindow(CONFIG_H.exotic_DebrisRingChance.HANDLE, CONFIG.exotic_DebrisRingChance);
+		GetVariableFromWindow(CONFIG_H.exotic_CompanionOrbitChance.HANDLE, CONFIG.exotic_CompanionOrbitChance);
 
 		CONFIG.debug = true;
 		CONFIG.planetSpacing = 1.0;
-		CONFIG.moonSpacerCheck = 10.0; // WILL DELETE LATER, DEFAULT IS 10
 	}
 	void CreateNameVectors(HWND hWnd)
 	{	
@@ -3604,106 +3627,124 @@ Screen lastScreen;
 		switch (command)
 		{
 		case IB_SEED:
-			SetWindowTextW(CONFIG.INFO_BOX, L"Seed is what generates numbers.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Seed is what generates numbers.");
 			break;
 		case IB_NUMBEROFRUNS:
-			SetWindowTextW(CONFIG.INFO_BOX, L"This is how many systems the program will generate.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"This is how many systems the program will generate.");
 			break;
 		case IB_DEBUG:
-			SetWindowTextW(CONFIG.INFO_BOX, L"Enable debug mode.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Enable debug mode.");
 			break;
 		case IB_STAROUTPUTFOLDER:
-			SetWindowTextW(CONFIG.INFO_BOX, L"Star Output Folder.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Star Output Folder.");
 			break;
 		case IB_PLANETOUTPUTFOLDER:
-			SetWindowTextW(CONFIG.INFO_BOX, L"Planet Output Folder.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Planet Output Folder.");
 			break;
 		case IB_SMARTPLACEMENT:
-			SetWindowTextW(CONFIG.INFO_BOX, L"Places things smartly.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Places things smartly.");
 			break;
 		case IB_DISTANCE:
-			SetWindowTextW(CONFIG.INFO_BOX, L"The distance from Earth in parsecs.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"The distance from Earth in parsecs.");
 			break;
 		case IB_OBLIQUITY:
-			SetWindowTextW(CONFIG.INFO_BOX, L"The axial tilt of planets.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"The axial tilt of planets.");
 			break;
 		case IB_INCLINATION:
-			SetWindowTextW(CONFIG.INFO_BOX, L"The inclination of planets.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"The inclination of planets.");
 			break;
 		case IB_ECCENTRICITY:
-			SetWindowTextW(CONFIG.INFO_BOX, L"The eccentricity of planets.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"The eccentricity of planets.");
 			break;
 		case IB_MINPLANETNUMBER:
-			SetWindowTextW(CONFIG.INFO_BOX, L"min planet number.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"min planet number.");
 			break;
 		case IB_STARCLASS:
-			SetWindowTextW(CONFIG.INFO_BOX, L"class of stars.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"class of stars.");
 			break;
 		case IB_LIFEORGANICCHANCE:
-			SetWindowTextW(CONFIG.INFO_BOX, L"Organic life.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Organic life.");
 			break;
 		case IB_LIFEEXOTICCHANCE:
-			SetWindowTextW(CONFIG.INFO_BOX, L"exotic life");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"exotic life");
 			break;
 		case IB_LIFEMULTICHANCE:
-			SetWindowTextW(CONFIG.INFO_BOX, L"multicel life");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"multicel life");
 			break;
 		case IB_FORCELIFE:
-			SetWindowTextW(CONFIG.INFO_BOX, L"force life");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"force life");
 			break;
 		case IB_TRADITIONALLIFE:
-			SetWindowTextW(CONFIG.INFO_BOX, L"life traditional");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"life traditional");
 			break;
 		case IB_SHIPCHANCE:
-			SetWindowTextW(CONFIG.INFO_BOX, L"ship chance");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"ship chance");
 			break;
 		case IB_SHIPSNEEDLIFE:
-			SetWindowTextW(CONFIG.INFO_BOX, L"ships need life");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"ships need life");
 			break;
 		case IB_MODELSFOLDER:
-			SetWindowTextW(CONFIG.INFO_BOX, L"models folder");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"models folder");
 			break;
 		case IB_EXOTICORBIT:
-			SetWindowTextW(CONFIG.INFO_BOX, L"exotic orbit");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"exotic orbit");
 			break;
 		case IB_EXOTICOBLIQUITY:
-			SetWindowTextW(CONFIG.INFO_BOX, L"exotic obliquity");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"exotic obliquity");
 			break;
 		case IB_EXOTICDEBRISRING:
-			SetWindowTextW(CONFIG.INFO_BOX, L"exotic debris ring");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"exotic debris ring");
 			break;
 		case IB_EXOTICCOMPANION:
-			SetWindowTextW(CONFIG.INFO_BOX, L"exotic companion orbit");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"exotic companion orbit");
 			break;
 		case IB_SELECTPRESET:
-			SetWindowTextW(CONFIG.INFO_BOX, L"Select the preset variables.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Select the preset variables.");
 			break;
 		case IB_SAVEPRESET:
-			SetWindowTextW(CONFIG.INFO_BOX, L"Save the current variables as a new preset.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Save the current variables as a new preset.");
+			break;
+		case IB_SELECTNAMEPRESET:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"select a name preset.");
+			break;
+		case IB_SAVENAMEPRESET:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"save a name preset.");
+			break;
+		case IB_MARKOV:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"the markov generator.");
+			break;
+		case IB_SIMPLEGENERATOR:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"the simple generator.");
 			break;
 		case IB_GENERATEDWARFPLANET:
-			SetWindowTextW(CONFIG.INFO_BOX, L"generate dwarf planets true/false.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"generate dwarf planets true/false.");
 			break;
 		case IB_DWARFPALNETCHANCE:
-			SetWindowTextW(CONFIG.INFO_BOX, L"the chance dwarf planets will spawn.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"the chance dwarf planets will spawn.");
 			break;
 		case IB_NAMEPREMODS:
-			SetWindowTextW(CONFIG.INFO_BOX, L"the pre mods");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"the pre mods");
 			break;
 		case IB_NAMEPOSTMODS:
-			SetWindowTextW(CONFIG.INFO_BOX, L"the post mods");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"the post mods");
 			break;
 		case IB_NAMENUMBERMODS:
-			SetWindowTextW(CONFIG.INFO_BOX, L"the numbermods");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"the numbermods");
 			break;
 		case IB_NAMEPREMODLIST:
-			SetWindowTextW(CONFIG.INFO_BOX, L"box to hold pre mods");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"box to hold pre mods");
 			break;
 		case IB_NAMEPOSTMODLIST:
-			SetWindowTextW(CONFIG.INFO_BOX, L"box to hold post mods");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"box to hold post mods");
 			break;
 		case IB_NAMEMOONS:
-			SetWindowTextW(CONFIG.INFO_BOX, L"enables moons or something");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"enables moons or something");
+			break;
+		case IB_WEIGHTEDMOONS:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"moon weight system");
+			break;
+		case IB_MOONDISTANCEBOUNDARY:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"min distance between moons");
 			break;
 		}
 	}
@@ -3718,10 +3759,10 @@ Screen lastScreen;
 			switch (msg)
 			{
 			case BST_UNCHECKED:
-				SetWindowTextW(CONFIG.debugH.HANDLE, L"Disabled");
+				SetWindowTextW(CONFIG_H.debug.HANDLE, L"Disabled");
 				break;
 			case BST_CHECKED:
-				SetWindowTextW(CONFIG.debugH.HANDLE, L"Enabled");
+				SetWindowTextW(CONFIG_H.debug.HANDLE, L"Enabled");
 				break;
 			}
 			break;
@@ -3729,10 +3770,10 @@ Screen lastScreen;
 			switch (msg)
 			{
 			case BST_UNCHECKED:
-				SetWindowTextW(CONFIG.smartPlacementH.HANDLE, L"Disabled");
+				SetWindowTextW(CONFIG_H.smartPlacement.HANDLE, L"Disabled");
 				break;
 			case BST_CHECKED:
-				SetWindowTextW(CONFIG.smartPlacementH.HANDLE, L"Enabled");
+				SetWindowTextW(CONFIG_H.smartPlacement.HANDLE, L"Enabled");
 				break;
 			}
 			break;
@@ -3740,10 +3781,10 @@ Screen lastScreen;
 			switch (msg)
 			{
 			case BST_UNCHECKED:
-				SetWindowTextW(CONFIG.traditionalLifeH.HANDLE, L"Disabled");
+				SetWindowTextW(CONFIG_H.traditionalLife.HANDLE, L"Disabled");
 				break;
 			case BST_CHECKED:
-				SetWindowTextW(CONFIG.traditionalLifeH.HANDLE, L"Enabled");
+				SetWindowTextW(CONFIG_H.traditionalLife.HANDLE, L"Enabled");
 				break;
 			}
 			break;
@@ -3751,10 +3792,10 @@ Screen lastScreen;
 			switch (msg)
 			{
 			case BST_UNCHECKED:
-				SetWindowTextW(CONFIG.forceLifeH.HANDLE, L"Disabled");
+				SetWindowTextW(CONFIG_H.forceLife.HANDLE, L"Disabled");
 				break;
 			case BST_CHECKED:
-				SetWindowTextW(CONFIG.forceLifeH.HANDLE, L"Enabled");
+				SetWindowTextW(CONFIG_H.forceLife.HANDLE, L"Enabled");
 				break;
 			}
 			break;
@@ -3762,10 +3803,10 @@ Screen lastScreen;
 			switch (msg)
 			{
 			case BST_UNCHECKED:
-				SetWindowTextW(CONFIG.shipsNeedLifeH.HANDLE, L"Disabled");
+				SetWindowTextW(CONFIG_H.shipsNeedLife.HANDLE, L"Disabled");
 				break;
 			case BST_CHECKED:
-				SetWindowTextW(CONFIG.shipsNeedLifeH.HANDLE, L"Enabled");
+				SetWindowTextW(CONFIG_H.shipsNeedLife.HANDLE, L"Enabled");
 				break;
 			}
 			break;
@@ -3773,10 +3814,10 @@ Screen lastScreen;
 			switch (msg)
 			{
 			case BST_UNCHECKED:
-				SetWindowTextW(CONFIG.generateDwarfPlanetsH.HANDLE, L"Disabled");
+				SetWindowTextW(CONFIG_H.generateDwarfPlanets.HANDLE, L"Disabled");
 				break;
 			case BST_CHECKED:
-				SetWindowTextW(CONFIG.generateDwarfPlanetsH.HANDLE, L"Enabled");
+				SetWindowTextW(CONFIG_H.generateDwarfPlanets.HANDLE, L"Enabled");
 				break;
 			}
 			break;
@@ -3784,10 +3825,10 @@ Screen lastScreen;
 			switch (msg)
 			{
 			case BST_UNCHECKED:
-				SetWindowTextW(CONFIG.weightedMoonsH.HANDLE, L"Disabled");
+				SetWindowTextW(CONFIG_H.weightedMoons.HANDLE, L"Disabled");
 				break;
 			case BST_CHECKED:
-				SetWindowTextW(CONFIG.weightedMoonsH.HANDLE, L"Enabled");
+				SetWindowTextW(CONFIG_H.weightedMoons.HANDLE, L"Enabled");
 				break;
 			}
 			break;
@@ -3824,7 +3865,7 @@ Screen lastScreen;
 						// Display the file name to the user.
 						if (SUCCEEDED(hr))
 						{
-							SetWindowTextW(CONFIG.savePresetButton.DESC, pszFilePath);
+							SetWindowTextW(CONFIG_H.savePresetButton.DESC, pszFilePath);
 
 
 							MessageBox(NULL, pszFilePath, L"File Path", MB_OK);
@@ -6001,7 +6042,7 @@ Screen lastScreen;
 
 				// checks the semimajor of each moon to make sure they are not too close
 				for (int count = 0; count < parent.usedSemimajor_moon.size(); count++)
-					if (abs(moon.semimajorAxis - parent.usedSemimajor_moon.at(count)) < parent.radius * (CONFIG.moonSpacerCheck / 10))
+					if (abs(moon.semimajorAxis - parent.usedSemimajor_moon.at(count)) < parent.radius * (CONFIG.moonDistanceBoundary / 10))
 						testsemi = 1; // means moons were too close
 				
 			}
@@ -6012,7 +6053,7 @@ Screen lastScreen;
 
 				// checks the semimajor of each moon to make sure they are not too close
 				for (int count = 0; count < parent.usedSemimajor_moon.size(); count++)
-					if (abs(moon.semimajorAxis - parent.usedSemimajor_moon.at(count)) < (parent.radius * CONFIG.moonSpacerCheck))
+					if (abs(moon.semimajorAxis - parent.usedSemimajor_moon.at(count)) < (parent.radius * CONFIG.moonDistanceBoundary))
 						testsemi = 1; // means moons were too close
 			}
 
