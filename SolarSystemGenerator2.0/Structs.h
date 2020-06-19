@@ -18,6 +18,50 @@ struct STAR
 	double totalDist;
 };
 
+struct Atmosphere
+{
+	enum AtmoModel
+	{
+		None, Biogenic, Chlorine, Earth, Ethereal, Jupiter, Mars, Neptune, Pluto, Thick, Thin, Titan, Venus
+	};
+
+	enum Gases
+	{
+		H2,		// Hydrogen
+		He,		// Helium
+		Ne,		// Neon
+		Ar,		// Argon
+		Kr,		// Krypton
+		Xe,		// Xenon
+		O2,		// Oxygen
+		N2,		// Nitrogen
+		CO,		// Carbon Monoxide
+		CO2,	// Carbon Dioxide
+		SO,		// Sulfur Monoxide
+		SO2,	// Sulfur Dioxide
+		Cl2,	// Chlorine
+		NaCl,	// Sodium Chloride / Salt
+		H2S,	// Hydrogen Sulfide / Hydrosulfuric Acid
+		H2O,	// Hydrogen Dioxide / Water
+		NH3,	// Ammonia
+		CH4,	// Methane
+		C2H2,	// Acetylene / Ethyne
+		C2H4,	// Ethylene / Ethene
+		C2H6,	// Ethane
+		C3H8
+	};	// Propane
+
+	AtmoModel model;
+	double height, pressure;
+	std::vector<Gases> composition;
+};
+
+struct Life
+{
+	bool haslife, panspermia;
+	std::wstring _class, type, biome;
+};
+
 struct PLANET
 {
 	//generated for planets/moons
@@ -34,14 +78,11 @@ struct PLANET
 	int majorMoonPercent, minorMoonPercent; // used for weighted moon generation
 	double hillSphereOuterLimit, hillSphereInnerLimit; // HSInner used to be for moons
 
+	Atmosphere atmosphere;
+	Life life_organic, life_exotic;
+
 	//exotic stuff
 	int debrisCount;
 	std::wstring model; // used for ships
-	//life stuff
-	struct Life
-	{
-		bool haslife, panspermia;
-		std::wstring _class, type, biome;
-	};
-	Life life_organic, life_exotic;
 };
+

@@ -81,7 +81,6 @@ Screen lastScreen;
 	void Load_Name_Satellite_Ship();
 	void Load_Name_Station_Ship();
 
-
 	void Load_Name_Dataset();
 	void Load_Name_Simple();
 
@@ -692,12 +691,10 @@ Screen lastScreen;
 		SendMessageW(Handle_Logo, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)Handle_Image_Logo);
 		//###############################################################################
 
-		//Loads all the buttons at the top of the page
-
-		/*###############################################################################
-			Main Buttons */ {
 		//###############################################################################
-			
+			#pragma region Main Buttons
+		//###############################################################################
+
 			// Stuff for tabs if I want to come back to it one day
 			/*
 			wchar_t tabGeneral[16] = L"General";
@@ -729,473 +726,481 @@ Screen lastScreen;
 			tabStruct.pszText = tabAdvanced;
 			TabCtrl_InsertItem(CONFIG_H.tabH, 5, &tabStruct);
 			*/
-			
-			CreateWindowW(L"button", //type
-				L"General", //Text Field
-				WS_VISIBLE | WS_CHILD | WS_BORDER, // Effects
-				340, 0, // Position
-				114, 50, // Width & Height
-				hWnd, (HMENU)BUTTON_GENERAL, NULL, NULL); // Parent & Command
-			//System & Planet Button
-			CreateWindowW(L"button", //type
-				L"System / Planet", //Text Field
-				WS_VISIBLE | WS_CHILD | WS_BORDER, // Effects
-				454, 0, // Position
-				114, 50, // Width & Height
-				hWnd, (HMENU)BUTTON_SYSTEMPLANET, NULL, NULL); // Parent & Command
-			//Life Button
-			CreateWindowW(L"button", //type
-				L"Life", //Text Field
-				WS_VISIBLE | WS_CHILD | WS_BORDER, // Effects
-				568, 0, // Position
-				114, 50, // Width & Height
-				hWnd, (HMENU)BUTTON_LIFE, NULL, NULL); // Parent & Command
-			//Ships Button
-			CreateWindowW(L"button", //type
-				L"Ships", //Text Field
-				WS_VISIBLE | WS_CHILD | WS_BORDER, // Effects
-				682, 0, // Position
-				114, 50, // Width & Height
-				hWnd, (HMENU)BUTTON_SHIPS, NULL, NULL); // Parent & Command
-			//Exotic Button
-			CreateWindowW(L"button", //type
-				L"Exotic Stuff", //Text Field
-				WS_VISIBLE | WS_CHILD | WS_BORDER, // Effects
-				796, 0, // Position
-				114, 50, // Width & Height
-				hWnd, (HMENU)BUTTON_EXOTIC, NULL, NULL); // Parent & Command
-			//Super Advanced Button
-			CreateWindowW(L"button", //type
-				L"Advanced", //Text Field
-				WS_VISIBLE | WS_CHILD | WS_BORDER, // Effects
-				910, 0, // Position
-				114, 50, // Width & Height
-				hWnd, (HMENU)BUTTON_ADVANCED, NULL, NULL); // Parent & Command
-		}
+
+			//Loads all the buttons at the top of the page
+
+		CreateWindowW(L"button", //type
+			L"General", //Text Field
+			WS_VISIBLE | WS_CHILD | WS_BORDER, // Effects
+			340, 0, // Position
+			114, 50, // Width & Height
+			hWnd, (HMENU)BUTTON_GENERAL, NULL, NULL); // Parent & Command
+		//System & Planet Button
+		CreateWindowW(L"button", //type
+			L"System / Planet", //Text Field
+			WS_VISIBLE | WS_CHILD | WS_BORDER, // Effects
+			454, 0, // Position
+			114, 50, // Width & Height
+			hWnd, (HMENU)BUTTON_SYSTEMPLANET, NULL, NULL); // Parent & Command
+		//Life Button
+		CreateWindowW(L"button", //type
+			L"Life", //Text Field
+			WS_VISIBLE | WS_CHILD | WS_BORDER, // Effects
+			568, 0, // Position
+			114, 50, // Width & Height
+			hWnd, (HMENU)BUTTON_LIFE, NULL, NULL); // Parent & Command
+		//Ships Button
+		CreateWindowW(L"button", //type
+			L"Ships", //Text Field
+			WS_VISIBLE | WS_CHILD | WS_BORDER, // Effects
+			682, 0, // Position
+			114, 50, // Width & Height
+			hWnd, (HMENU)BUTTON_SHIPS, NULL, NULL); // Parent & Command
+		//Exotic Button
+		CreateWindowW(L"button", //type
+			L"Exotic Stuff", //Text Field
+			WS_VISIBLE | WS_CHILD | WS_BORDER, // Effects
+			796, 0, // Position
+			114, 50, // Width & Height
+			hWnd, (HMENU)BUTTON_EXOTIC, NULL, NULL); // Parent & Command
+		//Super Advanced Button
+		CreateWindowW(L"button", //type
+			L"Advanced", //Text Field
+			WS_VISIBLE | WS_CHILD | WS_BORDER, // Effects
+			910, 0, // Position
+			114, 50, // Width & Height
+			hWnd, (HMENU)BUTTON_ADVANCED, NULL, NULL); // Parent & Command
+
+		#pragma endregion
 		//###############################################################################
 
-		/*###############################################################################
-			Info Panel & Generate Button */ {
 		//###############################################################################
-			CreateWindowW(L"static", L"",
-				WS_VISIBLE | WS_CHILD,
-				0, 280, 340, 402,
-				hWnd, NULL, NULL, NULL);
-			CreateWindowW(L"static", L"Info",
-				WS_VISIBLE | WS_CHILD,
-				150, 300, 40, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.INFO_BOX = CreateWindowW(L"static", L"Welcome to the Science Fiction Solar System Generator!",
-				WS_VISIBLE | WS_CHILD | WS_BORDER | ES_CENTER,
-				10, 330, 320, 250,
-				hWnd, NULL, NULL, NULL);
-			CreateWindowW(L"button", L"Generate",
-				WS_VISIBLE | WS_CHILD | WS_BORDER,
-				50, 600, 240, 50,
-				hWnd, (HMENU)BUTTON_GENERATE, NULL, NULL);
-		}
+			#pragma region Info Panel & Generate Button
 		//###############################################################################
 
-		/*###############################################################################
-			General Screen Handles */ {
-		//###############################################################################
-			CONFIG_H.HEADER_GENERAL = CreateWindowW(L"static", L"General Variables",
-				WS_CHILD | WS_BORDER | ES_CENTER, //Effects
-				350, 60, 664, 30, //X, Y, Width & Height
-				hWnd, NULL, NULL, NULL); //Parent
+		CreateWindowW(L"static", L"",
+			WS_VISIBLE | WS_CHILD,
+			0, 280, 340, 402,
+			hWnd, NULL, NULL, NULL);
+		CreateWindowW(L"static", L"Info",
+			WS_VISIBLE | WS_CHILD,
+			150, 300, 40, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.INFO_BOX = CreateWindowW(L"static", L"Welcome to Seth Fusion's Solar System Generator! Navigate through variables using the tabs at the top of the screen, or hit the Generate button to get started right away!",
+			WS_VISIBLE | WS_CHILD | WS_BORDER | ES_CENTER,
+			10, 330, 320, 250,
+			hWnd, NULL, NULL, NULL);
+		CreateWindowW(L"button", L"Generate",
+			WS_VISIBLE | WS_CHILD | WS_BORDER,
+			50, 600, 240, 50,
+			hWnd, (HMENU)BUTTON_GENERATE, NULL, NULL);
 
-			CONFIG_H.seed.DESC = CreateWindowW(L"static", L"Seed:",
-				WS_CHILD | WS_BORDER,
-				370, 100, 230, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.seed.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-				600, 100, 100, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.seed.INFOBUTTON = CreateWindowW(L"button", L"I",
-				WS_CHILD | WS_BORDER,
-				702, 102, 16, 16,
-				hWnd, (HMENU)IB_SEED, NULL, NULL);
-
-			CONFIG_H.numberOfRuns.DESC = CreateWindowW(L"static", L"# of Systems to Generate:",
-				WS_CHILD | WS_BORDER,
-				370, 120, 230, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.numberOfRuns.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_NUMBER | ES_RIGHT,
-				600, 120, 100, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.numberOfRuns.INFOBUTTON = CreateWindowW(L"button", L"I",
-				WS_CHILD | WS_BORDER,
-				702, 122, 16, 16,
-				hWnd, (HMENU)IB_NUMBEROFRUNS, NULL, NULL);
-
-			CONFIG_H.debug.DESC = CreateWindowW(L"static", L"Debug:",
-				WS_CHILD | WS_BORDER,
-				370, 140, 230, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.debug.HANDLE = CreateWindowW(L"button", L"",
-				WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
-				600, 140, 100, 20,
-				hWnd, (HMENU)CB_DEBUG, NULL, NULL);
-			CONFIG_H.debug.INFOBUTTON = CreateWindowW(L"button", L"I",
-				WS_CHILD | WS_BORDER,
-				702, 142, 16, 16,
-				hWnd, (HMENU)IB_DEBUG, NULL, NULL);
-
-			//star output folder
-			CONFIG_H.starOutputFolder.DESC = CreateWindowW(L"static", L"Star Output Folder:",
-				WS_CHILD | WS_BORDER,
-				370, 160, 100, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.starOutputFolder.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-				470, 160, 230, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.starOutputFolder.INFOBUTTON = CreateWindowW(L"button", L"I",
-				WS_CHILD | WS_BORDER,
-				702, 162, 16, 16,
-				hWnd, (HMENU)IB_STAROUTPUTFOLDER, NULL, NULL);
-
-			//planet output folder
-			CONFIG_H.planetOutputFolder.DESC = CreateWindowW(L"static", L"Planet Output Folder:",
-				WS_CHILD | WS_BORDER,
-				370, 180, 100, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.planetOutputFolder.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-				470, 180, 230, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.planetOutputFolder.INFOBUTTON = CreateWindowW(L"button", L"I",
-				WS_CHILD | WS_BORDER,
-				702, 182, 16, 16,
-				hWnd, (HMENU)IB_PLANETOUTPUTFOLDER, NULL, NULL);
-
-
-			//Preset handles are in the Load Presets function!
-
-			CONFIG_H.savePresetButton.DESC = CreateWindowW(L"static", L"Save a Preset...",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER,
-				760, 160, 180, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.savePresetButton.HANDLE = CreateWindowW(L"edit", L"New Preset",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
-				760, 180, 200, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.savePresetButton.EXTRA = CreateWindowW(L"button", L"Save",
-				WS_CHILD | WS_VISIBLE | WS_BORDER,
-				965, 158, 50, 50,
-				hWnd, (HMENU)BUTTON_SAVEPRESET, NULL, NULL);
-			CONFIG_H.savePresetButton.INFOBUTTON = CreateWindowW(L"button", L"I",
-				WS_CHILD | WS_BORDER,
-				942, 162, 16, 16,
-				hWnd, (HMENU)IB_SAVEPRESET, NULL, NULL);
-		}
+		#pragma endregion
 		//###############################################################################
 
-		/*###############################################################################
-			System and Planet Screen Handles */ {
 		//###############################################################################
-			CONFIG_H.HEADER_SYSTEMPLANET = CreateWindowW(L"static", L"System and Planet Variables",
-				WS_CHILD | WS_BORDER | ES_CENTER, //Effects
-				350, 60, 664, 30, //X, Y, Width & Height
-				hWnd, NULL, NULL, NULL); //Parent
-
-			//smart placement
-			CONFIG_H.smartPlacement.DESC = CreateWindowW(L"static", L"Smart Placement:",
-				WS_CHILD | WS_BORDER,
-				370, 100, 230, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.smartPlacement.HANDLE = CreateWindowW(L"button", L"",
-				WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
-				600, 100, 100, 20,
-				hWnd, (HMENU)CB_SMARTPLACEMENT, NULL, NULL);
-			CONFIG_H.smartPlacement.INFOBUTTON = CreateWindowW(L"button", L"I",
-				WS_CHILD | WS_BORDER,
-				702, 102, 16, 16,
-				hWnd, (HMENU)IB_SMARTPLACEMENT, NULL, NULL);
-
-			//min and max distance
-			CONFIG_H.minDistance.DESC = CreateWindowW(L"static", L"Minimum Distance:",
-				WS_CHILD | WS_BORDER,
-				370, 120, 230, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.minDistance.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-				600, 120, 100, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.maxDistance.DESC = CreateWindowW(L"static", L"Maximum Distance:",
-				WS_CHILD | WS_BORDER,
-				370, 140, 230, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.maxDistance.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-				600, 140, 100, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.maxDistance.INFOBUTTON = CreateWindowW(L"button", L"I",
-				WS_CHILD | WS_BORDER,
-				702, 132, 16, 16,
-				hWnd, (HMENU)IB_DISTANCE, NULL, NULL);
-
-			//generate dwarf planets
-			CONFIG_H.generateDwarfPlanets.DESC = CreateWindowW(L"static", L"Generate Dwarf Planets:",
-				WS_CHILD | WS_BORDER,
-				370, 300, 230, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.generateDwarfPlanets.HANDLE = CreateWindowW(L"button", L"",
-				WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
-				600, 300, 100, 20,
-				hWnd, (HMENU)CB_GENERATEDWARFPLANET, NULL, NULL);
-			CONFIG_H.generateDwarfPlanets.INFOBUTTON = CreateWindowW(L"button", L"I",
-				WS_CHILD | WS_BORDER,
-				702, 302, 16, 16,
-				hWnd, (HMENU)IB_GENERATEDWARFPLANET, NULL, NULL);
-
-			//weighted moons
-			CONFIG_H.weightedMoons.DESC = CreateWindowW(L"static", L"Weighted Moons:",
-				WS_CHILD | WS_BORDER,
-				370, 400, 230, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.weightedMoons.HANDLE = CreateWindowW(L"button", L"",
-				WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
-				600, 400, 100, 20,
-				hWnd, (HMENU)CB_WEIGHTEDMOONS, NULL, NULL);
-			CONFIG_H.weightedMoons.INFOBUTTON = CreateWindowW(L"button", L"I",
-				WS_CHILD | WS_BORDER,
-				702, 402, 16, 16,
-				hWnd, (HMENU)IB_WEIGHTEDMOONS, NULL, NULL);
-
-			// moon spacer check
-			CONFIG_H.moonDistanceBoundary.DESC = CreateWindowW(L"static", L"Moon Distance Boundary:",
-				WS_CHILD | WS_BORDER,
-				370, 420, 230, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.moonDistanceBoundary.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-				600, 420, 100, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.moonDistanceBoundary.INFOBUTTON = CreateWindowW(L"button", L"I",
-				WS_CHILD | WS_BORDER,
-				702, 422, 16, 16,
-				hWnd, (HMENU)IB_MOONDISTANCEBOUNDARY, NULL, NULL);
-
-			//min dwarf planet chance
-			CONFIG_H.dwarfPlanetChance.DESC = CreateWindowW(L"static", L"Dwarf Planet % Chance:",
-				WS_CHILD | WS_BORDER,
-				370, 320, 230, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.dwarfPlanetChance.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-				600, 320, 100, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.dwarfPlanetChance.INFOBUTTON = CreateWindowW(L"button", L"I",
-				WS_CHILD | WS_BORDER,
-				702, 322, 16, 16,
-				hWnd, (HMENU)IB_DWARFPALNETCHANCE, NULL, NULL);
-
-			//min planet number
-			CONFIG_H.minPlanetNumber.DESC = CreateWindowW(L"static", L"Minimum # of Planets:",
-				WS_CHILD | WS_BORDER,
-				370, 500, 230, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.minPlanetNumber.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-				600, 500, 100, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.minPlanetNumber.INFOBUTTON = CreateWindowW(L"button", L"I",
-				WS_CHILD | WS_BORDER,
-				702, 502, 16, 16,
-				hWnd, (HMENU)IB_MINPLANETNUMBER, NULL, NULL);
-
-			//obliquity stuff
-			CONFIG_H.avgObliquity.DESC = CreateWindowW(L"static", L"Axial Tilt Average:",
-				WS_CHILD | WS_BORDER,
-				370, 170, 230, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.avgObliquity.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-				600, 170, 100, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.SDObliquity.DESC = CreateWindowW(L"static", L"Axial Tilt Standard Deviation:",
-				WS_CHILD | WS_BORDER,
-				370, 190, 230, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.SDObliquity.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-				600, 190, 100, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.SDObliquity.INFOBUTTON = CreateWindowW(L"button", L"I",
-				WS_CHILD | WS_BORDER,
-				702, 182, 16, 16,
-				hWnd, (HMENU)IB_OBLIQUITY, NULL, NULL);
-
-			//inclination stuff
-			CONFIG_H.avgInclination.DESC = CreateWindowW(L"static", L"Inclination Average:",
-				WS_CHILD | WS_BORDER,
-				370, 211, 230, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.avgInclination.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-				600, 211, 100, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.SDInclination.DESC = CreateWindowW(L"static", L"Inclination Standard Deviation:",
-				WS_CHILD | WS_BORDER,
-				370, 231, 230, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.SDInclination.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-				600, 231, 100, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.SDInclination.INFOBUTTON = CreateWindowW(L"button", L"I",
-				WS_CHILD | WS_BORDER,
-				702, 223, 16, 16,
-				hWnd, (HMENU)IB_INCLINATION, NULL, NULL);
-
-			//eccentricity stuff
-			CONFIG_H.avgEccentricity.DESC = CreateWindowW(L"static", L"Eccentricity Average:",
-				WS_CHILD | WS_BORDER,
-				370, 252, 230, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.avgEccentricity.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-				600, 252, 100, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.SDEccentricity.DESC = CreateWindowW(L"static", L"Eccentricity Standard Deviation:",
-				WS_CHILD | WS_BORDER,
-				370, 272, 230, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.SDEccentricity.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-				600, 272, 100, 20,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.SDEccentricity.INFOBUTTON = CreateWindowW(L"button", L"I",
-				WS_CHILD | WS_BORDER,
-				702, 264, 16, 16,
-				hWnd, (HMENU)IB_ECCENTRICITY, NULL, NULL);
-
-			// Trackbar stuff
-			/*
-			CONFIG_H.avgEccentricity.HANDLE = CreateWindowW(TRACKBAR_CLASS, L"Track Test",
-				WS_CHILD | WS_BORDER | TBS_NOTICKS,
-				600, 400, 100, 20,
-				hWnd, NULL, NULL, NULL);
-			SendMessage(CONFIG_H.avgEccentricity.HANDLE, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(1, 9999));
-			SendMessage(CONFIG_H.avgEccentricity.HANDLE, TBM_SETPAGESIZE, 0, (LPARAM)100);
-			CONFIG_H.avgEccentricity.EXTRA = CreateWindowW(L"static", L"",
-				WS_CHILD | WS_VISIBLE | SS_RIGHT,
-				0, 0, 70, 20,
-				hWnd, NULL, NULL, NULL);
-			SendMessage(CONFIG_H.avgEccentricity.HANDLE, TBM_SETBUDDY, (WPARAM)FALSE, (LPARAM)CONFIG_H.avgEccentricity.EXTRA);
-			*/
-
-			//Star class Stuff
-			//I used the O class's EXTRA to create the groupbox for all the classes,
-			//therefore, it is the parent for all the class checkboxes
-			CONFIG_H.starClassO.EXTRA = CreateWindowW(L"button", L"Star Class Weights:",
-				WS_CHILD | BS_GROUPBOX,
-				750, 100, 250, 170,
-				hWnd, NULL, NULL, NULL);
-			CONFIG_H.starClassO.INFOBUTTON = CreateWindowW(L"button", L"I",
-				WS_CHILD | WS_BORDER,
-				960, 102, 16, 16,
-				hWnd, (HMENU)IB_STARCLASS, NULL, NULL);
-
-
-			CONFIG_H.starClassO.DESC = CreateWindowW(L"static", L"O:",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
-				10, 20, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-			CONFIG_H.starClassO.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-				50, 20, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-
-			CONFIG_H.starClassB.DESC = CreateWindowW(L"static", L"B:",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
-				10, 40, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-			CONFIG_H.starClassB.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-				50, 40, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-
-			CONFIG_H.starClassA.DESC = CreateWindowW(L"static", L"A:",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
-				10, 60, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-			CONFIG_H.starClassA.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-				50, 60, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-
-			CONFIG_H.starClassF.DESC = CreateWindowW(L"static", L"F:",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
-				10, 80, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-			CONFIG_H.starClassF.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-				50, 80, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-
-			CONFIG_H.starClassG.DESC = CreateWindowW(L"static", L"G:",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
-				10, 100, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-			CONFIG_H.starClassG.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-				50, 100, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-
-			CONFIG_H.starClassK.DESC = CreateWindowW(L"static", L"K:",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
-				10, 120, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-			CONFIG_H.starClassK.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-				50, 120, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-
-			CONFIG_H.starClassM.DESC = CreateWindowW(L"static", L"M:",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
-				10, 140, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-			CONFIG_H.starClassM.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-				50, 140, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-
-			CONFIG_H.starClassWD.DESC = CreateWindowW(L"static", L"WD:",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
-				100, 20, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-			CONFIG_H.starClassWD.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-				140, 20, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-
-			CONFIG_H.starClassQ.DESC = CreateWindowW(L"static", L"Q:",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
-				100, 40, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-			CONFIG_H.starClassQ.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-				140, 40, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-
-			CONFIG_H.starClassX.DESC = CreateWindowW(L"static", L"X:",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
-				100, 60, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-			CONFIG_H.starClassX.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-				140, 60, 40, 20,
-				CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
-		}
+			#pragma region General Screen Handles
 		//###############################################################################
 
-		/*###############################################################################
-			Life Screen Handles  */ 
+		CONFIG_H.HEADER_GENERAL = CreateWindowW(L"static", L"General Variables",
+			WS_CHILD | WS_BORDER | ES_CENTER, //Effects
+			350, 60, 664, 30, //X, Y, Width & Height
+			hWnd, NULL, NULL, NULL); //Parent
+
+		CONFIG_H.seed.DESC = CreateWindowW(L"static", L"Seed:",
+			WS_CHILD | WS_BORDER,
+			370, 100, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.seed.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			600, 100, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.seed.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			702, 102, 16, 16,
+			hWnd, (HMENU)IB_SEED, NULL, NULL);
+
+		CONFIG_H.numberOfRuns.DESC = CreateWindowW(L"static", L"# of Systems to Generate:",
+			WS_CHILD | WS_BORDER,
+			370, 120, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.numberOfRuns.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_NUMBER | ES_RIGHT,
+			600, 120, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.numberOfRuns.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			702, 122, 16, 16,
+			hWnd, (HMENU)IB_NUMBEROFRUNS, NULL, NULL);
+
+		CONFIG_H.debug.DESC = CreateWindowW(L"static", L"Debug:",
+			WS_CHILD | WS_BORDER,
+			370, 140, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.debug.HANDLE = CreateWindowW(L"button", L"",
+			WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
+			600, 140, 100, 20,
+			hWnd, (HMENU)CB_DEBUG, NULL, NULL);
+		CONFIG_H.debug.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			702, 142, 16, 16,
+			hWnd, (HMENU)IB_DEBUG, NULL, NULL);
+
+		//star output folder
+		CONFIG_H.starOutputFolder.DESC = CreateWindowW(L"static", L"Star Output Folder:",
+			WS_CHILD | WS_BORDER,
+			370, 160, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.starOutputFolder.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			470, 160, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.starOutputFolder.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			702, 162, 16, 16,
+			hWnd, (HMENU)IB_STAROUTPUTFOLDER, NULL, NULL);
+
+		//planet output folder
+		CONFIG_H.planetOutputFolder.DESC = CreateWindowW(L"static", L"Planet Output Folder:",
+			WS_CHILD | WS_BORDER,
+			370, 180, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.planetOutputFolder.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			470, 180, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.planetOutputFolder.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			702, 182, 16, 16,
+			hWnd, (HMENU)IB_PLANETOUTPUTFOLDER, NULL, NULL);
+
+		//Preset handles are in the Load Presets function!
+
+		CONFIG_H.savePresetButton.DESC = CreateWindowW(L"static", L"Save a Preset...",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_CENTER,
+			760, 160, 180, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.savePresetButton.HANDLE = CreateWindowW(L"edit", L"New Preset",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
+			760, 180, 200, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.savePresetButton.EXTRA = CreateWindowW(L"button", L"Save",
+			WS_CHILD | WS_VISIBLE | WS_BORDER,
+			965, 158, 50, 50,
+			hWnd, (HMENU)BUTTON_SAVEPRESET, NULL, NULL);
+		CONFIG_H.savePresetButton.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			942, 162, 16, 16,
+			hWnd, (HMENU)IB_SAVEPRESET, NULL, NULL);
+
+		#pragma endregion
 		//###############################################################################
+
+		//###############################################################################
+			#pragma region System and Planet Screen Handles
+		//###############################################################################
+		CONFIG_H.HEADER_SYSTEMPLANET = CreateWindowW(L"static", L"System and Planet Variables",
+			WS_CHILD | WS_BORDER | ES_CENTER, //Effects
+			350, 60, 664, 30, //X, Y, Width & Height
+			hWnd, NULL, NULL, NULL); //Parent
+
+		//smart placement
+		CONFIG_H.smartPlacement.DESC = CreateWindowW(L"static", L"Smart Placement:",
+			WS_CHILD | WS_BORDER,
+			370, 100, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.smartPlacement.HANDLE = CreateWindowW(L"button", L"",
+			WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
+			600, 100, 100, 20,
+			hWnd, (HMENU)CB_SMARTPLACEMENT, NULL, NULL);
+		CONFIG_H.smartPlacement.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			702, 102, 16, 16,
+			hWnd, (HMENU)IB_SMARTPLACEMENT, NULL, NULL);
+
+		//min and max distance
+		CONFIG_H.minDistance.DESC = CreateWindowW(L"static", L"Minimum Distance:",
+			WS_CHILD | WS_BORDER,
+			370, 120, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.minDistance.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			600, 120, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.maxDistance.DESC = CreateWindowW(L"static", L"Maximum Distance:",
+			WS_CHILD | WS_BORDER,
+			370, 140, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.maxDistance.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			600, 140, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.maxDistance.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			702, 132, 16, 16,
+			hWnd, (HMENU)IB_DISTANCE, NULL, NULL);
+
+		//generate dwarf planets
+		CONFIG_H.generateDwarfPlanets.DESC = CreateWindowW(L"static", L"Generate Dwarf Planets:",
+			WS_CHILD | WS_BORDER,
+			370, 300, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.generateDwarfPlanets.HANDLE = CreateWindowW(L"button", L"",
+			WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
+			600, 300, 100, 20,
+			hWnd, (HMENU)CB_GENERATEDWARFPLANET, NULL, NULL);
+		CONFIG_H.generateDwarfPlanets.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			702, 302, 16, 16,
+			hWnd, (HMENU)IB_GENERATEDWARFPLANET, NULL, NULL);
+
+		//weighted moons
+		CONFIG_H.weightedMoons.DESC = CreateWindowW(L"static", L"Weighted Moons:",
+			WS_CHILD | WS_BORDER,
+			370, 400, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.weightedMoons.HANDLE = CreateWindowW(L"button", L"",
+			WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
+			600, 400, 100, 20,
+			hWnd, (HMENU)CB_WEIGHTEDMOONS, NULL, NULL);
+		CONFIG_H.weightedMoons.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			702, 402, 16, 16,
+			hWnd, (HMENU)IB_WEIGHTEDMOONS, NULL, NULL);
+
+		// moon spacer check
+		CONFIG_H.moonDistanceBoundary.DESC = CreateWindowW(L"static", L"Moon Distance Boundary:",
+			WS_CHILD | WS_BORDER,
+			370, 420, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.moonDistanceBoundary.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			600, 420, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.moonDistanceBoundary.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			702, 422, 16, 16,
+			hWnd, (HMENU)IB_MOONDISTANCEBOUNDARY, NULL, NULL);
+
+		//min dwarf planet chance
+		CONFIG_H.dwarfPlanetChance.DESC = CreateWindowW(L"static", L"Dwarf Planet % Chance:",
+			WS_CHILD | WS_BORDER,
+			370, 320, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.dwarfPlanetChance.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			600, 320, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.dwarfPlanetChance.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			702, 322, 16, 16,
+			hWnd, (HMENU)IB_DWARFPALNETCHANCE, NULL, NULL);
+
+		//min planet number
+		CONFIG_H.minPlanetNumber.DESC = CreateWindowW(L"static", L"Minimum # of Planets:",
+			WS_CHILD | WS_BORDER,
+			370, 500, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.minPlanetNumber.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			600, 500, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.minPlanetNumber.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			702, 502, 16, 16,
+			hWnd, (HMENU)IB_MINPLANETNUMBER, NULL, NULL);
+
+		//obliquity stuff
+		CONFIG_H.avgObliquity.DESC = CreateWindowW(L"static", L"Axial Tilt Average:",
+			WS_CHILD | WS_BORDER,
+			370, 170, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.avgObliquity.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			600, 170, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.SDObliquity.DESC = CreateWindowW(L"static", L"Axial Tilt Standard Deviation:",
+			WS_CHILD | WS_BORDER,
+			370, 190, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.SDObliquity.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			600, 190, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.SDObliquity.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			702, 182, 16, 16,
+			hWnd, (HMENU)IB_OBLIQUITY, NULL, NULL);
+
+		//inclination stuff
+		CONFIG_H.avgInclination.DESC = CreateWindowW(L"static", L"Inclination Average:",
+			WS_CHILD | WS_BORDER,
+			370, 211, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.avgInclination.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			600, 211, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.SDInclination.DESC = CreateWindowW(L"static", L"Inclination Standard Deviation:",
+			WS_CHILD | WS_BORDER,
+			370, 231, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.SDInclination.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			600, 231, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.SDInclination.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			702, 223, 16, 16,
+			hWnd, (HMENU)IB_INCLINATION, NULL, NULL);
+
+		//eccentricity stuff
+		CONFIG_H.avgEccentricity.DESC = CreateWindowW(L"static", L"Eccentricity Average:",
+			WS_CHILD | WS_BORDER,
+			370, 252, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.avgEccentricity.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			600, 252, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.SDEccentricity.DESC = CreateWindowW(L"static", L"Eccentricity Standard Deviation:",
+			WS_CHILD | WS_BORDER,
+			370, 272, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.SDEccentricity.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			600, 272, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.SDEccentricity.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			702, 264, 16, 16,
+			hWnd, (HMENU)IB_ECCENTRICITY, NULL, NULL);
+
+		// Trackbar stuff
+		/*
+		CONFIG_H.avgEccentricity.HANDLE = CreateWindowW(TRACKBAR_CLASS, L"Track Test",
+			WS_CHILD | WS_BORDER | TBS_NOTICKS,
+			600, 400, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		SendMessage(CONFIG_H.avgEccentricity.HANDLE, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(1, 9999));
+		SendMessage(CONFIG_H.avgEccentricity.HANDLE, TBM_SETPAGESIZE, 0, (LPARAM)100);
+		CONFIG_H.avgEccentricity.EXTRA = CreateWindowW(L"static", L"",
+			WS_CHILD | WS_VISIBLE | SS_RIGHT,
+			0, 0, 70, 20,
+			hWnd, NULL, NULL, NULL);
+		SendMessage(CONFIG_H.avgEccentricity.HANDLE, TBM_SETBUDDY, (WPARAM)FALSE, (LPARAM)CONFIG_H.avgEccentricity.EXTRA);
+		*/
+
+		//Star class Stuff
+		//I used the O class's EXTRA to create the groupbox for all the classes,
+		//therefore, it is the parent for all the class checkboxes
+		CONFIG_H.starClassO.EXTRA = CreateWindowW(L"button", L"Star Class Weights:",
+			WS_CHILD | BS_GROUPBOX,
+			750, 100, 250, 170,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.starClassO.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			960, 102, 16, 16,
+			hWnd, (HMENU)IB_STARCLASS, NULL, NULL);
+
+
+		CONFIG_H.starClassO.DESC = CreateWindowW(L"static", L"O:",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+			10, 20, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+		CONFIG_H.starClassO.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+			50, 20, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+
+		CONFIG_H.starClassB.DESC = CreateWindowW(L"static", L"B:",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+			10, 40, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+		CONFIG_H.starClassB.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+			50, 40, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+
+		CONFIG_H.starClassA.DESC = CreateWindowW(L"static", L"A:",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+			10, 60, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+		CONFIG_H.starClassA.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+			50, 60, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+
+		CONFIG_H.starClassF.DESC = CreateWindowW(L"static", L"F:",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+			10, 80, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+		CONFIG_H.starClassF.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+			50, 80, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+
+		CONFIG_H.starClassG.DESC = CreateWindowW(L"static", L"G:",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+			10, 100, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+		CONFIG_H.starClassG.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+			50, 100, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+
+		CONFIG_H.starClassK.DESC = CreateWindowW(L"static", L"K:",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+			10, 120, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+		CONFIG_H.starClassK.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+			50, 120, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+
+		CONFIG_H.starClassM.DESC = CreateWindowW(L"static", L"M:",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+			10, 140, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+		CONFIG_H.starClassM.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+			50, 140, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+
+		CONFIG_H.starClassWD.DESC = CreateWindowW(L"static", L"WD:",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+			100, 20, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+		CONFIG_H.starClassWD.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+			140, 20, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+
+		CONFIG_H.starClassQ.DESC = CreateWindowW(L"static", L"Q:",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+			100, 40, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+		CONFIG_H.starClassQ.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+			140, 40, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+
+		CONFIG_H.starClassX.DESC = CreateWindowW(L"static", L"X:",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
+			100, 60, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+		CONFIG_H.starClassX.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
+			140, 60, 40, 20,
+			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
+
+		#pragma endregion
+		//###############################################################################
+
+		//###############################################################################
+			#pragma region Life Screen Handles
+		//###############################################################################
+
 			CONFIG_H.HEADER_LIFE = CreateWindowW(L"static", L"Life Variables",
 				WS_CHILD | WS_BORDER | ES_CENTER, //Effects
 				350, 60, 664, 30, //X, Y, Width & Height
@@ -1270,11 +1275,12 @@ Screen lastScreen;
 				WS_CHILD | WS_BORDER,
 				702, 182, 16, 16,
 				hWnd, (HMENU)IB_FORCELIFE, NULL, NULL);
-		
+
+		#pragma endregion
 		//###############################################################################
 
-		/*###############################################################################
-			Ships Screen Handles */ {
+		//###############################################################################
+			#pragma region Ships Screen Handles
 		//###############################################################################
 
 		CONFIG_H.HEADER_SHIPS = CreateWindowW(L"static", L"Ship Variables",
@@ -1323,11 +1329,12 @@ Screen lastScreen;
 			WS_CHILD | WS_BORDER,
 			702, 142, 16, 16,
 			hWnd, (HMENU)IB_SHIPSNEEDLIFE, NULL, NULL);
-		}
+
+		#pragma endregion
 		//###############################################################################
 
-		/*###############################################################################
-			Exotic Screen Handles */ {
+		//###############################################################################
+			#pragma region Exotic Screen Handles
 		//###############################################################################
 
 		CONFIG_H.HEADER_EXOTIC = CreateWindowW(L"static", L"Exotic Variables",
@@ -1390,11 +1397,12 @@ Screen lastScreen;
 			WS_CHILD | WS_BORDER,
 			702, 162, 16, 16,
 			hWnd, (HMENU)IB_EXOTICDEBRISRING, NULL, NULL);
-		}
+
+		#pragma endregion
 		//###############################################################################
 
-		/*###############################################################################
-			Advanced Screen Handles */ {
+		//###############################################################################
+			#pragma region Advanced Screen Handles
 		//###############################################################################
 
 			CONFIG_H.HEADER_ADVANCED = CreateWindowW(L"static", L"Advanced Variables:",
@@ -1402,10 +1410,10 @@ Screen lastScreen;
 				350, 60, 664, 30, //X, Y, Width & Height
 				hWnd, NULL, NULL, NULL); //Parent
 
-			/*###############################################################################
-				Name Stuff */
 			//###############################################################################
-			{
+				#pragma region Name Stuff
+			//###############################################################################
+			
 				// groupbox to hold the buttons
 				CONFIG_H.advNameGroup.EXTRA = CreateWindowW(L"button", L"Name Variables:",
 					WS_CHILD | WS_GROUP | BS_GROUPBOX,
@@ -1513,10 +1521,9 @@ Screen lastScreen;
 					962, 352, 16, 16,
 					hWnd, (HMENU)IB_NAMEPOSTMODLIST, NULL, NULL);
 
-				/*###############################################################################
-					Star Group
-				###############################################################################*/
-				{
+				//###############################################################################
+					#pragma region Star Group
+				//###############################################################################
 					NV.GROUP_STAR = CreateWindowW(L"button", L"Star Name Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
@@ -1566,11 +1573,13 @@ Screen lastScreen;
 						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 						312, 130, 296, 266,
 						NV.GROUP_STAR, NULL, NULL, NULL);
-				}
-				/*###############################################################################
-					Planet Group
-				###############################################################################*/
-				{
+
+					#pragma endregion
+				//###############################################################################
+
+				//###############################################################################
+					#pragma region Planet Group
+				//###############################################################################
 					NV.GROUP_PLANET = CreateWindowW(L"button", L"Planet Name Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
@@ -1620,11 +1629,14 @@ Screen lastScreen;
 						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 						312, 130, 296, 266,
 						NV.GROUP_PLANET, NULL, NULL, NULL);
-				}
-				/*###############################################################################
-					Moon Group
-				###############################################################################*/
-				{
+
+					#pragma endregion
+				//###############################################################################
+
+				//###############################################################################
+					#pragma region Moon Group
+				//###############################################################################
+				
 					NV.GROUP_MOON = CreateWindowW(L"button", L"Moon Name Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
@@ -1687,11 +1699,14 @@ Screen lastScreen;
 						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 						312, 130, 296, 266,
 						NV.GROUP_MOON, NULL, NULL, NULL);
-				}
-				/*###############################################################################
-					Dwarf Moon Group
-				###############################################################################*/
-				{
+
+					#pragma endregion
+				//###############################################################################
+
+				//###############################################################################
+					#pragma region Dwarf Moon Group
+				//###############################################################################
+				
 					NV.GROUP_DWARFMOON = CreateWindowW(L"button", L"Dwarf Moon Name Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
@@ -1758,11 +1773,14 @@ Screen lastScreen;
 						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 						312, 130, 296, 266,
 						NV.GROUP_DWARFMOON, NULL, NULL, NULL);
-				}
-				/*###############################################################################
-					Ship_All Group
-				###############################################################################*/
-				{
+
+					#pragma endregion
+				//###############################################################################
+
+				//###############################################################################
+					#pragma region Ship_All Group
+				//###############################################################################
+				
 					NV.GROUP_ALL_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
@@ -1804,11 +1822,14 @@ Screen lastScreen;
 						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 						312, 130, 296, 266,
 						NV.GROUP_ALL_SHIP, NULL, NULL, NULL);
-				}
-				/*###############################################################################
-					Ship_Colony Group
-				###############################################################################*/
-				{
+				
+					#pragma endregion
+				//###############################################################################
+
+				//###############################################################################
+					#pragma region Ship_Colony Group
+				//###############################################################################
+				
 					NV.GROUP_COLONY_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
@@ -1858,11 +1879,14 @@ Screen lastScreen;
 						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 						312, 130, 296, 266,
 						NV.GROUP_COLONY_SHIP, NULL, NULL, NULL);
-				}
-				/*###############################################################################
-					Ship_Instrument Group
-				###############################################################################*/
-				{
+
+					#pragma endregion
+				//###############################################################################
+
+				//###############################################################################
+					#pragma region Ship_Instrument Group
+				//###############################################################################
+				
 					NV.GROUP_INSTRUMENT_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
@@ -1912,11 +1936,14 @@ Screen lastScreen;
 						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 						312, 130, 296, 266,
 						NV.GROUP_INSTRUMENT_SHIP, NULL, NULL, NULL);
-				}
-				/*###############################################################################
-					Ship_Satellite Group
-				###############################################################################*/
-				{
+
+					#pragma endregion
+				//###############################################################################
+
+				//###############################################################################
+					#pragma region Ship_Satellite Group
+				//###############################################################################
+				
 					NV.GROUP_SATELLITE_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
@@ -1966,11 +1993,13 @@ Screen lastScreen;
 						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 						312, 130, 296, 266,
 						NV.GROUP_SATELLITE_SHIP, NULL, NULL, NULL);
-				}
-				/*###############################################################################
-					Ship_Station Group
-				###############################################################################*/
-				{
+
+					#pragma endregion
+				//###############################################################################
+
+				//###############################################################################
+					#pragma region Ship_Station Group
+				//###############################################################################
 
 					NV.GROUP_STATION_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
@@ -2039,11 +2068,14 @@ Screen lastScreen;
 						WS_CHILD | WS_BORDER,
 						850, 238, 80, 20,
 						hWnd, (HMENU)BUTTON_NAME_SHIP_STATION, NULL, NULL);
-				}
-				/*###############################################################################
-					Dataset Group
-				###############################################################################*/
-				{
+
+					#pragma endregion
+				//###############################################################################
+
+				//###############################################################################
+					#pragma region Dataset Group
+				//###############################################################################
+				
 					NV.GROUP_DATASET = CreateWindowW(L"button", L"Markov Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
@@ -2096,11 +2128,14 @@ Screen lastScreen;
 						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 						12, 100, 596, 300,
 						NV.GROUP_DATASET, NULL, NULL, NULL);
-				}
-				/*###############################################################################
-					Simple Generator Group
-				###############################################################################*/
-				{
+
+					#pragma endregion
+				//###############################################################################
+
+				//###############################################################################
+					#pragma region Simple Generator Group	
+				//###############################################################################
+				
 					NV.GROUP_SIMPLE = CreateWindowW(L"button", L"Simple Generator:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
@@ -2138,9 +2173,11 @@ Screen lastScreen;
 						12, 250, 596, 130,
 						NV.GROUP_SIMPLE, NULL, NULL, NULL);
 
-				}
-			}
-		}
+					#pragma endregion
+				//###############################################################################
+				#pragma endregion
+			//###############################################################################
+			#pragma endregion
 		//###############################################################################
 
 		// Page Edges
@@ -3621,13 +3658,12 @@ Screen lastScreen;
 		}
 	}
 
-
 	void SetInfoBox(int command)
 	{
 		switch (command)
 		{
 		case IB_SEED:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"Seed is what generates numbers.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"The seed is the unique identifier of each system generated. Leave this at 0 for a random seed, or type in a value if you want to generate a system more than once.\n\nNote that a seed may not generate the exact same system if certain variables are changed.\n\nYou can also find the seed of any system by looking in the Star file.");
 			break;
 		case IB_NUMBEROFRUNS:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"This is how many systems the program will generate.");
@@ -3636,10 +3672,10 @@ Screen lastScreen;
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"Enable debug mode.");
 			break;
 		case IB_STAROUTPUTFOLDER:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"Star Output Folder.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"The Star file will be placed in this folder after generation is finished.\n\nThe Star file should then be placed under \"addons\\catalogs\\stars\\\" in the Space Engine folder.");
 			break;
 		case IB_PLANETOUTPUTFOLDER:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"Planet Output Folder.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"The Planet file will be placed in this folder after generation is finished.\n\nThe Planet file should then be placed under \"addons\\catalogs\\planets\\\" in the Space Engine folder.");
 			break;
 		case IB_SMARTPLACEMENT:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"Places things smartly.");
@@ -5061,8 +5097,6 @@ Screen lastScreen;
 			<< "\n\t\tMeanAnomaly\t\t\t" << ship.meanAnomaly
 			<< "\n\t}\n}\n\n";
 	}
-
-
 
 	void GenerateStar(STAR& star)
 	{
