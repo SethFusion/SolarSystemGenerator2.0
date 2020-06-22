@@ -3680,6 +3680,15 @@ Screen lastScreen;
 		case IB_PLANETOUTPUTFOLDER:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"The Planet file will be placed in this folder after generation is finished.\n\nThe Planet file should then be placed under \"addons\\catalogs\\planets\\\" in the Space Engine folder.");
 			break;
+		case IB_SELECTPRESET:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Select a variable preset from the drop down menu, then click update to apply the changes to the generator.");
+			break;
+		case IB_SAVEPRESET:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Save the current variables as a new preset. Type the file name in the text box, then hit the \"save\" button.");
+			break;
+		case IB_SELECTNAMEPRESET:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Select a name preset from the drop down menu, then click update to apply the changes to the name generator. To save name presets, go to the \"advanced\" tab.");
+			break;
 	#pragma endregion
 //###############
 	#pragma region System and Planet
@@ -3691,19 +3700,31 @@ Screen lastScreen;
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"This is the distance from Earth measured in parsecs. Note that large distances could make systems spawn very far away from the galaxy.");
 			break;
 		case IB_OBLIQUITY:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"The average axial tilt of generated planets.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"The average axial tilt of generated planets and a standard deviation, measured in degrees.\n\nThis can technically be any number, but anything outside of 0 - 360 is unecessary.");
 			break;
 		case IB_INCLINATION:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"The average inclination of a planet's orbit around it's star.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"The average inclination of a planet's orbit around it's star and a stardard deviation, measured in degrees.\n\nThis can technically be any number, but anything outside of 0 - 360 is unecessary.");
 			break;
 		case IB_ECCENTRICITY:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"The average eccentricity of a planet's orbit.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"The average eccentricity of a planet's orbit and a standard deviation, measured from 0 (zero) - 1 (one), but NOT including zero or one.\n\nThese boxes MUST have a decimal number between zero and one or the generator WILL break.");
 			break;
 		case IB_MINPLANETNUMBER:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"The minimum number of planets the gernated should create. Note taht this number should not be too high or it may break the generator.");
 			break;
 		case IB_STARCLASS:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"The weight assigned to each star class tells the generator how often to generate that class. So if one class has a weight of 1 (one) and another class has a weight of 10 (ten), the class with a weight of 10 is much more likely to be generated.");
+			break;
+		case IB_GENERATEDWARFPLANET:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"If enabled, dwarf planets can spawn in the system, but do not affect total planet count. ");
+			break;
+		case IB_DWARFPALNETCHANCE:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Percent chance for dwarf planets to generate and continue generating after the first.");
+			break;
+		case IB_WEIGHTEDMOONS:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"If enabled, moons will generate based on a new weight system, hopefully making generation more interesting and realistic.\n\nDisabled will use an older system with hard limits on how many moons an object can have.");
+			break;
+		case IB_MOONDISTANCEBOUNDARY:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Moon distance boundary defines how much space should be inbetween major moons, measured by the parent planet's radius. Gas giants are ten times less than this number.\n\nSetting this number to 0 (zero) will disable this feature, so major moons could spawn very close to each other.");
 			break;
 	#pragma endregion
 //###############
@@ -3757,62 +3778,35 @@ Screen lastScreen;
 //###############
 	#pragma region Advanced
 //###############
-
-
-
-	#pragma endregion
-//###############
-		
-		
-		
-		case IB_SELECTPRESET:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"Select the preset variables.");
-			break;
-		case IB_SAVEPRESET:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"Save the current variables as a new preset.");
-			break;
-		case IB_SELECTNAMEPRESET:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"select a name preset.");
-			break;
 		case IB_SAVENAMEPRESET:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"save a name preset.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Save the current name variables as a new preset. Type the file name in the text box, then hit the \"save\" button.");
 			break;
 		case IB_MARKOV:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"the markov generator.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"This program generates names using something called a Markov Chain. Basically, it uses an existing set of words (the dataset on this page) to create new words that look similar. If the dataset is very large, this can be a time consuming process, which is why you MUST press the \"Update Names\" button on this page if you make any changes to the dataset.\n\nOrder affects similarity to the dataset. Higher number = higher similarity.\nVarience affects randomness.\nMin/Max length affects total characters in each word.");
 			break;
 		case IB_SIMPLEGENERATOR:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"the simple generator.");
-			break;
-		case IB_GENERATEDWARFPLANET:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"generate dwarf planets true/false.");
-			break;
-		case IB_DWARFPALNETCHANCE:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"the chance dwarf planets will spawn.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"This is an old but fairly fast name generator that starts with a prefix and adds suffixes onto it randomly until it decides to stop. Doesn't create the best names, but very fast. If enabled, the dataset will be ignored, along with the markov chain generator.");
 			break;
 		case IB_NAMEPREMODS:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"the pre mods");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Pre-name modifiers are words that can be added onto the front of a generated name.\n\nEach category of object has it's own list, as well as a percentage chance for a name to have a pre-modification.");
 			break;
 		case IB_NAMEPOSTMODS:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"the post mods");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Post-name modifiers are words that can be added onto the end of a generated name.\n\nEach category of object has it's own list, as well as a percentage chance for a name to have a post-modification.");
 			break;
 		case IB_NAMENUMBERMODS:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"the numbermods");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Number modifiers can be added before or after a generated name. These are somewhat random collections of digits, roman numerals, and other symbols to add flavor to named objects.\n\nEach category of object has a percentage chance for a name to have a number modifier.");
 			break;
 		case IB_NAMEPREMODLIST:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"box to hold pre mods");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Type pre-modifiers for the current object in this box.");
 			break;
 		case IB_NAMEPOSTMODLIST:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"box to hold post mods");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Type post-modifiers for the current object in this box.");
 			break;
 		case IB_NAMEMOONS:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"enables moons or something");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"If disabled, moons/dwarf moons will not generate names around rocky planets or gas giants, but will instead have a name counting up from 1. This will make the generator much faster since a lot of time is spent generating moon names, especially around gas giants.");
 			break;
-		case IB_WEIGHTEDMOONS:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"moon weight system");
-			break;
-		case IB_MOONDISTANCEBOUNDARY:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"min distance between moons");
-			break;
+	#pragma endregion
+//###############
 		}
 	}
 	void SetCheckBoxText(HWND hWnd, int command)
@@ -4519,11 +4513,11 @@ Screen lastScreen;
 			CONFIG.seed = genseed(mtseed);
 		}
 
-		mt_star.seed(CONFIG.seed++);
-		mt_planet.seed(CONFIG.seed++);
-		mt_moon.seed(CONFIG.seed++);
-		mt_ship.seed(CONFIG.seed++);
-		mt_name.seed(CONFIG.seed++);
+		mt_star.seed(CONFIG.seed + 1);
+		mt_planet.seed(CONFIG.seed + 2);
+		mt_moon.seed(CONFIG.seed + 3);
+		mt_ship.seed(CONFIG.seed + 4);
+		mt_name.seed(CONFIG.seed + 5);
 
 		/*###############################################################################
 				OUTER LOOP
