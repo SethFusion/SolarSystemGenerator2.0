@@ -2413,7 +2413,7 @@ Screen lastScreen;
 			<< "exotic_ShipChance=" << CONFIG.exotic_ShipChance << "\n"
 			<< "ModelsFolder=" << wstr_to_str(CONFIG.modelsFolder) << "\n"
 			<< "ShipsNeedLife=" << CONFIG.shipsNeedLife << "\n"
-			<< "exotic_OrbitChance=" << CONFIG.exotic_CompanionOrbitChance << "\n"
+			<< "exotic_OrbitChance=" << CONFIG.exotic_OrbitChance << "\n"
 			<< "exotic_AxialTiltChance=" << CONFIG.exotic_AxialTiltChance << "\n"
 			<< "exotic_DebrisRingChance=" << CONFIG.exotic_DebrisRingChance << "\n"
 			<< "exotic_CompanionOrbitChance=" << CONFIG.exotic_CompanionOrbitChance << "\n";
@@ -3662,6 +3662,9 @@ Screen lastScreen;
 	{
 		switch (command)
 		{
+//###############
+	#pragma region General
+//###############
 		case IB_SEED:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"The seed is the unique identifier of each system generated. Leave this at 0 for a random seed, or type in a value if you want to generate a system more than once.\n\nNote that a seed may not generate the exact same system if certain variables are changed.\n\nYou can also find the seed of any system by looking in the Star file.");
 			break;
@@ -3677,63 +3680,91 @@ Screen lastScreen;
 		case IB_PLANETOUTPUTFOLDER:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"The Planet file will be placed in this folder after generation is finished.\n\nThe Planet file should then be placed under \"addons\\catalogs\\planets\\\" in the Space Engine folder.");
 			break;
+	#pragma endregion
+//###############
+	#pragma region System and Planet
+//###############
 		case IB_SMARTPLACEMENT:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"Places things smartly.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"When smart placement is enabled, the generator will try to place planets in relatively realistic locations. So typically you will find gas giants beyond the frost limit and rocky planets closer to the star. If disabled, any planet type can spawn in any location.");
 			break;
 		case IB_DISTANCE:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"The distance from Earth in parsecs.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"This is the distance from Earth measured in parsecs. Note that large distances could make systems spawn very far away from the galaxy.");
 			break;
 		case IB_OBLIQUITY:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"The axial tilt of planets.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"The average axial tilt of generated planets.");
 			break;
 		case IB_INCLINATION:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"The inclination of planets.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"The average inclination of a planet's orbit around it's star.");
 			break;
 		case IB_ECCENTRICITY:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"The eccentricity of planets.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"The average eccentricity of a planet's orbit.");
 			break;
 		case IB_MINPLANETNUMBER:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"min planet number.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"The minimum number of planets the gernated should create. Note taht this number should not be too high or it may break the generator.");
 			break;
 		case IB_STARCLASS:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"class of stars.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"The weight assigned to each star class tells the generator how often to generate that class. So if one class has a weight of 1 (one) and another class has a weight of 10 (ten), the class with a weight of 10 is much more likely to be generated.");
 			break;
+	#pragma endregion
+//###############
+	#pragma region Life
+//###############
 		case IB_LIFEORGANICCHANCE:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"Organic life.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Organic life."); // figure out what to put here
 			break;
 		case IB_LIFEEXOTICCHANCE:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"exotic life");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"exotic life"); // figure out what to put here
 			break;
 		case IB_LIFEMULTICHANCE:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"multicel life");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"multicel life"); // figure out what to put here
 			break;
 		case IB_FORCELIFE:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"force life");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"If enabled, this will force every system generated to have at least one planet with life, no matter what type.");
 			break;
 		case IB_TRADITIONALLIFE:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"life traditional");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"If enabled, organic life can only spawn if a planet is near the habitable zone, while exotic life can spawn anywhere.");
 			break;
+	#pragma endregion
+//###############
+	#pragma region Ships
+//###############
 		case IB_SHIPCHANCE:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"ship chance");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Percent chance that ships will spawn somewhere in the system. Zero by default because you must set up the models folder first.");
 			break;
 		case IB_SHIPSNEEDLIFE:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"ships need life");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"If enabled, ships require a planet with life to have generated somewhere in the system to spawn.");
 			break;
 		case IB_MODELSFOLDER:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"models folder");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"This is the folder the generator pulls ship models from. The models folder that came with this generator should be placed under \"addons\\models\\\" in your Space Engine folder, then make sure to copy/paste the full file (ending with \"models\\\" ) path in the text box here.\n\nYou can also add your own ship models to this folder and the generator will use them.");
 			break;
+	#pragma endregion
+//###############
+	#pragma region Exotic
+//###############
 		case IB_EXOTICORBIT:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"exotic orbit");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Pecent chance for a planet to have a high inclination and/or a retrograde orbit.");
 			break;
 		case IB_EXOTICOBLIQUITY:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"exotic obliquity");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Pecent chance for a planet to have a high degree axial tilt and/or a retrograde rotation.");
 			break;
 		case IB_EXOTICDEBRISRING:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"exotic debris ring");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"A debris ring is a cluster of moons orbiting near a planet resembling a ring. They come in many sizes.");
 			break;
 		case IB_EXOTICCOMPANION:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"exotic companion orbit");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"A comapnion orbit is an object with the same orbit as another object, but orbiting on the oposite side side of the orbit.");
 			break;
+	#pragma endregion
+//###############
+	#pragma region Advanced
+//###############
+
+
+
+	#pragma endregion
+//###############
+		
+		
+		
 		case IB_SELECTPRESET:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"Select the preset variables.");
 			break;
