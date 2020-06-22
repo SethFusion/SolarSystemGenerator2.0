@@ -170,6 +170,53 @@ static void SetVariableToWindow(HWND& window, double number)
 		genChar[i + 2] = '\0';
 	}
 	//##############################################
+	// Changes scientific notation to normal expression
+	i = 0;
+	for (int x = 0; x < 26; x++)
+	{
+		if (genChar[i] == 'e')
+			x = 26;
+		else
+			i++;
+	}
+	if (genChar[i] == 'e')
+	{
+		char tempChar[26];
+		int counter = 0;
+		for (int j = 0; j < i; j++)
+			if (genChar[j] != '.')
+				tempChar[counter++] = genChar[j];
+		tempChar[i - 1] = '\0';
+
+		counter = 0;
+		char tempNumChar[26];
+		if (genChar[i + 1] == '-')
+		{
+			for (int x = (i + 2); genChar[x] != '\0'; x++)
+				tempNumChar[counter++] = genChar[x];
+			tempNumChar[counter] = '\0';
+
+			int exponent = atoi(tempNumChar);
+			
+			genChar[0] = '0';
+			genChar[1] = '.';
+
+			counter = 2;
+			for (counter; counter <= exponent; counter++)
+				genChar[counter] = '0';
+			for (int x = 0; tempChar[x] != '\0'; x++)
+				genChar[counter++] = tempChar[x];
+			genChar[counter] = '\0';
+
+			int poop = 0;
+		}
+		else
+		{
+
+		}	
+	}
+	//##############################################
+
 	wchar_t genVar[16];
 	mbstowcs_s(NULL, genVar, sizeof(genVar) / 2, genChar, sizeof(genChar));
 	SetWindowTextW(window, genVar);
