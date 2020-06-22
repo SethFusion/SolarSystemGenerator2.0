@@ -157,9 +157,20 @@ static void SetVariableToWindow(HWND& window, int number)
 }
 static void SetVariableToWindow(HWND& window, double number)
 {
-	wchar_t genVar[16];
 	char genChar[26];
-	_gcvt_s(genChar, sizeof(genChar), number, 5);
+	_gcvt_s(genChar, sizeof(genChar), number, 10);
+	//##############################################
+	// Puts a 0 after the decimal point if needed
+	int i = 0;
+	while (genChar[i] != '.')
+		i++;
+	if (genChar[i + 1] == '\0')
+	{
+		genChar[i + 1] = '0';
+		genChar[i + 2] = '\0';
+	}
+	//##############################################
+	wchar_t genVar[16];
 	mbstowcs_s(NULL, genVar, sizeof(genVar) / 2, genChar, sizeof(genChar));
 	SetWindowTextW(window, genVar);
 }
