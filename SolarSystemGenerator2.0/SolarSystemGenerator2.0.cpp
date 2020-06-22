@@ -4519,11 +4519,11 @@ Screen lastScreen;
 			CONFIG.seed = genseed(mtseed);
 		}
 
-		mt_star.seed(CONFIG.seed);
-		mt_planet.seed(CONFIG.seed);
-		mt_moon.seed(CONFIG.seed);
-		mt_ship.seed(CONFIG.seed);
-		mt_name.seed(CONFIG.seed);
+		mt_star.seed(CONFIG.seed++);
+		mt_planet.seed(CONFIG.seed++);
+		mt_moon.seed(CONFIG.seed++);
+		mt_ship.seed(CONFIG.seed++);
+		mt_name.seed(CONFIG.seed++);
 
 		/*###############################################################################
 				OUTER LOOP
@@ -4640,7 +4640,7 @@ Screen lastScreen;
 			}
 			SortVector(planetList, 0, planetList.size() - 1);
 
-			// Companion Orbit function
+			// Companion Orbit function for planets
 			planetList.at(0).hasCompanionOrbit = false;
 			for (int i = 1; i < planetList.size(); i++)
 			{
@@ -4746,6 +4746,51 @@ Screen lastScreen;
 				SortVector(majorMoon, 0, majorMoon.size() - 1);
 				SortVector(minorMoon, 0, minorMoon.size() - 1);
 
+				// Companion Orbit function for minor moons
+				if (majorMoon.size() > 0)
+				{
+					majorMoon.at(0).hasCompanionOrbit = false;
+					for (int i = 1; i < majorMoon.size(); i++)
+					{
+						if (majorMoon.at(i).hasCompanionOrbit)
+						{
+							if (!majorMoon.at(i - 1).hasCompanionOrbit)
+							{
+								majorMoon.at(i).semimajorAxis = majorMoon.at(i - 1).semimajorAxis;
+								majorMoon.at(i).inclination = majorMoon.at(i - 1).inclination;
+								majorMoon.at(i).eccentricity = majorMoon.at(i - 1).eccentricity;
+								majorMoon.at(i).ascendingNode = majorMoon.at(i - 1).ascendingNode;
+								majorMoon.at(i).argofPericenter = majorMoon.at(i - 1).argofPericenter;
+								majorMoon.at(i).meanAnomaly = majorMoon.at(i - 1).meanAnomaly + 180;
+							}
+							else
+								majorMoon.at(i).hasCompanionOrbit = false;
+						}
+					}
+				}
+				// Companion Orbit function for major moons
+				if (minorMoon.size() > 0)
+				{
+					minorMoon.at(0).hasCompanionOrbit = false;
+					for (int i = 1; i < minorMoon.size(); i++)
+					{
+						if (minorMoon.at(i).hasCompanionOrbit)
+						{
+							if (!minorMoon.at(i - 1).hasCompanionOrbit)
+							{
+								minorMoon.at(i).semimajorAxis = minorMoon.at(i - 1).semimajorAxis;
+								minorMoon.at(i).inclination = minorMoon.at(i - 1).inclination;
+								minorMoon.at(i).eccentricity = minorMoon.at(i - 1).eccentricity;
+								minorMoon.at(i).ascendingNode = minorMoon.at(i - 1).ascendingNode;
+								minorMoon.at(i).argofPericenter = minorMoon.at(i - 1).argofPericenter;
+								minorMoon.at(i).meanAnomaly = minorMoon.at(i - 1).meanAnomaly + 180;
+							}
+							else
+								minorMoon.at(i).hasCompanionOrbit = false;
+						}
+					}
+				}
+				
 				/*###############################################################################
 					PRINTING
 				###############################################################################*/
@@ -5689,6 +5734,7 @@ Screen lastScreen;
 			}
 		}
 
+		// companion orbit
 		planet.hasCompanionOrbit = false;
 		if (genpercent(mt_planet) <= CONFIG.exotic_CompanionOrbitChance)
 			planet.hasCompanionOrbit = true;
@@ -6000,6 +6046,11 @@ Screen lastScreen;
 		planet.argofPericenter = gendegree(mt_planet);
 		planet.meanAnomaly = gendegree(mt_planet);
 
+		// companion orbit
+		planet.hasCompanionOrbit = false;
+		if (genpercent(mt_planet) <= CONFIG.exotic_CompanionOrbitChance)
+			planet.hasCompanionOrbit = true;
+
 		//######################################################################################################
 			//	MOON NUMBER GENERATION
 
@@ -6297,6 +6348,11 @@ Screen lastScreen;
 			}
 		}
 
+		// companion orbit
+		moon.hasCompanionOrbit = false;
+		if (genpercent(mt_planet) <= CONFIG.exotic_CompanionOrbitChance)
+			moon.hasCompanionOrbit = true;
+
 		moon.life_exotic.haslife = false;
 		moon.life_exotic.panspermia = false;
 		moon.life_organic.haslife = false;
@@ -6525,6 +6581,11 @@ Screen lastScreen;
 		moon.ascendingNode = gendegree(mt_moon);
 		moon.argofPericenter = gendegree(mt_moon);
 		moon.meanAnomaly = gendegree(mt_moon);
+
+		// companion orbit
+		moon.hasCompanionOrbit = false;
+		if (genpercent(mt_planet) <= CONFIG.exotic_CompanionOrbitChance)
+			moon.hasCompanionOrbit = true;
 	}
 	void GenerateDwarfMinor(PLANET& parent, PLANET& moon, int currentMoon)
 	{
