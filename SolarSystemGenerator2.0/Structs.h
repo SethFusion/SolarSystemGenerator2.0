@@ -82,6 +82,7 @@ struct PLANET
 	Life life_organic, life_exotic;
 
 	//exotic stuff
+	bool hasCompanionOrbit;
 	int debrisCount;
 	std::wstring model; // used for ships
 };

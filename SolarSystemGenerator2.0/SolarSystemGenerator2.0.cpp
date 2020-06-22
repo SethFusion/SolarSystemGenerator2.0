@@ -4640,6 +4640,26 @@ Screen lastScreen;
 			}
 			SortVector(planetList, 0, planetList.size() - 1);
 
+			// Companion Orbit function
+			planetList.at(0).hasCompanionOrbit = false;
+			for (int i = 1; i < planetList.size(); i++)
+			{
+				if (planetList.at(i).hasCompanionOrbit)
+				{
+					if (!planetList.at(i - 1).hasCompanionOrbit)
+					{
+						planetList.at(i).semimajorAxis = planetList.at(i - 1).semimajorAxis;
+						planetList.at(i).inclination = planetList.at(i - 1).inclination;
+						planetList.at(i).eccentricity = planetList.at(i - 1).eccentricity;
+						planetList.at(i).ascendingNode = planetList.at(i - 1).ascendingNode;
+						planetList.at(i).argofPericenter = planetList.at(i - 1).argofPericenter;
+						planetList.at(i).meanAnomaly = planetList.at(i - 1).meanAnomaly + 180;
+					}
+					else
+						planetList.at(i).hasCompanionOrbit = false;		
+				}
+			}
+
 			// force life function
 			bool lifeTest = false;
 			if (CONFIG.forceLife)
@@ -5402,11 +5422,11 @@ Screen lastScreen;
 			planet.class_ = planetClassList[genclass(mt_planet)];
 		}
 
-		/*################################
-			TEST BOX
-		################################*/
-			//planet.class_ = L"Terra";
-		//################################
+			/*################################
+				TEST BOX
+			################################*/
+				//planet.class_ = L"Terra";
+			//################################
 
 		//######################################################################################################
 			//	MASS + RADIUS GENERATION
@@ -5668,6 +5688,10 @@ Screen lastScreen;
 				planet.obliquity = genhighobliquity(mt_planet);
 			}
 		}
+
+		planet.hasCompanionOrbit = false;
+		if (genpercent(mt_planet) <= CONFIG.exotic_CompanionOrbitChance)
+			planet.hasCompanionOrbit = true;
 
 		planet.debrisCount = 0;
 		// Determines Debris Ring
