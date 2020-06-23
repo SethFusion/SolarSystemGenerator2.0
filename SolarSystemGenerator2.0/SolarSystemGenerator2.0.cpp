@@ -1110,7 +1110,7 @@ Screen lastScreen;
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 		CONFIG_H.starClassO.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-			50, 20, 40, 20,
+			50, 20, 60, 20,
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 
 		CONFIG_H.starClassB.DESC = CreateWindowW(L"static", L"B:",
@@ -1119,7 +1119,7 @@ Screen lastScreen;
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 		CONFIG_H.starClassB.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-			50, 40, 40, 20,
+			50, 40, 60, 20,
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 
 		CONFIG_H.starClassA.DESC = CreateWindowW(L"static", L"A:",
@@ -1128,7 +1128,7 @@ Screen lastScreen;
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 		CONFIG_H.starClassA.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-			50, 60, 40, 20,
+			50, 60, 60, 20,
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 
 		CONFIG_H.starClassF.DESC = CreateWindowW(L"static", L"F:",
@@ -1137,7 +1137,7 @@ Screen lastScreen;
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 		CONFIG_H.starClassF.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-			50, 80, 40, 20,
+			50, 80, 60, 20,
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 
 		CONFIG_H.starClassG.DESC = CreateWindowW(L"static", L"G:",
@@ -1146,7 +1146,7 @@ Screen lastScreen;
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 		CONFIG_H.starClassG.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-			50, 100, 40, 20,
+			50, 100, 60, 20,
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 
 		CONFIG_H.starClassK.DESC = CreateWindowW(L"static", L"K:",
@@ -1155,7 +1155,7 @@ Screen lastScreen;
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 		CONFIG_H.starClassK.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-			50, 120, 40, 20,
+			50, 120, 60, 20,
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 
 		CONFIG_H.starClassM.DESC = CreateWindowW(L"static", L"M:",
@@ -1164,34 +1164,34 @@ Screen lastScreen;
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 		CONFIG_H.starClassM.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-			50, 140, 40, 20,
+			50, 140, 60, 20,
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 
 		CONFIG_H.starClassWD.DESC = CreateWindowW(L"static", L"WD:",
 			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
-			100, 20, 40, 20,
+			120, 20, 40, 20,
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 		CONFIG_H.starClassWD.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-			140, 20, 40, 20,
+			160, 20, 60, 20,
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 
 		CONFIG_H.starClassQ.DESC = CreateWindowW(L"static", L"Q:",
 			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
-			100, 40, 40, 20,
+			120, 40, 40, 20,
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 		CONFIG_H.starClassQ.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-			140, 40, 40, 20,
+			160, 40, 60, 20,
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 
 		CONFIG_H.starClassX.DESC = CreateWindowW(L"static", L"X:",
 			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP,
-			100, 60, 40, 20,
+			120, 60, 40, 20,
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 		CONFIG_H.starClassX.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_VISIBLE | WS_BORDER | WS_GROUP | ES_AUTOHSCROLL | ES_RIGHT,
-			140, 60, 40, 20,
+			160, 60, 60, 20,
 			CONFIG_H.starClassO.EXTRA, NULL, NULL, NULL);
 
 		#pragma endregion

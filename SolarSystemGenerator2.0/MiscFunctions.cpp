@@ -207,12 +207,10 @@ static void SetVariableToWindow(HWND& window, double number)
 			for (int x = 0; tempChar[x] != '\0'; x++)
 				genChar[counter++] = tempChar[x];
 			genChar[counter] = '\0';
-
-			int poop = 0;
 		}
 		else
 		{
-
+			// non negative exponent?
 		}	
 	}
 	//##############################################
