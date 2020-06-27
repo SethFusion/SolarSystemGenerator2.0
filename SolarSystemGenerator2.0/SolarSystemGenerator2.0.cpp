@@ -85,6 +85,7 @@ Screen lastScreen;
 	void Load_Name_Simple();
 
 	void GetConfigData(HWND);
+	bool CheckConfigData(HWND);
 	void CreateNameVectors(HWND);
 
 	void SetInfoBox(int);
@@ -262,9 +263,9 @@ Screen lastScreen;
 				break;
 			case BUTTON_GENERATE:
 				GetConfigData(hWnd);
-				BeginGenerate();
+				if (!CheckConfigData(hWnd))
+					BeginGenerate();
 				break;
-
 			case BUTTON_NAME_SAVEPRESET:
 				CreateNameVectors(hWnd);
 				SaveNamePreset();
@@ -3347,6 +3348,36 @@ Screen lastScreen;
 
 		CONFIG.debug = true;
 		CONFIG.planetSpacing = 1.0;
+	}
+	bool CheckConfigData(HWND hWnd)
+	{
+		// This function contains all the error checking for input by the user and stops the program if an error is found.
+
+		if (CONFIG.numberOfRuns < 1)
+		{
+			MessageBox(hWnd, L"You must generate more than 0 systems for anything to work!", L"Error", MB_ICONERROR);
+			return true;
+		}
+
+		if (CONFIG.maxDistance < CONFIG.minDistance)
+		{
+			MessageBox(hWnd, L"Maximum Distance must be smaller than Minimum Distance!", L"Error", MB_ICONERROR);
+			return true;
+		}
+
+
+
+
+
+		if (CONFIG.avgEccentricity <= 0 || CONFIG.avgEccentricity >= 1)
+		{
+			MessageBox(hWnd, L"Average Eccentricity must be a value between 0 and 1!", L"Error", MB_ICONERROR);
+			return true;
+		}
+			
+
+
+		return false; // No problems found in config
 	}
 	void CreateNameVectors(HWND hWnd)
 	{	
