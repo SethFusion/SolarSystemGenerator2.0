@@ -134,6 +134,8 @@ static void GetVariableFromWindow(HWND& window, wchar_t* store)
 		store[i] = genvar[i];
 		i++;
 	}
+	store[i] = '\0';
+	return;
 }
 static void GetVariableFromWindow(HWND& window, int& store)
 {

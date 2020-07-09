@@ -96,7 +96,7 @@ Screen lastScreen;
 #######################################################
 	*/	std::wstring GenName(Object_Type);
 		std::wstring GenNumberModifier();
-		void BeginGenerate(); 
+		void BeginGenerate(HWND); 
 		void SortVector(std::vector<PLANET>&, int, int);
 		int Partition(std::vector<PLANET>&, int, int);
 		void GenerateStar(STAR&);
@@ -264,7 +264,7 @@ Screen lastScreen;
 			case BUTTON_GENERATE:
 				GetConfigData(hWnd);
 				if (!CheckConfigData(hWnd))
-					BeginGenerate();
+					BeginGenerate(hWnd);
 				break;
 			case BUTTON_NAME_SAVEPRESET:
 				CreateNameVectors(hWnd);
@@ -983,13 +983,13 @@ Screen lastScreen;
 			702, 422, 16, 16,
 			hWnd, (HMENU)IB_MOONDISTANCEBOUNDARY, NULL, NULL);
 
-		//min dwarf planet chance
+		//dwarf planet chance
 		CONFIG_H.dwarfPlanetChance.DESC = CreateWindowW(L"static", L"Dwarf Planet % Chance:",
 			WS_CHILD | WS_BORDER,
 			370, 320, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.dwarfPlanetChance.HANDLE = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
 			600, 320, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.dwarfPlanetChance.INFOBUTTON = CreateWindowW(L"button", L"I",
@@ -1003,7 +1003,7 @@ Screen lastScreen;
 			370, 500, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.minPlanetNumber.HANDLE = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
 			600, 500, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.minPlanetNumber.INFOBUTTON = CreateWindowW(L"button", L"I",
@@ -3351,30 +3351,101 @@ Screen lastScreen;
 	}
 	bool CheckConfigData(HWND hWnd)
 	{
-		// This function contains all the error checking for input by the user and stops the program if an error is found.
-
+		// This function contains most error checking for input by the user and stops the program if an error is found.
+	#pragma region General Variables
 		if (CONFIG.numberOfRuns < 1)
 		{
 			MessageBox(hWnd, L"You must generate more than 0 systems for anything to work!", L"Error", MB_ICONERROR);
 			return true;
 		}
-
+	#pragma endregion
+	#pragma region System Variables
 		if (CONFIG.maxDistance < CONFIG.minDistance)
 		{
-			MessageBox(hWnd, L"Maximum Distance must be smaller than Minimum Distance!", L"Error", MB_ICONERROR);
+			MessageBox(hWnd, L"Minimum Distance must be smaller than Maximum Distance!", L"Error", MB_ICONERROR);
+			return true;
+		}
+		if (CONFIG.maxDistance <= 0 || CONFIG.minDistance <= 0)
+		{
+			MessageBox(hWnd, L"Min/Max distance from Earth cannot be zero or negative!", L"Error", MB_ICONERROR);
 			return true;
 		}
 
+		if (CONFIG.SDObliquity <= 0)
+		{
+			MessageBox(hWnd, L"Standard Deviation cannot be less than or equal to zero!", L"Error", MB_ICONERROR);
+			return true;
+		}
 
-
-
+		if (CONFIG.SDInclination <= 0)
+		{
+			MessageBox(hWnd, L"Standard Deviation cannot be less than or equal to zero!", L"Error", MB_ICONERROR);
+			return true;
+		}
 
 		if (CONFIG.avgEccentricity <= 0 || CONFIG.avgEccentricity >= 1)
 		{
-			MessageBox(hWnd, L"Average Eccentricity must be a value between 0 and 1!", L"Error", MB_ICONERROR);
+			MessageBox(hWnd, L"Eccentricity must be a value between (but not equal to) 0 and 1!", L"Error", MB_ICONERROR);
 			return true;
 		}
-			
+		if (CONFIG.SDEccentricity <= 0)
+		{
+			MessageBox(hWnd, L"Standard Deviation cannot be less than or equal to zero!", L"Error", MB_ICONERROR);
+			return true;
+		}
+		if (CONFIG.SDEccentricity >= 1)
+		{
+			MessageBox(hWnd, L"Standard Deviation for eccentricity is too high! The program will waste too much time throwing away unusable numbers!", L"Error", MB_ICONERROR);
+			return true;
+		}
+
+		if (CONFIG.dwarfPlanetChance >= 100 || CONFIG.dwarfPlanetChance < 0)
+		{
+			MessageBox(hWnd, L"The chance for dwarf planets to spawn should be a number from 0 to 99!", L"Error", MB_ICONERROR);
+			return true;
+		}
+
+		if (CONFIG.moonDistanceBoundary < 0)
+		{
+			MessageBox(hWnd, L"Moon distance boundary cannot be less than zero!", L"Error", MB_ICONERROR);
+			return true;
+		}
+
+		if (CONFIG.minPlanetNumber) // Decide on a limit or get rid of this variable all together!
+		{
+
+		}
+
+		if (CONFIG.starClassA < 0 || CONFIG.starClassB < 0 || CONFIG.starClassF < 0 || CONFIG.starClassG < 0 || CONFIG.starClassK < 0 || CONFIG.starClassM < 0 || CONFIG.starClassO < 0 ||
+			CONFIG.starClassQ < 0 || CONFIG.starClassWD < 0 || CONFIG.starClassX < 0)
+		{
+			MessageBox(hWnd, L"A star class cannot have a weight less than zero!", L"Error", MB_ICONERROR);
+			return true;
+		}
+
+		if (CONFIG.starClassA == 0 && CONFIG.starClassB == 0 && CONFIG.starClassF == 0 && CONFIG.starClassG == 0 && CONFIG.starClassK == 0 && CONFIG.starClassM == 0 && CONFIG.starClassO == 0 &&
+			CONFIG.starClassQ == 0 && CONFIG.starClassWD == 0 && CONFIG.starClassX == 0)
+		{
+			MessageBox(hWnd, L"All star classes have a weight of zero! That means no stars are avaialbe to be generated! Fix this by giving any star class a weight higher than zero.", L"Error", MB_ICONERROR);
+			return true;
+		}
+	#pragma endregion
+
+
+		
+
+		
+
+
+
+		
+
+
+
+
+
+		
+		
 
 
 		return false; // No problems found in config
@@ -3749,7 +3820,7 @@ Screen lastScreen;
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"If enabled, dwarf planets can spawn in the system, but do not affect total planet count. ");
 			break;
 		case IB_DWARFPALNETCHANCE:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"Percent chance for dwarf planets to generate and continue generating after the first.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Percent chance for dwarf planets to generate and continue generating after the first. For every dwarf planet generated, one percent is subtracted from the total.");
 			break;
 		case IB_WEIGHTEDMOONS:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"If enabled, moons will generate based on a new weight system, hopefully making generation more interesting and realistic.\n\nDisabled will use an older system with hard limits on how many moons an object can have.");
@@ -4531,7 +4602,7 @@ Screen lastScreen;
 	}
 
 	// Generation starts here:
-	void BeginGenerate()
+	void BeginGenerate(HWND hWnd)
 	{
 		if (CheckSeed(CONFIG.seed))
 			return;
@@ -4563,6 +4634,11 @@ Screen lastScreen;
 			//starFileName += L" Star.sc";
 			starFileName += L"Test Star.sc";
 			std::ofstream starFile(starFileName.c_str());
+			if (!starFile)
+			{
+				MessageBox(hWnd, L"Problem with star output folder!", L"Error", MB_ICONERROR);
+				return;
+			}
 			PrintStar(currentStar, starFile);
 
 			std::wstring planetFileName = CONFIG.planetOutputFolder;	//Creates the planet file
@@ -4570,6 +4646,11 @@ Screen lastScreen;
 			//planetFileName += L" System.sc";
 			planetFileName += L"Test System.sc";
 			std::ofstream planetFile(planetFileName.c_str());
+			if (!planetFile)
+			{
+				MessageBox(hWnd, L"Problem with planet output folder!", L"Error", MB_ICONERROR);
+				return;
+			}
 
 			std::uniform_int_distribution<int> genplanetnum{ CONFIG.minPlanetNumber, currentStar.maxPlanetNumber };
 			int planetNumber = genplanetnum(mt_planet);
@@ -4662,6 +4743,7 @@ Screen lastScreen;
 				PLANET currentDwarf;
 				GenerateDwarfPlanet(currentStar, currentDwarf);
 				planetList.push_back(currentDwarf);
+				CONFIG.dwarfPlanetChance--;
 			}
 			SortVector(planetList, 0, planetList.size() - 1);
 
