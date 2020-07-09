@@ -257,7 +257,7 @@ struct Preset
 struct NameVariables
 {
 	int wordPercent;
-	var wordPercentH;
+	var wordPercentH; // Extra is used for the test button
 
 	/*#####################################################
 	*/	HWND GROUP_SIMPLE; /*

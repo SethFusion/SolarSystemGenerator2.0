@@ -38,6 +38,8 @@
 #define BUTTON_NAME_LOAD_VECTORS	23
 #define BUTTON_NAME_SAVEPRESET		24
 
+#define BUTTON_TEST_NAMES			25
+
 //#define BUTTON_ADV_
 
 /*---------------------------------------------

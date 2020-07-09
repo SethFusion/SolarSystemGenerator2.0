@@ -87,6 +87,7 @@ Screen lastScreen;
 	void GetConfigData(HWND);
 	bool CheckConfigData(HWND);
 	void CreateNameVectors(HWND);
+	void TestNames();
 
 	void SetInfoBox(int);
 	void SetCheckBoxText(HWND, int); /*
@@ -278,7 +279,10 @@ Screen lastScreen;
 			case BUTTON_NAME_LOAD_VECTORS:
 				CreateNameVectors(hWnd);
 				break;
-
+			case BUTTON_TEST_NAMES:
+				CreateNameVectors(hWnd);
+				TestNames();
+				break;
 			case BUTTON_NAME_STAR:
 				Clear_Advanced();
 				Load_Name_Star();
@@ -2103,6 +2107,14 @@ Screen lastScreen;
 						WS_CHILD | WS_BORDER,
 						952, 262, 16, 16,
 						hWnd, (HMENU)IB_WORDPERCENT, NULL, NULL);
+					
+					// The word percent extra is used for the test names button. It's parent is also hWnd
+					// because it sends a message to the main windows procedure, but visually it only appears
+					// under the markov screen
+					NV.wordPercentH.EXTRA = CreateWindowW(L"button", L"Test Names",
+						WS_CHILD | WS_BORDER,
+						800, 285, 100, 30,
+						hWnd, (HMENU)BUTTON_TEST_NAMES, NULL, NULL);
 
 					NV.orderDESC = CreateWindowW(L"static", L"Order:",
 						WS_CHILD | WS_VISIBLE | WS_BORDER,
@@ -3024,6 +3036,7 @@ Screen lastScreen;
 		ShowWindow(NV.wordPercentH.DESC, 0);
 		ShowWindow(NV.wordPercentH.HANDLE, 0);
 		ShowWindow(NV.wordPercentH.INFOBUTTON, 0);
+		ShowWindow(NV.wordPercentH.EXTRA, 0);
 
 		ShowWindow(NV.nameMoonsH.INFOBUTTON, 0);
 	}
@@ -3208,6 +3221,7 @@ Screen lastScreen;
 		ShowWindow(NV.wordPercentH.DESC, 1);
 		ShowWindow(NV.wordPercentH.HANDLE, 1);
 		ShowWindow(NV.wordPercentH.INFOBUTTON, 1);
+		ShowWindow(NV.wordPercentH.EXTRA, 1);
 
 		ShowWindow(NV.GROUP_DATASET, 1);
 	}
@@ -3376,8 +3390,6 @@ Screen lastScreen;
 		GetVariableFromWindow(CONFIG_H.exotic_AxialTiltChance.HANDLE, CONFIG.exotic_AxialTiltChance);
 		GetVariableFromWindow(CONFIG_H.exotic_DebrisRingChance.HANDLE, CONFIG.exotic_DebrisRingChance);
 		GetVariableFromWindow(CONFIG_H.exotic_CompanionOrbitChance.HANDLE, CONFIG.exotic_CompanionOrbitChance);
-
-		GetVariableFromWindow(NV.wordPercentH.HANDLE, NV.wordPercent);
 
 		CONFIG.debug = true;
 		CONFIG.planetSpacing = 1.0;
@@ -3709,6 +3721,7 @@ Screen lastScreen;
 		GetVariableFromWindow(NV.wordVarienceH, NV.wordVarience);
 		GetVariableFromWindow(NV.min_lengthH, NV.min_length);
 		GetVariableFromWindow(NV.max_lengthH, NV.max_length);
+		GetVariableFromWindow(NV.wordPercentH.HANDLE, NV.wordPercent);
 		FillDataset(NV.Markov_RawDatasetH, NV.Markov_RawDataset, NV.usedNames);
 
 		// Creates lists of all n combinations of letters in the data set
@@ -3776,6 +3789,35 @@ Screen lastScreen;
 
 			}
 		}
+	}
+
+	void TestNames()
+	{
+		mt_name.seed(time(0));
+
+		wchar_t sampleNames[WSIZE] = L"Sample names with the current dataset:\n\n";
+		int pos = 40;
+		std::wstring name;
+
+		for (int count = 0; count < 13; count++)
+		{
+			std::uniform_int_distribution<int> gentype{ 1, 4 };
+			name = GenName(static_cast<Object_Type>(gentype(mt_name)));
+			for (int i = 0; i < name.size(); i++, pos++)
+			{
+				if (pos < 256)
+					sampleNames[pos] = name.at(i);
+			}
+			if (pos < 256)
+				sampleNames[pos++] = '\n';
+		}
+
+		if (pos > 255)
+			sampleNames[255] = '\0';
+		else
+			sampleNames[pos] = '\0';
+
+		SetWindowTextW(CONFIG_H.INFO_BOX, sampleNames);
 	}
 
 	void SetInfoBox(int command)
@@ -3925,12 +3967,13 @@ Screen lastScreen;
 		case IB_NAMEMOONS:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"If disabled, moons/dwarf moons will not generate names around rocky planets or gas giants, but will instead have a name counting up from 1. This will make the generator much faster since a lot of time is spent generating moon names, especially around gas giants.");
 			break;
-	#pragma endregion
-//###############
 		case IB_WORDPERCENT:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"This is the percentage chance for a name to have another word added to it, and then to continue having more words. Every time another word is added to a name, once percent is subtracted from the total.");
 			break;
 		}
+	#pragma endregion
+//###############
+		
 	}
 	void SetCheckBoxText(HWND hWnd, int command)
 	{
