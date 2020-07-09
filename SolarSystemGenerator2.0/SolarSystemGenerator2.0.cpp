@@ -681,6 +681,7 @@ Screen lastScreen;
 			hWnd, (HMENU)BUTTON_NAME_UPDATE, NULL, NULL);
 	}
 
+
 	void LoadMainScreen(HWND hWnd)
 	{
 		//Loads the main Logo Image
@@ -1213,7 +1214,7 @@ Screen lastScreen;
 				370, 100, 230, 20,
 				hWnd, NULL, NULL, NULL);
 			CONFIG_H.life_OrganicChance.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
 				600, 100, 100, 20,
 				hWnd, NULL, NULL, NULL);
 			CONFIG_H.life_OrganicChance.INFOBUTTON = CreateWindowW(L"button", L"I",
@@ -1227,7 +1228,7 @@ Screen lastScreen;
 				370, 120, 230, 20,
 				hWnd, NULL, NULL, NULL);
 			CONFIG_H.life_ExoticChance.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
 				600, 120, 100, 20,
 				hWnd, NULL, NULL, NULL);
 			CONFIG_H.life_ExoticChance.INFOBUTTON = CreateWindowW(L"button", L"I",
@@ -1241,7 +1242,7 @@ Screen lastScreen;
 				370, 140, 230, 20,
 				hWnd, NULL, NULL, NULL);
 			CONFIG_H.life_MulticellChance.HANDLE = CreateWindowW(L"edit", L"",
-				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+				WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
 				600, 140, 100, 20,
 				hWnd, NULL, NULL, NULL);
 			CONFIG_H.life_MulticellChance.INFOBUTTON = CreateWindowW(L"button", L"I",
@@ -1295,7 +1296,7 @@ Screen lastScreen;
 			370, 100, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.exotic_ShipChance.HANDLE = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
 			600, 100, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.exotic_ShipChance.INFOBUTTON = CreateWindowW(L"button", L"I",
@@ -1349,7 +1350,7 @@ Screen lastScreen;
 			370, 100, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.exotic_OrbitChance.HANDLE = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
 			600, 100, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.exotic_OrbitChance.INFOBUTTON = CreateWindowW(L"button", L"I",
@@ -1363,7 +1364,7 @@ Screen lastScreen;
 			370, 120, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.exotic_AxialTiltChance.HANDLE = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
 			600, 120, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.exotic_AxialTiltChance.INFOBUTTON = CreateWindowW(L"button", L"I",
@@ -1377,7 +1378,7 @@ Screen lastScreen;
 			370, 140, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.exotic_CompanionOrbitChance.HANDLE = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
 			600, 140, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.exotic_CompanionOrbitChance.INFOBUTTON = CreateWindowW(L"button", L"I",
@@ -1391,7 +1392,7 @@ Screen lastScreen;
 			370, 160, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.exotic_DebrisRingChance.HANDLE = CreateWindowW(L"edit", L"",
-			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
 			600, 160, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.exotic_DebrisRingChance.INFOBUTTON = CreateWindowW(L"button", L"I",
@@ -3430,6 +3431,10 @@ Screen lastScreen;
 			return true;
 		}
 	#pragma endregion
+	#pragma region Life Variables
+
+	#pragma endregion
+
 
 
 		
@@ -3852,7 +3857,7 @@ Screen lastScreen;
 	#pragma region Ships
 //###############
 		case IB_SHIPCHANCE:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"Percent chance that ships will spawn somewhere in the system. Zero by default because you must set up the models folder first.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Percent chance that ships will spawn somewhere in the system and continue spawning after the first. Zero by default because you must set up the models folder first. Everytime a ship is created, one percent is subtracted from the total.");
 			break;
 		case IB_SHIPSNEEDLIFE:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"If enabled, ships require a planet with life to have generated somewhere in the system to spawn.");
@@ -5168,6 +5173,8 @@ Screen lastScreen;
 							PrintShip(ship, planetFile);
 						}
 					}
+
+					CONFIG.exotic_ShipChance--;
 				}
 			}
 
