@@ -575,6 +575,7 @@ Screen lastScreen;
 
 			int parse = 0;
 			LoadVariableFromFile(Buffer, parse, temp.name);
+			LoadVariableFromFile(Buffer, parse, temp.wordPercent);
 			LoadVariableFromFile(Buffer, parse, temp.useSimpleGenerator);
 			LoadListFromFile(Buffer, parse, temp.PrefixList);
 			LoadListFromFile(Buffer, parse, temp.SuffixList);
@@ -2088,6 +2089,21 @@ Screen lastScreen;
 						500, 242, 16, 16,
 						hWnd, (HMENU)IB_MARKOV, NULL, NULL);
 
+					// The word percent variable is shown on both the markov screen and the simple generator screen
+					// Therefore, it's parent is hWnd. It is only declared here because there is no group to put it under
+					NV.wordPercentH.DESC = CreateWindowW(L"static", L"Multi Word Percent:",
+						WS_CHILD | WS_BORDER,
+						760, 260, 140, 20,
+						hWnd, NULL, NULL, NULL);
+					NV.wordPercentH.HANDLE = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_BORDER | ES_RIGHT | ES_NUMBER,
+						900, 260, 50, 20,
+						hWnd, NULL, NULL, NULL);
+					NV.wordPercentH.INFOBUTTON = CreateWindowW(L"button", L"I",
+						WS_CHILD | WS_BORDER,
+						952, 262, 16, 16,
+						hWnd, (HMENU)IB_WORDPERCENT, NULL, NULL);
+
 					NV.orderDESC = CreateWindowW(L"static", L"Order:",
 						WS_CHILD | WS_VISIBLE | WS_BORDER,
 						10, 20, 120, 20,
@@ -2098,28 +2114,28 @@ Screen lastScreen;
 						NV.GROUP_DATASET, NULL, NULL, NULL);
 					NV.min_lengthDESC = CreateWindowW(L"static", L"Min Length:",
 						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						300, 20, 120, 20,
+						200, 20, 120, 20,
 						NV.GROUP_DATASET, NULL, NULL, NULL);
 					NV.max_lengthDESC = CreateWindowW(L"static", L"Max Length:",
 						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						300, 40, 120, 20,
+						200, 40, 120, 20,
 						NV.GROUP_DATASET, NULL, NULL, NULL);
 
 					NV.orderH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT,
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT | ES_NUMBER,
 						130, 20, 50, 20,
 						NV.GROUP_DATASET, NULL, NULL, NULL);
 					NV.wordVarienceH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT,
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT | ES_NUMBER,
 						130, 40, 50, 20,
 						NV.GROUP_DATASET, NULL, NULL, NULL);
 					NV.min_lengthH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT,
-						420, 20, 50, 20,
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT | ES_NUMBER,
+						320, 20, 50, 20,
 						NV.GROUP_DATASET, NULL, NULL, NULL);
 					NV.max_lengthH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT,
-						420, 40, 50, 20,
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT | ES_NUMBER,
+						320, 40, 50, 20,
 						NV.GROUP_DATASET, NULL, NULL, NULL);
 
 					NV.Markov_RawDatasetDESC = CreateWindowW(L"static", L"Dataset:",
@@ -2269,6 +2285,7 @@ Screen lastScreen;
 	}
 	void UpdateNamePreset(NamePreset P, HWND hWnd)
 	{
+		SetVariableToWindow(NV.wordPercentH.HANDLE, P.wordPercent);
 		CheckDlgButton(NV.GROUP_SIMPLE, NVCB_SIMPLEGENERATOR, P.useSimpleGenerator);
 		SetWindowTextW(NV.PrefixListH, P.PrefixList);
 		SetWindowTextW(NV.SuffixListH, P.SuffixList);
@@ -2436,6 +2453,7 @@ Screen lastScreen;
 		std::ofstream outputFile(filePath.c_str()); // creates the file
 
 		outputFile << "PresetName=" << wstr_to_str(fileName) << "\n"
+			<< "WordPercent=" << NV.wordPercent << "\n"
 			<< "useSimpleNameGenerator=" << NV.useSimpleGenerator << "\n"
 			<< "prefixList {" << wstr_to_str(NV.PrefixList) << "}\n"
 			<< "suffixList {" << wstr_to_str(NV.SuffixList) << "}\n"
@@ -3003,6 +3021,10 @@ Screen lastScreen;
 		ShowWindow(NV.BUTTON_SATELLITE, 0);
 		ShowWindow(NV.BUTTON_STATION, 0);
 
+		ShowWindow(NV.wordPercentH.DESC, 0);
+		ShowWindow(NV.wordPercentH.HANDLE, 0);
+		ShowWindow(NV.wordPercentH.INFOBUTTON, 0);
+
 		ShowWindow(NV.nameMoonsH.INFOBUTTON, 0);
 	}
 	void Load_Name_Star()
@@ -3183,11 +3205,19 @@ Screen lastScreen;
 	{
 		ShowWindow(NV.Markov_INFO, 1);
 
+		ShowWindow(NV.wordPercentH.DESC, 1);
+		ShowWindow(NV.wordPercentH.HANDLE, 1);
+		ShowWindow(NV.wordPercentH.INFOBUTTON, 1);
+
 		ShowWindow(NV.GROUP_DATASET, 1);
 	}
 	void Load_Name_Simple()
 	{
 		ShowWindow(NV.SimpleGenerator_INFO, 1);
+
+		ShowWindow(NV.wordPercentH.DESC, 1);
+		ShowWindow(NV.wordPercentH.HANDLE, 1);
+		ShowWindow(NV.wordPercentH.INFOBUTTON, 1);
 
 		ShowWindow(NV.GROUP_SIMPLE, 1);
 	}
@@ -3347,12 +3377,15 @@ Screen lastScreen;
 		GetVariableFromWindow(CONFIG_H.exotic_DebrisRingChance.HANDLE, CONFIG.exotic_DebrisRingChance);
 		GetVariableFromWindow(CONFIG_H.exotic_CompanionOrbitChance.HANDLE, CONFIG.exotic_CompanionOrbitChance);
 
+		GetVariableFromWindow(NV.wordPercentH.HANDLE, NV.wordPercent);
+
 		CONFIG.debug = true;
 		CONFIG.planetSpacing = 1.0;
 	}
 	bool CheckConfigData(HWND hWnd)
 	{
 		// This function contains most error checking for input by the user and stops the program if an error is found.
+
 	#pragma region General Variables
 		if (CONFIG.numberOfRuns < 1)
 		{
@@ -3360,6 +3393,7 @@ Screen lastScreen;
 			return true;
 		}
 	#pragma endregion
+
 	#pragma region System Variables
 		if (CONFIG.maxDistance < CONFIG.minDistance)
 		{
@@ -3431,27 +3465,6 @@ Screen lastScreen;
 			return true;
 		}
 	#pragma endregion
-	#pragma region Life Variables
-
-	#pragma endregion
-
-
-
-		
-
-		
-
-
-
-		
-
-
-
-
-
-		
-		
-
 
 		return false; // No problems found in config
 	}
@@ -3914,6 +3927,9 @@ Screen lastScreen;
 			break;
 	#pragma endregion
 //###############
+		case IB_WORDPERCENT:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"This is the percentage chance for a name to have another word added to it, and then to continue having more words. Every time another word is added to a name, once percent is subtracted from the total.");
+			break;
 		}
 	}
 	void SetCheckBoxText(HWND hWnd, int command)
@@ -4060,7 +4076,7 @@ Screen lastScreen;
 			//  VARIABLES
 
 		std::wstring finalName;
-		int wordCount, wordPercent, syllCount, syllPercent; // number of words in the name, and % chance of multiple words. Number of syllables in a word and percent for multiple syllables
+		int wordCount, localWP, syllCount, syllPercent; // number of words in the name, local word percent, Number of syllables in a word and percent for multiple syllables
 		bool has_prename_mod, has_postname_mod, has_number_mod, has_shipall_premod, has_shipall_postmod, testName;
 
 		//######################################################################################################
@@ -4069,8 +4085,8 @@ Screen lastScreen;
 		do //loop to check if the name has been used already
 		{
 			finalName = L"";
+			localWP = NV.wordPercent;
 			wordCount = 1;
-			wordPercent = 5;
 			testName = false;
 			has_prename_mod = false;
 			has_postname_mod = false;
@@ -4081,7 +4097,7 @@ Screen lastScreen;
 			//######################################################################################################
 				//  GENERATES NUMBER OF WORDS
 
-			while (genpercent(mt_name) <= wordPercent)
+			while (genpercent(mt_name) <= localWP--)
 				wordCount++;
 
 			//######################################################################################################

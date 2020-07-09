@@ -90,6 +90,7 @@
 #define IB_NAMEMOONS			1034
 #define IB_MARKOV				1035
 #define IB_SIMPLEGENERATOR		1036
+#define IB_WORDPERCENT			1041
 
 /*---------------------------------------------
 		Check Box IDs

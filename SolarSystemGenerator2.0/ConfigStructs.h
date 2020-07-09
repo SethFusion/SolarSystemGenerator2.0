@@ -256,6 +256,9 @@ struct Preset
 
 struct NameVariables
 {
+	int wordPercent;
+	var wordPercentH;
+
 	/*#####################################################
 	*/	HWND GROUP_SIMPLE; /*
 	#####################################################*/
@@ -462,6 +465,8 @@ struct NameVariables
 struct NamePreset
 {
 	wchar_t name[WSIZE];
+
+	int wordPercent;
 
 	//Star
 	bool useStarPreMods, useStarPostMods, useStarNumberMods;
