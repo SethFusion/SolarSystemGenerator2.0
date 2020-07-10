@@ -25,7 +25,7 @@ struct Atmosphere
 		None, Biogenic, Chlorine, Earth, Ethereal, Jupiter, Mars, Neptune, Pluto, Thick, Thin, Titan, Venus
 	};
 
-	enum Gases
+	enum Gas
 	{
 		H2,		// Hydrogen
 		He,		// Helium
@@ -48,12 +48,12 @@ struct Atmosphere
 		C2H2,	// Acetylene / Ethyne
 		C2H4,	// Ethylene / Ethene
 		C2H6,	// Ethane
-		C3H8
-	};	// Propane
+		C3H8	// Propane
+	};
 
 	AtmoModel model;
 	double height, pressure;
-	std::vector<Gases> composition;
+	std::vector<std::pair<Gas, double>> composition;
 };
 
 struct Life

@@ -511,7 +511,6 @@ Screen lastScreen;
 			WS_CHILD | WS_VISIBLE | WS_BORDER,
 			965, 98, 50, 50,
 			hWnd, (HMENU)BUTTON_UPDATEPRESET, NULL, NULL);
-
 	}
 	void LoadNamePresets(HWND hWnd)
 	{
@@ -686,7 +685,7 @@ Screen lastScreen;
 			hWnd, (HMENU)BUTTON_NAME_UPDATE, NULL, NULL);
 	}
 
-
+	//-------------------------------------
 	void LoadMainScreen(HWND hWnd)
 	{
 		//Loads the main Logo Image
@@ -2220,7 +2219,7 @@ Screen lastScreen;
 			1024, 0, 200, 50,
 			hWnd, NULL, NULL, NULL);
 	}
-
+	//-------------------------------------
 
 	void UpdatePreset(Preset P, HWND hWnd)
 	{
@@ -5542,12 +5541,9 @@ Screen lastScreen;
 			int c = 299792458;
 			int G = 190809;
 
-			std::uniform_real_distribution<> genm{ 1, 100 };
+			std::uniform_real_distribution<> genm{ 1, 1000 };
 			star.mass = genm(mt_star);
 			star.radius = ((2 * star.mass * G) / (pow(c, 2)) * 1000000);
-
-			//std::uniform_int_distribution<int> gent{ 60000, 120000 };
-			//star.temperatureK = gent(mt_star);
 			star.temperatureK = 0;
 			break;
 		}
