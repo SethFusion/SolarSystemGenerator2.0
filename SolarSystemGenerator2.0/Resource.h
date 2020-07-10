@@ -13,10 +13,10 @@
 
 #define BUTTON_GENERATE				1
 #define BUTTON_GENERAL				2
-#define BUTTON_SYSTEMPLANET			3
-#define BUTTON_LIFE					4
-#define BUTTON_SHIPS				5
-#define BUTTON_EXOTIC				6
+#define BUTTON_SYSTEM				3
+#define BUTTON_PLANET				4
+#define BUTTON_SURFACE				5
+#define BUTTON_SPECIAL				6
 #define BUTTON_ADVANCED				7
 
 #define BUTTON_UPDATEPRESET			8

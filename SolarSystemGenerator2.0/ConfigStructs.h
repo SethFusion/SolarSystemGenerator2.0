@@ -56,27 +56,35 @@ struct ConfigurationVariables
 	wchar_t starOutputFolder[WSIZE], planetOutputFolder[WSIZE];
 
 	/*#####################################################
-			SYSTEM + PLANET
+			SYSTEM
 	#####################################################*/
 
-	bool smartPlacement, generateDwarfPlanets, weightedMoons;
+	bool smartPlacement, generateDwarfPlanets;
 	int	minPlanetNumber, dwarfPlanetChance;
-	double minDistance, maxDistance, 
-		planetSpacing, moonDistanceBoundary,
+	double minDistance, maxDistance, planetSpacing,
 		avgEccentricity, SDEccentricity, 
 		avgInclination, SDInclination, 
 		avgObliquity, SDObliquity;
-	double starClassO, starClassB, starClassA, starClassF, starClassG, starClassK, starClassM, starClassWD, starClassQ, starClassX;
+	double starClassO, starClassB, starClassA, starClassF, starClassG, 
+		starClassK, starClassM, starClassWD, starClassQ, starClassX;
 
 	/*#####################################################
-			LIFE
+			PLANET
 	#####################################################*/
 
-	int life_OrganicChance, life_ExoticChance, life_MulticellChance;
-	bool forceLife, traditionalLife;
+	bool weightedMoons, forceLife, traditionalLife;
+	int exotic_OrbitChance, exotic_AxialTiltChance, exotic_CompanionOrbitChance, exotic_DebrisRingChance,
+		life_OrganicChance, life_ExoticChance, life_MulticellChance;
+	double moonDistanceBoundary;
 
 	/*#####################################################
-			SHIPS
+			SURFACE
+	#####################################################*/
+
+	
+
+	/*#####################################################
+			SPECIAL
 	#####################################################*/
 
 	int exotic_ShipChance;
@@ -84,12 +92,6 @@ struct ConfigurationVariables
 	wchar_t modelsFolder[WSIZE];
 
 	std::vector<std::wstring> shipList_Colony, shipList_Instrument, shipList_Satellite, shipList_Station;
-
-	/*#####################################################
-			EXOTIC
-	#####################################################*/
-
-	int exotic_OrbitChance, exotic_AxialTiltChance, exotic_CompanionOrbitChance, exotic_DebrisRingChance;
 
 	/*#####################################################
 			ADVANCED
@@ -144,38 +146,37 @@ struct ConfigurationHWNDs
 	// save name button is under advanced
 
 	/*#####################################################
-		*/	HWND HEADER_SYSTEMPLANET; /*
+		*/	HWND HEADER_SYSTEM; /*
 	#####################################################*/
 	
-	var smartPlacement, generateDwarfPlanets, weightedMoons;
+	var smartPlacement, generateDwarfPlanets;
 	var minPlanetNumber, dwarfPlanetChance;	
-	var minDistance, maxDistance, 
-		planetSpacing, moonDistanceBoundary,
+	var minDistance, maxDistance, planetSpacing,
 		avgEccentricity, SDEccentricity, 
 		avgInclination, SDInclination, 
 		avgObliquity, SDObliquity;	
 	var starClassO, starClassB, starClassA, starClassF, starClassG, starClassK, starClassM, starClassWD, starClassQ, starClassX;
 
 	/*#####################################################
-		*/	HWND HEADER_LIFE; /*
+		*/	HWND HEADER_PLANET; /*
 	#####################################################*/
 	
+	var  weightedMoons, moonDistanceBoundary;
+	var exotic_OrbitChance, exotic_AxialTiltChance, exotic_CompanionOrbitChance, exotic_DebrisRingChance;
 	var life_OrganicChance, life_ExoticChance, life_MulticellChance;	
 	var forceLife, traditionalLife;
 
 	/*#####################################################
-		*/	HWND HEADER_SHIPS; /*
+		*/	HWND HEADER_SURFACE; /*
 	#####################################################*/
-	
-	var exotic_ShipChance;
-	var shipsNeedLife;
-	var	modelsFolder;
 
 	/*#####################################################
-		*/	HWND HEADER_EXOTIC; /*
+		*/	HWND HEADER_SPECIAL; /*
 	#####################################################*/
 
-	var exotic_OrbitChance, exotic_AxialTiltChance, exotic_CompanionOrbitChance, exotic_DebrisRingChance;
+		var exotic_ShipChance;
+		var shipsNeedLife;
+		var	modelsFolder;
 
 	/*#####################################################
 		*/	HWND HEADER_ADVANCED; /*
@@ -203,7 +204,7 @@ struct Preset
 	wchar_t name[WSIZE];
 
 	/*#####################################################
-		General Things
+		General
 	#####################################################*/
 
 	long long seed;
@@ -213,29 +214,35 @@ struct Preset
 	wchar_t starOutputFolder[WSIZE], planetOutputFolder[WSIZE];
 
 	/*#####################################################
-		System + Planet Stuff
+		System
 	#####################################################*/
 
-	bool smartPlacement, generateDwarfPlanets, weightedMoons;
-	wchar_t const* smartPlacementState, * generateDwarfPlanetsState, * weightedMoonsState;
+	bool smartPlacement, generateDwarfPlanets;
+	wchar_t const* smartPlacementState, * generateDwarfPlanetsState;
 	int	minPlanetNumber, dwarfPlanetChance;
-	double minDistance, maxDistance, 
-		planetSpacing, moonDistanceBoundary,
+	double minDistance, maxDistance, planetSpacing,
 		avgEccentricity, SDEccentricity, 
 		avgInclination, SDInclination, 
 		avgObliquity, SDObliquity;
 	double starClassO, starClassB, starClassA, starClassF, starClassG, starClassK, starClassM, starClassWD, starClassQ, starClassX; // now represents weight
 
 	/*#####################################################
-		Life Stuff
+		Planet
 	#####################################################*/
 
-	int life_OrganicChance, life_ExoticChance, life_MulticellChance;
-	bool forceLife, traditionalLife;
+	bool weightedMoons, forceLife, traditionalLife;
+	wchar_t const* weightedMoonsState;
+	int exotic_OrbitChance, exotic_AxialTiltChance, exotic_CompanionOrbitChance, exotic_DebrisRingChance,
+		life_OrganicChance, life_ExoticChance, life_MulticellChance;
+	double moonDistanceBoundary;
 	wchar_t const* forceLifeState, const* traditonalLifeState;
 
 	/*#####################################################
-		Ships Stuff
+		Surface
+	#####################################################*/
+
+	/*#####################################################
+		Special
 	#####################################################*/
 
 	int exotic_ShipChance;
@@ -244,13 +251,7 @@ struct Preset
 	wchar_t modelsFolder[WSIZE];
 
 	/*#####################################################
-		Exotic Do-Dads
-	#####################################################*/
-
-	int exotic_OrbitChance, exotic_AxialTiltChance, exotic_CompanionOrbitChance, exotic_DebrisRingChance;
-
-	/*#####################################################
-		Advanced Items Maybe?
+		Advanced
 	#####################################################*/
 };
 
