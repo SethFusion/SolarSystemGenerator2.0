@@ -1,23 +1,6 @@
 #include "framework.h"
 #include "resource.h"
 
-
-
-struct STAR
-{
-	//generated
-	std::wstring name, class_;
-	int temperatureK, maxPlanetNumber; //starClassSize;
-	double mass, radius, RA[3], DEC[3], distance;
-
-	//calculated
-	double luminosity, innerLimit, outerLimit, frostLine, habitZoneInnerLimit, habitZoneOuterLimit;
-	std::vector<double> semimajorList, semimajorStaticList; //semimajorOuterList, semimajorInnerList;
-
-	//for weighted moons
-	double totalDist;
-};
-
 struct Atmosphere
 {
 	enum AtmoModel
@@ -62,15 +45,54 @@ struct Life
 	std::wstring _class, type, biome;
 };
 
-struct PLANET
+class SEObject
 {
-	//generated for planets/moons
-	std::wstring planetType, parentBody, name, class_;
+public:
+	std::wstring name, class_;
+
+	SEObject* parentBody;
 	double mass, radius, semimajorAxis, eccentricity, inclination,
 		ascendingNode, argofPericenter, meanAnomaly, obliquity;
-	std::vector<double> usedSemimajor_moon, usedRadius_moon; //Lists used to check the spacing of moons
-	//calculated for planets/moons
 	double earthRadius, gravity, density;
+
+	SEObject()
+	{
+		name = class_ = L"-empty-";
+		parentBody = NULL;
+		mass = radius = semimajorAxis = eccentricity = inclination =
+			ascendingNode = argofPericenter = meanAnomaly = obliquity = -1;
+		earthRadius = gravity = density = -1;
+	}
+};
+
+class SEStar: public SEObject
+{
+public:
+	//generated
+	int temperatureK, maxPlanetNumber;
+	double RA[3], DEC[3], distance;
+
+	//calculated
+	double luminosity, innerLimit, outerLimit, frostLine, habitZoneInnerLimit, habitZoneOuterLimit;
+	std::vector<double> semimajorList, semimajorStaticList;
+
+	//for weighted moons
+	double totalDist;
+
+	SEStar()
+	{
+		temperatureK = maxPlanetNumber = -1;
+		RA[0] = RA[1] = RA[2] = DEC[0] = DEC[1] = DEC[2] = distance = -1;
+		luminosity = innerLimit = outerLimit = frostLine = habitZoneInnerLimit = habitZoneOuterLimit =  totalDist = -1;
+	}
+};
+
+class SEPlanet : public SEObject
+{
+public:
+	//generated for planets/moons
+	std::wstring type;
+	std::vector<double> usedSemimajor_moon, usedRadius_moon; //Lists used to check the spacing of moons
 
 	//generated for planets
 	int numberOfMajorMoons, numberOfMinorMoons; // for old moon generation
@@ -84,6 +106,24 @@ struct PLANET
 	//exotic stuff
 	bool hasCompanionOrbit;
 	int debrisCount;
-	std::wstring model; // used for ships
+	
+	SEPlanet()
+	{
+		type = L"-empty-";
+		numberOfMajorMoons = numberOfMinorMoons = majorMoonPercent = minorMoonPercent = -1;
+		hillSphereInnerLimit = hillSphereOuterLimit = -1;
+		hasCompanionOrbit = false;
+		debrisCount = -1;
+	}
 };
 
+class SEShip : public SEObject
+{
+public:
+	std::wstring type, model;
+
+	SEShip()
+	{
+		type = model = L"-empty-";
+	}
+};

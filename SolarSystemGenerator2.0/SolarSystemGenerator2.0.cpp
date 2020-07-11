@@ -98,21 +98,21 @@ Screen lastScreen;
 		std::wstring GenName(Object_Type);
 		std::wstring GenNumberModifier();
 		void BeginGenerate(HWND); 
-		void SortVector(std::vector<PLANET>&, int, int);
-		int Partition(std::vector<PLANET>&, int, int);
-		void GenerateStar(STAR&);
-		void PrintStar(STAR&, std::ofstream&);
-		void PrintPlanet(PLANET&, std::ofstream&);
-		void PrintShip(PLANET& ship, std::ofstream& planetFile);
-		void GeneratePlanet(STAR&, PLANET&);
-		void GenerateDwarfPlanet(STAR&, PLANET&);
-		bool GenerateMajorMoon(STAR&, PLANET&, PLANET&, int);
-		void GenerateMinorMoon(PLANET&, PLANET&, int);
-		void GenerateDwarfMinor(PLANET&, PLANET&, int);
+		template <typename vect, typename type> void SortVector(vect&, int, int);
+		template <typename vect, typename type> int Partition(vect&, int, int);
+		void GenerateStar(SEStar&);
+		void PrintStar(SEStar&, std::ofstream&);
+		void PrintPlanet(SEPlanet&, std::ofstream&);
+		void PrintShip(SEShip&, std::ofstream&);
+		void GeneratePlanet(SEStar&, SEPlanet&);
+		void GenerateDwarfPlanet(SEStar&, SEPlanet&);
+		bool GenerateMajorMoon(SEStar&, SEPlanet&, SEPlanet&, int);
+		void GenerateMinorMoon(SEPlanet&, SEPlanet&, int);
+		void GenerateDwarfMinor(SEPlanet&, SEPlanet&, int);
 
-		void ExoticGenerateLife(PLANET&);
-		void ExoticDebrisRing(PLANET&, PLANET&, double, double, double, double);
-		void GenerateShip(PLANET&, double, double, double, double, double, double);
+		void ExoticGenerateLife(SEPlanet&);
+		void ExoticDebrisRing(SEPlanet&, SEPlanet&, double, double, double, double);
+		void GenerateShip(SEShip&, double, double, double, double, double, double);
 		/*
 	Generator Functions
 
@@ -4657,16 +4657,18 @@ Screen lastScreen;
 		return FinalNumber;
 	}
 
-	void SortVector(std::vector<PLANET>& vector, int low, int high)
+	
+
+	template <typename vect, typename type> void SortVector(vect& vector, int low, int high)
 	{
 		if (low < high)
 		{
-			int part = Partition(vector, low, high);
-			SortVector(vector, low, part - 1);
-			SortVector(vector, part + 1, high);
+			int part = Partition<vect, type>(vector, low, high);
+			SortVector<vect, type>(vector, low, part - 1);
+			SortVector<vect, type>(vector, part + 1, high);
 		}
 	}
-	int Partition(std::vector<PLANET>& vector, int low, int high)
+	template <typename vect, typename type> int Partition(vect& vector, int low, int high)
 	{
 		double pivot = vector.at(high).semimajorAxis;
 		int i = (low - 1);
@@ -4676,13 +4678,13 @@ Screen lastScreen;
 			if (vector.at(j).semimajorAxis <= pivot)
 			{
 				i++;
-				PLANET temp = vector.at(i);
+				type temp = vector.at(i);
 				vector.at(i) = vector.at(j);
 				vector.at(j) = temp;
 			}
 		}
 
-		PLANET temp = vector.at(i + 1);
+		type temp = vector.at(i + 1);
 		vector.at(i + 1) = vector.at(high);
 		vector.at(high) = temp;
 		return (i + 1);
@@ -4713,7 +4715,7 @@ Screen lastScreen;
 		###############################################################################*/
 		for (int run = 0; run < CONFIG.numberOfRuns; run++)
 		{
-			STAR currentStar;
+			SEStar currentStar;
 			GenerateStar(currentStar);
 
 			std::wstring starFileName = CONFIG.starOutputFolder;	//Creates the star file
@@ -4741,17 +4743,17 @@ Screen lastScreen;
 
 			std::uniform_int_distribution<int> genplanetnum{ CONFIG.minPlanetNumber, currentStar.maxPlanetNumber };
 			int planetNumber = genplanetnum(mt_planet);
-			std::vector<PLANET> planetList;
+			std::vector<SEPlanet> planetList;
 
 			// test line
 
 			/*###############################################################################
-					PLANET GENERATOR
+					SEPlanet GENERATOR
 			###############################################################################*/
 
 			for (int planetCounter = 0; planetCounter < planetNumber; planetCounter++)
 			{
-				PLANET currentPlanet;
+				SEPlanet currentPlanet;
 				GeneratePlanet(currentStar, currentPlanet);
 				planetList.push_back(currentPlanet);
 
@@ -4759,9 +4761,9 @@ Screen lastScreen;
 				/*
 				if (CONFIG.debug == 1)
 				{
-					PLANET Debug;
+					SEPlanet Debug;
 
-					Debug.planetType = L"Star";
+					Debug.type = L"Star";
 					Debug.parentBody = currentPlanet.name;
 					Debug.class_ = L"Z";
 					Debug.mass = 0.000000001;
@@ -4827,12 +4829,12 @@ Screen lastScreen;
 			}
 			while (genpercent(mt_planet) < CONFIG.dwarfPlanetChance)
 			{
-				PLANET currentDwarf;
+				SEPlanet currentDwarf;
 				GenerateDwarfPlanet(currentStar, currentDwarf);
 				planetList.push_back(currentDwarf);
 				CONFIG.dwarfPlanetChance--;
 			}
-			SortVector(planetList, 0, planetList.size() - 1);
+			SortVector <std::vector<SEPlanet>, SEPlanet> (planetList, 0, planetList.size() - 1);
 
 			// Companion Orbit function for planets
 			planetList.at(0).hasCompanionOrbit = false;
@@ -4876,18 +4878,18 @@ Screen lastScreen;
 						std::uniform_int_distribution<int> genplanetposition{ 0, vectSize };
 						position = genplanetposition(mt_planet);
 						lifeTest = true;
-					} while (planetList.at(position).planetType == L"DwarfPlanet");
+					} while (planetList.at(position).type == L"DwarfPlanet");
 					planetList.at(position).life_exotic.haslife = true;
 					ExoticGenerateLife(planetList.at(position));
 				}
 			}
 
 			/*###############################################################################
-					MOON GENERATOR PER PLANET
+					MOON GENERATOR PER SEPlanet
 			###############################################################################*/
 			for (int currentPlanet = 0; currentPlanet < planetList.size(); currentPlanet++)
 			{
-				std::vector<PLANET> majorMoon, minorMoon;
+				std::vector<SEPlanet> majorMoon, minorMoon;
 				// weighted moons uses new system, else old system
 				if (CONFIG.weightedMoons)
 				{
@@ -4896,7 +4898,7 @@ Screen lastScreen;
 
 					while (genpercent(mt_moon) < planetList.at(currentPlanet).majorMoonPercent)
 					{
-						PLANET currentMoon;
+						SEPlanet currentMoon;
 						if (GenerateMajorMoon(currentStar, planetList.at(currentPlanet), currentMoon, planetList.at(currentPlanet).numberOfMajorMoons))
 						{
 							majorMoon.push_back(currentMoon);
@@ -4908,7 +4910,7 @@ Screen lastScreen;
 				
 					while (genpercent(mt_moon) < planetList.at(currentPlanet).minorMoonPercent)
 					{
-						PLANET currentMoon;
+						SEPlanet currentMoon;
 						GenerateMinorMoon(planetList.at(currentPlanet), currentMoon, planetList.at(currentPlanet).numberOfMinorMoons);
 						minorMoon.push_back(currentMoon);
 						planetList.at(currentPlanet).numberOfMinorMoons++;
@@ -4921,7 +4923,7 @@ Screen lastScreen;
 					int Moon_Count = 0;
 					while (Moon_Count < planetList.at(currentPlanet).numberOfMajorMoons)
 					{
-						PLANET currentMoon;
+						SEPlanet currentMoon;
 						GenerateMajorMoon(currentStar, planetList.at(currentPlanet), currentMoon, Moon_Count);
 						majorMoon.push_back(currentMoon);
 						Moon_Count++;
@@ -4930,15 +4932,15 @@ Screen lastScreen;
 
 					while (Moon_Count < planetList.at(currentPlanet).numberOfMinorMoons)
 					{
-						PLANET currentMoon;
+						SEPlanet currentMoon;
 						GenerateMinorMoon(planetList.at(currentPlanet), currentMoon, Moon_Count);
 						minorMoon.push_back(currentMoon);
 						Moon_Count++;
 					}
 				}
 
-				SortVector(majorMoon, 0, majorMoon.size() - 1);
-				SortVector(minorMoon, 0, minorMoon.size() - 1);
+				SortVector<std::vector<SEPlanet>, SEPlanet>(majorMoon, 0, majorMoon.size() - 1);
+				SortVector<std::vector<SEPlanet>, SEPlanet>(minorMoon, 0, minorMoon.size() - 1);
 
 				// Companion Orbit function for minor moons
 				if (majorMoon.size() > 0)
@@ -5087,10 +5089,10 @@ Screen lastScreen;
 					SMCenterPoint = planetList.at(currentPlanet).radius * SMCenterSpread;
 
 					// generates and prints the debris
-					PLANET debrisMoon;
-					debrisMoon.planetType = L"DwarfMoon";
+					SEPlanet debrisMoon;
+					debrisMoon.type = L"DwarfMoon";
 					debrisMoon.class_ = L"Asteroid";
-					debrisMoon.parentBody = planetList.at(currentPlanet).name;
+					debrisMoon.parentBody = &planetList.at(currentPlanet);
 
 					if (planetList.at(currentPlanet).semimajorAxis > currentStar.innerLimit)
 					{
@@ -5123,8 +5125,8 @@ Screen lastScreen;
 				while (genpercent(mt_ship) <= CONFIG.exotic_ShipChance)
 				{
 					int size = planetList.size(), parent;
-					PLANET ship;
-					ship.planetType = L"Spacecraft";
+					SEShip ship;
+					ship.type = L"Spacecraft";
 
 					std::uniform_int_distribution<int> genship{ 0, size };
 					parent = genship(mt_ship);
@@ -5132,7 +5134,7 @@ Screen lastScreen;
 					// the star is the parent
 					if (parent == planetList.size())
 					{
-						ship.parentBody = currentStar.name;
+						ship.parentBody = &currentStar;
 
 						// final check before the ship type is generated
 						if (enable_colony || enable_instrument || enable_station)
@@ -5185,7 +5187,7 @@ Screen lastScreen;
 					else
 					{
 						// weeds out some ship types based on the planet type
-						ship.parentBody = planetList.at(parent).name;
+						ship.parentBody = &planetList.at(parent);
 						if (planetList.at(parent).class_ == L"Jupiter" || planetList.at(parent).class_ == L"Neptune")
 						{
 							enable_colony = false;
@@ -5263,10 +5265,10 @@ Screen lastScreen;
 			// Debug star Orbits
 			if (CONFIG.debug == 1)
 			{
-				PLANET Debug;
+				SEPlanet Debug;
 
-				Debug.planetType = L"Star";
-				Debug.parentBody = currentStar.name;
+				Debug.type = L"Star";
+				Debug.parentBody = &currentStar;
 
 				Debug.class_ = L"Z";
 				Debug.mass = 0.000000001;
@@ -5308,7 +5310,7 @@ Screen lastScreen;
 		return;
 	}
 
-	void PrintStar(STAR& star, std::ofstream& file)
+	void PrintStar(SEStar& star, std::ofstream& file)
 	{
 		file << "Star\t\t\t\"" << wstr_to_str(star.name) << "\"\n{"
 			<< "\n\tRA\t\t\t" << star.RA[0] << " " << star.RA[1] << " " << star.RA[2]
@@ -5328,15 +5330,15 @@ Screen lastScreen;
 
 		file << "\n\n\tSeed: " << CONFIG.seed;
 	}
-	void PrintPlanet(PLANET& planet, std::ofstream& file)
+	void PrintPlanet(SEPlanet& planet, std::ofstream& file)
 	{
-		if (planet.planetType == L"DwarfPlanet")
-			file << wstr_to_str(planet.planetType) << "\t\t\t\t\t\"" << wstr_to_str(planet.name) << "\"\n{";
+		if (planet.type == L"DwarfPlanet")
+			file << wstr_to_str(planet.type) << "\t\t\t\t\t\"" << wstr_to_str(planet.name) << "\"\n{";
 		else
-			file << wstr_to_str(planet.planetType) << "\t\t\t\t\t\t\"" << wstr_to_str(planet.name) << "\"\n{";
-		file << "\n\tParentBody\t\t\t\t\"" << wstr_to_str(planet.parentBody) << "\""
+			file << wstr_to_str(planet.type) << "\t\t\t\t\t\t\"" << wstr_to_str(planet.name) << "\"\n{";
+		file << "\n\tParentBody\t\t\t\t\"" << wstr_to_str(planet.parentBody->name) << "\""
 			<< "\n\tClass\t\t\t\t\t\"" << wstr_to_str(planet.class_) << "\"\n";
-		if (planet.planetType != L"DwarfMoon")
+		if (planet.type != L"DwarfMoon")
 			file << "\n\tMass\t\t\t\t\t" << planet.mass << "\n";
 		file << "\tRadius\t\t\t\t\t" << planet.radius << "\n"
 			<< "\tObliquity\t\t\t\t" << planet.obliquity << "\n";
@@ -5362,7 +5364,7 @@ Screen lastScreen;
 
 		file << "\n\tOrbit\n\t{\n\t\t"
 			<< "RefPlane\t\t\t\"Equator\"";
-		if (planet.planetType == L"Moon" || planet.planetType == L"DwarfMoon")
+		if (planet.type == L"Moon" || planet.type == L"DwarfMoon")
 			file << "\n\t\tSemiMajorAxis\t\t" << (planet.semimajorAxis / 149598000);
 		else
 			file << "\n\t\tSemiMajorAxis\t\t" << planet.semimajorAxis;
@@ -5373,11 +5375,11 @@ Screen lastScreen;
 			<< "\n\t\tMeanAnomaly\t\t\t" << planet.meanAnomaly
 			<< "\n\t}\n}\n\n";
 	}
-	void PrintShip(PLANET& ship, std::ofstream& planetFile)
+	void PrintShip(SEShip& ship, std::ofstream& planetFile)
 	{
-		planetFile << wstr_to_str(ship.planetType) << "\t\t\t\t\t\t\"" << wstr_to_str(ship.name) << "\"\n{"
+		planetFile << wstr_to_str(ship.type) << "\t\t\t\t\t\t\"" << wstr_to_str(ship.name) << "\"\n{"
 			<< "\n\tModel\t\t\"" << wstr_to_str(ship.model) << "\""
-			<< "\n\tParentBody\t\t\t\t\"" << wstr_to_str(ship.parentBody) << "\""
+			<< "\n\tParentBody\t\t\t\t\"" << wstr_to_str(ship.parentBody->name) << "\""
 			<< "\n\tObliquity\t\t\t\t" << ship.obliquity << "\n"
 			<< "\n\tOrbit\n\t{"
 			<< "\n\t\tRefPlane\t\t\t\"Equator\""
@@ -5390,7 +5392,7 @@ Screen lastScreen;
 			<< "\n\t}\n}\n\n";
 	}
 
-	void GenerateStar(STAR& star)
+	void GenerateStar(SEStar& star)
 	{
 		double SMpoint, tempSol;
 
@@ -5598,14 +5600,14 @@ Screen lastScreen;
 
 		star.maxPlanetNumber = star.semimajorList.size();
 	}
-	void GeneratePlanet(STAR& star, PLANET& planet)
+	void GeneratePlanet(SEStar& star, SEPlanet& planet)
 	{
 		std::normal_distribution<> genobliquity{ CONFIG.avgObliquity, CONFIG.SDObliquity };
 		std::normal_distribution<> geneccentricity{ CONFIG.avgEccentricity, CONFIG.SDEccentricity };
 		std::normal_distribution<> geninclination{ CONFIG.avgInclination, CONFIG.SDInclination };
-		planet.planetType = L"Planet";
+		planet.type = L"Planet";
 		planet.name = GenName(typePlanet);
-		planet.parentBody = star.name;
+		planet.parentBody = &star;
 
 		//######################################################################################################
 			//	GENERATE SEMIMAJOR
@@ -6025,7 +6027,7 @@ Screen lastScreen;
 					planet.numberOfMajorMoons = genmajorc(mt_planet);
 					planet.numberOfMinorMoons = genminorc(mt_planet);
 				}
-				else if (planet.planetType == L"DwarfPlanet")
+				else if (planet.type == L"DwarfPlanet")
 				{
 					std::discrete_distribution<int> genminorc{ 5, 1 };
 					planet.numberOfMinorMoons = genminorc(mt_planet);
@@ -6064,7 +6066,7 @@ Screen lastScreen;
 					planet.numberOfMajorMoons = genmajorc(mt_planet);
 					planet.numberOfMinorMoons = genminorc(mt_planet);
 				}
-				else if (planet.planetType == L"DwarfPlanet")
+				else if (planet.type == L"DwarfPlanet")
 				{
 					std::discrete_distribution<int> genminorc{ 5, 3, 2, 1 };
 					planet.numberOfMinorMoons = genminorc(mt_planet);
@@ -6090,12 +6092,12 @@ Screen lastScreen;
 			planet.minorMoonPercent = -1;
 		}
 	}
-	void GenerateDwarfPlanet(STAR& star, PLANET& planet)
+	void GenerateDwarfPlanet(SEStar& star, SEPlanet& planet)
 	{
 		std::normal_distribution<> genobliquity{ CONFIG.avgObliquity, CONFIG.SDObliquity };
-		planet.planetType = L"DwarfPlanet";
+		planet.type = L"DwarfPlanet";
 		planet.name = GenName(typePlanet);
-		planet.parentBody = star.name;
+		planet.parentBody = &star;
 
 		//######################################################################################################
 			//	CLASS / RADIUS / DENSITY GENERATION
@@ -6271,11 +6273,11 @@ Screen lastScreen;
 		if ((2.44 * planet.radius * pow((planet.density / 0.5), (1.0 / 3.0))) > planet.hillSphereOuterLimit)
 			planet.numberOfMinorMoons = 0; 
 	}
-	bool GenerateMajorMoon(STAR& star, PLANET& parent, PLANET& moon, int spacer)
+	bool GenerateMajorMoon(SEStar& star, SEPlanet& parent, SEPlanet& moon, int spacer)
 	{
 		int testsemi = 0, testbreak = -1;
-		moon.planetType = L"Moon";
-		moon.parentBody = parent.name;
+		moon.type = L"Moon";
+		moon.parentBody = &parent;
 
 		if (NV.nameTerraMoons && parent.class_ != L"Jupiter" && parent.class_ != L"Neptune")
 			moon.name = GenName(typeMoon);
@@ -6572,12 +6574,12 @@ Screen lastScreen;
 
 		return 1;
 	}
-	void GenerateMinorMoon(PLANET& parent, PLANET& moon, int currentMoon)
+	void GenerateMinorMoon(SEPlanet& parent, SEPlanet& moon, int currentMoon)
 	{
 		int astSize, testsemi;
-		moon.planetType = L"DwarfMoon";
+		moon.type = L"DwarfMoon";
 		moon.class_ = L"Asteroid";
-		moon.parentBody = parent.name;
+		moon.parentBody = &parent;
 
 		if (NV.nameTerraDwarfMoons && parent.class_ != L"Jupiter" && parent.class_ != L"Neptune")
 			moon.name = GenName(typeDwarfMoon);
@@ -6780,12 +6782,12 @@ Screen lastScreen;
 		if (genpercent(mt_planet) <= CONFIG.exotic_CompanionOrbitChance)
 			moon.hasCompanionOrbit = true;
 	}
-	void GenerateDwarfMinor(PLANET& parent, PLANET& moon, int currentMoon)
+	void GenerateDwarfMinor(SEPlanet& parent, SEPlanet& moon, int currentMoon)
 	{
 		int astSize;
-		moon.planetType = L"DwarfMoon";
+		moon.type = L"DwarfMoon";
 		moon.class_ = L"Asteroid";
-		moon.parentBody = parent.name;
+		moon.parentBody = &parent;
 
 		if (NV.nameTerraDwarfMoons)
 			moon.name = GenName(typeDwarfMoon);
@@ -6875,7 +6877,7 @@ Screen lastScreen;
 		moon.meanAnomaly = gendegree(mt_moon);
 	}
 
-	void ExoticGenerateLife(PLANET& body)
+	void ExoticGenerateLife(SEPlanet& body)
 	{
 		if (body.life_organic.haslife)
 		{
@@ -6903,7 +6905,7 @@ Screen lastScreen;
 				body.life_exotic.panspermia = true;
 		}
 	}
-	void ExoticDebrisRing(PLANET& parent, PLANET& debris, double inclinationationCenter, double inclinationationSD, double DebrisSpread, double SMCenterPoint)
+	void ExoticDebrisRing(SEPlanet& parent, SEPlanet& debris, double inclinationationCenter, double inclinationationSD, double DebrisSpread, double SMCenterPoint)
 	{
 		debris.name = L"Debris Moon";
 
@@ -6943,7 +6945,7 @@ Screen lastScreen;
 		debris.argofPericenter = gendegree(mt_moon);
 		debris.meanAnomaly = gendegree(mt_moon);
 	}
-	void GenerateShip(PLANET& ship, double min_dist, double max_dist, double eccent_avg, double eccent_sd, double inclin_avg, double inclin_sd)
+	void GenerateShip(SEShip& ship, double min_dist, double max_dist, double eccent_avg, double eccent_sd, double inclin_avg, double inclin_sd)
 	{
 		std::uniform_real_distribution<> gensemi{ min_dist, max_dist };
 		ship.semimajorAxis = gensemi(mt_ship);
