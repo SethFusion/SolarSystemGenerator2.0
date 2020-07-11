@@ -1,6 +1,11 @@
 #include "framework.h"
 #include "resource.h"
 
+struct Interior
+{
+	double hydrogen, helium, silicates, carbides, ices, metals;
+};
+
 struct Atmosphere
 {
 	enum AtmoModel
@@ -100,6 +105,7 @@ public:
 	int majorMoonPercent, minorMoonPercent; // used for weighted moon generation
 	double hillSphereOuterLimit, hillSphereInnerLimit; // HSInner used to be for moons
 
+	Interior interior;
 	Atmosphere atmosphere;
 	Life life_organic, life_exotic;
 
@@ -114,6 +120,7 @@ public:
 		hillSphereInnerLimit = hillSphereOuterLimit = -1;
 		hasCompanionOrbit = false;
 		debrisCount = -1;
+		interior.hydrogen = interior.helium = interior.silicates = interior.carbides = interior.ices = interior.metals = 0;
 	}
 };
 

@@ -33,6 +33,7 @@ life_ExoticChance=30
 life_MulticellChance=50
 forceLife=0
 traditionalLife=0
+generateComposition=1
 exotic_ShipChance=20
 ModelsFolder=
 ShipsNeedLife=0

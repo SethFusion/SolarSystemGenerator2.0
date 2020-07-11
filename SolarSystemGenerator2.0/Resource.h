@@ -98,6 +98,8 @@
 #define IB_SIMPLEGENERATOR		1036
 #define IB_WORDPERCENT			1041
 
+#define IB_GENERATECOMPOSITION	1042
+
 /*---------------------------------------------
 		Check Box IDs
 ---------------------------------------------*/
@@ -112,6 +114,7 @@
 #define CB_FORCELIFE			1505
 
 #define CB_SHIPSNEEDLIFE		1506
+#define CB_GENERATECOMPOSITION	1507
 
 /*---------------------------------------------
 		Trackbar IDs

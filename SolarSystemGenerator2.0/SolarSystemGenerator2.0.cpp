@@ -90,9 +90,10 @@ Screen lastScreen;
 	void TestNames();
 
 	void SetInfoBox(int);
-	void SetCheckBoxText(HWND, int); 
+	void SetCheckBoxText(HWND, int);
+
 	//Window Functions
-	void BrowseFolder(HWND);
+	void BrowseFolder(HWND); // handle parameter stores the folder path
 	
 //#######################################################
 		std::wstring GenName(Object_Type);
@@ -497,7 +498,9 @@ Screen lastScreen;
 			LoadVariableFromFile(Buffer, parse, temp.forceLife);
 			temp.forceLifeState = (temp.forceLife == true) ? L"Enabled" : L"Disabled";		
 			LoadVariableFromFile(Buffer, parse, temp.traditionalLife);
-			temp.traditonalLifeState = (temp.traditionalLife == true) ? L"Enabled" : L"Disabled";		
+			temp.traditonalLifeState = (temp.traditionalLife == true) ? L"Enabled" : L"Disabled";
+			LoadVariableFromFile(Buffer, parse, temp.generateComposition);
+			temp.generateCompositionState = (temp.generateComposition == true) ? L"Enabled" : L"Disabled";
 			LoadVariableFromFile(Buffer, parse, temp.exotic_ShipChance);		
 			LoadVariableFromFile(Buffer, parse, temp.modelsFolder);		
 			LoadVariableFromFile(Buffer, parse, temp.shipsNeedLife);
@@ -1352,6 +1355,20 @@ Screen lastScreen;
 			WS_CHILD | WS_BORDER | ES_CENTER, //Effects
 			350, 60, 664, 30, //X, Y, Width & Height
 			hWnd, NULL, NULL, NULL); //Parent
+
+		//generate composition
+		CONFIG_H.generateComposition.DESC = CreateWindowW(L"static", L"Generate Composition:",
+			WS_CHILD | WS_BORDER,
+			370, 100, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.generateComposition.HANDLE = CreateWindowW(L"button", L"",
+			WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
+			600, 100, 100, 20,
+			hWnd, (HMENU)CB_GENERATECOMPOSITION, NULL, NULL);
+		CONFIG_H.generateComposition.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			352, 102, 16, 16,
+			hWnd, (HMENU)IB_GENERATECOMPOSITION, NULL, NULL);
 
 		#pragma endregion
 		//###############################################################################
@@ -2244,10 +2261,6 @@ Screen lastScreen;
 		}
 		SetWindowTextW(CONFIG_H.seed.HANDLE, seedarr);
 
-
-
-
-
 		SetWindowTextW(CONFIG_H.starOutputFolder.HANDLE, P.starOutputFolder);
 		SetWindowTextW(CONFIG_H.planetOutputFolder.HANDLE, P.planetOutputFolder);
 		SetVariableToWindow(CONFIG_H.numberOfRuns.HANDLE, P.numberOfRuns);
@@ -2292,6 +2305,9 @@ Screen lastScreen;
 		SetWindowTextW(CONFIG_H.forceLife.HANDLE, P.forceLifeState);
 		CheckDlgButton(hWnd, CB_TRADITIONALLIFE, P.traditionalLife);
 		SetWindowTextW(CONFIG_H.traditionalLife.HANDLE, P.traditonalLifeState);
+
+		CheckDlgButton(hWnd, CB_GENERATECOMPOSITION, P.generateComposition);
+		SetWindowTextW(CONFIG_H.generateComposition.HANDLE, P.generateCompositionState);
 
 		SetVariableToWindow(CONFIG_H.exotic_ShipChance.HANDLE, P.exotic_ShipChance);
 		SetWindowTextW(CONFIG_H.modelsFolder.HANDLE, P.modelsFolder);
@@ -2449,6 +2465,7 @@ Screen lastScreen;
 			<< "life_MulticellChance=" << CONFIG.life_MulticellChance << "\n"
 			<< "forceLife=" << CONFIG.forceLife << "\n"
 			<< "traditionalLife=" << CONFIG.traditionalLife << "\n"
+			<< "generateComposition=" << CONFIG.generateComposition << "\n"
 			<< "exotic_ShipChance=" << CONFIG.exotic_ShipChance << "\n"
 			<< "ModelsFolder=" << wstr_to_str(CONFIG.modelsFolder) << "\n"
 			<< "ShipsNeedLife=" << CONFIG.shipsNeedLife << "\n"
@@ -2725,11 +2742,11 @@ Screen lastScreen;
 			//Header
 			ShowWindow(CONFIG_H.HEADER_SURFACE, 0);
 			//Handles
-						
+			ShowWindow(CONFIG_H.generateComposition.HANDLE, 0);
 			//Desc
-						
+			ShowWindow(CONFIG_H.generateComposition.DESC, 0);
 			//Info
-			
+			ShowWindow(CONFIG_H.generateComposition.INFOBUTTON, 0);
 			//Extra
 		}
 			break;
@@ -2953,13 +2970,13 @@ Screen lastScreen;
 		ShowWindow(CONFIG_H.HEADER_SURFACE, 1);
 
 		//Handles
-		
+		ShowWindow(CONFIG_H.generateComposition.HANDLE, 1);
 
 		//Desc
-		
+		ShowWindow(CONFIG_H.generateComposition.DESC, 1);
 
 		//Info
-		
+		ShowWindow(CONFIG_H.generateComposition.INFOBUTTON, 1);
 
 		lastScreen = Surface;
 	}
@@ -3322,6 +3339,8 @@ Screen lastScreen;
 		GetVariableFromWindow(CONFIG_H.life_MulticellChance.HANDLE, CONFIG.life_MulticellChance);
 		CONFIG.forceLife = (IsDlgButtonChecked(hWnd, CB_FORCELIFE) == BST_CHECKED) ? true : false;
 		CONFIG.traditionalLife = (IsDlgButtonChecked(hWnd, CB_TRADITIONALLIFE) == BST_CHECKED) ? true : false;
+
+		CONFIG.generateComposition = (IsDlgButtonChecked(hWnd, CB_GENERATECOMPOSITION) == BST_CHECKED) ? true : false;
 
 		GetVariableFromWindow(CONFIG_H.exotic_ShipChance.HANDLE, CONFIG.exotic_ShipChance);
 		GetVariableFromWindow(CONFIG_H.modelsFolder.HANDLE, CONFIG.modelsFolder);
@@ -3874,7 +3893,7 @@ Screen lastScreen;
 			break;
 	#pragma endregion
 //###############
-	#pragma region System and Planet
+	#pragma region System
 //###############
 		case IB_SMARTPLACEMENT:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"When smart placement is enabled, the generator will try to place planets in relatively realistic locations. So typically you will find gas giants beyond the frost limit and rocky planets closer to the star. If disabled, any planet type can spawn in any location.");
@@ -3903,16 +3922,17 @@ Screen lastScreen;
 		case IB_DWARFPALNETCHANCE:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"Percent chance for dwarf planets to generate and continue generating after the first. For every dwarf planet generated, one percent is subtracted from the total.");
 			break;
+		
+	#pragma endregion
+//###############
+	#pragma region Planet
+//###############
 		case IB_WEIGHTEDMOONS:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"If enabled, moons will generate based on a new weight system, hopefully making generation more interesting and realistic.\n\nDisabled will use an older system with hard limits on how many moons an object can have.");
 			break;
 		case IB_MOONDISTANCEBOUNDARY:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"Moon distance boundary defines how much space should be inbetween major moons, measured by the parent planet's radius. Gas giants are ten times less than this number.\n\nSetting this number to 0 (zero) will disable this feature, so major moons could spawn very close to each other.");
 			break;
-	#pragma endregion
-//###############
-	#pragma region Life
-//###############
 		case IB_LIFEORGANICCHANCE:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"Organic life."); // figure out what to put here
 			break;
@@ -3928,23 +3948,6 @@ Screen lastScreen;
 		case IB_TRADITIONALLIFE:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"If enabled, organic life can only spawn if a planet is near the habitable zone, while exotic life can spawn anywhere.");
 			break;
-	#pragma endregion
-//###############
-	#pragma region Ships
-//###############
-		case IB_SHIPCHANCE:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"Percent chance that ships will spawn somewhere in the system and continue spawning after the first. Zero by default because you must set up the models folder first. Everytime a ship is created, one percent is subtracted from the total.");
-			break;
-		case IB_SHIPSNEEDLIFE:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"If enabled, ships require a planet with life to have generated somewhere in the system to spawn.");
-			break;
-		case IB_MODELSFOLDER:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"This is the folder the generator pulls ship models from. The models folder that came with this generator should be placed under \"addons\\models\\\" in your Space Engine folder, then make sure to copy/paste the full file (ending with \"models\\\" ) path in the text box here.\n\nYou can also add your own ship models to this folder and the generator will use them.");
-			break;
-	#pragma endregion
-//###############
-	#pragma region Exotic
-//###############
 		case IB_EXOTICORBIT:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"Pecent chance for a planet to have a high inclination and/or a retrograde orbit.");
 			break;
@@ -3956,6 +3959,26 @@ Screen lastScreen;
 			break;
 		case IB_EXOTICCOMPANION:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"A comapnion orbit is an object with the same orbit as another object, but orbiting on the oposite side side of the orbit.");
+			break;
+	#pragma endregion
+//###############
+	#pragma region Surface
+//###############	
+		case IB_GENERATECOMPOSITION:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Enables planet interior composition, which may affect planet generation.");
+			break;
+	#pragma endregion
+//###############
+	#pragma region Special
+//###############	
+		case IB_SHIPCHANCE:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Percent chance that ships will spawn somewhere in the system and continue spawning after the first. Zero by default because you must set up the models folder first. Everytime a ship is created, one percent is subtracted from the total.");
+			break;
+		case IB_SHIPSNEEDLIFE:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"If enabled, ships require a planet with life to have generated somewhere in the system to spawn.");
+			break;
+		case IB_MODELSFOLDER:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"This is the folder the generator pulls ship models from. The models folder that came with this generator should be placed under \"addons\\models\\\" in your Space Engine folder, then make sure to copy/paste the full file (ending with \"models\\\" ) path in the text box here.\n\nYou can also add your own ship models to this folder and the generator will use them.");
 			break;
 	#pragma endregion
 //###############
@@ -4077,6 +4100,17 @@ Screen lastScreen;
 				break;
 			case BST_CHECKED:
 				SetWindowTextW(CONFIG_H.weightedMoons.HANDLE, L"Enabled");
+				break;
+			}
+			break;
+		case CB_GENERATECOMPOSITION:
+			switch (msg)
+			{
+			case BST_UNCHECKED:
+				SetWindowTextW(CONFIG_H.generateComposition.HANDLE, L"Disabled");
+				break;
+			case BST_CHECKED:
+				SetWindowTextW(CONFIG_H.generateComposition.HANDLE, L"Enabled");
 				break;
 			}
 			break;
@@ -5343,21 +5377,35 @@ Screen lastScreen;
 		file << "\tRadius\t\t\t\t\t" << planet.radius << "\n"
 			<< "\tObliquity\t\t\t\t" << planet.obliquity << "\n";
 
-		if (planet.life_organic.haslife == true)
+		if (CONFIG.generateComposition)
+		{
+			file << "\n\tInterior\n\t{"
+				<< "\n\t\tComposition\n\t\t{"
+				<< "\n\t\t\tHydrogen\t" << planet.interior.hydrogen
+				<< "\n\t\t\tHelium\t\t" << planet.interior.helium
+				<< "\n\t\t\tSilicates\t" << planet.interior.silicates
+				<< "\n\t\t\tCarbides\t" << planet.interior.carbides
+				<< "\n\t\t\tIces\t\t" << planet.interior.ices
+				<< "\n\t\t\tMetals\t\t" << planet.interior.metals
+				<< "\n\t\t}"
+				<< "\n\t}\n";
+		}
+
+		if (planet.life_organic.haslife)
 		{
 			file << "\n\tLife\n\t{"
 				<< "\n\t\tClass\t\"" << wstr_to_str(planet.life_organic._class) << "\""
 				<< "\n\t\tType\t\"" << wstr_to_str(planet.life_organic.type) << "\"";
-			if (planet.life_organic.panspermia == true)
+			if (planet.life_organic.panspermia)
 				file << "\n\t\tPanspermia\ttrue";
 			file << "\n\t}\n";
 		}
-		if (planet.life_exotic.haslife == true)
+		if (planet.life_exotic.haslife)
 		{
 			file << "\n\tLife\n\t{"
 				<< "\n\t\tClass\t\"" << wstr_to_str(planet.life_exotic._class) << "\""
 				<< "\n\t\tType\t\"" << wstr_to_str(planet.life_exotic.type) << "\"";
-			if (planet.life_exotic.panspermia == true)
+			if (planet.life_exotic.panspermia)
 				file << "\n\t\tPanspermia\ttrue";
 			file << "\n\t}\n";
 		}
@@ -5665,231 +5713,449 @@ Screen lastScreen;
 			/*################################
 				TEST BOX
 			################################*/
-				//planet.class_ = L"Terra";
+				planet.class_ = L"Neptune";
 			//################################
 
 		//######################################################################################################
-			//	MASS + RADIUS GENERATION
+			//	MASS / RADIUS / DENSITY GENERATION
 
-		if (planet.class_ == L"Jupiter")
+		if (CONFIG.generateComposition)
 		{
-			if (genpercent(mt_planet) <= 60)
+			double leftOver = 100;
+
+
+			if (planet.class_ == L"Jupiter")
 			{
-				std::uniform_real_distribution<> genm{ 10, 320 };
-				planet.mass = genm(mt_planet);
+				//
+
+				std::normal_distribution<> genmain{ 50, 20 };
+				do planet.interior.hydrogen = genmain(mt_planet);
+				while (planet.interior.hydrogen < 25 || planet.interior.hydrogen > 80);
+				leftOver -= planet.interior.hydrogen;
+
+				std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+				planet.interior.ices = gensecond(mt_planet);
+				leftOver -= planet.interior.ices;
+
+				std::uniform_real_distribution<> genthird{ 0 , leftOver };
+				planet.interior.helium = genthird(mt_planet);
+				leftOver -= planet.interior.helium;
+
+				std::uniform_real_distribution<> genfourth{ 0 , leftOver };
+				planet.interior.silicates = genfourth(mt_planet);
+				leftOver -= planet.interior.silicates;
+
+				if (genpercent(mt_planet) < 3)
+				{
+					std::uniform_real_distribution<> genfifth{ 0 , leftOver };
+					planet.interior.carbides = genfifth(mt_planet);
+					leftOver -= planet.interior.carbides;
+				}
+
+				planet.interior.metals = leftOver;
+
+				if (genpercent(mt_planet) < 80)
+				{
+					std::uniform_real_distribution<> genr{ 15000, 72000 };
+					planet.radius = genr(mt_planet);
+				}
+				else
+				{
+					std::normal_distribution<> genr{ 70000, 2000 };
+					planet.radius = genr(mt_planet);
+				}
+			}
+			if (planet.class_ == L"Neptune")
+			{
+				std::normal_distribution<> genmain{ 50, 20 };
+				do planet.interior.ices = genmain(mt_planet);
+				while (planet.interior.ices < 25 || planet.interior.ices > 80);
+				leftOver -= planet.interior.ices;
+
+				std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+				planet.interior.silicates = gensecond(mt_planet);
+				leftOver -= planet.interior.silicates;
+
+				std::uniform_real_distribution<> genthird{ 0 , leftOver };
+				planet.interior.hydrogen = genthird(mt_planet);
+				leftOver -= planet.interior.hydrogen;
+
+				std::uniform_real_distribution<> genfourth{ 0 , leftOver };
+				planet.interior.helium = genfourth(mt_planet);
+				leftOver -= planet.interior.helium;
+
+				if (genpercent(mt_planet) < 3)
+				{
+					std::uniform_real_distribution<> genfifth{ 0 , leftOver };
+					planet.interior.carbides = genfifth(mt_planet);
+					leftOver -= planet.interior.carbides;
+				}
+
+				planet.interior.metals = leftOver;
+
+				std::uniform_real_distribution<> genr{ 8000, 55000 };
+				planet.radius = genr(mt_planet);
+			}
+
+			if (planet.class_ == L"Terra")
+			{
+				std::normal_distribution<> genmain{ 60, 20 };
+				do planet.interior.silicates = genmain(mt_planet);
+				while (planet.interior.silicates < 50 || planet.interior.silicates > 99);
+				leftOver -= planet.interior.silicates;
+
+				if (genpercent(mt_planet) < 3)
+				{
+					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+					planet.interior.carbides = gensecond(mt_planet);
+					leftOver -= planet.interior.carbides;
+				}
+
+				if (genpercent(mt_planet) < 34)
+				{
+					std::uniform_real_distribution<> genthird{ 0 , leftOver };
+					do planet.interior.ices = genthird(mt_planet);
+					while (planet.interior.ices > 10);
+					leftOver -= planet.interior.ices;
+				}
+
+				planet.interior.metals = leftOver;
+
+				std::uniform_real_distribution<> genr{ 2000, 13000 };
+				planet.radius = genr(mt_planet);
+			}
+			else if (planet.class_ == L"Ferria")
+			{
+				std::normal_distribution<> genmain{ 60, 20 };
+				do planet.interior.metals = genmain(mt_planet);
+				while (planet.interior.metals < 50 || planet.interior.metals > 99);
+				leftOver -= planet.interior.metals;
+
+				if (genpercent(mt_planet) < 3)
+				{
+					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+					planet.interior.carbides = gensecond(mt_planet);
+					leftOver -= planet.interior.carbides;
+				}
+
+				if (genpercent(mt_planet) < 34)
+				{
+					std::uniform_real_distribution<> genthird{ 0 , leftOver };
+					do planet.interior.ices = genthird(mt_planet);
+					while (planet.interior.ices > 10);
+					leftOver -= planet.interior.ices;
+				}
+
+				planet.interior.silicates = leftOver;
+
+				std::uniform_real_distribution<> genr{ 2000, 13000 };
+				planet.radius = genr(mt_planet);
+			}
+			else if (planet.class_ == L"Aquaria")
+			{
+				std::normal_distribution<> genmain{ 30, 20 };
+				do planet.interior.ices = genmain(mt_planet);
+				while (planet.interior.ices < 10 || planet.interior.ices > 80);
+				leftOver -= planet.interior.ices;
+
+				std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+				planet.interior.silicates = gensecond(mt_planet);
+				leftOver -= planet.interior.silicates;
+
+				if (genpercent(mt_planet) < 5)
+				{
+					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+					planet.interior.carbides = gensecond(mt_planet);
+					leftOver -= planet.interior.carbides;
+				}
+
+				planet.interior.metals = leftOver;
+
+				std::uniform_real_distribution<> genr{ 2000, 13000 };
+				planet.radius = genr(mt_planet);
+			}
+			else if (planet.class_ == L"Carbonia")
+			{
+				std::normal_distribution<> genmain{ 60, 20 };
+				do planet.interior.carbides = genmain(mt_planet);
+				while (planet.interior.carbides < 50 || planet.interior.carbides > 99);
+				leftOver -= planet.interior.carbides;
+
+				std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+				planet.interior.silicates = gensecond(mt_planet);
+				leftOver -= planet.interior.silicates;
+
+				if (genpercent(mt_planet) < 34)
+				{
+					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+					planet.interior.ices = gensecond(mt_planet);
+					leftOver -= planet.interior.ices;
+				}
+
+				planet.interior.metals = leftOver;
+
+				std::uniform_real_distribution<> genr{ 2000, 13000 };
+				planet.radius = genr(mt_planet);
+			}
+
+			// gas giants are too complicated to calculate a density just based on composition,
+			// so mass is pseudo-calculated based on radius.
+			if (planet.class_ == L"Jupiter")
+			{
+				std::uniform_real_distribution<> genm{ 200, 800 }; // this modifies the radius to get a mass
+				planet.mass = planet.radius / genm(mt_planet);
+
+				if (planet.radius > 68000)
+				{
+					std::uniform_real_distribution<> genn{ 2, 4 };
+					planet.mass *= genn(mt_planet);
+				}
+
+				planet.earthRadius = planet.radius / 6378.14;
+				planet.gravity = planet.mass / (pow(planet.earthRadius, 2));
+				planet.density = planet.gravity / planet.earthRadius;
+			}
+			else if (planet.class_ == L"Neptune")
+			{
+				std::uniform_real_distribution<> genm{ 500, 2000 }; // this modifies the radius to get a mass
+				planet.mass = planet.radius / genm(mt_planet);
+
+				planet.earthRadius = planet.radius / 6378.14;
+				planet.gravity = planet.mass / (pow(planet.earthRadius, 2));
+				planet.density = planet.gravity / planet.earthRadius;
 			}
 			else
 			{
-				std::uniform_real_distribution<> genm{ 320, 2000 };
+				planet.density = ((planet.interior.metals / 100) * 7.874) + ((planet.interior.silicates / 100) * 3.25) + (planet.interior.ices / 100) + ((planet.interior.carbides / 100) * 2.1);
+				planet.earthRadius = planet.radius / 6378.14;
+				planet.mass = pow(planet.earthRadius, 3) * (planet.density / 5.51);
+			}	
+		}
+		else
+		{
+			if (planet.class_ == L"Jupiter")
+			{
+				if (genpercent(mt_planet) <= 60)
+				{
+					std::uniform_real_distribution<> genm{ 10, 320 };
+					planet.mass = genm(mt_planet);
+				}
+				else
+				{
+					std::uniform_real_distribution<> genm{ 320, 2000 };
+					planet.mass = genm(mt_planet);
+				}
+
+				if (planet.mass < 60)
+				{
+					std::normal_distribution<> genr{ 20000, 5000 };
+					do planet.radius = genr(mt_planet);
+					while (planet.radius <= 13000 || planet.radius > 33000);
+				}
+				else if (planet.mass < 150)
+				{
+					std::normal_distribution<> genr{ 55000, 2000 };
+					do planet.radius = genr(mt_planet);
+					while (planet.radius <= 30000 || planet.radius > 80000);
+				}
+				else if (planet.mass < 320)
+				{
+					std::normal_distribution<> genr{ 71492, 7000 };
+					do planet.radius = genr(mt_planet);
+					while (planet.radius <= 60000 || planet.radius > 80000);
+				}
+				else
+				{
+					std::normal_distribution<> genr{ 71492, 15000 };
+					do planet.radius = genr(mt_planet);
+					while (planet.radius <= 20000 || planet.radius > 72000);
+				}
+
+				planet.earthRadius = planet.radius / 6378.14;
+				planet.gravity = planet.mass / (pow(planet.earthRadius, 2));
+				planet.density = planet.gravity / planet.earthRadius;
+				//		density = (gravity / earthRadius) * 5.514;
+				//		cout << L"desnity : L" << density << L" g/cm^3" << endl;
+			}
+			else if (planet.class_ == L"Neptune")
+			{
+				std::uniform_real_distribution<> genm{ 2, 70 };
 				planet.mass = genm(mt_planet);
-			}
 
-			if (planet.mass < 60)
-			{
-				std::normal_distribution<> genr{ 20000, 5000 };
-				do planet.radius = genr(mt_planet);
-				while (planet.radius <= 13000 || planet.radius > 33000);
-			}
-			else if (planet.mass < 150)
-			{
-				std::normal_distribution<> genr{ 55000, 2000 };
-				do planet.radius = genr(mt_planet);
-				while (planet.radius <= 30000 || planet.radius > 80000);
-			}
-			else if (planet.mass < 320)
-			{
-				std::normal_distribution<> genr{ 71492, 7000 };
-				do planet.radius = genr(mt_planet);
-				while (planet.radius <= 60000 || planet.radius > 80000);
-			}
-			else
-			{
-				std::normal_distribution<> genr{ 71492, 15000 };
-				do planet.radius = genr(mt_planet);
-				while (planet.radius <= 20000 || planet.radius > 72000);
-			}
-
-			planet.earthRadius = planet.radius / 6378.14;
-			planet.gravity = planet.mass / (pow(planet.earthRadius, 2));
-			planet.density = planet.gravity / planet.earthRadius;
-			//		density = (gravity / earthRadius) * 5.514;
-			//		cout << L"desnity : L" << density << L" g/cm^3" << endl;
-		}
-		else if (planet.class_ == L"Neptune")
-		{
-			std::uniform_real_distribution<> genm{ 2, 70 };
-			planet.mass = genm(mt_planet);
-
-			if (planet.mass < 8)
-			{
-				std::normal_distribution<> genr{ 10000, 500 };
-				do planet.radius = genr(mt_planet);
-				while (planet.radius <= 7000 || planet.radius > 15000);
-			}
-			else if (planet.mass < 17)
-			{
-				std::normal_distribution<> genr{ 20000, 1000 };
-				do planet.radius = genr(mt_planet);
-				while (planet.radius <= 15000 || planet.radius > 25000);
-			}
-			else if (planet.mass < 25)
-			{
-				std::normal_distribution<> genr{ 23000, 1000 };
-				do planet.radius = genr(mt_planet);
-				while (planet.radius <= 18000 || planet.radius > 28000);
-			}
-			else if (planet.mass < 35)
-			{
-				std::normal_distribution<> genr{ 26000, 750 };
-				do planet.radius = genr(mt_planet);
-				while (planet.radius <= 21000 || planet.radius > 30000);
-			}
-			else if (planet.mass < 60)
-			{
-				std::normal_distribution<> genr{ 28000, 750 };
-				do planet.radius = genr(mt_planet);
-				while (planet.radius <= 25000 || planet.radius > 30000);
-			}
-			else if (planet.mass <= 70)
-			{
-				std::normal_distribution<> genr{ 30000, 500 };
-				do planet.radius = genr(mt_planet);
-				while (planet.radius <= 28000 || planet.radius > 32000);
-			}
-
-			planet.earthRadius = planet.radius / 6378.14;
-			planet.gravity = planet.mass / (pow(planet.earthRadius, 2));
-			planet.density = planet.gravity / planet.earthRadius;
-		}
-
-		else if (planet.class_ == L"Terra")
-		{
-			do
-			{
-				if (genpercent(mt_planet) <= 50)
+				if (planet.mass < 8)
 				{
-					std::uniform_real_distribution<> genm{ 0.2, 2 };
-					planet.mass = genm(mt_planet);
+					std::normal_distribution<> genr{ 10000, 500 };
+					do planet.radius = genr(mt_planet);
+					while (planet.radius <= 7000 || planet.radius > 15000);
 				}
-				else
+				else if (planet.mass < 17)
 				{
-					std::uniform_real_distribution<> genm{ 2, 6 };
-					planet.mass = genm(mt_planet);
+					std::normal_distribution<> genr{ 20000, 1000 };
+					do planet.radius = genr(mt_planet);
+					while (planet.radius <= 15000 || planet.radius > 25000);
 				}
-
-				if (planet.mass < 1)
+				else if (planet.mass < 25)
 				{
-					std::uniform_real_distribution<> genr{ 2000, 6500 };
-					planet.radius = genr(mt_planet);
+					std::normal_distribution<> genr{ 23000, 1000 };
+					do planet.radius = genr(mt_planet);
+					while (planet.radius <= 18000 || planet.radius > 28000);
 				}
-				else
+				else if (planet.mass < 35)
 				{
-					std::uniform_real_distribution<> genr{ 6500, 13000 };
-					planet.radius = genr(mt_planet);
+					std::normal_distribution<> genr{ 26000, 750 };
+					do planet.radius = genr(mt_planet);
+					while (planet.radius <= 21000 || planet.radius > 30000);
+				}
+				else if (planet.mass < 60)
+				{
+					std::normal_distribution<> genr{ 28000, 750 };
+					do planet.radius = genr(mt_planet);
+					while (planet.radius <= 25000 || planet.radius > 30000);
+				}
+				else if (planet.mass <= 70)
+				{
+					std::normal_distribution<> genr{ 30000, 500 };
+					do planet.radius = genr(mt_planet);
+					while (planet.radius <= 28000 || planet.radius > 32000);
 				}
 
 				planet.earthRadius = planet.radius / 6378.14;
 				planet.gravity = planet.mass / (pow(planet.earthRadius, 2));
 				planet.density = planet.gravity / planet.earthRadius;
+			}
 
-			} while (planet.density < 0.75 || planet.density > 1.3);
-		}
-		else if (planet.class_ == L"Ferria")
-		{
-			do
+			else if (planet.class_ == L"Terra")
 			{
-				if (genpercent(mt_planet) <= 50)
+				do
 				{
-					std::uniform_real_distribution<> genm{ 0.2, 2 };
-					planet.mass = genm(mt_planet);
-				}
-				else
-				{
-					std::uniform_real_distribution<> genm{ 2, 6 };
-					planet.mass = genm(mt_planet);
-				}
+					if (genpercent(mt_planet) <= 50)
+					{
+						std::uniform_real_distribution<> genm{ 0.2, 2 };
+						planet.mass = genm(mt_planet);
+					}
+					else
+					{
+						std::uniform_real_distribution<> genm{ 2, 6 };
+						planet.mass = genm(mt_planet);
+					}
 
-				if (planet.mass < 1)
-				{
-					std::uniform_real_distribution<> genr{ 2000, 6500 };
-					planet.radius = genr(mt_planet);
-				}
-				else
-				{
-					std::uniform_real_distribution<> genr{ 6500, 13000 };
-					planet.radius = genr(mt_planet);
-				}
+					if (planet.mass < 1)
+					{
+						std::uniform_real_distribution<> genr{ 2000, 6500 };
+						planet.radius = genr(mt_planet);
+					}
+					else
+					{
+						std::uniform_real_distribution<> genr{ 6500, 13000 };
+						planet.radius = genr(mt_planet);
+					}
 
-				planet.earthRadius = planet.radius / 6378.14;
-				planet.gravity = planet.mass / (pow(planet.earthRadius, 2));
-				planet.density = planet.gravity / planet.earthRadius;
+					planet.earthRadius = planet.radius / 6378.14;
+					planet.gravity = planet.mass / (pow(planet.earthRadius, 2));
+					planet.density = planet.gravity / planet.earthRadius;
 
-			} while (planet.density < 1 || planet.density > 2);
-		}
-		else if (planet.class_ == L"Carbonia")
-		{
-			do
+				} while (planet.density < 0.75 || planet.density > 1.3);
+			}
+			else if (planet.class_ == L"Ferria")
 			{
-				if (genpercent(mt_planet) <= 50)
+				do
 				{
-					std::uniform_real_distribution<> genm{ 0.2, 2 };
-					planet.mass = genm(mt_planet);
-				}
-				else
-				{
-					std::uniform_real_distribution<> genm{ 2, 6 };
-					planet.mass = genm(mt_planet);
-				}
+					if (genpercent(mt_planet) <= 50)
+					{
+						std::uniform_real_distribution<> genm{ 0.2, 2 };
+						planet.mass = genm(mt_planet);
+					}
+					else
+					{
+						std::uniform_real_distribution<> genm{ 2, 6 };
+						planet.mass = genm(mt_planet);
+					}
 
-				if (planet.mass < 1)
-				{
-					std::uniform_real_distribution<> genr{ 2000, 6500 };
-					planet.radius = genr(mt_planet);
-				}
-				else
-				{
-					std::uniform_real_distribution<> genr{ 6500, 13000 };
-					planet.radius = genr(mt_planet);
-				}
+					if (planet.mass < 1)
+					{
+						std::uniform_real_distribution<> genr{ 2000, 6500 };
+						planet.radius = genr(mt_planet);
+					}
+					else
+					{
+						std::uniform_real_distribution<> genr{ 6500, 13000 };
+						planet.radius = genr(mt_planet);
+					}
 
-				planet.earthRadius = planet.radius / 6378.14;
-				planet.gravity = planet.mass / (pow(planet.earthRadius, 2));
-				planet.density = planet.gravity / planet.earthRadius;
+					planet.earthRadius = planet.radius / 6378.14;
+					planet.gravity = planet.mass / (pow(planet.earthRadius, 2));
+					planet.density = planet.gravity / planet.earthRadius;
 
-			} while (planet.density < 0.6 || planet.density > 1);
-		}
-		else if (planet.class_ == L"Aquaria")
-		{
-			do
+				} while (planet.density < 1 || planet.density > 2);
+			}
+			else if (planet.class_ == L"Carbonia")
 			{
-				if (genpercent(mt_planet) <= 50)
+				do
 				{
-					std::uniform_real_distribution<> genm{ 0.2, 2 };
-					planet.mass = genm(mt_planet);
-				}
-				else
-				{
-					std::uniform_real_distribution<> genm{ 2, 6 };
-					planet.mass = genm(mt_planet);
-				}
+					if (genpercent(mt_planet) <= 50)
+					{
+						std::uniform_real_distribution<> genm{ 0.2, 2 };
+						planet.mass = genm(mt_planet);
+					}
+					else
+					{
+						std::uniform_real_distribution<> genm{ 2, 6 };
+						planet.mass = genm(mt_planet);
+					}
 
-				if (planet.mass < 1)
-				{
-					std::uniform_real_distribution<> genr{ 2000, 7000 };
-					planet.radius = genr(mt_planet);
-				}
-				else
-				{
-					std::uniform_real_distribution<> genr{ 6500, 13000 };
-					planet.radius = genr(mt_planet);
-				}
+					if (planet.mass < 1)
+					{
+						std::uniform_real_distribution<> genr{ 2000, 6500 };
+						planet.radius = genr(mt_planet);
+					}
+					else
+					{
+						std::uniform_real_distribution<> genr{ 6500, 13000 };
+						planet.radius = genr(mt_planet);
+					}
 
-				planet.earthRadius = planet.radius / 6378.14;
-				planet.gravity = planet.mass / (pow(planet.earthRadius, 2));
-				planet.density = planet.gravity / planet.earthRadius;
+					planet.earthRadius = planet.radius / 6378.14;
+					planet.gravity = planet.mass / (pow(planet.earthRadius, 2));
+					planet.density = planet.gravity / planet.earthRadius;
 
-			} while (planet.density < 0.5 || planet.density > 0.75);
+				} while (planet.density < 0.6 || planet.density > 1);
+			}
+			else if (planet.class_ == L"Aquaria")
+			{
+				do
+				{
+					if (genpercent(mt_planet) <= 50)
+					{
+						std::uniform_real_distribution<> genm{ 0.2, 2 };
+						planet.mass = genm(mt_planet);
+					}
+					else
+					{
+						std::uniform_real_distribution<> genm{ 2, 6 };
+						planet.mass = genm(mt_planet);
+					}
+
+					if (planet.mass < 1)
+					{
+						std::uniform_real_distribution<> genr{ 2000, 7000 };
+						planet.radius = genr(mt_planet);
+					}
+					else
+					{
+						std::uniform_real_distribution<> genr{ 6500, 13000 };
+						planet.radius = genr(mt_planet);
+					}
+
+					planet.earthRadius = planet.radius / 6378.14;
+					planet.gravity = planet.mass / (pow(planet.earthRadius, 2));
+					planet.density = planet.gravity / planet.earthRadius;
+
+				} while (planet.density < 0.5 || planet.density > 0.75);
+			}
 		}
+
+
+		
 
 		//######################################################################################################
 			//	ORBIT GENERATION

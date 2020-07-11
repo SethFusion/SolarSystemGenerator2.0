@@ -81,7 +81,7 @@ struct ConfigurationVariables
 			SURFACE
 	#####################################################*/
 
-	
+	bool generateComposition;
 
 	/*#####################################################
 			SPECIAL
@@ -170,6 +170,8 @@ struct ConfigurationHWNDs
 		*/	HWND HEADER_SURFACE; /*
 	#####################################################*/
 
+		var generateComposition;
+
 	/*#####################################################
 		*/	HWND HEADER_SPECIAL; /*
 	#####################################################*/
@@ -240,6 +242,9 @@ struct Preset
 	/*#####################################################
 		Surface
 	#####################################################*/
+
+	bool generateComposition;
+	wchar_t const* generateCompositionState;
 
 	/*#####################################################
 		Special
