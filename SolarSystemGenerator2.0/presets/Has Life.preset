@@ -1,6 +1,6 @@
 PresetName=Has Life
-starOutputFolder=E:\Program Files (x86)\Steam\steamapps\common\SpaceEngine\addons\Generator\catalogs\stars\
-planetOutputFolder=E:\Program Files (x86)\Steam\steamapps\common\SpaceEngine\addons\Generator\catalogs\planets\
+starOutputFolder=output\
+planetOutputFolder=output\
 seed=0
 numberOfRuns=1
 smartPlacement=1

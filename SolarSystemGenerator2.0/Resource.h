@@ -40,6 +40,10 @@
 
 #define BUTTON_TEST_NAMES			25
 
+#define BUTTON_BROWSE_STAR_FOLDER	26
+#define BUTTON_BROWSE_PLANET_FOLDER	27
+#define BUTTON_BROWSE_MODELS_FOLDER	28
+
 //#define BUTTON_ADV_
 
 /*---------------------------------------------

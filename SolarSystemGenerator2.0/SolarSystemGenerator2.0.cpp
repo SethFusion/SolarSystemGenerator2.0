@@ -90,12 +90,12 @@ Screen lastScreen;
 	void TestNames();
 
 	void SetInfoBox(int);
-	void SetCheckBoxText(HWND, int); /*
-	Window Functions
-	//int OpenPreset();
+	void SetCheckBoxText(HWND, int); 
+	//Window Functions
+	void BrowseFolder(HWND);
 	
-#######################################################
-	*/	std::wstring GenName(Object_Type);
+//#######################################################
+		std::wstring GenName(Object_Type);
 		std::wstring GenNumberModifier();
 		void BeginGenerate(HWND); 
 		void SortVector(std::vector<PLANET>&, int, int);
@@ -253,6 +253,17 @@ Screen lastScreen;
 				Clear_Screen();
 				Load_Screen_Advanced();
 				break;
+
+			case BUTTON_BROWSE_STAR_FOLDER:
+				BrowseFolder(CONFIG_H.starOutputFolder.HANDLE);
+				break;
+			case BUTTON_BROWSE_PLANET_FOLDER:
+				BrowseFolder(CONFIG_H.planetOutputFolder.HANDLE);
+				break;
+			case BUTTON_BROWSE_MODELS_FOLDER:
+				BrowseFolder(CONFIG_H.modelsFolder.HANDLE);
+				break;
+
 			case BUTTON_SAVEPRESET:
 				GetConfigData(hWnd);
 				SavePreset();
@@ -838,7 +849,7 @@ Screen lastScreen;
 		CONFIG_H.starOutputFolder.EXTRA = CreateWindowW(L"button", L"Browse...",
 			WS_CHILD | WS_BORDER,
 			870, 180, 80, 20,
-			hWnd, (HMENU)IB_PLANETOUTPUTFOLDER, NULL, NULL);
+			hWnd, (HMENU)BUTTON_BROWSE_STAR_FOLDER, NULL, NULL);
 
 		//planet output folder
 		CONFIG_H.planetOutputFolder.DESC = CreateWindowW(L"static", L"Planet Output Folder:",
@@ -856,7 +867,7 @@ Screen lastScreen;
 		CONFIG_H.planetOutputFolder.EXTRA = CreateWindowW(L"button", L"Browse...",
 			WS_CHILD | WS_BORDER,
 			870, 200, 80, 20,
-			hWnd, (HMENU)IB_PLANETOUTPUTFOLDER, NULL, NULL);
+			hWnd, (HMENU)BUTTON_BROWSE_PLANET_FOLDER, NULL, NULL);
 
 		//Preset handles are in the Load Presets function!
 
@@ -1370,7 +1381,7 @@ Screen lastScreen;
 		CONFIG_H.modelsFolder.EXTRA = CreateWindowW(L"button", L"Browse...",
 			WS_CHILD | WS_BORDER,
 			870, 100, 80, 20,
-			hWnd, (HMENU)IB_MODELSFOLDER, NULL, NULL);
+			hWnd, (HMENU)BUTTON_BROWSE_MODELS_FOLDER, NULL, NULL);
 
 		//Ship Chance
 		CONFIG_H.exotic_ShipChance.DESC = CreateWindowW(L"static", L"% Chance for Ships to Spawn:",
@@ -4072,9 +4083,7 @@ Screen lastScreen;
 		}
 	}
 
-	//open preset function
-	/*
-	int OpenPreset()
+	void BrowseFolder(HWND textBox)
 	{
 		HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 		if (SUCCEEDED(hr))
@@ -4087,6 +4096,7 @@ Screen lastScreen;
 			if (SUCCEEDED(hr))
 			{
 				// Show the Open dialog box.
+				pFileOpen->SetOptions(FOS_PICKFOLDERS);
 				hr = pFileOpen->Show(NULL);
 
 				// Get the file name from the dialog box.
@@ -4102,10 +4112,15 @@ Screen lastScreen;
 						// Display the file name to the user.
 						if (SUCCEEDED(hr))
 						{
-							SetWindowTextW(CONFIG_H.savePresetButton.DESC, pszFilePath);
-
-
-							MessageBox(NULL, pszFilePath, L"File Path", MB_OK);
+							//###################################
+							// This is where the magic happens
+							int i = 0;
+							while (pszFilePath[i] != '\0')
+								i++;
+							pszFilePath[i++] = '\\'; // adds a '\' to the end of the string
+							pszFilePath[i] = '\0';
+							
+							SetWindowTextW(textBox, pszFilePath); // put files path in the textBox handle
 							CoTaskMemFree(pszFilePath);
 						}
 						pItem->Release();
@@ -4115,9 +4130,7 @@ Screen lastScreen;
 			}
 			CoUninitialize();
 		}
-		return 0;
 	}
-	*/
 
 	/*---------------------------------------------------------------------------------------#
 	|	THE GENERATOR:																		 |
