@@ -214,7 +214,6 @@ struct Preset
 	long long seed;
 	int numberOfRuns;
 	bool debug;
-	wchar_t const* debugState;
 	wchar_t starOutputFolder[WSIZE], planetOutputFolder[WSIZE];
 
 	/*#####################################################

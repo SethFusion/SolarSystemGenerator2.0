@@ -512,7 +512,6 @@ Screen lastScreen;
 
 			wchar_t holder = Buffer[parse];
 			temp.debug = _wtoi(&holder);
-			temp.debugState = (temp.debug == true) ? L"Enabled" : L"Disabled";
 
 			preset.push_back(temp);
 			SendMessage(CONFIG_H.presetDropDown.HANDLE, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)preset.at(i).name);
@@ -809,6 +808,12 @@ Screen lastScreen;
 			WS_CHILD | WS_BORDER | ES_CENTER, //Effects
 			350, 60, 664, 30, //X, Y, Width & Height
 			hWnd, NULL, NULL, NULL); //Parent
+
+		//debug
+		CONFIG_H.debug.HANDLE = CreateWindowW(L"button", L"",
+			WS_CHILD | BS_AUTOCHECKBOX,
+			100, 100, 100, 20,
+			hWnd, (HMENU)CB_DEBUG, NULL, NULL);
 
 		CONFIG_H.seed.DESC = CreateWindowW(L"static", L"Seed:",
 			WS_CHILD | WS_BORDER,
@@ -2273,7 +2278,6 @@ Screen lastScreen;
 		SetWindowTextW(CONFIG_H.planetOutputFolder.HANDLE, P.planetOutputFolder);
 		SetVariableToWindow(CONFIG_H.numberOfRuns.HANDLE, P.numberOfRuns);
 		CheckDlgButton(hWnd, CB_DEBUG, P.debug);
-		SetWindowTextW(CONFIG_H.debug.HANDLE, P.debugState);
 
 		CheckDlgButton(hWnd, CB_SMARTPLACEMENT, P.smartPlacement);
 		SetWindowTextW(CONFIG_H.smartPlacement.HANDLE, P.smartPlacementState);
@@ -2612,7 +2616,6 @@ Screen lastScreen;
 			//Handles
 			ShowWindow(CONFIG_H.seed.HANDLE, 0);
 			ShowWindow(CONFIG_H.numberOfRuns.HANDLE, 0);
-			ShowWindow(CONFIG_H.debug.HANDLE, 0);
 			ShowWindow(CONFIG_H.starOutputFolder.HANDLE, 0);
 			ShowWindow(CONFIG_H.planetOutputFolder.HANDLE, 0);
 			ShowWindow(CONFIG_H.presetDropDown.HANDLE, 0);
@@ -2621,7 +2624,6 @@ Screen lastScreen;
 			//Desc
 			ShowWindow(CONFIG_H.seed.DESC, 0);
 			ShowWindow(CONFIG_H.numberOfRuns.DESC, 0);
-			ShowWindow(CONFIG_H.debug.DESC, 0);
 			ShowWindow(CONFIG_H.starOutputFolder.DESC, 0);
 			ShowWindow(CONFIG_H.planetOutputFolder.DESC, 0);
 			ShowWindow(CONFIG_H.presetDropDown.DESC, 0);
@@ -2630,7 +2632,6 @@ Screen lastScreen;
 			//Info
 			ShowWindow(CONFIG_H.seed.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.numberOfRuns.INFOBUTTON, 0);
-			ShowWindow(CONFIG_H.debug.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.starOutputFolder.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.planetOutputFolder.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.presetDropDown.INFOBUTTON, 0);
@@ -2812,7 +2813,6 @@ Screen lastScreen;
 		//Handles
 		ShowWindow(CONFIG_H.seed.HANDLE, 1);
 		ShowWindow(CONFIG_H.numberOfRuns.HANDLE, 1);
-		ShowWindow(CONFIG_H.debug.HANDLE, 1);
 		ShowWindow(CONFIG_H.starOutputFolder.HANDLE, 1);
 		ShowWindow(CONFIG_H.planetOutputFolder.HANDLE, 1);
 
@@ -2823,7 +2823,6 @@ Screen lastScreen;
 		//Desc
 		ShowWindow(CONFIG_H.seed.DESC, 1);
 		ShowWindow(CONFIG_H.numberOfRuns.DESC, 1);
-		ShowWindow(CONFIG_H.debug.DESC, 1);
 		ShowWindow(CONFIG_H.starOutputFolder.DESC, 1);
 		ShowWindow(CONFIG_H.planetOutputFolder.DESC, 1);
 
@@ -2834,7 +2833,6 @@ Screen lastScreen;
 		//Info
 		ShowWindow(CONFIG_H.seed.INFOBUTTON, 1);
 		ShowWindow(CONFIG_H.numberOfRuns.INFOBUTTON, 1);
-		ShowWindow(CONFIG_H.debug.INFOBUTTON, 1);
 		ShowWindow(CONFIG_H.starOutputFolder.INFOBUTTON, 1);
 		ShowWindow(CONFIG_H.planetOutputFolder.INFOBUTTON, 1);
 
@@ -3318,6 +3316,7 @@ Screen lastScreen;
 			if ((int)seedstr[seedstr.size() / 2] % 2)
 				CONFIG.seed *= -1;
 		}
+		CONFIG.debug = (IsDlgButtonChecked(hWnd, CB_DEBUG) == BST_CHECKED) ? true : false;
 
 		GetVariableFromWindow(CONFIG_H.numberOfRuns.HANDLE, CONFIG.numberOfRuns);
 		CONFIG.smartPlacement = (IsDlgButtonChecked(hWnd, CB_SMARTPLACEMENT) == BST_CHECKED) ? true : false;
@@ -3446,8 +3445,6 @@ Screen lastScreen;
 		GetVariableFromWindow(CONFIG_H.exotic_AxialTiltChance.HANDLE, CONFIG.exotic_AxialTiltChance);
 		GetVariableFromWindow(CONFIG_H.exotic_DebrisRingChance.HANDLE, CONFIG.exotic_DebrisRingChance);
 		GetVariableFromWindow(CONFIG_H.exotic_CompanionOrbitChance.HANDLE, CONFIG.exotic_CompanionOrbitChance);
-
-		CONFIG.debug = true;
 	}
 	bool CheckConfigData(HWND hWnd)
 	{
@@ -4047,20 +4044,8 @@ Screen lastScreen;
 	{
 		int msg = IsDlgButtonChecked(hWnd, command);
 
-
 		switch (command)
 		{
-		case CB_DEBUG:
-			switch (msg)
-			{
-			case BST_UNCHECKED:
-				SetWindowTextW(CONFIG_H.debug.HANDLE, L"Disabled");
-				break;
-			case BST_CHECKED:
-				SetWindowTextW(CONFIG_H.debug.HANDLE, L"Enabled");
-				break;
-			}
-			break;
 		case CB_SMARTPLACEMENT:
 			switch (msg)
 			{
@@ -4135,6 +4120,19 @@ Screen lastScreen;
 				break;
 			case BST_CHECKED:
 				SetWindowTextW(CONFIG_H.generateComposition.HANDLE, L"Enabled");
+				break;
+			}
+			break;
+		case CB_DEBUG:
+			switch (msg)
+			{
+			case BST_UNCHECKED:
+				CheckDlgButton(hWnd, CB_DEBUG, true);
+				MessageBox(hWnd, L"Debug mode turned ON.", L"Debug", MB_OK);
+				break;
+			case BST_CHECKED:
+				CheckDlgButton(hWnd, CB_DEBUG, false);
+				MessageBox(hWnd, L"Debug mode turned OFF.", L"Debug", MB_OK);
 				break;
 			}
 			break;
