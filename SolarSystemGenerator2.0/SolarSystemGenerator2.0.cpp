@@ -5377,7 +5377,7 @@ Screen lastScreen;
 		file << "\tRadius\t\t\t\t\t" << planet.radius << "\n"
 			<< "\tObliquity\t\t\t\t" << planet.obliquity << "\n";
 
-		if (CONFIG.generateComposition)
+		if (CONFIG.generateComposition && planet.class_ != L"Asteroid")
 		{
 			file << "\n\tInterior\n\t{"
 				<< "\n\t\tComposition\n\t\t{"
@@ -5670,7 +5670,7 @@ Screen lastScreen;
 			//	CLASS GENERATION
 
 		// If Smart Generation is turned on
-		if (CONFIG.smartPlacement == 1)
+		if (CONFIG.smartPlacement)
 		{
 			// Classes less than Habit Zone / 2
 			if (planet.semimajorAxis < (star.habitZoneInnerLimit / 2))
@@ -5713,7 +5713,7 @@ Screen lastScreen;
 			/*################################
 				TEST BOX
 			################################*/
-				planet.class_ = L"Neptune";
+			//	planet.class_ = L"Jupiter";
 			//################################
 
 		//######################################################################################################
@@ -5722,7 +5722,6 @@ Screen lastScreen;
 		if (CONFIG.generateComposition)
 		{
 			double leftOver = 100;
-
 
 			if (planet.class_ == L"Jupiter")
 			{
@@ -6154,9 +6153,6 @@ Screen lastScreen;
 			}
 		}
 
-
-		
-
 		//######################################################################################################
 			//	ORBIT GENERATION
 
@@ -6208,10 +6204,6 @@ Screen lastScreen;
 			planet.debrisCount = GenDebrisNumber(mt_planet);
 		}
 
-		planet.life_exotic.haslife = false;
-		planet.life_exotic.panspermia = false;
-		planet.life_organic.haslife = false;
-		planet.life_organic.panspermia = false;
 		// Determines Life
 		if (CONFIG.traditionalLife)
 		{
@@ -6253,7 +6245,7 @@ Screen lastScreen;
 
 		if (CONFIG.weightedMoons)
 		{
-			planet.majorMoonPercent = ceil(((planet.semimajorAxis - star.innerLimit) / star.totalDist) * 100); // the relative disatnce to the oyter limit
+			planet.majorMoonPercent = ceil(((planet.semimajorAxis - star.innerLimit) / star.totalDist) * 100); // the relative disatnce to the outer limit
 			if (planet.class_ == L"Jupiter" || planet.class_ == L"Neptune")
 			{
 				if (planet.majorMoonPercent > 60)
@@ -6368,41 +6360,143 @@ Screen lastScreen;
 		//######################################################################################################
 			//	CLASS / RADIUS / DENSITY GENERATION
 
-		if (genpercent(mt_planet) <= 50)
-			planet.class_ = L"Terra";
-		else
-			planet.class_ = L"Aquaria";
+		std::wstring planetClassList[4] = { L"Terra", L"Ferria", L"Carbonia", L"Aquaria" };
+		std::discrete_distribution<int> genclass{ 25, 5, 5, 15 };
+		planet.class_ = planetClassList[genclass(mt_planet)];
 
-		if (planet.class_ == L"Terra")
+		if (CONFIG.generateComposition)
 		{
-			std::uniform_real_distribution<> gend{ 0.7, 1.5 };
-			std::uniform_real_distribution<> genr{ 190, 2000 };
+			double leftOver = 100;
 
-			planet.density = gend(mt_planet);
+			if (planet.class_ == L"Terra")
+			{
+				std::normal_distribution<> genmain{ 60, 20 };
+				do planet.interior.silicates = genmain(mt_planet);
+				while (planet.interior.silicates < 50 || planet.interior.silicates > 99);
+				leftOver -= planet.interior.silicates;
+
+				if (genpercent(mt_planet) < 3)
+				{
+					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+					planet.interior.carbides = gensecond(mt_planet);
+					leftOver -= planet.interior.carbides;
+				}
+
+				if (genpercent(mt_planet) < 34)
+				{
+					std::uniform_real_distribution<> genthird{ 0 , leftOver };
+					do planet.interior.ices = genthird(mt_planet);
+					while (planet.interior.ices > 10);
+					leftOver -= planet.interior.ices;
+				}
+
+				planet.interior.metals = leftOver;
+			}
+			else if (planet.class_ == L"Ferria")
+			{
+				std::normal_distribution<> genmain{ 60, 20 };
+				do planet.interior.metals = genmain(mt_planet);
+				while (planet.interior.metals < 50 || planet.interior.metals > 99);
+				leftOver -= planet.interior.metals;
+
+				if (genpercent(mt_planet) < 3)
+				{
+					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+					planet.interior.carbides = gensecond(mt_planet);
+					leftOver -= planet.interior.carbides;
+				}
+
+				if (genpercent(mt_planet) < 34)
+				{
+					std::uniform_real_distribution<> genthird{ 0 , leftOver };
+					do planet.interior.ices = genthird(mt_planet);
+					while (planet.interior.ices > 10);
+					leftOver -= planet.interior.ices;
+				}
+
+				planet.interior.silicates = leftOver;
+			}
+			else if (planet.class_ == L"Aquaria")
+			{
+				std::normal_distribution<> genmain{ 30, 20 };
+				do planet.interior.ices = genmain(mt_planet);
+				while (planet.interior.ices < 10 || planet.interior.ices > 80);
+				leftOver -= planet.interior.ices;
+
+				std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+				planet.interior.silicates = gensecond(mt_planet);
+				leftOver -= planet.interior.silicates;
+
+				if (genpercent(mt_planet) < 5)
+				{
+					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+					planet.interior.carbides = gensecond(mt_planet);
+					leftOver -= planet.interior.carbides;
+				}
+
+				planet.interior.metals = leftOver;
+			}
+			else if (planet.class_ == L"Carbonia")
+			{
+				std::normal_distribution<> genmain{ 60, 20 };
+				do planet.interior.carbides = genmain(mt_planet);
+				while (planet.interior.carbides < 50 || planet.interior.carbides > 99);
+				leftOver -= planet.interior.carbides;
+
+				std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+				planet.interior.silicates = gensecond(mt_planet);
+				leftOver -= planet.interior.silicates;
+
+				if (genpercent(mt_planet) < 34)
+				{
+					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+					planet.interior.ices = gensecond(mt_planet);
+					leftOver -= planet.interior.ices;
+				}
+
+				planet.interior.metals = leftOver;
+			}
+
+			std::uniform_real_distribution<> genr{ 190, 2000 };
 			planet.radius = genr(mt_planet);
+
+			planet.density = ((planet.interior.metals / 100) * 7.874) + ((planet.interior.silicates / 100) * 3.25) + (planet.interior.ices / 100) + ((planet.interior.carbides / 100) * 2.1);
 			planet.earthRadius = planet.radius / 6378.14;
-			planet.mass = pow(planet.earthRadius, 3) * planet.density;
-			planet.gravity = planet.mass / pow(planet.earthRadius, 2);
+			planet.mass = pow(planet.earthRadius, 3) * (planet.density / 5.51);
 		}
-		else if (planet.class_ == L"Aquaria")
+		else
 		{
-			std::uniform_real_distribution<> gend{ 0.01, 0.5 };
-			std::uniform_real_distribution<> genr{ 190, 2000 };
+			if (planet.class_ == L"Terra")
+			{
+				std::uniform_real_distribution<> gend{ 0.7, 1.5 };
+				std::uniform_real_distribution<> genr{ 190, 2000 };
 
-			planet.density = gend(mt_planet);
-			planet.radius = genr(mt_planet);
-			planet.earthRadius = planet.radius / 6378.14;
-			planet.mass = pow(planet.earthRadius, 3) * planet.density;
-			planet.gravity = planet.mass / pow(planet.earthRadius, 2);
+				planet.density = gend(mt_planet);
+				planet.radius = genr(mt_planet);
+				planet.earthRadius = planet.radius / 6378.14;
+				planet.mass = pow(planet.earthRadius, 3) * planet.density;
+				planet.gravity = planet.mass / pow(planet.earthRadius, 2);
+			}
+			else if (planet.class_ == L"Aquaria")
+			{
+				std::uniform_real_distribution<> gend{ 0.01, 0.5 };
+				std::uniform_real_distribution<> genr{ 190, 2000 };
+
+				planet.density = gend(mt_planet);
+				planet.radius = genr(mt_planet);
+				planet.earthRadius = planet.radius / 6378.14;
+				planet.mass = pow(planet.earthRadius, 3) * planet.density;
+				planet.gravity = planet.mass / pow(planet.earthRadius, 2);
+			}
 		}
 
 		//######################################################################################################
 			//	semimajorAxis GENERATION
 
-		if (CONFIG.smartPlacement == 1)
+		if (CONFIG.smartPlacement)
 		{
-			//Class is Selena...
-			if (planet.class_ == L"Terra")
+			//Class is terra/ferria/carbonia...
+			if (planet.class_ != L"Aquaria")
 			{
 				int percent = genpercent(mt_planet);
 				if (percent <= 40)
@@ -6429,7 +6523,7 @@ Screen lastScreen;
 					}
 				}
 			}
-			// Class is Ice World...
+			// Class is aquaria...
 			else if (star.frostLine > star.outerLimit) // for large stars like O
 			{
 				std::uniform_real_distribution<> gensemimajorAxis{ (star.frostLine / 1.2), (star.frostLine * 3) };
@@ -6508,7 +6602,6 @@ Screen lastScreen;
 		planet.meanAnomaly = gendegree(mt_planet);
 
 		// companion orbit
-		planet.hasCompanionOrbit = false;
 		if (genpercent(mt_planet) <= CONFIG.exotic_CompanionOrbitChance)
 			planet.hasCompanionOrbit = true;
 
@@ -6522,22 +6615,41 @@ Screen lastScreen;
 		if (planet.hillSphereOuterLimit > 1495980)
 			planet.hillSphereOuterLimit = 1495980; // hillSphereOuterLimit Limit Capped at 0.01 AU
 
-		planet.numberOfMajorMoons = 0;
+		if (CONFIG.weightedMoons)
+		{
+			planet.minorMoonPercent = ceil(((planet.semimajorAxis - star.innerLimit) / star.totalDist) * 100); // the relative disatnce to the outer limit
+			if (planet.minorMoonPercent > 70)
+				planet.minorMoonPercent = 70;
+			planet.minorMoonPercent += ceil(planet.mass); // terra add earth mass
 
-		if (planet.semimajorAxis < star.frostLine)
-		{ // up to three
-			std::discrete_distribution<int> genminorc{ 10, 5, 3, 1 };
-			planet.numberOfMinorMoons = genminorc(mt_planet);
+			// bonus percents
+			/*if (planet.semimajorAxis > star.habitZoneOuterLimit)
+				planet.majorMoonPercent += 20;
+			if (planet.semimajorAxis > star.frostLine)
+				planet.majorMoonPercent += 20;*/
 		}
-		else // planets above the frost line
-		{ // up to 10
-			std::discrete_distribution<int> genminorc{ 20, 20, 20, 10, 10, 10, 5, 5, 5, 3, 1 };
-			planet.numberOfMinorMoons = genminorc(mt_planet);
+		else
+		{
+			if (planet.semimajorAxis < star.frostLine)
+			{ // up to three
+				std::discrete_distribution<int> genminorc{ 10, 5, 3, 1 };
+				planet.numberOfMinorMoons = genminorc(mt_planet);
+			}
+			else // planets above the frost line
+			{ // up to 10
+				std::discrete_distribution<int> genminorc{ 20, 20, 20, 10, 10, 10, 5, 5, 5, 3, 1 };
+				planet.numberOfMinorMoons = genminorc(mt_planet);
+			}
 		}
 
 		// if hill sphere inner is larger than outer
 		if ((2.44 * planet.radius * pow((planet.density / 0.5), (1.0 / 3.0))) > planet.hillSphereOuterLimit)
-			planet.numberOfMinorMoons = 0; 
+		{
+			planet.numberOfMajorMoons = -1;
+			planet.numberOfMinorMoons = -1;
+			planet.majorMoonPercent = -1;
+			planet.minorMoonPercent = -1;
+		}
 	}
 	bool GenerateMajorMoon(SEStar& star, SEPlanet& parent, SEPlanet& moon, int spacer)
 	{
@@ -6568,6 +6680,7 @@ Screen lastScreen;
 		//######################################################################################################
 			//	DENSITY / MASS GENERATION
 
+		// generate mass based on parent
 		if (parent.class_ == L"Jupiter" || parent.class_ == L"Neptune") // gas giants
 		{
 			std::uniform_real_distribution<> genm{ parent.mass * 0.000003, parent.mass * 0.0001 };
@@ -6579,25 +6692,123 @@ Screen lastScreen;
 			moon.mass = genm(mt_moon);
 		}
 
-		if (moon.class_ == L"Terra")
+		if (CONFIG.generateComposition)
 		{
-			std::uniform_real_distribution<> gend{ 0.7, 1.3 };
-			moon.density = gend(mt_moon);
+			double leftOver = 100;
+
+			if (moon.class_ == L"Terra")
+			{
+				std::normal_distribution<> genmain{ 60, 20 };
+				do moon.interior.silicates = genmain(mt_moon);
+				while (moon.interior.silicates < 50 || moon.interior.silicates > 99);
+				leftOver -= moon.interior.silicates;
+
+				if (genpercent(mt_moon) < 3)
+				{
+					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+					moon.interior.carbides = gensecond(mt_moon);
+					leftOver -= moon.interior.carbides;
+				}
+
+				if (genpercent(mt_moon) < 34)
+				{
+					std::uniform_real_distribution<> genthird{ 0 , leftOver };
+					do moon.interior.ices = genthird(mt_moon);
+					while (moon.interior.ices > 10);
+					leftOver -= moon.interior.ices;
+				}
+
+				moon.interior.metals = leftOver;
+			}
+			else if (moon.class_ == L"Ferria")
+			{
+				std::normal_distribution<> genmain{ 60, 20 };
+				do moon.interior.metals = genmain(mt_moon);
+				while (moon.interior.metals < 50 || moon.interior.metals > 99);
+				leftOver -= moon.interior.metals;
+
+				if (genpercent(mt_moon) < 3)
+				{
+					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+					moon.interior.carbides = gensecond(mt_moon);
+					leftOver -= moon.interior.carbides;
+				}
+
+				if (genpercent(mt_moon) < 34)
+				{
+					std::uniform_real_distribution<> genthird{ 0 , leftOver };
+					do moon.interior.ices = genthird(mt_moon);
+					while (moon.interior.ices > 10);
+					leftOver -= moon.interior.ices;
+				}
+
+				moon.interior.silicates = leftOver;
+			}
+			else if (moon.class_ == L"Aquaria")
+			{
+				std::normal_distribution<> genmain{ 30, 20 };
+				do moon.interior.ices = genmain(mt_moon);
+				while (moon.interior.ices < 10 || moon.interior.ices > 80);
+				leftOver -= moon.interior.ices;
+
+				std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+				moon.interior.silicates = gensecond(mt_moon);
+				leftOver -= moon.interior.silicates;
+
+				if (genpercent(mt_moon) < 5)
+				{
+					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+					moon.interior.carbides = gensecond(mt_moon);
+					leftOver -= moon.interior.carbides;
+				}
+
+				moon.interior.metals = leftOver;
+			}
+			else if (moon.class_ == L"Carbonia")
+			{
+				std::normal_distribution<> genmain{ 60, 20 };
+				do moon.interior.carbides = genmain(mt_moon);
+				while (moon.interior.carbides < 50 || moon.interior.carbides > 99);
+				leftOver -= moon.interior.carbides;
+
+				std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+				moon.interior.silicates = gensecond(mt_moon);
+				leftOver -= moon.interior.silicates;
+
+				if (genpercent(mt_moon) < 34)
+				{
+					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
+					moon.interior.ices = gensecond(mt_moon);
+					leftOver -= moon.interior.ices;
+				}
+
+				moon.interior.metals = leftOver;
+			}
+
+			moon.density = ((moon.interior.metals / 100) * 7.874) + ((moon.interior.silicates / 100) * 3.25) + (moon.interior.ices / 100) + ((moon.interior.carbides / 100) * 2.1);
 		}
-		else if (moon.class_ == L"Aquaria")
+		else
 		{
-			std::uniform_real_distribution<> gend{ 0.1, 1 };
-			moon.density = gend(mt_moon);
-		}
-		else if (moon.class_ == L"Ferria")
-		{
-			std::uniform_real_distribution<> gend{ 1, 2 };
-			moon.density = gend(mt_moon);
-		}
-		else if (moon.class_ == L"Carbonia")
-		{
-			std::uniform_real_distribution<> gend{ 0.5, 1 };
-			moon.density = gend(mt_moon);
+			if (moon.class_ == L"Terra")
+			{
+				std::uniform_real_distribution<> gend{ 0.7, 1.3 };
+				moon.density = gend(mt_moon);
+			}
+			else if (moon.class_ == L"Aquaria")
+			{
+				std::uniform_real_distribution<> gend{ 0.1, 1 };
+				moon.density = gend(mt_moon);
+			}
+			else if (moon.class_ == L"Ferria")
+			{
+				std::uniform_real_distribution<> gend{ 1, 2 };
+				moon.density = gend(mt_moon);
+			}
+			else if (moon.class_ == L"Carbonia")
+			{
+				std::uniform_real_distribution<> gend{ 0.5, 1 };
+				moon.density = gend(mt_moon);
+			}
 		}
 
 		moon.earthRadius = cbrt(moon.mass / moon.density);
@@ -6842,7 +7053,7 @@ Screen lastScreen;
 	}
 	void GenerateMinorMoon(SEPlanet& parent, SEPlanet& moon, int currentMoon)
 	{
-		int astSize, testsemi;
+		int testsemi;
 		moon.type = L"DwarfMoon";
 		moon.class_ = L"Asteroid";
 		moon.parentBody = &parent;
@@ -6860,47 +7071,15 @@ Screen lastScreen;
 		//######################################################################################################
 			//	RADIUS GENERATION
 
-		astSize = genpercent(mt_moon);
 		if (parent.class_ == L"Jupiter" || parent.class_ == L"Neptune")
 		{
-			if (astSize <= 65)
-			{
-				std::uniform_real_distribution<> genr{ 0.5, 30 };
-				moon.radius = genr(mt_moon);
-			}
-			else if (astSize <= 80)
-			{
-				std::uniform_real_distribution<> genr{ 30, 80 };
-				moon.radius = genr(mt_moon);
-			}
-			else if (astSize <= 95)
-			{
-				std::uniform_real_distribution<> genr{ 80, 120 };
-				moon.radius = genr(mt_moon);
-			}
-			else
-			{
-				std::uniform_real_distribution<> genr{ 120, 200 };
-				moon.radius = genr(mt_moon);
-			}
+			std::uniform_real_distribution<> genr{ parent.radius * 0.00001, parent.radius * 0.002 };
+			moon.radius = genr(mt_moon);
 		}
 		else
 		{
-			if (astSize <= 80)
-			{
-				std::uniform_real_distribution<> genr{ 0.3, 15 };
-				moon.radius = genr(mt_moon);
-			}
-			else if (astSize <= 95)
-			{
-				std::uniform_real_distribution<> genr{ 15, 50 };
-				moon.radius = genr(mt_moon);
-			}
-			else
-			{
-				std::uniform_real_distribution<> genr{ 50, 80 };
-				moon.radius = genr(mt_moon);
-			}
+			std::uniform_real_distribution<> genr{ parent.radius * 0.0001, parent.radius * 0.005 };
+			moon.radius = genr(mt_moon);
 		}
 
 		//######################################################################################################
@@ -7044,7 +7223,6 @@ Screen lastScreen;
 		moon.meanAnomaly = gendegree(mt_moon);
 
 		// companion orbit
-		moon.hasCompanionOrbit = false;
 		if (genpercent(mt_planet) <= CONFIG.exotic_CompanionOrbitChance)
 			moon.hasCompanionOrbit = true;
 	}

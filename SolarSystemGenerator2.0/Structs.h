@@ -120,7 +120,10 @@ public:
 		hillSphereInnerLimit = hillSphereOuterLimit = -1;
 		hasCompanionOrbit = false;
 		debrisCount = -1;
+		
+		atmosphere.height = atmosphere.pressure = -1;
 		interior.hydrogen = interior.helium = interior.silicates = interior.carbides = interior.ices = interior.metals = 0;
+		life_organic.haslife = life_organic.panspermia = life_exotic.haslife = life_exotic.panspermia = false;
 	}
 };
 
