@@ -119,11 +119,6 @@ static void LoadListFromFile(char* Buffer, int& parse, wchar_t* store)
 	store[i] = '\0';
 }
 
-
-
-
-
-
 static void GetVariableFromWindow(HWND& window, wchar_t* store)
 {
 	wchar_t genvar[WSIZE];
@@ -149,7 +144,6 @@ static void GetVariableFromWindow(HWND& window, double& store)
 	GetWindowTextW(window, genvar, 20);
 	store = _wtof(genvar);
 }
-
 
 static void SetVariableToWindow(HWND& window, int number)
 {
@@ -222,10 +216,6 @@ static void SetVariableToWindow(HWND& window, double number)
 	SetWindowTextW(window, genVar);
 }
 
-
-
-
-
 static void FillModList(HWND &listH, std::vector<std::wstring> &list)
 {
 	wchar_t dataHolder[MODLIST_SIZE];
@@ -246,7 +236,6 @@ static void FillModList(HWND &listH, std::vector<std::wstring> &list)
 		i++;
 	}
 }
-
 static void FillDataset(HWND& dataH, std::vector<std::wstring> &list, std::vector<std::wstring> &usedNames)
 {
 	wchar_t dataHolder[DATASET_SIZE];
