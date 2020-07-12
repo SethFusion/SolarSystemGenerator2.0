@@ -925,7 +925,7 @@ Screen lastScreen;
 			hWnd, (HMENU)IB_DISTANCE, NULL, NULL);
 
 		//min planet number
-		CONFIG_H.minPlanetNumber.DESC = CreateWindowW(L"static", L"Minimum # of Planets:",
+		CONFIG_H.minPlanetNumber.DESC = CreateWindowW(L"static", L"Min % of System Filled:",
 			WS_CHILD | WS_BORDER,
 			370, 200, 230, 20,
 			hWnd, NULL, NULL, NULL);
@@ -3519,9 +3519,10 @@ Screen lastScreen;
 			return true;
 		}
 
-		if (CONFIG.minPlanetNumber) // Decide on a limit or get rid of this variable all together!
+		if (CONFIG.minPlanetNumber < 0 || CONFIG.minPlanetNumber > 100)
 		{
-
+			MessageBox(hWnd, L"Min % of system filled is a percentage, so it must be between 0 and 100!", L"Error", MB_ICONERROR);
+			return true;
 		}
 
 		if (CONFIG.starClassA < 0 || CONFIG.starClassB < 0 || CONFIG.starClassF < 0 || CONFIG.starClassG < 0 || CONFIG.starClassK < 0 || CONFIG.starClassM < 0 || CONFIG.starClassO < 0 ||
@@ -3934,7 +3935,7 @@ Screen lastScreen;
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"The average eccentricity of a planet's orbit and a standard deviation, measured from 0 (zero) - 1 (one), but NOT including zero or one.\n\nThese boxes MUST have a decimal number between zero and one or the generator WILL break.");
 			break;
 		case IB_MINPLANETNUMBER:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"The minimum number of planets the gernated should create. Note taht this number should not be too high or it may break the generator.");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"The minimum percent of the system that should be filled with planets. Based on how many planets the star can hold.\n\nExample: If a star's maximum planet number is 10, and min % system filled is 20, then then star can generate anywhere from 2 (20% of total) to 10 planets. ");
 			break;
 		case IB_STARCLASS:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"The weight assigned to each star class tells the generator how often to generate that class. So if one class has a weight of 1 (one) and another class has a weight of 10 (ten), the class with a weight of 10 is much more likely to be generated.");
@@ -4796,14 +4797,12 @@ Screen lastScreen;
 				return;
 			}
 
-			std::uniform_int_distribution<int> genplanetnum{ CONFIG.minPlanetNumber, currentStar.maxPlanetNumber };
+			std::uniform_int_distribution<int> genplanetnum{ (int)ceil(((CONFIG.minPlanetNumber / 100) * currentStar.maxPlanetNumber)), currentStar.maxPlanetNumber };
 			int planetNumber = genplanetnum(mt_planet);
 			std::vector<SEPlanet> planetList;
 
-			// test line
-
 			/*###############################################################################
-					SEPlanet GENERATOR
+					PLANET GENERATOR
 			###############################################################################*/
 
 			for (int planetCounter = 0; planetCounter < planetNumber; planetCounter++)
@@ -4892,7 +4891,6 @@ Screen lastScreen;
 			SortVector <std::vector<SEPlanet>, SEPlanet> (planetList, 0, planetList.size() - 1);
 
 			// Companion Orbit function for planets
-			planetList.at(0).hasCompanionOrbit = false;
 			for (int i = 1; i < planetList.size(); i++)
 			{
 				if (planetList.at(i).hasCompanionOrbit)
@@ -4924,7 +4922,7 @@ Screen lastScreen;
 					}
 				}
 
-				if (!lifeTest)
+				if (!lifeTest && planetNumber > 0)
 				{
 					int position;
 					do

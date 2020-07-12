@@ -60,8 +60,8 @@ struct ConfigurationVariables
 	#####################################################*/
 
 	bool smartPlacement, generateDwarfPlanets;
-	int	minPlanetNumber, dwarfPlanetChance;
-	double minDistance, maxDistance, 
+	int	dwarfPlanetChance;
+	double minDistance, maxDistance, minPlanetNumber,
 		planetSpaceAvg, planetSpaceSD,
 		avgEccentricity, SDEccentricity, 
 		avgInclination, SDInclination, 
@@ -223,8 +223,8 @@ struct Preset
 
 	bool smartPlacement, generateDwarfPlanets;
 	wchar_t const* smartPlacementState, * generateDwarfPlanetsState;
-	int	minPlanetNumber, dwarfPlanetChance;
-	double minDistance, maxDistance, 
+	int	dwarfPlanetChance;
+	double minDistance, maxDistance, minPlanetNumber,
 		planetSpaceAvg, planetSpaceSD,
 		avgEccentricity, SDEccentricity, 
 		avgInclination, SDInclination, 
