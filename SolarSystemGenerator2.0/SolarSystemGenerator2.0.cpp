@@ -109,7 +109,6 @@ Screen lastScreen;
 		void GenerateDwarfPlanet(SEStar&, SEPlanet&);
 		bool GenerateMajorMoon(SEStar&, SEPlanet&, SEPlanet&, int);
 		void GenerateMinorMoon(SEPlanet&, SEPlanet&, int);
-		void GenerateDwarfMinor(SEPlanet&, SEPlanet&, int);
 
 		void ExoticGenerateLife(SEPlanet&);
 		void ExoticDebrisRing(SEPlanet&, SEPlanet&, double, double, double, double);
@@ -7225,100 +7224,6 @@ Screen lastScreen;
 		// companion orbit
 		if (genpercent(mt_planet) <= CONFIG.exotic_CompanionOrbitChance)
 			moon.hasCompanionOrbit = true;
-	}
-	void GenerateDwarfMinor(SEPlanet& parent, SEPlanet& moon, int currentMoon)
-	{
-		int astSize;
-		moon.type = L"DwarfMoon";
-		moon.class_ = L"Asteroid";
-		moon.parentBody = &parent;
-
-		if (NV.nameTerraDwarfMoons)
-			moon.name = GenName(typeDwarfMoon);
-		else
-		{
-			moon.name = L"Minor Moon ";
-			moon.name += std::to_wstring(currentMoon + 1);
-		}
-
-		//######################################################################################################
-			//	RADIUS GENERATION
-
-		astSize = genpercent(mt_moon);
-
-		if (astSize <= 80)
-		{
-			std::uniform_real_distribution<> genr{ 0.3, 15 };
-			moon.radius = genr(mt_moon);
-		}
-		else if (astSize <= 95)
-		{
-			std::uniform_real_distribution<> genr{ 15, 50 };
-			moon.radius = genr(mt_moon);
-		}
-		else
-		{
-			std::uniform_real_distribution<> genr{ 50, 100 };
-			moon.radius = genr(mt_moon);
-		}
-
-
-		//######################################################################################################
-			//	SEMI MAJOR GENERATION
-
-		moon.hillSphereInnerLimit = 2.44 * pow((parent.density / 1), (1.0 / 3.0));
-		moon.hillSphereInnerLimit *= parent.radius;
-
-		if (moon.hillSphereInnerLimit < parent.hillSphereOuterLimit)
-		{
-			if (genpercent(mt_moon) <= 50)
-			{
-				std::uniform_real_distribution<> gensemi{ moon.hillSphereInnerLimit, moon.hillSphereInnerLimit * 3 };
-				moon.semimajorAxis = gensemi(mt_moon);
-			}
-			else
-			{
-				std::uniform_real_distribution<> gensemi{ moon.hillSphereInnerLimit, parent.hillSphereOuterLimit };
-				moon.semimajorAxis = gensemi(mt_moon);
-			}
-		}
-		else
-		{
-			std::uniform_real_distribution<> gensemi{ parent.hillSphereOuterLimit, parent.hillSphereOuterLimit * 5 };
-			moon.semimajorAxis = gensemi(mt_moon);
-		}
-
-		//######################################################################################################
-			//	ORBIT GENERATION
-
-		if (moon.semimajorAxis < moon.hillSphereInnerLimit * 3)
-		{
-			// Set 5
-			std::normal_distribution<> genobliquity{ 0, 5 };
-			std::normal_distribution<> geneccentricity{ 0.1, 0.05 };
-			std::normal_distribution<> geninclination{ 0, 5 };
-
-			moon.obliquity = genobliquity(mt_moon);
-			do moon.eccentricity = geneccentricity(mt_moon);
-			while (moon.eccentricity <= 0 || moon.eccentricity >= 1);
-			moon.inclination = geninclination(mt_moon);
-		}
-		else
-		{
-			// Set 6
-			std::normal_distribution<> genobliquity{ 0, 10 };
-			std::normal_distribution<> geneccentricity{ 0.1, 0.15 };
-			std::normal_distribution<> geninclination{ 0, 40 };
-
-			moon.obliquity = genobliquity(mt_moon);
-			do moon.eccentricity = geneccentricity(mt_moon);
-			while (moon.eccentricity <= 0 || moon.eccentricity >= 1);
-			moon.inclination = geninclination(mt_moon);
-		}
-
-		moon.ascendingNode = gendegree(mt_moon);
-		moon.argofPericenter = gendegree(mt_moon);
-		moon.meanAnomaly = gendegree(mt_moon);
 	}
 
 	void ExoticGenerateLife(SEPlanet& body)
