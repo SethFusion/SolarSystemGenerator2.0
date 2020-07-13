@@ -37,6 +37,17 @@
 	|																|
 	#--------------------------------------------------------------*/
 
+struct var
+{
+	// A collection of handles needed for displaying a single variable in
+	// the COnfigurationVariables struct
+
+	HWND HANDLE, // a handle to the actual input field
+		DESC, // Description; the text displayed next to the input field
+		INFOBUTTON, // a handle to the info button displayed next to the input field
+		EXTRA; // used for anything else I might need
+};
+
 struct ConfigurationVariables
 {
 	/*--------------------------------------------------------------#
@@ -59,8 +70,8 @@ struct ConfigurationVariables
 			SYSTEM
 	#####################################################*/
 
-	bool smartPlacement, generateDwarfPlanets;
-	int	dwarfPlanetChance;
+	bool smartPlacement, generateDwarfPlanets, generateAsteroidBelt, generateComets;
+	int	dwarfPlanetChance, maxAsteroidBelts, minAsteroidCount, maxAsteroidCount, minCometCount, maxCometCount;
 	double minDistance, maxDistance, minPlanetNumber,
 		planetSpaceAvg, planetSpaceSD,
 		avgEccentricity, SDEccentricity, 
@@ -102,17 +113,6 @@ struct ConfigurationVariables
 
 };
 
-struct var
-{
-	// A collection of handles needed for displaying a single variable in
-	// the COnfigurationVariables struct
-
-	HWND HANDLE, // a handle to the actual input field
-		DESC, // Description; the text displayed next to the input field
-		INFOBUTTON, // a handle to the info button displayed next to the input field
-		EXTRA; // used for anything else I might need
-};
-
 struct ConfigurationHWNDs
 {
 	/*--------------------------------------------------------------#
@@ -150,9 +150,9 @@ struct ConfigurationHWNDs
 		*/	HWND HEADER_SYSTEM; /*
 	#####################################################*/
 	
-	var smartPlacement, generateDwarfPlanets;
-	var minPlanetNumber, dwarfPlanetChance;	
-	var minDistance, maxDistance, 
+	var smartPlacement, generateDwarfPlanets, generateAsteroidBelt, generateComets;
+	var dwarfPlanetChance, maxAsteroidBelts, minAsteroidCount, maxAsteroidCount, minCometCount, maxCometCount;
+	var minDistance, maxDistance, minPlanetNumber,
 		planetSpaceAvg, planetSpaceSD,
 		avgEccentricity, SDEccentricity, 
 		avgInclination, SDInclination, 
@@ -220,9 +220,9 @@ struct Preset
 		System
 	#####################################################*/
 
-	bool smartPlacement, generateDwarfPlanets;
-	wchar_t const* smartPlacementState, * generateDwarfPlanetsState;
-	int	dwarfPlanetChance;
+	bool smartPlacement, generateDwarfPlanets, generateAsteroidBelt, generateComets;
+	wchar_t const* smartPlacementState, * generateDwarfPlanetsState, * generateAsteroidBeltState, * generateCometsState;
+	int	dwarfPlanetChance, maxAsteroidBelts, minAsteroidCount, maxAsteroidCount, minCometCount, maxCometCount;
 	double minDistance, maxDistance, minPlanetNumber,
 		planetSpaceAvg, planetSpaceSD,
 		avgEccentricity, SDEccentricity, 

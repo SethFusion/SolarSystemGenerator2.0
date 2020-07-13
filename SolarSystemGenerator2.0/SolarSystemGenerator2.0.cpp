@@ -23,7 +23,7 @@ NameVariables NV;
 std::vector<NamePreset> npreset;
 
 std::mt19937 mt_star, mt_planet, mt_moon, mt_ship, mt_name;
-std::uniform_int_distribution<int> genpercent{ 1, 100 };
+std::uniform_int_distribution<int> genpercent{ 0, 99 }; // Number to compare represents real % ex: genpercent() < 50 = 50%
 std::uniform_real_distribution<> gendegree{ 0, 360 };
 enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 	typeShipColony = 5, typeShipInstrument = 6, typeShipSatellite = 7, typeShipStation = 8};
@@ -109,6 +109,8 @@ Screen lastScreen;
 		void GenerateDwarfPlanet(SEStar&, SEPlanet&);
 		bool GenerateMajorMoon(SEStar&, SEPlanet&, SEPlanet&, int);
 		void GenerateMinorMoon(SEPlanet&, SEPlanet&, int);
+		void GenerateAsteroid(SEStar&, SEPlanet&, double, double, double, double);
+		void GenerateComet(SEStar&, SEPlanet&);
 
 		void ExoticGenerateLife(SEPlanet&);
 		void ExoticDebrisRing(SEPlanet&, SEPlanet&, double, double, double, double);
@@ -443,7 +445,7 @@ Screen lastScreen;
 		for (int i = 0; i < addresses.size(); i++)
 		{
 			HANDLE presetFile = CreateFileW(&addresses.at(i)[0], GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-			Preset temp;
+			Preset P;
 
 			const int BUFFSIZE = 4096; // about 4 kilobytes
 			DWORD bytesread = 0;
@@ -458,62 +460,71 @@ Screen lastScreen;
 			Buffer[bytesread] = '\0';
 
 			int parse = 0;
-			LoadVariableFromFile(Buffer, parse, temp.name);	
-			LoadVariableFromFile(Buffer, parse, temp.starOutputFolder);		
-			LoadVariableFromFile(Buffer, parse, temp.planetOutputFolder);		
-			LoadVariableFromFile(Buffer, parse, temp.seed);	
-			LoadVariableFromFile(Buffer, parse, temp.numberOfRuns);	
-			LoadVariableFromFile(Buffer, parse, temp.smartPlacement);
-			temp.smartPlacementState = (temp.smartPlacement == true) ? L"Enabled" : L"Disabled";	
-			LoadVariableFromFile(Buffer, parse, temp.minPlanetNumber);		
-			LoadVariableFromFile(Buffer, parse, temp.minDistance);		
-			LoadVariableFromFile(Buffer, parse, temp.maxDistance);		
-			LoadVariableFromFile(Buffer, parse, temp.planetSpaceAvg);
-			LoadVariableFromFile(Buffer, parse, temp.planetSpaceSD);
-			LoadVariableFromFile(Buffer, parse, temp.moonDistanceBoundary);
-			LoadVariableFromFile(Buffer, parse, temp.generateDwarfPlanets);
-			temp.generateDwarfPlanetsState = (temp.generateDwarfPlanets == true) ? L"Enabled" : L"Disabled";		
-			LoadVariableFromFile(Buffer, parse, temp.dwarfPlanetChance);
-			LoadVariableFromFile(Buffer, parse, temp.weightedMoons);
-			temp.weightedMoonsState = (temp.weightedMoons == true) ? L"Enabled" : L"Disabled";
-			LoadVariableFromFile(Buffer, parse, temp.avgEccentricity);		
-			LoadVariableFromFile(Buffer, parse, temp.SDEccentricity);		
-			LoadVariableFromFile(Buffer, parse, temp.avgInclination);		
-			LoadVariableFromFile(Buffer, parse, temp.SDInclination);		
-			LoadVariableFromFile(Buffer, parse, temp.avgObliquity);		
-			LoadVariableFromFile(Buffer, parse, temp.SDObliquity);
-			LoadVariableFromFile(Buffer, parse, temp.starClassO);		
-			LoadVariableFromFile(Buffer, parse, temp.starClassB);		
-			LoadVariableFromFile(Buffer, parse, temp.starClassA);		
-			LoadVariableFromFile(Buffer, parse, temp.starClassF);		
-			LoadVariableFromFile(Buffer, parse, temp.starClassG);		
-			LoadVariableFromFile(Buffer, parse, temp.starClassK);		
-			LoadVariableFromFile(Buffer, parse, temp.starClassM);		
-			LoadVariableFromFile(Buffer, parse, temp.starClassWD);		
-			LoadVariableFromFile(Buffer, parse, temp.starClassQ);		
-			LoadVariableFromFile(Buffer, parse, temp.starClassX);	
-			LoadVariableFromFile(Buffer, parse, temp.life_OrganicChance);		
-			LoadVariableFromFile(Buffer, parse, temp.life_ExoticChance);		
-			LoadVariableFromFile(Buffer, parse, temp.life_MulticellChance);		
-			LoadVariableFromFile(Buffer, parse, temp.forceLife);
-			temp.forceLifeState = (temp.forceLife == true) ? L"Enabled" : L"Disabled";		
-			LoadVariableFromFile(Buffer, parse, temp.traditionalLife);
-			temp.traditonalLifeState = (temp.traditionalLife == true) ? L"Enabled" : L"Disabled";
-			LoadVariableFromFile(Buffer, parse, temp.generateComposition);
-			temp.generateCompositionState = (temp.generateComposition == true) ? L"Enabled" : L"Disabled";
-			LoadVariableFromFile(Buffer, parse, temp.exotic_ShipChance);		
-			LoadVariableFromFile(Buffer, parse, temp.modelsFolder);		
-			LoadVariableFromFile(Buffer, parse, temp.shipsNeedLife);
-			temp.shipsNeedLifeState = (temp.shipsNeedLife == true) ? L"Enabled" : L"Disabled";		
-			LoadVariableFromFile(Buffer, parse, temp.exotic_OrbitChance);		
-			LoadVariableFromFile(Buffer, parse, temp.exotic_AxialTiltChance);		
-			LoadVariableFromFile(Buffer, parse, temp.exotic_DebrisRingChance);		
-			LoadVariableFromFile(Buffer, parse, temp.exotic_CompanionOrbitChance);
+			LoadVariableFromFile(Buffer, parse, P.name);	
+			LoadVariableFromFile(Buffer, parse, P.starOutputFolder);		
+			LoadVariableFromFile(Buffer, parse, P.planetOutputFolder);		
+			LoadVariableFromFile(Buffer, parse, P.seed);	
+			LoadVariableFromFile(Buffer, parse, P.numberOfRuns);	
+			LoadVariableFromFile(Buffer, parse, P.smartPlacement);
+			P.smartPlacementState = (P.smartPlacement == true) ? L"Enabled" : L"Disabled";	
+			LoadVariableFromFile(Buffer, parse, P.minPlanetNumber);		
+			LoadVariableFromFile(Buffer, parse, P.minDistance);		
+			LoadVariableFromFile(Buffer, parse, P.maxDistance);		
+			LoadVariableFromFile(Buffer, parse, P.planetSpaceAvg);
+			LoadVariableFromFile(Buffer, parse, P.planetSpaceSD);
+			LoadVariableFromFile(Buffer, parse, P.moonDistanceBoundary);
+			LoadVariableFromFile(Buffer, parse, P.generateDwarfPlanets);
+			P.generateDwarfPlanetsState = (P.generateDwarfPlanets == true) ? L"Enabled" : L"Disabled";		
+			LoadVariableFromFile(Buffer, parse, P.dwarfPlanetChance);
+			LoadVariableFromFile(Buffer, parse, P.weightedMoons);
+			P.weightedMoonsState = (P.weightedMoons == true) ? L"Enabled" : L"Disabled";
+			LoadVariableFromFile(Buffer, parse, P.avgEccentricity);		
+			LoadVariableFromFile(Buffer, parse, P.SDEccentricity);		
+			LoadVariableFromFile(Buffer, parse, P.avgInclination);		
+			LoadVariableFromFile(Buffer, parse, P.SDInclination);		
+			LoadVariableFromFile(Buffer, parse, P.avgObliquity);		
+			LoadVariableFromFile(Buffer, parse, P.SDObliquity);
+			LoadVariableFromFile(Buffer, parse, P.generateAsteroidBelt);
+			P.generateAsteroidBeltState = (P.generateAsteroidBelt == true) ? L"Enabled" : L"Disabled";
+			LoadVariableFromFile(Buffer, parse, P.maxAsteroidBelts);
+			LoadVariableFromFile(Buffer, parse, P.minAsteroidCount);
+			LoadVariableFromFile(Buffer, parse, P.maxAsteroidCount);
+			LoadVariableFromFile(Buffer, parse, P.generateComets);
+			P.generateCometsState = (P.generateComets == true) ? L"Enabled" : L"Disabled";
+			LoadVariableFromFile(Buffer, parse, P.minCometCount);
+			LoadVariableFromFile(Buffer, parse, P.maxCometCount);
+			LoadVariableFromFile(Buffer, parse, P.starClassO);		
+			LoadVariableFromFile(Buffer, parse, P.starClassB);		
+			LoadVariableFromFile(Buffer, parse, P.starClassA);		
+			LoadVariableFromFile(Buffer, parse, P.starClassF);		
+			LoadVariableFromFile(Buffer, parse, P.starClassG);		
+			LoadVariableFromFile(Buffer, parse, P.starClassK);		
+			LoadVariableFromFile(Buffer, parse, P.starClassM);		
+			LoadVariableFromFile(Buffer, parse, P.starClassWD);		
+			LoadVariableFromFile(Buffer, parse, P.starClassQ);		
+			LoadVariableFromFile(Buffer, parse, P.starClassX);	
+			LoadVariableFromFile(Buffer, parse, P.life_OrganicChance);		
+			LoadVariableFromFile(Buffer, parse, P.life_ExoticChance);		
+			LoadVariableFromFile(Buffer, parse, P.life_MulticellChance);		
+			LoadVariableFromFile(Buffer, parse, P.forceLife);
+			P.forceLifeState = (P.forceLife == true) ? L"Enabled" : L"Disabled";		
+			LoadVariableFromFile(Buffer, parse, P.traditionalLife);
+			P.traditonalLifeState = (P.traditionalLife == true) ? L"Enabled" : L"Disabled";
+			LoadVariableFromFile(Buffer, parse, P.generateComposition);
+			P.generateCompositionState = (P.generateComposition == true) ? L"Enabled" : L"Disabled";
+			LoadVariableFromFile(Buffer, parse, P.exotic_ShipChance);		
+			LoadVariableFromFile(Buffer, parse, P.modelsFolder);		
+			LoadVariableFromFile(Buffer, parse, P.shipsNeedLife);
+			P.shipsNeedLifeState = (P.shipsNeedLife == true) ? L"Enabled" : L"Disabled";		
+			LoadVariableFromFile(Buffer, parse, P.exotic_OrbitChance);		
+			LoadVariableFromFile(Buffer, parse, P.exotic_AxialTiltChance);		
+			LoadVariableFromFile(Buffer, parse, P.exotic_DebrisRingChance);		
+			LoadVariableFromFile(Buffer, parse, P.exotic_CompanionOrbitChance);
 
 			wchar_t holder = Buffer[parse];
-			temp.debug = _wtoi(&holder);
+			P.debug = _wtoi(&holder);
 
-			preset.push_back(temp);
+			preset.push_back(P);
 			SendMessage(CONFIG_H.presetDropDown.HANDLE, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)preset.at(i).name);
 			CloseHandle(presetFile);
 		}
@@ -1072,6 +1083,92 @@ Screen lastScreen;
 			WS_CHILD | WS_BORDER,
 			352, 434, 16, 16,
 			hWnd, (HMENU)IB_ECCENTRICITY, NULL, NULL);
+
+		//generate asteroids
+		CONFIG_H.generateAsteroidBelt.DESC = CreateWindowW(L"static", L"Generate Asteroid Belt:",
+			WS_CHILD | WS_BORDER,
+			370, 480, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.generateAsteroidBelt.HANDLE = CreateWindowW(L"button", L"",
+			WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
+			600, 480, 100, 20,
+			hWnd, (HMENU)CB_GENERATEASTEROIDS, NULL, NULL);
+		CONFIG_H.generateAsteroidBelt.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			352, 482, 16, 16,
+			hWnd, (HMENU)IB_GENERATEASTEROIDS, NULL, NULL);
+
+		//max asteroid belts
+		CONFIG_H.maxAsteroidBelts.DESC = CreateWindowW(L"static", L"Maximum Asteroid Belts:",
+			WS_CHILD | WS_BORDER,
+			370, 500, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.maxAsteroidBelts.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
+			600, 500, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.maxAsteroidBelts.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			352, 502, 16, 16,
+			hWnd, (HMENU)IB_MAXASTEROIDBELTS, NULL, NULL);
+
+		//min/max asteroid count
+		CONFIG_H.minAsteroidCount.DESC = CreateWindowW(L"static", L"Minimum Asteroids Per Belt:",
+			WS_CHILD | WS_BORDER,
+			370, 520, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.minAsteroidCount.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
+			600, 520, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.maxAsteroidCount.DESC = CreateWindowW(L"static", L"Maximum Asteroids Per Belt:",
+			WS_CHILD | WS_BORDER,
+			370, 540, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.maxAsteroidCount.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
+			600, 540, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.minAsteroidCount.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			352, 532, 16, 16,
+			hWnd, (HMENU)IB_ASTEROIDCOUNT, NULL, NULL);
+
+		//generate comets
+		CONFIG_H.generateComets.DESC = CreateWindowW(L"static", L"Generate Comets:",
+			WS_CHILD | WS_BORDER,
+			370, 560, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.generateComets.HANDLE = CreateWindowW(L"button", L"",
+			WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
+			600, 560, 100, 20,
+			hWnd, (HMENU)CB_GENERATECOMETS, NULL, NULL);
+		CONFIG_H.generateComets.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			352, 562, 16, 16,
+			hWnd, (HMENU)IB_GENERATECOMETS, NULL, NULL);
+
+		//min/max asteroid count
+		CONFIG_H.minCometCount.DESC = CreateWindowW(L"static", L"Minimum Comets:",
+			WS_CHILD | WS_BORDER,
+			370, 580, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.minCometCount.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
+			600, 580, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.maxCometCount.DESC = CreateWindowW(L"static", L"Maximum Comets:",
+			WS_CHILD | WS_BORDER,
+			370, 600, 230, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.maxCometCount.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
+			600, 600, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.minCometCount.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			352, 592, 16, 16,
+			hWnd, (HMENU)IB_COMETCOUNT, NULL, NULL);
 
 		// Trackbar stuff
 		/*
@@ -2299,6 +2396,15 @@ Screen lastScreen;
 		SetVariableToWindow(CONFIG_H.SDInclination.HANDLE, P.SDInclination);
 		SetVariableToWindow(CONFIG_H.avgObliquity.HANDLE, P.avgObliquity);
 		SetVariableToWindow(CONFIG_H.SDObliquity.HANDLE, P.SDObliquity);
+		CheckDlgButton(hWnd, CB_GENERATEASTEROIDS, P.generateAsteroidBelt);
+		SetWindowTextW(CONFIG_H.generateAsteroidBelt.HANDLE, P.generateAsteroidBeltState);
+		SetVariableToWindow(CONFIG_H.maxAsteroidBelts.HANDLE, P.maxAsteroidBelts);
+		SetVariableToWindow(CONFIG_H.minAsteroidCount.HANDLE, P.minAsteroidCount);
+		SetVariableToWindow(CONFIG_H.maxAsteroidCount.HANDLE, P.maxAsteroidCount);
+		CheckDlgButton(hWnd, CB_GENERATECOMETS, P.generateComets);
+		SetWindowTextW(CONFIG_H.generateComets.HANDLE, P.generateCometsState);
+		SetVariableToWindow(CONFIG_H.minCometCount.HANDLE, P.minCometCount);
+		SetVariableToWindow(CONFIG_H.maxCometCount.HANDLE, P.maxCometCount);
 
 		SetVariableToWindow(CONFIG_H.starClassO.HANDLE, P.starClassO);
 		SetVariableToWindow(CONFIG_H.starClassB.HANDLE, P.starClassB);
@@ -2464,6 +2570,13 @@ Screen lastScreen;
 			<< "SDInclination=" << CONFIG.SDInclination << "\n"
 			<< "avgObliquity=" << CONFIG.avgObliquity << "\n"
 			<< "SDObliquity=" << CONFIG.SDObliquity << "\n"
+			<< "generateAsteroidBelt=" << CONFIG.generateAsteroidBelt << "\n"
+			<< "maxAsteroidBelts=" << CONFIG.maxAsteroidBelts << "\n"
+			<< "minAsteroidCount=" << CONFIG.minAsteroidCount << "\n"
+			<< "maxAsteroidCount=" << CONFIG.maxAsteroidCount << "\n"
+			<< "generateComets=" << CONFIG.generateComets << "\n"
+			<< "minCometCount=" << CONFIG.minCometCount << "\n"
+			<< "maxCometCount=" << CONFIG.maxCometCount << "\n"
 			<< "starClassO=" << CONFIG.starClassO << "\n"
 			<< "starClassB=" << CONFIG.starClassB << "\n"
 			<< "starClassA=" << CONFIG.starClassA << "\n"
@@ -2664,6 +2777,13 @@ Screen lastScreen;
 			ShowWindow(CONFIG_H.SDInclination.HANDLE, 0);
 			ShowWindow(CONFIG_H.avgObliquity.HANDLE, 0);
 			ShowWindow(CONFIG_H.SDObliquity.HANDLE, 0);
+			ShowWindow(CONFIG_H.generateAsteroidBelt.HANDLE, 0);
+			ShowWindow(CONFIG_H.maxAsteroidBelts.HANDLE, 0);
+			ShowWindow(CONFIG_H.minAsteroidCount.HANDLE, 0);
+			ShowWindow(CONFIG_H.maxAsteroidCount.HANDLE, 0);
+			ShowWindow(CONFIG_H.generateComets.HANDLE, 0);
+			ShowWindow(CONFIG_H.minCometCount.HANDLE, 0);
+			ShowWindow(CONFIG_H.maxCometCount.HANDLE, 0);
 			//Desc
 			ShowWindow(CONFIG_H.smartPlacement.DESC, 0);
 			ShowWindow(CONFIG_H.generateDwarfPlanets.DESC, 0);
@@ -2679,6 +2799,13 @@ Screen lastScreen;
 			ShowWindow(CONFIG_H.SDInclination.DESC, 0);
 			ShowWindow(CONFIG_H.avgObliquity.DESC, 0);
 			ShowWindow(CONFIG_H.SDObliquity.DESC, 0);
+			ShowWindow(CONFIG_H.generateAsteroidBelt.DESC, 0);
+			ShowWindow(CONFIG_H.maxAsteroidBelts.DESC, 0);
+			ShowWindow(CONFIG_H.minAsteroidCount.DESC, 0);
+			ShowWindow(CONFIG_H.maxAsteroidCount.DESC, 0);
+			ShowWindow(CONFIG_H.generateComets.DESC, 0);
+			ShowWindow(CONFIG_H.minCometCount.DESC, 0);
+			ShowWindow(CONFIG_H.maxCometCount.DESC, 0);
 			//Info
 			ShowWindow(CONFIG_H.smartPlacement.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.generateDwarfPlanets.INFOBUTTON, 0);
@@ -2686,23 +2813,19 @@ Screen lastScreen;
 			ShowWindow(CONFIG_H.minPlanetNumber.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.minDistance.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.maxDistance.INFOBUTTON, 0);
-			ShowWindow(CONFIG_H.planetSpaceAvg.DESC, 0);
+			ShowWindow(CONFIG_H.planetSpaceAvg.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.avgEccentricity.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.SDEccentricity.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.avgInclination.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.SDInclination.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.avgObliquity.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.SDObliquity.INFOBUTTON, 0);
-			ShowWindow(CONFIG_H.starClassA.INFOBUTTON, 0);
-			ShowWindow(CONFIG_H.starClassB.INFOBUTTON, 0);
-			ShowWindow(CONFIG_H.starClassF.INFOBUTTON, 0);
-			ShowWindow(CONFIG_H.starClassG.INFOBUTTON, 0);
-			ShowWindow(CONFIG_H.starClassK.INFOBUTTON, 0);
-			ShowWindow(CONFIG_H.starClassM.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.generateAsteroidBelt.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.maxAsteroidBelts.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.minAsteroidCount.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.generateComets.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.minCometCount.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.starClassO.INFOBUTTON, 0);
-			ShowWindow(CONFIG_H.starClassQ.INFOBUTTON, 0);
-			ShowWindow(CONFIG_H.starClassWD.INFOBUTTON, 0);
-			ShowWindow(CONFIG_H.starClassX.INFOBUTTON, 0);
 			//Extra
 			ShowWindow(CONFIG_H.starClassO.EXTRA, 0);
 		}
@@ -2869,17 +2992,15 @@ Screen lastScreen;
 		ShowWindow(CONFIG_H.SDInclination.HANDLE, 1);
 		ShowWindow(CONFIG_H.avgObliquity.HANDLE, 1);
 		ShowWindow(CONFIG_H.SDObliquity.HANDLE, 1);
+		ShowWindow(CONFIG_H.generateAsteroidBelt.HANDLE, 1);
+		ShowWindow(CONFIG_H.maxAsteroidBelts.HANDLE, 1);
+		ShowWindow(CONFIG_H.minAsteroidCount.HANDLE, 1);
+		ShowWindow(CONFIG_H.maxAsteroidCount.HANDLE, 1);
+		ShowWindow(CONFIG_H.generateComets.HANDLE, 1);
+		ShowWindow(CONFIG_H.minCometCount.HANDLE, 1);
+		ShowWindow(CONFIG_H.maxCometCount.HANDLE, 1);
 
-		ShowWindow(CONFIG_H.starClassA.HANDLE, 1);
-		ShowWindow(CONFIG_H.starClassB.HANDLE, 1);
-		ShowWindow(CONFIG_H.starClassF.HANDLE, 1);
-		ShowWindow(CONFIG_H.starClassG.HANDLE, 1);
-		ShowWindow(CONFIG_H.starClassK.HANDLE, 1);
-		ShowWindow(CONFIG_H.starClassM.HANDLE, 1);
 		ShowWindow(CONFIG_H.starClassO.HANDLE, 1);
-		ShowWindow(CONFIG_H.starClassQ.HANDLE, 1);
-		ShowWindow(CONFIG_H.starClassWD.HANDLE, 1);
-		ShowWindow(CONFIG_H.starClassX.HANDLE, 1);
 
 		//Desc
 		ShowWindow(CONFIG_H.smartPlacement.DESC, 1);
@@ -2896,6 +3017,13 @@ Screen lastScreen;
 		ShowWindow(CONFIG_H.SDInclination.DESC, 1);
 		ShowWindow(CONFIG_H.avgObliquity.DESC, 1);
 		ShowWindow(CONFIG_H.SDObliquity.DESC, 1);
+		ShowWindow(CONFIG_H.generateAsteroidBelt.DESC, 1);
+		ShowWindow(CONFIG_H.maxAsteroidBelts.DESC, 1);
+		ShowWindow(CONFIG_H.minAsteroidCount.DESC, 1);
+		ShowWindow(CONFIG_H.maxAsteroidCount.DESC, 1);
+		ShowWindow(CONFIG_H.generateComets.DESC, 1);
+		ShowWindow(CONFIG_H.minCometCount.DESC, 1);
+		ShowWindow(CONFIG_H.maxCometCount.DESC, 1);
 
 		//Info
 		ShowWindow(CONFIG_H.smartPlacement.INFOBUTTON, 1);
@@ -2911,17 +3039,12 @@ Screen lastScreen;
 		ShowWindow(CONFIG_H.SDInclination.INFOBUTTON, 1);
 		ShowWindow(CONFIG_H.avgObliquity.INFOBUTTON, 1);
 		ShowWindow(CONFIG_H.SDObliquity.INFOBUTTON, 1);
-
-		ShowWindow(CONFIG_H.starClassA.INFOBUTTON, 1);
-		ShowWindow(CONFIG_H.starClassB.INFOBUTTON, 1);
-		ShowWindow(CONFIG_H.starClassF.INFOBUTTON, 1);
-		ShowWindow(CONFIG_H.starClassG.INFOBUTTON, 1);
-		ShowWindow(CONFIG_H.starClassK.INFOBUTTON, 1);
-		ShowWindow(CONFIG_H.starClassM.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.generateAsteroidBelt.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.maxAsteroidBelts.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.minAsteroidCount.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.generateComets.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.minCometCount.INFOBUTTON, 1);
 		ShowWindow(CONFIG_H.starClassO.INFOBUTTON, 1);
-		ShowWindow(CONFIG_H.starClassQ.INFOBUTTON, 1);
-		ShowWindow(CONFIG_H.starClassWD.INFOBUTTON, 1);
-		ShowWindow(CONFIG_H.starClassX.INFOBUTTON, 1);
 
 		//Extra
 		ShowWindow(CONFIG_H.starClassO.EXTRA, 1);
@@ -3336,6 +3459,13 @@ Screen lastScreen;
 		GetVariableFromWindow(CONFIG_H.SDInclination.HANDLE, CONFIG.SDInclination);
 		GetVariableFromWindow(CONFIG_H.avgObliquity.HANDLE, CONFIG.avgObliquity);
 		GetVariableFromWindow(CONFIG_H.SDObliquity.HANDLE, CONFIG.SDObliquity);
+		CONFIG.generateAsteroidBelt = (IsDlgButtonChecked(hWnd, CB_GENERATEASTEROIDS) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(CONFIG_H.maxAsteroidBelts.HANDLE, CONFIG.maxAsteroidBelts);
+		GetVariableFromWindow(CONFIG_H.minAsteroidCount.HANDLE, CONFIG.minAsteroidCount);
+		GetVariableFromWindow(CONFIG_H.maxAsteroidCount.HANDLE, CONFIG.maxAsteroidCount);
+		CONFIG.generateComets = (IsDlgButtonChecked(hWnd, CB_GENERATECOMETS) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(CONFIG_H.minCometCount.HANDLE, CONFIG.minCometCount);
+		GetVariableFromWindow(CONFIG_H.maxCometCount.HANDLE, CONFIG.maxCometCount);
 
 		GetVariableFromWindow(CONFIG_H.starClassO.HANDLE, CONFIG.starClassO);
 		GetVariableFromWindow(CONFIG_H.starClassB.HANDLE, CONFIG.starClassB);
@@ -3943,6 +4073,21 @@ Screen lastScreen;
 		case IB_DWARFPALNETCHANCE:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"Percent chance for dwarf planets to generate and continue generating after the first. For every dwarf planet generated, one percent is subtracted from the total.");
 			break;
+		case IB_GENERATEASTEROIDS:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"asteroids enabled?");
+			break;
+		case IB_MAXASTEROIDBELTS:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"asteroids belt max");
+			break;
+		case IB_ASTEROIDCOUNT:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"asteroids min/max count");
+			break;
+		case IB_GENERATECOMETS:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"generate comets");
+			break;
+		case IB_COMETCOUNT:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"comet min/max count");
+			break;
 		
 	#pragma endregion
 //###############
@@ -4123,6 +4268,28 @@ Screen lastScreen;
 				break;
 			}
 			break;
+		case CB_GENERATEASTEROIDS:
+			switch (msg)
+			{
+			case BST_UNCHECKED:
+				SetWindowTextW(CONFIG_H.generateAsteroidBelt.HANDLE, L"Disabled");
+				break;
+			case BST_CHECKED:
+				SetWindowTextW(CONFIG_H.generateAsteroidBelt.HANDLE, L"Enabled");
+				break;
+			}
+			break;
+		case CB_GENERATECOMETS:
+			switch (msg)
+			{
+			case BST_UNCHECKED:
+				SetWindowTextW(CONFIG_H.generateComets.HANDLE, L"Disabled");
+				break;
+			case BST_CHECKED:
+				SetWindowTextW(CONFIG_H.generateComets.HANDLE, L"Enabled");
+				break;
+			}
+			break;
 		case CB_DEBUG:
 			switch (msg)
 			{
@@ -4219,7 +4386,7 @@ Screen lastScreen;
 			//######################################################################################################
 				//  GENERATES NUMBER OF WORDS
 
-			while (genpercent(mt_name) <= localWP--)
+			while (genpercent(mt_name) < localWP--)
 				wordCount++;
 
 			//######################################################################################################
@@ -4230,97 +4397,97 @@ Screen lastScreen;
 			case typeDwarfMoon:
 			{
 				if (NV.useDwarfMoonPreMods)
-					has_prename_mod = (genpercent(mt_name) <= NV.probDwarfMoonPreMod) ? true : false;
+					has_prename_mod = (genpercent(mt_name) < NV.probDwarfMoonPreMod) ? true : false;
 				if (NV.useDwarfMoonPostMods)
-					has_postname_mod = (genpercent(mt_name) <= NV.probDwarfMoonPostMod) ? true : false;
+					has_postname_mod = (genpercent(mt_name) < NV.probDwarfMoonPostMod) ? true : false;
 				if (NV.useDwarfMoonNumberMods)
-					has_number_mod = (genpercent(mt_name) <= NV.probDwarfMoonNumberMod) ? true : false;
+					has_number_mod = (genpercent(mt_name) < NV.probDwarfMoonNumberMod) ? true : false;
 			}
 				break;
 			case typeMoon:
 			{
 				if (NV.useMoonPreMods)
-					has_prename_mod = (genpercent(mt_name) <= NV.probMoonPreMod) ? true : false;
+					has_prename_mod = (genpercent(mt_name) < NV.probMoonPreMod) ? true : false;
 				if (NV.useMoonPostMods)
-					has_postname_mod = (genpercent(mt_name) <= NV.probMoonPostMod) ? true : false;
+					has_postname_mod = (genpercent(mt_name) < NV.probMoonPostMod) ? true : false;
 				if (NV.useMoonNumberMods)
-					has_number_mod = (genpercent(mt_name) <= NV.probMoonNumberMod) ? true : false;
+					has_number_mod = (genpercent(mt_name) < NV.probMoonNumberMod) ? true : false;
 			}			
 				break;
 			case typePlanet:
 			{
 				if (NV.usePlanetPreMods)
-					has_prename_mod = (genpercent(mt_name) <= NV.probPlanetPreMod) ? true : false;
+					has_prename_mod = (genpercent(mt_name) < NV.probPlanetPreMod) ? true : false;
 				if (NV.usePlanetPostMods)
-					has_postname_mod = (genpercent(mt_name) <= NV.probPlanetPostMod) ? true : false;
+					has_postname_mod = (genpercent(mt_name) < NV.probPlanetPostMod) ? true : false;
 				if (NV.usePlanetNumberMods)
-					has_number_mod = (genpercent(mt_name) <= NV.probPlanetNumberMod) ? true : false;
+					has_number_mod = (genpercent(mt_name) < NV.probPlanetNumberMod) ? true : false;
 			}
 				break;
 			case typeShipColony:
 			{
 				if (NV.useShipPreMods_All)
-					has_shipall_premod = (genpercent(mt_name) <= NV.probShipPreMod_All) ? true : false;
+					has_shipall_premod = (genpercent(mt_name) < NV.probShipPreMod_All) ? true : false;
 				if (NV.useShipPostMods_All)
-					has_shipall_postmod = (genpercent(mt_name) <= NV.probShipPostMod_All) ? true : false;
+					has_shipall_postmod = (genpercent(mt_name) < NV.probShipPostMod_All) ? true : false;
 				if (NV.useShipPreMods_Colony)
-					has_prename_mod = (genpercent(mt_name) <= NV.probShipPreMod_Colony) ? true : false;
+					has_prename_mod = (genpercent(mt_name) < NV.probShipPreMod_Colony) ? true : false;
 				if (NV.useShipPostMods_Colony)
-					has_postname_mod = (genpercent(mt_name) <= NV.probShipPostMod_Colony) ? true : false;
+					has_postname_mod = (genpercent(mt_name) < NV.probShipPostMod_Colony) ? true : false;
 				if (NV.useShipNumberMods_Colony)
-					has_number_mod = (genpercent(mt_name) <= NV.probShipNumberMod_Colony) ? true : false;
+					has_number_mod = (genpercent(mt_name) < NV.probShipNumberMod_Colony) ? true : false;
 			}
 				break;
 			case typeShipInstrument:
 			{
 				if (NV.useShipPreMods_All)
-					has_shipall_premod = (genpercent(mt_name) <= NV.probShipPreMod_All) ? true : false;
+					has_shipall_premod = (genpercent(mt_name) < NV.probShipPreMod_All) ? true : false;
 				if (NV.useShipPostMods_All)
-					has_shipall_postmod = (genpercent(mt_name) <= NV.probShipPostMod_All) ? true : false;
+					has_shipall_postmod = (genpercent(mt_name) < NV.probShipPostMod_All) ? true : false;
 				if (NV.useShipPreMods_Instrument)
-					has_prename_mod = (genpercent(mt_name) <= NV.probShipPreMod_Instrument) ? true : false;
+					has_prename_mod = (genpercent(mt_name) < NV.probShipPreMod_Instrument) ? true : false;
 				if (NV.useShipPostMods_Instrument)
-					has_postname_mod = (genpercent(mt_name) <= NV.probShipPostMod_Instrument) ? true : false;
+					has_postname_mod = (genpercent(mt_name) < NV.probShipPostMod_Instrument) ? true : false;
 				if (NV.useShipNumberMods_Instrument)
-					has_number_mod = (genpercent(mt_name) <= NV.probShipNumberMod_Instrument) ? true : false;
+					has_number_mod = (genpercent(mt_name) < NV.probShipNumberMod_Instrument) ? true : false;
 			}
 				break;
 			case typeShipSatellite:
 			{
 				if (NV.useShipPreMods_All)
-					has_shipall_premod = (genpercent(mt_name) <= NV.probShipPreMod_All) ? true : false;
+					has_shipall_premod = (genpercent(mt_name) < NV.probShipPreMod_All) ? true : false;
 				if (NV.useShipPostMods_All)
-					has_shipall_postmod = (genpercent(mt_name) <= NV.probShipPostMod_All) ? true : false;
+					has_shipall_postmod = (genpercent(mt_name) < NV.probShipPostMod_All) ? true : false;
 				if (NV.useShipPreMods_Satellite)
-					has_prename_mod = (genpercent(mt_name) <= NV.probShipPreMod_Satellite) ? true : false;
+					has_prename_mod = (genpercent(mt_name) < NV.probShipPreMod_Satellite) ? true : false;
 				if (NV.useShipPostMods_Satellite)
-					has_postname_mod = (genpercent(mt_name) <= NV.probShipPostMod_Satellite) ? true : false;
+					has_postname_mod = (genpercent(mt_name) < NV.probShipPostMod_Satellite) ? true : false;
 				if (NV.useShipNumberMods_Satellite)
-					has_number_mod = (genpercent(mt_name) <= NV.probShipNumberMod_Satellite) ? true : false;
+					has_number_mod = (genpercent(mt_name) < NV.probShipNumberMod_Satellite) ? true : false;
 			}
 				break;
 			case typeShipStation:
 			{
 				if (NV.useShipPreMods_All)
-					has_shipall_premod = (genpercent(mt_name) <= NV.probShipPreMod_All) ? true : false;
+					has_shipall_premod = (genpercent(mt_name) < NV.probShipPreMod_All) ? true : false;
 				if (NV.useShipPostMods_All)
-					has_shipall_postmod = (genpercent(mt_name) <= NV.probShipPostMod_All) ? true : false;
+					has_shipall_postmod = (genpercent(mt_name) < NV.probShipPostMod_All) ? true : false;
 				if (NV.useShipPreMods_Station)
-					has_prename_mod = (genpercent(mt_name) <= NV.probShipPreMod_Station) ? true : false;
+					has_prename_mod = (genpercent(mt_name) < NV.probShipPreMod_Station) ? true : false;
 				if (NV.useShipPostMods_Station)
-					has_postname_mod = (genpercent(mt_name) <= NV.probShipPostMod_Station) ? true : false;
+					has_postname_mod = (genpercent(mt_name) < NV.probShipPostMod_Station) ? true : false;
 				if (NV.useShipNumberMods_Station)
-					has_number_mod = (genpercent(mt_name) <= NV.probShipNumberMod_Station) ? true : false;
+					has_number_mod = (genpercent(mt_name) < NV.probShipNumberMod_Station) ? true : false;
 			}
 				break;
 			case typeStar:
 			{
 				if (NV.useStarPreMods)
-					has_prename_mod = (genpercent(mt_name) <= NV.probStarPreMod) ? true : false;
+					has_prename_mod = (genpercent(mt_name) < NV.probStarPreMod) ? true : false;
 				if (NV.useStarPostMods)
-					has_postname_mod = (genpercent(mt_name) <= NV.probStarPostMod) ? true : false;
+					has_postname_mod = (genpercent(mt_name) < NV.probStarPostMod) ? true : false;
 				if (NV.useStarNumberMods)
-					has_number_mod = (genpercent(mt_name) <= NV.probStarNumberMod) ? true : false;
+					has_number_mod = (genpercent(mt_name) < NV.probStarNumberMod) ? true : false;
 			}				
 				break;
 			}
@@ -4515,9 +4682,9 @@ Screen lastScreen;
 					finalName += NV.PrefixList.at(gen_prefix_position(mt_name)); //Starts word off with a prefix
 
 					syllPercent = genpercent(mt_name); //Determines number of syllables
-					if (syllPercent <= 10)
+					if (syllPercent < 10)
 						syllCount = 1;
-					else if (syllPercent < 100)
+					else if (syllPercent < 80)
 						syllCount = 2;
 					else syllCount = 3;
 
@@ -5173,7 +5340,7 @@ Screen lastScreen;
 				if (CONFIG.shipList_Station.size() == 0)
 					enable_station = false;
 
-				while (genpercent(mt_ship) <= CONFIG.exotic_ShipChance)
+				while (genpercent(mt_ship) < CONFIG.exotic_ShipChance)
 				{
 					int size = planetList.size(), parent;
 					SEShip ship;
@@ -5313,8 +5480,125 @@ Screen lastScreen;
 				}
 			}
 
+			// Asteroid Belt Generator
+			if (CONFIG.generateAsteroidBelt)
+			{
+				SEPlanet asteroid;
+				asteroid.type = asteroid.class_ = L"Asteroid";
+				asteroid.parentBody = &currentStar;
+				bool usedInner = false, usedOuter = false;
+
+				std::uniform_int_distribution<> genruns{ 1, CONFIG.maxAsteroidBelts };
+				int numberofBelts = genruns(mt_star);
+
+				for (int currentBelt = 0; currentBelt < numberofBelts; currentBelt++)
+				{
+					/*--------------------------------------------------------------#
+					|																|
+					|	Basically what this does:									|
+					|																|
+					|	First we chose a random Semimajor from the leftover list	|
+					|	of points IF there are still points left. Otherwise,		|
+					|	our asteroid belt will be before the inner limit or			|
+					|	beyond the outer limit.										|
+					|																|
+					|	Next, we detmine where that semimajor was in the original	|
+					|	list. The points before and after it are our boundaries		|
+					|	for the asteroid belt. If it was the first or last point	|
+					|	in the list, we use the inner/outer limits as our			|
+					|	boundaries.													|
+					|																|
+					#--------------------------------------------------------------*/
+
+					double minSemimajor = -1, maxSemimajor = -1, avgSemimajor, sdSemimajor;
+					std::uniform_int_distribution<> gennum{ CONFIG.minAsteroidCount, CONFIG.maxAsteroidCount };
+					int asteroidCount = gennum(mt_star);
+
+					if (currentStar.semimajorList.size() > 0 && genpercent(mt_star) < 100)
+					{
+						int pos, listSize = currentStar.semimajorList.size() - 1;
+						std::uniform_int_distribution<> genpos{ 0, listSize };
+						pos = genpos(mt_star);
+						avgSemimajor = currentStar.semimajorList.at(pos);
+						currentStar.semimajorList.erase(currentStar.semimajorList.begin() + pos);
+
+						for (int i = 1; i < currentStar.semimajorStaticList.size() - 1; i++)
+						{
+							if (currentStar.semimajorStaticList.at(i) == avgSemimajor)
+							{
+								minSemimajor = currentStar.semimajorStaticList.at(i - 1);
+								maxSemimajor = currentStar.semimajorStaticList.at(i + 1);
+								i = currentStar.semimajorStaticList.size();
+							}
+						}
+						if (minSemimajor < 0)
+						{
+							if (((avgSemimajor - currentStar.innerLimit) / currentStar.totalDist) < 0.5)
+							{
+								minSemimajor = currentStar.innerLimit;
+								maxSemimajor = currentStar.semimajorStaticList.at(1);
+							}
+							else
+							{
+								minSemimajor = currentStar.semimajorStaticList.at(currentStar.semimajorStaticList.size() - 2);
+								maxSemimajor = currentStar.outerLimit;
+							}
+						}
+
+						sdSemimajor = ((maxSemimajor - minSemimajor) / 9);
+					}
+					else
+					{
+						// 50% for asteroid belt before inner limit, 50% for after outer limit
+						if (!usedInner && genpercent(mt_star) < 50)
+						{
+							avgSemimajor = (currentStar.innerLimit / 2.5);
+							minSemimajor = (currentStar.innerLimit / 5);
+							maxSemimajor = currentStar.innerLimit;
+							sdSemimajor = ((maxSemimajor - minSemimajor) / 9);
+							usedInner = true;
+						}
+						else if(!usedOuter)
+						{
+							avgSemimajor = (currentStar.outerLimit * 2.5);
+							minSemimajor = currentStar.outerLimit;
+							maxSemimajor = (currentStar.outerLimit * 5);
+							sdSemimajor = ((maxSemimajor - minSemimajor) / 9);
+							usedOuter = true;
+						}
+						else
+							goto NoBelt;
+					}
+
+					for (int i = 0; i < asteroidCount; i++)
+					{
+						GenerateAsteroid(currentStar, asteroid, minSemimajor, maxSemimajor, avgSemimajor, sdSemimajor);
+						PrintPlanet(asteroid, planetFile);
+					}
+				NoBelt:;
+				}	
+			}
+
+			// comet generator
+			if (CONFIG.generateComets)
+			{
+				SEPlanet comet;
+				comet.type = L"Comet";
+				comet.class_ = L"Asteroid";
+				comet.parentBody = &currentStar;
+
+				std::uniform_int_distribution<> gennum{ CONFIG.minCometCount, CONFIG.maxCometCount };
+				int cometCount = gennum(mt_star);
+
+				for (int currentComet = 0; currentComet < cometCount; currentComet++)
+				{
+					GenerateComet(currentStar, comet);
+					PrintPlanet(comet, planetFile);
+				}
+			}
+
 			// Debug star Orbits
-			if (CONFIG.debug == 1)
+			if (CONFIG.debug)
 			{
 				SEPlanet Debug;
 
@@ -5389,7 +5673,7 @@ Screen lastScreen;
 			file << wstr_to_str(planet.type) << "\t\t\t\t\t\t\"" << wstr_to_str(planet.name) << "\"\n{";
 		file << "\n\tParentBody\t\t\t\t\"" << wstr_to_str(planet.parentBody->name) << "\""
 			<< "\n\tClass\t\t\t\t\t\"" << wstr_to_str(planet.class_) << "\"\n";
-		if (planet.type != L"DwarfMoon")
+		if (planet.class_ != L"Asteroid")
 			file << "\n\tMass\t\t\t\t\t" << planet.mass << "\n";
 		file << "\tRadius\t\t\t\t\t" << planet.radius << "\n"
 			<< "\tObliquity\t\t\t\t" << planet.obliquity << "\n";
@@ -5771,7 +6055,7 @@ Screen lastScreen;
 				planet.interior.silicates = genfourth(mt_planet);
 				leftOver -= planet.interior.silicates;
 
-				if (genpercent(mt_planet) < 3)
+				if (genpercent(mt_planet) < 2)
 				{
 					std::uniform_real_distribution<> genfifth{ 0 , leftOver };
 					planet.interior.carbides = genfifth(mt_planet);
@@ -5810,7 +6094,7 @@ Screen lastScreen;
 				planet.interior.helium = genfourth(mt_planet);
 				leftOver -= planet.interior.helium;
 
-				if (genpercent(mt_planet) < 3)
+				if (genpercent(mt_planet) < 2)
 				{
 					std::uniform_real_distribution<> genfifth{ 0 , leftOver };
 					planet.interior.carbides = genfifth(mt_planet);
@@ -5830,14 +6114,14 @@ Screen lastScreen;
 				while (planet.interior.silicates < 50 || planet.interior.silicates > 99);
 				leftOver -= planet.interior.silicates;
 
-				if (genpercent(mt_planet) < 3)
+				if (genpercent(mt_planet) < 2)
 				{
 					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
 					planet.interior.carbides = gensecond(mt_planet);
 					leftOver -= planet.interior.carbides;
 				}
 
-				if (genpercent(mt_planet) < 34)
+				if (genpercent(mt_planet) < 33)
 				{
 					std::uniform_real_distribution<> genthird{ 0 , leftOver };
 					do planet.interior.ices = genthird(mt_planet);
@@ -5857,14 +6141,14 @@ Screen lastScreen;
 				while (planet.interior.metals < 50 || planet.interior.metals > 99);
 				leftOver -= planet.interior.metals;
 
-				if (genpercent(mt_planet) < 3)
+				if (genpercent(mt_planet) < 2)
 				{
 					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
 					planet.interior.carbides = gensecond(mt_planet);
 					leftOver -= planet.interior.carbides;
 				}
 
-				if (genpercent(mt_planet) < 34)
+				if (genpercent(mt_planet) < 33)
 				{
 					std::uniform_real_distribution<> genthird{ 0 , leftOver };
 					do planet.interior.ices = genthird(mt_planet);
@@ -5911,7 +6195,7 @@ Screen lastScreen;
 				planet.interior.silicates = gensecond(mt_planet);
 				leftOver -= planet.interior.silicates;
 
-				if (genpercent(mt_planet) < 34)
+				if (genpercent(mt_planet) < 33)
 				{
 					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
 					planet.interior.ices = gensecond(mt_planet);
@@ -5961,7 +6245,7 @@ Screen lastScreen;
 		{
 			if (planet.class_ == L"Jupiter")
 			{
-				if (genpercent(mt_planet) <= 60)
+				if (genpercent(mt_planet) < 60)
 				{
 					std::uniform_real_distribution<> genm{ 10, 320 };
 					planet.mass = genm(mt_planet);
@@ -6054,7 +6338,7 @@ Screen lastScreen;
 			{
 				do
 				{
-					if (genpercent(mt_planet) <= 50)
+					if (genpercent(mt_planet) < 50)
 					{
 						std::uniform_real_distribution<> genm{ 0.2, 2 };
 						planet.mass = genm(mt_planet);
@@ -6086,7 +6370,7 @@ Screen lastScreen;
 			{
 				do
 				{
-					if (genpercent(mt_planet) <= 50)
+					if (genpercent(mt_planet) < 50)
 					{
 						std::uniform_real_distribution<> genm{ 0.2, 2 };
 						planet.mass = genm(mt_planet);
@@ -6118,7 +6402,7 @@ Screen lastScreen;
 			{
 				do
 				{
-					if (genpercent(mt_planet) <= 50)
+					if (genpercent(mt_planet) < 50)
 					{
 						std::uniform_real_distribution<> genm{ 0.2, 2 };
 						planet.mass = genm(mt_planet);
@@ -6150,7 +6434,7 @@ Screen lastScreen;
 			{
 				do
 				{
-					if (genpercent(mt_planet) <= 50)
+					if (genpercent(mt_planet) < 50)
 					{
 						std::uniform_real_distribution<> genm{ 0.2, 2 };
 						planet.mass = genm(mt_planet);
@@ -6195,9 +6479,9 @@ Screen lastScreen;
 		//	EXOTIC GENERATION
 
 		// Determines an exotic orbit
-		if (genpercent(mt_planet) <= CONFIG.exotic_OrbitChance)
+		if (genpercent(mt_planet) < CONFIG.exotic_OrbitChance)
 		{
-			if (genpercent(mt_planet) <= 50)
+			if (genpercent(mt_planet) < 50)
 				planet.inclination += 180;
 			else
 			{
@@ -6207,9 +6491,9 @@ Screen lastScreen;
 		}
 
 		// Determines an exotic rotation
-		if (genpercent(mt_planet) <= CONFIG.exotic_AxialTiltChance)
+		if (genpercent(mt_planet) < CONFIG.exotic_AxialTiltChance)
 		{
-			if (genpercent(mt_planet) <= 50)
+			if (genpercent(mt_planet) < 50)
 				planet.obliquity += 180;
 			else
 			{
@@ -6220,12 +6504,12 @@ Screen lastScreen;
 
 		// companion orbit
 		planet.hasCompanionOrbit = false;
-		if (genpercent(mt_planet) <= CONFIG.exotic_CompanionOrbitChance)
+		if (genpercent(mt_planet) < CONFIG.exotic_CompanionOrbitChance)
 			planet.hasCompanionOrbit = true;
 
 		planet.debrisCount = 0;
 		// Determines Debris Ring
-		if (genpercent(mt_planet) <= CONFIG.exotic_DebrisRingChance)
+		if (genpercent(mt_planet) < CONFIG.exotic_DebrisRingChance)
 		{
 			std::uniform_int_distribution<> GenDebrisNumber{ 15, 60 };
 			planet.debrisCount = GenDebrisNumber(mt_planet);
@@ -6236,17 +6520,17 @@ Screen lastScreen;
 		{
 			if (planet.semimajorAxis > star.habitZoneInnerLimit && planet.semimajorAxis < star.habitZoneOuterLimit
 					&& planet.class_ != L"Jupiter" && planet.class_ != L"Neptune"
-					&& genpercent(mt_planet) <= CONFIG.life_OrganicChance)
+					&& genpercent(mt_planet) < CONFIG.life_OrganicChance)
 				planet.life_organic.haslife = true;
 
-			if (genpercent(mt_planet) <= CONFIG.life_ExoticChance)
+			if (genpercent(mt_planet) < CONFIG.life_ExoticChance)
 				planet.life_exotic.haslife = true;
 		}
 		else
 		{
-			if (genpercent(mt_planet) <= CONFIG.life_OrganicChance)
+			if (genpercent(mt_planet) < CONFIG.life_OrganicChance)
 				planet.life_organic.haslife = true;
-			if (genpercent(mt_planet) <= CONFIG.life_ExoticChance)
+			if (genpercent(mt_planet) < CONFIG.life_ExoticChance)
 				planet.life_exotic.haslife = true;
 		}
 		ExoticGenerateLife(planet);
@@ -6402,14 +6686,14 @@ Screen lastScreen;
 				while (planet.interior.silicates < 50 || planet.interior.silicates > 99);
 				leftOver -= planet.interior.silicates;
 
-				if (genpercent(mt_planet) < 3)
+				if (genpercent(mt_planet) < 2)
 				{
 					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
 					planet.interior.carbides = gensecond(mt_planet);
 					leftOver -= planet.interior.carbides;
 				}
 
-				if (genpercent(mt_planet) < 34)
+				if (genpercent(mt_planet) < 33)
 				{
 					std::uniform_real_distribution<> genthird{ 0 , leftOver };
 					do planet.interior.ices = genthird(mt_planet);
@@ -6426,14 +6710,14 @@ Screen lastScreen;
 				while (planet.interior.metals < 50 || planet.interior.metals > 99);
 				leftOver -= planet.interior.metals;
 
-				if (genpercent(mt_planet) < 3)
+				if (genpercent(mt_planet) < 2)
 				{
 					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
 					planet.interior.carbides = gensecond(mt_planet);
 					leftOver -= planet.interior.carbides;
 				}
 
-				if (genpercent(mt_planet) < 34)
+				if (genpercent(mt_planet) < 33)
 				{
 					std::uniform_real_distribution<> genthird{ 0 , leftOver };
 					do planet.interior.ices = genthird(mt_planet);
@@ -6474,7 +6758,7 @@ Screen lastScreen;
 				planet.interior.silicates = gensecond(mt_planet);
 				leftOver -= planet.interior.silicates;
 
-				if (genpercent(mt_planet) < 34)
+				if (genpercent(mt_planet) < 33)
 				{
 					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
 					planet.interior.ices = gensecond(mt_planet);
@@ -6526,12 +6810,12 @@ Screen lastScreen;
 			if (planet.class_ != L"Aquaria")
 			{
 				int percent = genpercent(mt_planet);
-				if (percent <= 40)
+				if (percent < 40)
 				{
 					std::uniform_real_distribution<> gensemimajorAxis{ (star.outerLimit / 1.5), (star.outerLimit * 3) };
 					planet.semimajorAxis = gensemimajorAxis(mt_planet);
 				}
-				else if (percent >= 60)
+				else if (percent > 60)
 				{
 					std::uniform_real_distribution<> gensemimajorAxis{ star.innerLimit, (star.innerLimit * 1.5) };
 					planet.semimajorAxis = gensemimajorAxis(mt_planet);
@@ -6559,7 +6843,7 @@ Screen lastScreen;
 			else if (star.frostLine < star.innerLimit) // for some Q class and low luminosity
 			{
 				int percent = genpercent(mt_planet);
-				if (percent <= 60)
+				if (percent < 60)
 				{
 					std::uniform_real_distribution<> gensemimajorAxis{ (star.outerLimit / 1.5), (star.outerLimit * 3) };
 					planet.semimajorAxis = gensemimajorAxis(mt_planet);
@@ -6573,7 +6857,7 @@ Screen lastScreen;
 			else // for normal case stars
 			{
 				int percent = genpercent(mt_planet);
-				if (percent <= 60)
+				if (percent < 60)
 				{
 					std::uniform_real_distribution<> gensemimajorAxis{ (star.outerLimit / 1.5), (star.outerLimit * 3) };
 					planet.semimajorAxis = gensemimajorAxis(mt_planet);
@@ -6629,7 +6913,7 @@ Screen lastScreen;
 		planet.meanAnomaly = gendegree(mt_planet);
 
 		// companion orbit
-		if (genpercent(mt_planet) <= CONFIG.exotic_CompanionOrbitChance)
+		if (genpercent(mt_planet) < CONFIG.exotic_CompanionOrbitChance)
 			planet.hasCompanionOrbit = true;
 
 		//######################################################################################################
@@ -6730,14 +7014,14 @@ Screen lastScreen;
 				while (moon.interior.silicates < 50 || moon.interior.silicates > 99);
 				leftOver -= moon.interior.silicates;
 
-				if (genpercent(mt_moon) < 3)
+				if (genpercent(mt_moon) < 2)
 				{
 					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
 					moon.interior.carbides = gensecond(mt_moon);
 					leftOver -= moon.interior.carbides;
 				}
 
-				if (genpercent(mt_moon) < 34)
+				if (genpercent(mt_moon) < 33)
 				{
 					std::uniform_real_distribution<> genthird{ 0 , leftOver };
 					do moon.interior.ices = genthird(mt_moon);
@@ -6754,14 +7038,14 @@ Screen lastScreen;
 				while (moon.interior.metals < 50 || moon.interior.metals > 99);
 				leftOver -= moon.interior.metals;
 
-				if (genpercent(mt_moon) < 3)
+				if (genpercent(mt_moon) < 2)
 				{
 					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
 					moon.interior.carbides = gensecond(mt_moon);
 					leftOver -= moon.interior.carbides;
 				}
 
-				if (genpercent(mt_moon) < 34)
+				if (genpercent(mt_moon) < 33)
 				{
 					std::uniform_real_distribution<> genthird{ 0 , leftOver };
 					do moon.interior.ices = genthird(mt_moon);
@@ -6802,7 +7086,7 @@ Screen lastScreen;
 				moon.interior.silicates = gensecond(mt_moon);
 				leftOver -= moon.interior.silicates;
 
-				if (genpercent(mt_moon) < 34)
+				if (genpercent(mt_moon) < 33)
 				{
 					std::uniform_real_distribution<> gensecond{ 0 , leftOver };
 					moon.interior.ices = gensecond(mt_moon);
@@ -6945,6 +7229,7 @@ Screen lastScreen;
 				moon.inclination = geninclination(mt_moon);
 			}
 		}
+
 		else if (parent.class_ == L"Neptune")
 		{
 			if (moon.semimajorAxis < ((parent.hillSphereOuterLimit + moon.hillSphereInnerLimit) / 15))
@@ -7032,13 +7317,13 @@ Screen lastScreen;
 			//	EXOTIC GENERATION
 
 		// Determines an exotic orbit
-		if (genpercent(mt_moon) <= CONFIG.exotic_OrbitChance)
+		if (genpercent(mt_moon) < CONFIG.exotic_OrbitChance)
 			moon.inclination += 180;
 
 		// Determines an exotic rotation
-		if (genpercent(mt_moon) <= CONFIG.exotic_AxialTiltChance)
+		if (genpercent(mt_moon) < CONFIG.exotic_AxialTiltChance)
 		{
-			if (genpercent(mt_moon) <= 50)
+			if (genpercent(mt_moon) < 50)
 				moon.obliquity += 180;
 			else
 			{
@@ -7049,29 +7334,25 @@ Screen lastScreen;
 
 		// companion orbit
 		moon.hasCompanionOrbit = false;
-		if (genpercent(mt_planet) <= CONFIG.exotic_CompanionOrbitChance)
+		if (genpercent(mt_planet) < CONFIG.exotic_CompanionOrbitChance)
 			moon.hasCompanionOrbit = true;
 
-		moon.life_exotic.haslife = false;
-		moon.life_exotic.panspermia = false;
-		moon.life_organic.haslife = false;
-		moon.life_organic.panspermia = false;
 		// Determines Life
 		if (CONFIG.traditionalLife)
 		{
 			if (parent.semimajorAxis > star.habitZoneInnerLimit && parent.semimajorAxis < star.habitZoneOuterLimit
 				&& moon.radius > 1000
-				&& genpercent(mt_moon) <= CONFIG.life_OrganicChance)
+				&& genpercent(mt_moon) < CONFIG.life_OrganicChance)
 
 				moon.life_organic.haslife = true;
-			if (moon.radius > 1000 && genpercent(mt_moon) <= CONFIG.life_ExoticChance)
+			if (moon.radius > 1000 && genpercent(mt_moon) < CONFIG.life_ExoticChance)
 				moon.life_exotic.haslife = true;
 		}
 		else
 		{
-			if (genpercent(mt_moon) <= CONFIG.life_OrganicChance)
+			if (genpercent(mt_moon) < CONFIG.life_OrganicChance)
 				moon.life_organic.haslife = true;
-			if (genpercent(mt_moon) <= CONFIG.life_ExoticChance)
+			if (genpercent(mt_moon) < CONFIG.life_ExoticChance)
 				moon.life_exotic.haslife = true;
 		}
 		ExoticGenerateLife(moon);
@@ -7124,7 +7405,7 @@ Screen lastScreen;
 
 			if (parent.class_ == L"Jupiter" || parent.class_ == L"Neptune")
 			{
-				if (genpercent(mt_moon) <= 10)
+				if (genpercent(mt_moon) < 10)
 				{
 					std::uniform_real_distribution<> gensemi{ moon.hillSphereInnerLimit, moon.hillSphereInnerLimit * 3 };
 					moon.semimajorAxis = gensemi(mt_moon);
@@ -7137,7 +7418,7 @@ Screen lastScreen;
 			}
 			else
 			{
-				if (genpercent(mt_moon) <= 40)
+				if (genpercent(mt_moon) < 40)
 				{
 					std::uniform_real_distribution<> gensemi{ moon.hillSphereInnerLimit, moon.hillSphereInnerLimit * 4 };
 					moon.semimajorAxis = gensemi(mt_moon);
@@ -7250,8 +7531,64 @@ Screen lastScreen;
 		moon.meanAnomaly = gendegree(mt_moon);
 
 		// companion orbit
-		if (genpercent(mt_planet) <= CONFIG.exotic_CompanionOrbitChance)
+		if (genpercent(mt_planet) < CONFIG.exotic_CompanionOrbitChance)
 			moon.hasCompanionOrbit = true;
+	}
+	void GenerateAsteroid(SEStar& parent, SEPlanet& asteroid, double minSemimajor, double maxSemimajor, double avgSemimajor, double sdSemimajor)
+	{
+		asteroid.name = GenName(typeDwarfMoon);
+
+		std::normal_distribution<> genr{ 25, 75 };
+		do asteroid.radius = genr(mt_star);
+		while (asteroid.radius < 0.05);
+
+		std::normal_distribution<> gensemi{ avgSemimajor, sdSemimajor };
+		do asteroid.semimajorAxis = gensemi(mt_star);
+		while (asteroid.semimajorAxis < minSemimajor || asteroid.semimajorAxis > maxSemimajor);
+
+		if (genpercent(mt_star) < 1)
+		{
+			std::normal_distribution<> geneccentricity{ 0.5, 0.2 };
+			do asteroid.eccentricity = geneccentricity(mt_star);
+			while (asteroid.eccentricity <= 0 || asteroid.eccentricity >= 1);
+		}
+		else
+		{
+			std::normal_distribution<> geneccentricity{ CONFIG.avgEccentricity, CONFIG.SDEccentricity };		
+			do asteroid.eccentricity = geneccentricity(mt_star);
+			while (asteroid.eccentricity <= 0 || asteroid.eccentricity >= 1);		
+		}
+
+		std::normal_distribution<> geninclination{ CONFIG.avgInclination, 20 };
+		asteroid.inclination = geninclination(mt_star);
+		
+		asteroid.obliquity = gendegree(mt_star);
+		asteroid.ascendingNode = gendegree(mt_star);
+		asteroid.argofPericenter = gendegree(mt_star);
+		asteroid.meanAnomaly = gendegree(mt_star);
+	}
+	void GenerateComet(SEStar& parent, SEPlanet& comet)
+	{
+		comet.name = GenName(typeDwarfMoon);
+
+		std::normal_distribution<> genr{ 25, 50 };
+		do comet.radius = genr(mt_star);
+		while (comet.radius < 0.05);
+
+		std::uniform_real_distribution<> gensemi{ parent.innerLimit, parent.outerLimit };
+		comet.semimajorAxis = gensemi(mt_star);
+
+		std::normal_distribution<> geneccentricity{ 0.8, 0.1 };
+		std::normal_distribution<> geninclination{ CONFIG.avgInclination, 35 };
+
+		comet.obliquity = gendegree(mt_star);
+		do comet.eccentricity = geneccentricity(mt_star);
+		while (comet.eccentricity <= 0 || comet.eccentricity >= 1);
+		comet.inclination = geninclination(mt_star);
+
+		comet.ascendingNode = gendegree(mt_star);
+		comet.argofPericenter = gendegree(mt_star);
+		comet.meanAnomaly = gendegree(mt_star);
 	}
 
 	void ExoticGenerateLife(SEPlanet& body)
@@ -7260,12 +7597,12 @@ Screen lastScreen;
 		{
 			body.life_organic._class = L"Organic";
 
-			if (genpercent(mt_planet) <= CONFIG.life_MulticellChance)
+			if (genpercent(mt_planet) < CONFIG.life_MulticellChance)
 				body.life_organic.type = L"Multicellular";
 			else
 				body.life_organic.type = L"Unicellular";
 
-			if (genpercent(mt_planet) <= 50)
+			if (genpercent(mt_planet) < 50)
 				body.life_organic.panspermia = true;
 		}
 
@@ -7273,12 +7610,12 @@ Screen lastScreen;
 		{
 			body.life_exotic._class = L"Exotic";
 
-			if (genpercent(mt_planet) <= CONFIG.life_MulticellChance)
+			if (genpercent(mt_planet) < CONFIG.life_MulticellChance)
 				body.life_exotic.type = L"Multicellular";
 			else
 				body.life_exotic.type = L"Unicellular";
 
-			if (genpercent(mt_planet) <= 50)
+			if (genpercent(mt_planet) < 50)
 				body.life_exotic.panspermia = true;
 		}
 	}
