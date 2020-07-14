@@ -3581,90 +3581,69 @@ Screen lastScreen;
 		// This function contains most error checking for input by the user and stops the program if an error is found.
 
 	#pragma region General Variables
+
 		if (CONFIG.numberOfRuns < 1)
-		{
-			MessageBox(hWnd, L"You must generate more than 0 systems for anything to work!", L"Error", MB_ICONERROR);
-			return true;
-		}
+			return MessageBox(hWnd, L"You must generate more than 0 systems for anything to work!", L"Error", MB_ICONERROR);
+
 	#pragma endregion
 
 	#pragma region System Variables
+		if (CONFIG.minDistance <= 0)
+			return MessageBox(hWnd, L"Min/Max distance from Earth cannot be zero or negative!", L"Error", MB_ICONERROR);
 		if (CONFIG.maxDistance < CONFIG.minDistance)
-		{
-			MessageBox(hWnd, L"Minimum Distance must be smaller than Maximum Distance!", L"Error", MB_ICONERROR);
-			return true;
-		}
-		if (CONFIG.maxDistance <= 0 || CONFIG.minDistance <= 0)
-		{
-			MessageBox(hWnd, L"Min/Max distance from Earth cannot be zero or negative!", L"Error", MB_ICONERROR);
-			return true;
-		}
+			return MessageBox(hWnd, L"Minimum Distance must be smaller than Maximum Distance!", L"Error", MB_ICONERROR);
 
 		if (CONFIG.planetSpaceAvg < 1)
-		{
-			MessageBox(hWnd, L"Planet Spacing Average must be a number greater than 1!", L"Error", MB_ICONERROR);
-			return true;
-		}
+			return MessageBox(hWnd, L"Planet Spacing Average must be a number greater than 1!", L"Error", MB_ICONERROR);
 
 		if (CONFIG.SDObliquity <= 0)
-		{
-			MessageBox(hWnd, L"Standard Deviation cannot be less than or equal to zero!", L"Error", MB_ICONERROR);
-			return true;
-		}
-
+			return MessageBox(hWnd, L"Standard Deviation cannot be less than or equal to zero!", L"Error", MB_ICONERROR);
 		if (CONFIG.SDInclination <= 0)
-		{
-			MessageBox(hWnd, L"Standard Deviation cannot be less than or equal to zero!", L"Error", MB_ICONERROR);
-			return true;
-		}
-
+			return MessageBox(hWnd, L"Standard Deviation cannot be less than or equal to zero!", L"Error", MB_ICONERROR);
 		if (CONFIG.avgEccentricity <= 0 || CONFIG.avgEccentricity >= 1)
-		{
-			MessageBox(hWnd, L"Eccentricity must be a value between (but not equal to) 0 and 1!", L"Error", MB_ICONERROR);
-			return true;
-		}
+			return MessageBox(hWnd, L"Eccentricity must be a value between (but not equal to) 0 and 1!", L"Error", MB_ICONERROR);
 		if (CONFIG.SDEccentricity <= 0)
-		{
-			MessageBox(hWnd, L"Standard Deviation cannot be less than or equal to zero!", L"Error", MB_ICONERROR);
-			return true;
-		}
+			return MessageBox(hWnd, L"Standard Deviation cannot be less than or equal to zero!", L"Error", MB_ICONERROR);
 		if (CONFIG.SDEccentricity >= 1)
-		{
-			MessageBox(hWnd, L"Standard Deviation for eccentricity is too high! The program will waste too much time throwing away unusable numbers!", L"Error", MB_ICONERROR);
-			return true;
-		}
+			return MessageBox(hWnd, L"Standard Deviation for eccentricity is too high! The program will waste too much time throwing away unusable numbers!", L"Error", MB_ICONERROR);
 
-		if (CONFIG.dwarfPlanetChance >= 100 || CONFIG.dwarfPlanetChance < 0)
+		if (CONFIG.generateDwarfPlanets)
 		{
-			MessageBox(hWnd, L"The chance for dwarf planets to spawn should be a number from 0 to 99!", L"Error", MB_ICONERROR);
-			return true;
-		}
-
-		if (CONFIG.moonDistanceBoundary < 0)
-		{
-			MessageBox(hWnd, L"Moon distance boundary cannot be less than zero!", L"Error", MB_ICONERROR);
-			return true;
+			if (CONFIG.dwarfPlanetChance >= 100 || CONFIG.dwarfPlanetChance < 0)
+				return MessageBox(hWnd, L"The chance for dwarf planets to spawn should be a number from 0 to 99!", L"Error", MB_ICONERROR);
 		}
 
 		if (CONFIG.minPlanetNumber < 0 || CONFIG.minPlanetNumber > 100)
-		{
-			MessageBox(hWnd, L"Min % of system filled is a percentage, so it must be between 0 and 100!", L"Error", MB_ICONERROR);
-			return true;
-		}
+			return MessageBox(hWnd, L"Min % of system filled is a percentage, so it must be between 0 and 100!", L"Error", MB_ICONERROR);
 
+		if (CONFIG.generateAsteroidBelt)
+		{
+			if (CONFIG.maxAsteroidBelts < 1)
+				return MessageBox(hWnd, L"Max asteroid belts must be at least one!\nIf you want to turn asteroid belts off, disable them with the checkbox.", L"Error", MB_ICONERROR);
+			if (CONFIG.minAsteroidCount > CONFIG.maxAsteroidCount)
+				return MessageBox(hWnd, L"Minimum number of asteroids per belt cannot be greater than maximum number of asteroids per belt!", L"Error", MB_ICONERROR);
+		}
+		if (CONFIG.generateComets)
+		{
+			if (CONFIG.minCometCount > CONFIG.maxCometCount)
+				return MessageBox(hWnd, L"Minimum number of comets cannot be greater than maximum number of comets!", L"Error", MB_ICONERROR);
+		}
+			
 		if (CONFIG.starClassA < 0 || CONFIG.starClassB < 0 || CONFIG.starClassF < 0 || CONFIG.starClassG < 0 || CONFIG.starClassK < 0 || CONFIG.starClassM < 0 || CONFIG.starClassO < 0 ||
 			CONFIG.starClassQ < 0 || CONFIG.starClassWD < 0 || CONFIG.starClassX < 0)
-		{
-			MessageBox(hWnd, L"A star class cannot have a weight less than zero!", L"Error", MB_ICONERROR);
-			return true;
-		}
+			return MessageBox(hWnd, L"A star class cannot have a weight less than zero!", L"Error", MB_ICONERROR);
 
 		if (CONFIG.starClassA == 0 && CONFIG.starClassB == 0 && CONFIG.starClassF == 0 && CONFIG.starClassG == 0 && CONFIG.starClassK == 0 && CONFIG.starClassM == 0 && CONFIG.starClassO == 0 &&
 			CONFIG.starClassQ == 0 && CONFIG.starClassWD == 0 && CONFIG.starClassX == 0)
-		{
-			MessageBox(hWnd, L"All star classes have a weight of zero! That means no stars are avaialbe to be generated! Fix this by giving any star class a weight higher than zero.", L"Error", MB_ICONERROR);
-			return true;
-		}
+			return MessageBox(hWnd, L"All star classes have a weight of zero! That means no stars are avaialbe to be generated!\nFix this by giving any star class a weight higher than zero.", L"Error", MB_ICONERROR);
+
+	#pragma endregion
+
+	#pragma region Planet Variables
+
+		if (CONFIG.moonDistanceBoundary < 0)
+			return MessageBox(hWnd, L"Moon distance boundary cannot be less than zero!", L"Error", MB_ICONERROR);
+
 	#pragma endregion
 
 		return false; // No problems found in config
@@ -4074,10 +4053,10 @@ Screen lastScreen;
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"Percent chance for dwarf planets to generate and continue generating after the first. For every dwarf planet generated, one percent is subtracted from the total.");
 			break;
 		case IB_GENERATEASTEROIDS:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"asteroids enabled?");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Allows asteroid belts to spawn around the system. Asteroid belt can spawn between planets, very close to the star, or very far away from the star.");
 			break;
 		case IB_MAXASTEROIDBELTS:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"asteroids belt max");
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"This is the number of belts a system will spawn with. If asteroid belts are enabled, this value must be at least one");
 			break;
 		case IB_ASTEROIDCOUNT:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"asteroids min/max count");
