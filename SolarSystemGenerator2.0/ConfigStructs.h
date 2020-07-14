@@ -72,7 +72,7 @@ struct ConfigurationVariables
 
 	bool smartPlacement, generateDwarfPlanets, generateAsteroidBelt, generateComets;
 	int	dwarfPlanetChance, maxAsteroidBelts, minAsteroidCount, maxAsteroidCount, minCometCount, maxCometCount;
-	double minDistance, maxDistance, minPlanetNumber,
+	double minDistance, maxDistance, minPlanetNumber, systemRadiusModifier,
 		planetSpaceAvg, planetSpaceSD,
 		avgEccentricity, SDEccentricity, 
 		avgInclination, SDInclination, 
@@ -152,7 +152,7 @@ struct ConfigurationHWNDs
 	
 	var smartPlacement, generateDwarfPlanets, generateAsteroidBelt, generateComets;
 	var dwarfPlanetChance, maxAsteroidBelts, minAsteroidCount, maxAsteroidCount, minCometCount, maxCometCount;
-	var minDistance, maxDistance, minPlanetNumber,
+	var minDistance, maxDistance, minPlanetNumber, systemRadiusModifier,
 		planetSpaceAvg, planetSpaceSD,
 		avgEccentricity, SDEccentricity, 
 		avgInclination, SDInclination, 
@@ -223,7 +223,7 @@ struct Preset
 	bool smartPlacement, generateDwarfPlanets, generateAsteroidBelt, generateComets;
 	wchar_t const* smartPlacementState, * generateDwarfPlanetsState, * generateAsteroidBeltState, * generateCometsState;
 	int	dwarfPlanetChance, maxAsteroidBelts, minAsteroidCount, maxAsteroidCount, minCometCount, maxCometCount;
-	double minDistance, maxDistance, minPlanetNumber,
+	double minDistance, maxDistance, minPlanetNumber, systemRadiusModifier,
 		planetSpaceAvg, planetSpaceSD,
 		avgEccentricity, SDEccentricity, 
 		avgInclination, SDInclination, 

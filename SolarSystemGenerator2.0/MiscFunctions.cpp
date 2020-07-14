@@ -22,7 +22,22 @@ static std::string wstr_to_str(std::vector<std::wstring> vwstr)
 	}
 	return str;
 }
-
+static double km_to_AU(double km)
+{
+	return (km / 149597870.7);
+}
+static double AU_to_km(double AU)
+{
+	return (AU * 149597870.7);
+}
+static double radsol_to_km(double radius)
+{
+	return (radius * 696340);
+}
+static double km_to_radsol(double km)
+{
+	return (km / 696340);
+}
 
 static void FindNextEntry(char* Buffer, int& parse)
 {

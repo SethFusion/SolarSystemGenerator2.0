@@ -120,8 +120,6 @@ Screen lastScreen;
 
 #####################################################*/
 
-		
-
 /*---------------------------------------------------------------------------------------#
 |	THE WINDOW:																			 |
 #---------------------------------------------------------------------------------------*/
@@ -466,7 +464,8 @@ Screen lastScreen;
 			LoadVariableFromFile(Buffer, parse, P.seed);	
 			LoadVariableFromFile(Buffer, parse, P.numberOfRuns);	
 			LoadVariableFromFile(Buffer, parse, P.smartPlacement);
-			P.smartPlacementState = (P.smartPlacement == true) ? L"Enabled" : L"Disabled";	
+			P.smartPlacementState = (P.smartPlacement == true) ? L"Enabled" : L"Disabled";
+			LoadVariableFromFile(Buffer, parse, P.systemRadiusModifier);
 			LoadVariableFromFile(Buffer, parse, P.minPlanetNumber);		
 			LoadVariableFromFile(Buffer, parse, P.minDistance);		
 			LoadVariableFromFile(Buffer, parse, P.maxDistance);		
@@ -940,234 +939,248 @@ Screen lastScreen;
 			352, 112, 16, 16,
 			hWnd, (HMENU)IB_DISTANCE, NULL, NULL);
 
-		//min planet number
-		CONFIG_H.minPlanetNumber.DESC = CreateWindowW(L"static", L"Min % of System Filled:",
+		//system radius modifier
+		CONFIG_H.systemRadiusModifier.DESC = CreateWindowW(L"static", L"System Radius Modifier:",
 			WS_CHILD | WS_BORDER,
 			370, 200, 230, 20,
 			hWnd, NULL, NULL, NULL);
+		CONFIG_H.systemRadiusModifier.HANDLE = CreateWindowW(L"edit", L"",
+			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
+			600, 200, 100, 20,
+			hWnd, NULL, NULL, NULL);
+		CONFIG_H.systemRadiusModifier.INFOBUTTON = CreateWindowW(L"button", L"I",
+			WS_CHILD | WS_BORDER,
+			352, 202, 16, 16,
+			hWnd, (HMENU)IB_SYSTEMRADIUSMODIFIER, NULL, NULL);
+
+		//min planet number
+		CONFIG_H.minPlanetNumber.DESC = CreateWindowW(L"static", L"Min % of System Filled:",
+			WS_CHILD | WS_BORDER,
+			370, 220, 230, 20,
+			hWnd, NULL, NULL, NULL);
 		CONFIG_H.minPlanetNumber.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
-			600, 200, 100, 20,
+			600, 220, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.minPlanetNumber.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
-			352, 202, 16, 16,
+			352, 222, 16, 16,
 			hWnd, (HMENU)IB_MINPLANETNUMBER, NULL, NULL);
 
 		//planet spacing stuff
 		CONFIG_H.planetSpaceAvg.DESC = CreateWindowW(L"static", L"Planet Spacing Average:",
 			WS_CHILD | WS_BORDER,
-			370, 220, 230, 20,
+			370, 240, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.planetSpaceAvg.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-			600, 220, 100, 20,
+			600, 240, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.planetSpaceSD.DESC = CreateWindowW(L"static", L"Planet Spacing Standard Dev:",
 			WS_CHILD | WS_BORDER,
-			370, 240, 230, 20,
+			370, 260, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.planetSpaceSD.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-			600, 240, 100, 20,
+			600, 260, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.planetSpaceAvg.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
-			352, 232, 16, 16,
+			352, 252, 16, 16,
 			hWnd, (HMENU)IB_PLANETSPACING, NULL, NULL);
 
 		//smart placement
 		CONFIG_H.smartPlacement.DESC = CreateWindowW(L"static", L"Smart Placement:",
 			WS_CHILD | WS_BORDER,
-			370, 260, 230, 20,
+			370, 280, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.smartPlacement.HANDLE = CreateWindowW(L"button", L"",
 			WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
-			600, 260, 100, 20,
+			600, 280, 100, 20,
 			hWnd, (HMENU)CB_SMARTPLACEMENT, NULL, NULL);
 		CONFIG_H.smartPlacement.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
-			352, 262, 16, 16,
+			352, 282, 16, 16,
 			hWnd, (HMENU)IB_SMARTPLACEMENT, NULL, NULL);
 
 		//generate dwarf planets
 		CONFIG_H.generateDwarfPlanets.DESC = CreateWindowW(L"static", L"Generate Dwarf Planets:",
 			WS_CHILD | WS_BORDER,
-			370, 280, 230, 20,
+			370, 300, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.generateDwarfPlanets.HANDLE = CreateWindowW(L"button", L"",
 			WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
-			600, 280, 100, 20,
+			600, 300, 100, 20,
 			hWnd, (HMENU)CB_GENERATEDWARFPLANET, NULL, NULL);
 		CONFIG_H.generateDwarfPlanets.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
-			352, 282, 16, 16,
+			352, 302, 16, 16,
 			hWnd, (HMENU)IB_GENERATEDWARFPLANET, NULL, NULL);
 
 		//dwarf planet chance
 		CONFIG_H.dwarfPlanetChance.DESC = CreateWindowW(L"static", L"Dwarf Planet % Chance:",
 			WS_CHILD | WS_BORDER,
-			370, 300, 230, 20,
+			370, 320, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.dwarfPlanetChance.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
-			600, 300, 100, 20,
+			600, 320, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.dwarfPlanetChance.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
-			352, 302, 16, 16,
+			352, 322, 16, 16,
 			hWnd, (HMENU)IB_DWARFPALNETCHANCE, NULL, NULL);
 
 		//obliquity stuff
 		CONFIG_H.avgObliquity.DESC = CreateWindowW(L"static", L"Axial Tilt Average:",
 			WS_CHILD | WS_BORDER,
-			370, 340, 230, 20,
+			370, 360, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.avgObliquity.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-			600, 340, 100, 20,
+			600, 360, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.SDObliquity.DESC = CreateWindowW(L"static", L"Axial Tilt Standard Deviation:",
 			WS_CHILD | WS_BORDER,
-			370, 360, 230, 20,
+			370, 380, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.SDObliquity.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-			600, 360, 100, 20,
+			600, 380, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.SDObliquity.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
-			352, 352, 16, 16,
+			352, 372, 16, 16,
 			hWnd, (HMENU)IB_OBLIQUITY, NULL, NULL);
 
 		//inclination stuff
 		CONFIG_H.avgInclination.DESC = CreateWindowW(L"static", L"Inclination Average:",
 			WS_CHILD | WS_BORDER,
-			370, 380, 230, 20,
+			370, 400, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.avgInclination.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-			600, 380, 100, 20,
+			600, 400, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.SDInclination.DESC = CreateWindowW(L"static", L"Inclination Standard Deviation:",
 			WS_CHILD | WS_BORDER,
-			370, 400, 230, 20,
+			370, 420, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.SDInclination.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-			600, 400, 100, 20,
+			600, 420, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.SDInclination.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
-			352, 392, 16, 16,
+			352, 412, 16, 16,
 			hWnd, (HMENU)IB_INCLINATION, NULL, NULL);
 
 		//eccentricity stuff
 		CONFIG_H.avgEccentricity.DESC = CreateWindowW(L"static", L"Eccentricity Average:",
 			WS_CHILD | WS_BORDER,
-			370, 420, 230, 20,
+			370, 440, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.avgEccentricity.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-			600, 420, 100, 20,
+			600, 440, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.SDEccentricity.DESC = CreateWindowW(L"static", L"Eccentricity Standard Deviation:",
 			WS_CHILD | WS_BORDER,
-			370, 440, 230, 20,
+			370, 460, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.SDEccentricity.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT,
-			600, 440, 100, 20,
+			600, 460, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.SDEccentricity.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
-			352, 434, 16, 16,
+			352, 454, 16, 16,
 			hWnd, (HMENU)IB_ECCENTRICITY, NULL, NULL);
 
 		//generate asteroids
 		CONFIG_H.generateAsteroidBelt.DESC = CreateWindowW(L"static", L"Generate Asteroid Belt:",
 			WS_CHILD | WS_BORDER,
-			370, 480, 230, 20,
+			370, 500, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.generateAsteroidBelt.HANDLE = CreateWindowW(L"button", L"",
 			WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
-			600, 480, 100, 20,
+			600, 500, 100, 20,
 			hWnd, (HMENU)CB_GENERATEASTEROIDS, NULL, NULL);
 		CONFIG_H.generateAsteroidBelt.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
-			352, 482, 16, 16,
+			352, 502, 16, 16,
 			hWnd, (HMENU)IB_GENERATEASTEROIDS, NULL, NULL);
 
 		//max asteroid belts
 		CONFIG_H.maxAsteroidBelts.DESC = CreateWindowW(L"static", L"Maximum Asteroid Belts:",
 			WS_CHILD | WS_BORDER,
-			370, 500, 230, 20,
+			370, 520, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.maxAsteroidBelts.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
-			600, 500, 100, 20,
+			600, 520, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.maxAsteroidBelts.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
-			352, 502, 16, 16,
+			352, 522, 16, 16,
 			hWnd, (HMENU)IB_MAXASTEROIDBELTS, NULL, NULL);
 
 		//min/max asteroid count
 		CONFIG_H.minAsteroidCount.DESC = CreateWindowW(L"static", L"Minimum Asteroids Per Belt:",
 			WS_CHILD | WS_BORDER,
-			370, 520, 230, 20,
+			370, 540, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.minAsteroidCount.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
-			600, 520, 100, 20,
+			600, 540, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.maxAsteroidCount.DESC = CreateWindowW(L"static", L"Maximum Asteroids Per Belt:",
 			WS_CHILD | WS_BORDER,
-			370, 540, 230, 20,
+			370, 560, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.maxAsteroidCount.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
-			600, 540, 100, 20,
+			600, 560, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.minAsteroidCount.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
-			352, 532, 16, 16,
+			352, 552, 16, 16,
 			hWnd, (HMENU)IB_ASTEROIDCOUNT, NULL, NULL);
 
 		//generate comets
 		CONFIG_H.generateComets.DESC = CreateWindowW(L"static", L"Generate Comets:",
 			WS_CHILD | WS_BORDER,
-			370, 560, 230, 20,
+			370, 580, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.generateComets.HANDLE = CreateWindowW(L"button", L"",
 			WS_CHILD | WS_BORDER | BS_AUTOCHECKBOX | BS_RIGHTBUTTON,
-			600, 560, 100, 20,
+			600, 580, 100, 20,
 			hWnd, (HMENU)CB_GENERATECOMETS, NULL, NULL);
 		CONFIG_H.generateComets.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
-			352, 562, 16, 16,
+			352, 582, 16, 16,
 			hWnd, (HMENU)IB_GENERATECOMETS, NULL, NULL);
 
 		//min/max asteroid count
 		CONFIG_H.minCometCount.DESC = CreateWindowW(L"static", L"Minimum Comets:",
 			WS_CHILD | WS_BORDER,
-			370, 580, 230, 20,
+			370, 600, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.minCometCount.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
-			600, 580, 100, 20,
+			600, 600, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.maxCometCount.DESC = CreateWindowW(L"static", L"Maximum Comets:",
 			WS_CHILD | WS_BORDER,
-			370, 600, 230, 20,
+			370, 620, 230, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.maxCometCount.HANDLE = CreateWindowW(L"edit", L"",
 			WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | ES_RIGHT | ES_NUMBER,
-			600, 600, 100, 20,
+			600, 620, 100, 20,
 			hWnd, NULL, NULL, NULL);
 		CONFIG_H.minCometCount.INFOBUTTON = CreateWindowW(L"button", L"I",
 			WS_CHILD | WS_BORDER,
-			352, 592, 16, 16,
+			352, 612, 16, 16,
 			hWnd, (HMENU)IB_COMETCOUNT, NULL, NULL);
 
 		// Trackbar stuff
@@ -2378,6 +2391,7 @@ Screen lastScreen;
 
 		CheckDlgButton(hWnd, CB_SMARTPLACEMENT, P.smartPlacement);
 		SetWindowTextW(CONFIG_H.smartPlacement.HANDLE, P.smartPlacementState);
+		SetVariableToWindow(CONFIG_H.systemRadiusModifier.HANDLE, P.systemRadiusModifier);
 		SetVariableToWindow(CONFIG_H.minPlanetNumber.HANDLE, P.minPlanetNumber);
 
 		SetVariableToWindow(CONFIG_H.minDistance.HANDLE, P.minDistance);
@@ -2555,6 +2569,7 @@ Screen lastScreen;
 			<< "seed=" << CONFIG.seed << "\n"
 			<< "numberOfRuns=" << CONFIG.numberOfRuns << "\n"
 			<< "smartPlacement=" << CONFIG.smartPlacement << "\n"
+			<< "systemRadiusModifier=" << CONFIG.systemRadiusModifier << "\n"
 			<< "minPlanetNumber=" << CONFIG.minPlanetNumber << "\n"
 			<< "minDistance=" << CONFIG.minDistance << "\n"
 			<< "maxDistance=" << CONFIG.maxDistance << "\n"
@@ -2766,6 +2781,7 @@ Screen lastScreen;
 			ShowWindow(CONFIG_H.smartPlacement.HANDLE, 0);
 			ShowWindow(CONFIG_H.generateDwarfPlanets.HANDLE, 0);
 			ShowWindow(CONFIG_H.dwarfPlanetChance.HANDLE, 0);
+			ShowWindow(CONFIG_H.systemRadiusModifier.HANDLE, 0);
 			ShowWindow(CONFIG_H.minPlanetNumber.HANDLE, 0);
 			ShowWindow(CONFIG_H.minDistance.HANDLE, 0);
 			ShowWindow(CONFIG_H.maxDistance.HANDLE, 0);
@@ -2788,6 +2804,7 @@ Screen lastScreen;
 			ShowWindow(CONFIG_H.smartPlacement.DESC, 0);
 			ShowWindow(CONFIG_H.generateDwarfPlanets.DESC, 0);
 			ShowWindow(CONFIG_H.dwarfPlanetChance.DESC, 0);
+			ShowWindow(CONFIG_H.systemRadiusModifier.DESC, 0);
 			ShowWindow(CONFIG_H.minPlanetNumber.DESC, 0);
 			ShowWindow(CONFIG_H.minDistance.DESC, 0);
 			ShowWindow(CONFIG_H.maxDistance.DESC, 0);
@@ -2810,6 +2827,7 @@ Screen lastScreen;
 			ShowWindow(CONFIG_H.smartPlacement.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.generateDwarfPlanets.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.dwarfPlanetChance.INFOBUTTON, 0);
+			ShowWindow(CONFIG_H.systemRadiusModifier.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.minPlanetNumber.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.minDistance.INFOBUTTON, 0);
 			ShowWindow(CONFIG_H.maxDistance.INFOBUTTON, 0);
@@ -2981,6 +2999,7 @@ Screen lastScreen;
 		ShowWindow(CONFIG_H.smartPlacement.HANDLE, 1);
 		ShowWindow(CONFIG_H.generateDwarfPlanets.HANDLE, 1);
 		ShowWindow(CONFIG_H.dwarfPlanetChance.HANDLE, 1);
+		ShowWindow(CONFIG_H.systemRadiusModifier.HANDLE, 1);
 		ShowWindow(CONFIG_H.minPlanetNumber.HANDLE, 1);
 		ShowWindow(CONFIG_H.minDistance.HANDLE, 1);
 		ShowWindow(CONFIG_H.maxDistance.HANDLE, 1);
@@ -3006,6 +3025,7 @@ Screen lastScreen;
 		ShowWindow(CONFIG_H.smartPlacement.DESC, 1);
 		ShowWindow(CONFIG_H.generateDwarfPlanets.DESC, 1);
 		ShowWindow(CONFIG_H.dwarfPlanetChance.DESC, 1);
+		ShowWindow(CONFIG_H.systemRadiusModifier.DESC, 1);
 		ShowWindow(CONFIG_H.minPlanetNumber.DESC, 1);
 		ShowWindow(CONFIG_H.minDistance.DESC, 1);
 		ShowWindow(CONFIG_H.maxDistance.DESC, 1);
@@ -3029,6 +3049,7 @@ Screen lastScreen;
 		ShowWindow(CONFIG_H.smartPlacement.INFOBUTTON, 1);
 		ShowWindow(CONFIG_H.generateDwarfPlanets.INFOBUTTON, 1);
 		ShowWindow(CONFIG_H.dwarfPlanetChance.INFOBUTTON, 1);
+		ShowWindow(CONFIG_H.systemRadiusModifier.INFOBUTTON, 1);
 		ShowWindow(CONFIG_H.minPlanetNumber.INFOBUTTON, 1);
 		ShowWindow(CONFIG_H.minDistance.INFOBUTTON, 1);
 		ShowWindow(CONFIG_H.maxDistance.INFOBUTTON, 1);
@@ -3444,6 +3465,7 @@ Screen lastScreen;
 		GetVariableFromWindow(CONFIG_H.numberOfRuns.HANDLE, CONFIG.numberOfRuns);
 		CONFIG.smartPlacement = (IsDlgButtonChecked(hWnd, CB_SMARTPLACEMENT) == BST_CHECKED) ? true : false;
 
+		GetVariableFromWindow(CONFIG_H.systemRadiusModifier.HANDLE, CONFIG.systemRadiusModifier);
 		GetVariableFromWindow(CONFIG_H.minPlanetNumber.HANDLE, CONFIG.minPlanetNumber);
 		GetVariableFromWindow(CONFIG_H.minDistance.HANDLE, CONFIG.minDistance);
 		GetVariableFromWindow(CONFIG_H.maxDistance.HANDLE, CONFIG.maxDistance);
@@ -3593,15 +3615,17 @@ Screen lastScreen;
 		if (CONFIG.maxDistance < CONFIG.minDistance)
 			return MessageBox(hWnd, L"Minimum Distance must be smaller than Maximum Distance!", L"Error", MB_ICONERROR);
 
+		if (CONFIG.systemRadiusModifier <= 0)
+			return MessageBox(hWnd, L"System radius modifier must be larger than zero!", L"Error", MB_ICONERROR);
 		if (CONFIG.planetSpaceAvg < 1)
-			return MessageBox(hWnd, L"Planet Spacing Average must be a number greater than 1!", L"Error", MB_ICONERROR);
+			return MessageBox(hWnd, L"Planet Spacing Average must be a number greater than one!", L"Error", MB_ICONERROR);
 
 		if (CONFIG.SDObliquity <= 0)
 			return MessageBox(hWnd, L"Standard Deviation cannot be less than or equal to zero!", L"Error", MB_ICONERROR);
 		if (CONFIG.SDInclination <= 0)
 			return MessageBox(hWnd, L"Standard Deviation cannot be less than or equal to zero!", L"Error", MB_ICONERROR);
 		if (CONFIG.avgEccentricity <= 0 || CONFIG.avgEccentricity >= 1)
-			return MessageBox(hWnd, L"Eccentricity must be a value between (but not equal to) 0 and 1!", L"Error", MB_ICONERROR);
+			return MessageBox(hWnd, L"Eccentricity must be a value between (but not equal to) zero and one!", L"Error", MB_ICONERROR);
 		if (CONFIG.SDEccentricity <= 0)
 			return MessageBox(hWnd, L"Standard Deviation cannot be less than or equal to zero!", L"Error", MB_ICONERROR);
 		if (CONFIG.SDEccentricity >= 1)
@@ -4024,6 +4048,9 @@ Screen lastScreen;
 //###############
 		case IB_SMARTPLACEMENT:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"When smart placement is enabled, the generator will try to place planets in relatively realistic locations. So typically you will find gas giants beyond the frost limit and rocky planets closer to the star. If disabled, any planet type can spawn in any location.");
+			break;
+		case IB_SYSTEMRADIUSMODIFIER:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"This number modifies how far away a star's outer limit is. Past the outer limit, planets do not normally orbit the parent star.\n\n1.0 = a normal/realistic outer limit.\nA higher number = a further outer limit, meaning more planets can spawn.");
 			break;
 		case IB_DISTANCE:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"This is the distance from Earth measured in parsecs. Note that large distances could make systems spawn very far away from the galaxy.");
@@ -5493,7 +5520,7 @@ Screen lastScreen;
 					std::uniform_int_distribution<> gennum{ CONFIG.minAsteroidCount, CONFIG.maxAsteroidCount };
 					int asteroidCount = gennum(mt_star);
 
-					if (currentStar.semimajorList.size() > 0 && genpercent(mt_star) < 100)
+					if (currentStar.semimajorList.size() > 0 && genpercent(mt_star) < 33)
 					{
 						int pos, listSize = currentStar.semimajorList.size() - 1;
 						std::uniform_int_distribution<> genpos{ 0, listSize };
@@ -5531,15 +5558,19 @@ Screen lastScreen;
 						// 50% for asteroid belt before inner limit, 50% for after outer limit
 						if (!usedInner && genpercent(mt_star) < 50)
 						{
+							usedInner = true;
+
+							if (AU_to_km(currentStar.innerLimit / 5) < radsol_to_km(currentStar.radius))
+								goto NoBelt;
+
 							avgSemimajor = (currentStar.innerLimit / 2.5);
 							minSemimajor = (currentStar.innerLimit / 5);
 							maxSemimajor = currentStar.innerLimit;
 							sdSemimajor = ((maxSemimajor - minSemimajor) / 9);
-							usedInner = true;
 						}
 						else if(!usedOuter)
 						{
-							avgSemimajor = (currentStar.outerLimit * 2.5);
+							avgSemimajor = (currentStar.outerLimit * 2);
 							minSemimajor = currentStar.outerLimit;
 							maxSemimajor = (currentStar.outerLimit * 5);
 							sdSemimajor = ((maxSemimajor - minSemimajor) / 9);
@@ -5693,7 +5724,7 @@ Screen lastScreen;
 		file << "\n\tOrbit\n\t{\n\t\t"
 			<< "RefPlane\t\t\t\"Equator\"";
 		if (planet.type == L"Moon" || planet.type == L"DwarfMoon")
-			file << "\n\t\tSemiMajorAxis\t\t" << (planet.semimajorAxis / 149598000);
+			file << "\n\t\tSemiMajorAxis\t\t" << AU_to_km(planet.semimajorAxis);
 		else
 			file << "\n\t\tSemiMajorAxis\t\t" << planet.semimajorAxis;
 		file << "\n\t\tEccentricity\t\t" << planet.eccentricity
@@ -5906,7 +5937,7 @@ Screen lastScreen;
 		tempSol = (star.temperatureK / 5778.0);
 		star.luminosity = (pow(star.radius, 2) * pow(tempSol, 4));
 		star.innerLimit = 0.1 * star.mass;
-		star.outerLimit = 40 * star.mass;
+		star.outerLimit = 40 * star.mass * CONFIG.systemRadiusModifier;
 		star.frostLine = (4.85 * sqrt(star.luminosity));
 		star.habitZoneInnerLimit = sqrt(star.luminosity / 1.1);
 		star.habitZoneOuterLimit = sqrt(star.luminosity / 0.53);

@@ -4,6 +4,7 @@ planetOutputFolder=output\
 seed=0
 numberOfRuns=1
 smartPlacement=1
+systemRadiusModifier=1.0
 minPlanetNumber=33.3
 minDistance=5
 maxDistance=1000
