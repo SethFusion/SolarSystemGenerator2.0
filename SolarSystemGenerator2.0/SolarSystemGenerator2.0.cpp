@@ -30,6 +30,11 @@ enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
 enum Screen {General = 1, System = 2, Planet = 3, Surface = 4, Special = 5, Advanced = 6};
 Screen lastScreen;
 
+
+SEPlanet SystemDebug;
+int SystemDebugCounter = 0;
+std::ofstream* DebugFileP;
+
 /*---------------------------------------------------------------------------------------#
 |	Function Declaration:																 |
 #---------------------------------------------------------------------------------------*/
@@ -115,6 +120,9 @@ Screen lastScreen;
 		void ExoticGenerateLife(SEPlanet&);
 		void ExoticDebrisRing(SEPlanet&, SEPlanet&, double, double, double, double);
 		void GenerateShip(SEShip&, double, double, double, double, double, double);
+
+		void DebugMessage(std::wstring, int, SEObject& = SystemDebug, double = (++SystemDebugCounter * 10000.0));
+		void PrintDebug(SEPlanet&, std::string);
 		/*
 	Generator Functions
 
@@ -4788,7 +4796,7 @@ Screen lastScreen;
 			//######################################################################################################
 				// NUMBER MODIFIER
 
-			if (has_number_mod == true)
+			if (has_number_mod)
 			{
 				if (genpercent(mt_name) < 50)
 					finalName += L" " + GenNumberModifier();
@@ -4804,6 +4812,7 @@ Screen lastScreen;
 				if (finalName == NV.usedNames.at(count))
 				{
 					testName = true;
+					//SendDebugMessage((L"Name Warning: " + NV.usedNames.at(count) + L" used twice!"), debug_WARNING);
 					count = NV.usedNames.size();
 				}
 			}
@@ -4968,9 +4977,27 @@ Screen lastScreen;
 				return;
 			}
 
+		#pragma region Debug Setup
+
+			SystemDebugCounter = 0;
+			DebugFileP = &planetFile;
+			SystemDebug.type = L"Planet";
+			SystemDebug.class_ = L"Terra";
+			SystemDebug.name = L"System Debug Holder";
+			SystemDebug.parentBody = &currentStar;
+			SystemDebug.semimajorAxis = AU_to_km(currentStar.outerLimit * 6);
+			SystemDebug.mass = 1;
+			SystemDebug.radius = 5000;
+			SystemDebug.eccentricity = SystemDebug.inclination = SystemDebug.ascendingNode = SystemDebug.argofPericenter = SystemDebug.meanAnomaly = SystemDebug.obliquity = 0;
+			if (CONFIG.debug)
+				PrintDebug(SystemDebug, color_NORMAL);
+		#pragma endregion
+
 			std::uniform_int_distribution<int> genplanetnum{ (int)ceil(((CONFIG.minPlanetNumber / 100) * currentStar.maxPlanetNumber)), currentStar.maxPlanetNumber };
 			int planetNumber = genplanetnum(mt_planet);
 			std::vector<SEPlanet> planetList;
+
+			SendDebugMessage( (std::to_wstring(planetNumber) + L" semimajors used out of " + std::to_wstring(currentStar.maxPlanetNumber) + L" possible"), debug_INFO);
 
 			/*###############################################################################
 					PLANET GENERATOR
@@ -4982,75 +5009,36 @@ Screen lastScreen;
 				GeneratePlanet(currentStar, currentPlanet);
 				planetList.push_back(currentPlanet);
 
-				// Debug moon orbits
-				/*
-				if (CONFIG.debug == 1)
+				// Debug moon orbits			
+				if (CONFIG.debug)
 				{
-					SEPlanet Debug;
+					// These are logged as errors, but that is only because they are annoying to look at in game
 
-					Debug.type = L"Star";
-					Debug.parentBody = currentPlanet.name;
-					Debug.class_ = L"Z";
-					Debug.mass = 0.000000001;
-					Debug.radius = 0.000000001;
-					Debug.obliquity = 0;
-					Debug.eccentricity = 0;
-					Debug.inclination = 0;
-					Debug.ascendingNode = 0;
-					Debug.argofPericenter = 0;
-					Debug.meanAnomaly = 0;
-
-					Debug.name = L"Hill Sphere Outer Limit";
-					Debug.semimajorAxis = (currentPlanet.hillSphereOuterLimit / 149598000);
-					PrintPlanet(Debug, planetFile);
-
-					Debug.name = L"Hill Sphere Inner Limit";
+					DebugMessage(L"Hill Sphere Outer Limit", debug_PLANET_LIMITS, currentPlanet, currentPlanet.hillSphereOuterLimit);
+					
 					if (currentPlanet.class_ == L"Jupiter")
-						Debug.semimajorAxis = ((2.44 * pow((currentPlanet.density / 0.1), (1.0 / 3.0))) * currentPlanet.radius) / 149598000;
+						DebugMessage(L"Hill Sphere Inner Limit", debug_PLANET_LIMITS, currentPlanet, ((2.44 * pow((currentPlanet.density / 0.1), (1.0 / 3.0))) * currentPlanet.radius));
 					else
-						Debug.semimajorAxis = ((2.44 * pow((currentPlanet.density / 0.05), (1.0 / 3.0))) * currentPlanet.radius) / 149598000;
-					PrintPlanet(Debug, planetFile);
+						DebugMessage(L"Hill Sphere Inner Limit", debug_PLANET_LIMITS, currentPlanet, ((2.44 * pow((currentPlanet.density / 0.05), (1.0 / 3.0))) * currentPlanet.radius));
 
 					if (currentPlanet.class_ == L"Jupiter")
 					{
-						Debug.name = L"Hill Sphere Fifteenth Limit";
-						Debug.semimajorAxis = (((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.1), (1.0 / 3.0))) * currentPlanet.radius) / 15) / 149598000);
-						PrintPlanet(Debug, planetFile);
-
-						Debug.name = L"Hill Sphere Tenth Limit";
-						Debug.semimajorAxis = (((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.1), (1.0 / 3.0))) * currentPlanet.radius) / 10) / 149598000);
-						PrintPlanet(Debug, planetFile);
-
-						Debug.name = L"Hill Sphere Fifth Limit";
-						Debug.semimajorAxis = (((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.1), (1.0 / 3.0))) * currentPlanet.radius) / 5) / 149598000);
-						PrintPlanet(Debug, planetFile);
+						DebugMessage(L"Hill Sphere Fifteenth Limit", debug_PLANET_LIMITS, currentPlanet, ((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.1), (1.0 / 3.0))) * currentPlanet.radius) / 15));
+						DebugMessage(L"Hill Sphere Tenth Limit", debug_PLANET_LIMITS, currentPlanet, ((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.1), (1.0 / 3.0))) * currentPlanet.radius) / 10));
+						DebugMessage(L"Hill Sphere Fifth Limit", debug_PLANET_LIMITS, currentPlanet, ((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.1), (1.0 / 3.0))) * currentPlanet.radius) / 5));
 					}
 					else if (currentPlanet.class_ == L"Neptune")
 					{
-						Debug.name = L"Hill Sphere Fifteenth Limit";
-						Debug.semimajorAxis = (((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.05), (1.0 / 3.0))) * currentPlanet.radius) / 15) / 149598000);
-						PrintPlanet(Debug, planetFile);
-
-						Debug.name = L"Hill Sphere Tenth Limit";
-						Debug.semimajorAxis = (((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.05), (1.0 / 3.0))) * currentPlanet.radius) / 10) / 149598000);
-						PrintPlanet(Debug, planetFile);
-
-						Debug.name = L"Hill Sphere Fifth Limit";
-						Debug.semimajorAxis = (((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.1), (1.0 / 3.0))) * currentPlanet.radius) / 5) / 149598000);
-						PrintPlanet(Debug, planetFile);
+						DebugMessage(L"Hill Sphere Fiftheenth Limit", debug_PLANET_LIMITS, currentPlanet, ((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.05), (1.0 / 3.0))) * currentPlanet.radius) / 15));
+						DebugMessage(L"Hill Sphere Tenth Limit", debug_PLANET_LIMITS, currentPlanet, ((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.05), (1.0 / 3.0))) * currentPlanet.radius) / 10));
+						DebugMessage(L"Hill Sphere Fifth Limit", debug_PLANET_LIMITS, currentPlanet, ((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.1), (1.0 / 3.0))) * currentPlanet.radius) / 5));
 					}
 					else
 					{
-						Debug.name = L"Hill Sphere Third Limit";
-						Debug.semimajorAxis = (((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.05), (1.0 / 3.0))) * currentPlanet.radius) / 3) / 149598000);
-						PrintPlanet(Debug, planetFile);
-
-						Debug.name = L"Hill Sphere Half Limit";
-						Debug.semimajorAxis = (((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.05), (1.0 / 3.0))) * currentPlanet.radius) / 2) / 149598000);
-						PrintPlanet(Debug, planetFile);
+						DebugMessage(L"Hill Sphere Third Limit", debug_PLANET_LIMITS, currentPlanet, ((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.05), (1.0 / 3.0))) * currentPlanet.radius) / 3));
+						DebugMessage(L"Hill Sphere Second Limit", debug_PLANET_LIMITS, currentPlanet, ((currentPlanet.hillSphereOuterLimit + (2.44 * pow((currentPlanet.density / 0.05), (1.0 / 3.0))) * currentPlanet.radius) / 2));
 					}
 				}
-				*/
 			}
 			while (genpercent(mt_planet) < CONFIG.dwarfPlanetChance)
 			{
@@ -5093,19 +5081,27 @@ Screen lastScreen;
 					}
 				}
 
-				if (!lifeTest && planetNumber > 0)
+				if (planetNumber > 0)
 				{
-					int position;
-					do
+					if (!lifeTest)
 					{
-						int vectSize = planetList.size() - 1;
-						std::uniform_int_distribution<int> genplanetposition{ 0, vectSize };
-						position = genplanetposition(mt_planet);
-						lifeTest = true;
-					} while (planetList.at(position).type == L"DwarfPlanet");
-					planetList.at(position).life_exotic.haslife = true;
-					ExoticGenerateLife(planetList.at(position));
+						int position;
+						do
+						{
+							int vectSize = planetList.size() - 1;
+							std::uniform_int_distribution<int> genplanetposition{ 0, vectSize };
+							position = genplanetposition(mt_planet);
+							lifeTest = true;
+						} while (planetList.at(position).type == L"DwarfPlanet");
+						planetList.at(position).life_exotic.haslife = true;
+						ExoticGenerateLife(planetList.at(position));
+					}
 				}
+				else
+				{
+					SendDebugMessage(L"Force life is set to true, but there are no valid planets in the system.", debug_ERROR);
+				}
+				
 			}
 
 			/*###############################################################################
@@ -5128,6 +5124,9 @@ Screen lastScreen;
 							majorMoon.push_back(currentMoon);
 							planetList.at(currentPlanet).numberOfMajorMoons++;	
 						}
+						else
+							SendDebugMessage(  (L"Moon failed to generate around " + planetList.at(currentPlanet).name + L"!"), debug_ERROR);
+
 						std::uniform_int_distribution<int> gennumber{ 1, planetList.at(currentPlanet).numberOfMajorMoons };
 						planetList.at(currentPlanet).majorMoonPercent -= gennumber(mt_moon);
 					}
@@ -5214,10 +5213,8 @@ Screen lastScreen;
 				/*###############################################################################
 					PRINTING
 				###############################################################################*/
-				if ((planetList.at(currentPlanet).semimajorAxis/* * CONFIG.planetSpacing*/) > currentStar.innerLimit)
+				if (planetList.at(currentPlanet).semimajorAxis > currentStar.innerLimit)
 				{
-					//planetList.at(currentPlanet).semimajorAxis *= CONFIG.planetSpacing;
-
 					PrintPlanet(planetList.at(currentPlanet), planetFile);
 					for (int currentMoon = 0; currentMoon < planetList.at(currentPlanet).numberOfMajorMoons; currentMoon++)
 						PrintPlanet(majorMoon.at(currentMoon), planetFile);
@@ -5230,8 +5227,10 @@ Screen lastScreen;
 				###############################################################################*/
 
 				// Generates Debris Ring
-				if (planetList.at(currentPlanet).debrisCount > 0 && currentPlanet != 0)
+				if (planetList.at(currentPlanet).debrisCount > 0)
 				{
+					SendDebugMessage(  (L"Generating debris ring around " + planetList.at(currentPlanet).name + L" with " + std::to_wstring(planetList.at(currentPlanet).debrisCount) + L" objects"), debug_INFO);
+
 					// Generates data for debris to spawn around
 					double SMCenterSpread, SMCenterPoint, inclinationCenter = 0.0, inclinationSD = 0.0, DebrisSpread = 0.0;
 
@@ -5243,7 +5242,9 @@ Screen lastScreen;
 							// preset =	1	;
 					//##############################
 
-					if (preset == 1) // Classic, thin ring around the equator, moderate distance from planet
+					switch (preset)
+					{
+					case 1: // Classic, thin ring around the equator, moderate distance from planet
 					{
 						std::uniform_real_distribution<> gensd{ 0.1, 1 };
 						std::uniform_real_distribution<> genspread{ 1.05, 1.2 };
@@ -5253,8 +5254,9 @@ Screen lastScreen;
 						inclinationSD = gensd(mt_planet);
 						DebrisSpread = genspread(mt_planet);
 						SMCenterSpread = gensmspread(mt_planet);
+						break;
 					}
-					else if (preset == 2) // Classic, thin ring around the equator, close to planet
+					case 2: // Classic, thin ring around the equator, close to planet
 					{
 						std::uniform_real_distribution<> gensd{ 0.1, 1 };
 						std::uniform_real_distribution<> genspread{ 1.05, 1.2 };
@@ -5264,8 +5266,9 @@ Screen lastScreen;
 						inclinationSD = gensd(mt_planet);
 						DebrisSpread = genspread(mt_planet);
 						SMCenterSpread = gensmspread(mt_planet);
+						break;
 					}
-					else if (preset == 3) // Classic, thin ring around the equator, far from planet
+					case 3: // Classic, thin ring around the equator, far from planet
 					{
 						std::uniform_real_distribution<> gensd{ 0.1, 1 };
 						std::uniform_real_distribution<> genspread{ 1.05, 1.2 };
@@ -5275,8 +5278,9 @@ Screen lastScreen;
 						inclinationSD = gensd(mt_planet);
 						DebrisSpread = genspread(mt_planet);
 						SMCenterSpread = gensmspread(mt_planet);
+						break;
 					}
-					else if (preset == 4) // Wide ring around the equator
+					case 4: // Wide ring around the equator
 					{
 						std::uniform_real_distribution<> gensd{ 0.1, 1 };
 						std::uniform_real_distribution<> genspread{ 1.3, 2 };
@@ -5286,8 +5290,9 @@ Screen lastScreen;
 						inclinationSD = gensd(mt_planet);
 						DebrisSpread = genspread(mt_planet);
 						SMCenterSpread = gensmspread(mt_planet);
+						break;
 					}
-					else if (preset == 5) // Thin ring around the equator, higher inclination
+					case 5: // Thin ring around the equator, higher inclination
 					{
 						std::uniform_real_distribution<> gensd{ 2, 7 };
 						std::uniform_real_distribution<> genspread{ 1.05, 1.2 };
@@ -5297,8 +5302,9 @@ Screen lastScreen;
 						inclinationSD = gensd(mt_planet);
 						DebrisSpread = genspread(mt_planet);
 						SMCenterSpread = gensmspread(mt_planet);
+						break;
 					}
-					else if (preset == 6) // Wide ring around the equator, higher inclination
+					case 6: // Wide ring around the equator, higher inclination
 					{
 						std::uniform_real_distribution<> gensd{ 2, 7 };
 						std::uniform_real_distribution<> genspread{ 1.3, 2 };
@@ -5308,6 +5314,8 @@ Screen lastScreen;
 						inclinationSD = gensd(mt_planet);
 						DebrisSpread = genspread(mt_planet);
 						SMCenterSpread = gensmspread(mt_planet);
+						break;
+					}
 					}
 
 					SMCenterPoint = planetList.at(currentPlanet).radius * SMCenterSpread;
@@ -5338,13 +5346,25 @@ Screen lastScreen;
 				// this disables ships if their list is empty
 				bool enable_colony = true, enable_instrument = true, enable_satellite = true, enable_station = true;
 				if (CONFIG.shipList_Colony.size() == 0)
+				{
 					enable_colony = false;
+					SendDebugMessage(L"Colony ship list was empty! No colony ships can be generated!", debug_WARNING);
+				}				
 				if (CONFIG.shipList_Instrument.size() == 0)
+				{
 					enable_instrument = false;
+					SendDebugMessage(L"Instrument ship list was empty! No instrument ships can be generated!", debug_WARNING);
+				}			
 				if (CONFIG.shipList_Satellite.size() == 0)
+				{
 					enable_satellite = false;
+					SendDebugMessage(L"Satellite ship list was empty! No satellites can be generated!", debug_WARNING);
+				}			
 				if (CONFIG.shipList_Station.size() == 0)
+				{
 					enable_station = false;
+					SendDebugMessage(L"Station ship list was empty! No stations can be generated!", debug_WARNING);
+				}					
 
 				while (genpercent(mt_ship) < CONFIG.exotic_ShipChance)
 				{
@@ -5377,8 +5397,8 @@ Screen lastScreen;
 								std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
 								ship.model = CONFIG.shipList_Colony.at(genmodel(mt_ship));
 
-								min_dist = (currentStar.habitZoneInnerLimit / 2) * 149598000;
-								max_dist = (currentStar.habitZoneOuterLimit * 2) * 149598000;
+								min_dist = AU_to_km(currentStar.habitZoneInnerLimit / 2);
+								max_dist = AU_to_km(currentStar.habitZoneOuterLimit * 2);
 								break;
 							}
 							case typeShipInstrument:
@@ -5390,15 +5410,15 @@ Screen lastScreen;
 								min_dist = currentStar.radius + 10000;
 								max_dist = currentStar.radius + 149598000;
 								break;
-							}							
+							}
 							case typeShipStation:
 							{
 								int listSize = CONFIG.shipList_Station.size();
 								std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
 								ship.model = CONFIG.shipList_Station.at(genmodel(mt_ship));
 
-								min_dist = (currentStar.habitZoneInnerLimit / 2) * 149598000;
-								max_dist = currentStar.outerLimit * 149598000;
+								min_dist = AU_to_km(currentStar.habitZoneInnerLimit / 2);
+								max_dist = AU_to_km(currentStar.outerLimit);
 								break;
 							}
 							}
@@ -5406,6 +5426,8 @@ Screen lastScreen;
 							GenerateShip(ship, min_dist, max_dist, CONFIG.avgEccentricity, CONFIG.SDEccentricity, CONFIG.avgInclination, CONFIG.SDInclination);
 							PrintShip(ship, planetFile);
 						}
+						else
+							SendDebugMessage(L"Tried to generae a ship around the star, but there were no available ship types!", debug_WARNING);
 					}
 					// a planet is the parent
 					else
@@ -5480,11 +5502,14 @@ Screen lastScreen;
 							GenerateShip(ship, min_dist, max_dist, 0.0, 0.001, 0.0, 90.0);
 							PrintShip(ship, planetFile);
 						}
+						else
+							SendDebugMessage(L"Tried to generate a ship around a planet, but there were no available ship types!", debug_WARNING);
 					}
-
 					CONFIG.exotic_ShipChance--;
 				}
 			}
+			else
+				SendDebugMessage(L"No ships can spawn.", debug_INFO);
 
 			// Asteroid Belt Generator
 			if (CONFIG.generateAsteroidBelt)
@@ -5561,8 +5586,11 @@ Screen lastScreen;
 							usedInner = true;
 
 							if (AU_to_km(currentStar.innerLimit / 5) < radsol_to_km(currentStar.radius))
+							{
+								SendDebugMessage(L"Inner limit / 5 was inside the star's radius. No asteroid belt created.", debug_ERROR);
 								goto NoBelt;
-
+							}
+								
 							avgSemimajor = (currentStar.innerLimit / 2.5);
 							minSemimajor = (currentStar.innerLimit / 5);
 							maxSemimajor = currentStar.innerLimit;
@@ -5577,7 +5605,10 @@ Screen lastScreen;
 							usedOuter = true;
 						}
 						else
+						{
+							SendDebugMessage(L"Inner limit and outer limit asteroid belts already created. Skipping asteroid belt...", debug_WARNING);
 							goto NoBelt;
+						}	
 					}
 
 					for (int i = 0; i < asteroidCount; i++)
@@ -5610,40 +5641,11 @@ Screen lastScreen;
 			// Debug star Orbits
 			if (CONFIG.debug)
 			{
-				SEPlanet Debug;
-
-				Debug.type = L"Star";
-				Debug.parentBody = &currentStar;
-
-				Debug.class_ = L"Z";
-				Debug.mass = 0.000000001;
-				Debug.radius = 0.000000001;
-				Debug.obliquity = 0;
-				Debug.eccentricity = 0;
-				Debug.inclination = 0;
-				Debug.ascendingNode = 0;
-				Debug.argofPericenter = 0;
-				Debug.meanAnomaly = 0;
-
-				Debug.name = L"Inner Limit";
-				Debug.semimajorAxis = currentStar.innerLimit;
-				PrintPlanet(Debug, planetFile);
-
-				Debug.name = L"Outer Limit";
-				Debug.semimajorAxis = currentStar.outerLimit;
-				PrintPlanet(Debug, planetFile);
-
-				Debug.name = L"Frost Limit";
-				Debug.semimajorAxis = currentStar.frostLine;
-				PrintPlanet(Debug, planetFile);
-
-				Debug.name = L"HZ Inner Limit";
-				Debug.semimajorAxis = currentStar.habitZoneInnerLimit;
-				PrintPlanet(Debug, planetFile);
-
-				Debug.name = L"HZ Outer Limit";
-				Debug.semimajorAxis = currentStar.habitZoneOuterLimit;
-				PrintPlanet(Debug, planetFile);
+				DebugMessage(L"Inner Limit", debug_STAR_LIMITS, currentStar, AU_to_km(currentStar.innerLimit));
+				DebugMessage(L"Outer Limit", debug_STAR_LIMITS, currentStar, AU_to_km(currentStar.outerLimit));
+				DebugMessage(L"Frost Limit", debug_STAR_LIMITS, currentStar, AU_to_km(currentStar.frostLine));
+				DebugMessage(L"HZ Inner Limit", debug_STAR_LIMITS, currentStar, AU_to_km(currentStar.habitZoneInnerLimit));
+				DebugMessage(L"HZ Outer Limit", debug_STAR_LIMITS, currentStar, AU_to_km(currentStar.habitZoneOuterLimit));
 			}
 
 			//end of every star generated
@@ -5651,6 +5653,7 @@ Screen lastScreen;
 			currentStar.semimajorList.clear();
 			starFile.close();
 			planetFile.close();
+			DebugFileP = NULL;
 		}
 		return;
 	}
@@ -5724,7 +5727,7 @@ Screen lastScreen;
 		file << "\n\tOrbit\n\t{\n\t\t"
 			<< "RefPlane\t\t\t\"Equator\"";
 		if (planet.type == L"Moon" || planet.type == L"DwarfMoon")
-			file << "\n\t\tSemiMajorAxis\t\t" << AU_to_km(planet.semimajorAxis);
+			file << "\n\t\tSemiMajorAxis\t\t" << km_to_AU(planet.semimajorAxis);
 		else
 			file << "\n\t\tSemiMajorAxis\t\t" << planet.semimajorAxis;
 		file << "\n\t\tEccentricity\t\t" << planet.eccentricity
@@ -5966,8 +5969,10 @@ Screen lastScreen;
 		}
 			
 		star.semimajorStaticList = star.semimajorList; // keeps a copy of the original semimajor points
-
 		star.maxPlanetNumber = star.semimajorList.size();
+
+		if (star.frostLine > star.outerLimit)
+			SendDebugMessage(L"Star's frost limit is larger than the outer limit.", debug_WARNING);
 	}
 	void GeneratePlanet(SEStar& star, SEPlanet& planet)
 	{
@@ -6046,8 +6051,6 @@ Screen lastScreen;
 
 			if (planet.class_ == L"Jupiter")
 			{
-				//
-
 				std::normal_distribution<> genmain{ 50, 20 };
 				do planet.interior.hydrogen = genmain(mt_planet);
 				while (planet.interior.hydrogen < 25 || planet.interior.hydrogen > 80);
@@ -6665,6 +6668,7 @@ Screen lastScreen;
 		// If hill sphere inner is larger than outer, then moons are disabled
 		if ((2.44 * pow((planet.density / 0.05), (1.0 / 3.0)) * planet.radius) > planet.hillSphereOuterLimit)
 		{
+			SendDebugMessage((planet.name + L"'s hill sphere inner was larger than it's hill sphere outer! Moons disabled..."), debug_ERROR);
 			planet.numberOfMajorMoons = -1;
 			planet.numberOfMinorMoons = -1;
 			planet.majorMoonPercent = -1;
@@ -6966,6 +6970,7 @@ Screen lastScreen;
 		// if hill sphere inner is larger than outer
 		if ((2.44 * planet.radius * pow((planet.density / 0.5), (1.0 / 3.0))) > planet.hillSphereOuterLimit)
 		{
+			SendDebugMessage((planet.name + L"'s hill sphere inner was larger than it's hill sphere outer! Moons disabled..."), debug_ERROR);
 			planet.numberOfMajorMoons = -1;
 			planet.numberOfMinorMoons = -1;
 			planet.majorMoonPercent = -1;
@@ -6974,7 +6979,8 @@ Screen lastScreen;
 	}
 	bool GenerateMajorMoon(SEStar& star, SEPlanet& parent, SEPlanet& moon, int spacer)
 	{
-		int testsemi = 0, testbreak = -1;
+		bool testsemi = false;
+		int testbreak = 0;
 		moon.type = L"Moon";
 		moon.parentBody = &parent;
 
@@ -7149,6 +7155,8 @@ Screen lastScreen;
 
 		do
 		{
+			testsemi = false;
+
 			// If the planet is a Gas/Ice Giant, it will use the spacers, if not, it will generate a random num.
 			if (parent.class_ == L"Jupiter" || parent.class_ == L"Neptune")
 			{
@@ -7176,7 +7184,7 @@ Screen lastScreen;
 				// checks the semimajor of each moon to make sure they are not too close
 				for (int count = 0; count < parent.usedSemimajor_moon.size(); count++)
 					if (abs(moon.semimajorAxis - parent.usedSemimajor_moon.at(count)) < parent.radius * (CONFIG.moonDistanceBoundary / 10))
-						testsemi = 1; // means moons were too close
+						testsemi = true; // means moons were too close
 				
 			}
 			else
@@ -7187,14 +7195,16 @@ Screen lastScreen;
 				// checks the semimajor of each moon to make sure they are not too close
 				for (int count = 0; count < parent.usedSemimajor_moon.size(); count++)
 					if (abs(moon.semimajorAxis - parent.usedSemimajor_moon.at(count)) < (parent.radius * CONFIG.moonDistanceBoundary))
-						testsemi = 1; // means moons were too close
+						testsemi = true; // means moons were too close
 			}
 
-			testbreak++;
-			if (testbreak > 10)
+			if (testbreak++ > 10)
+			{
+				SendDebugMessage( (L"Found no suitable semi major axis for a major moon around " + parent.name + L" in 10 attempts!"), debug_ERROR);
 				return 0;
+			}
 
-		} while (testsemi == 1);
+		} while (testsemi);
 		parent.usedSemimajor_moon.push_back(moon.semimajorAxis);
 
 		//######################################################################################################
@@ -7343,7 +7353,6 @@ Screen lastScreen;
 		}
 
 		// companion orbit
-		moon.hasCompanionOrbit = false;
 		if (genpercent(mt_planet) < CONFIG.exotic_CompanionOrbitChance)
 			moon.hasCompanionOrbit = true;
 
@@ -7355,6 +7364,7 @@ Screen lastScreen;
 				&& genpercent(mt_moon) < CONFIG.life_OrganicChance)
 
 				moon.life_organic.haslife = true;
+
 			if (moon.radius > 1000 && genpercent(mt_moon) < CONFIG.life_ExoticChance)
 				moon.life_exotic.haslife = true;
 		}
@@ -7585,7 +7595,7 @@ Screen lastScreen;
 		do comet.radius = genr(mt_star);
 		while (comet.radius < 0.05);
 
-		std::uniform_real_distribution<> gensemi{ parent.innerLimit, parent.outerLimit };
+		std::uniform_real_distribution<> gensemi{ parent.innerLimit * 2, parent.outerLimit };
 		comet.semimajorAxis = gensemi(mt_star);
 
 		std::normal_distribution<> geneccentricity{ 0.8, 0.1 };
@@ -7685,4 +7695,82 @@ Screen lastScreen;
 		ship.ascendingNode = gendegree(mt_ship);
 		ship.argofPericenter = gendegree(mt_ship);
 		ship.meanAnomaly = gendegree(mt_ship);
+	}
+
+	void DebugMessage(std::wstring message, int type, SEObject& parent, double semimajorKm)
+	{ 
+		switch (type)
+		{
+		case debug_STAR_LIMITS:
+		{
+			SEPlanet Debug;
+			Debug.type = L"Star";
+			Debug.class_ = L"Z";
+			Debug.name = message;
+			Debug.parentBody = &parent;
+			Debug.semimajorAxis = km_to_AU(semimajorKm);
+			Debug.eccentricity = Debug.inclination = Debug.ascendingNode = Debug.argofPericenter = Debug.meanAnomaly = Debug.obliquity = 0;
+			PrintPlanet(Debug, *DebugFileP);
+			break;
+		}	
+		case debug_PLANET_LIMITS:
+		{
+			SEShip Debug;
+			Debug.type = L"Spacecraft";
+			Debug.name = message;
+			Debug.parentBody = &parent;
+			Debug.semimajorAxis = semimajorKm;
+			Debug.eccentricity = Debug.inclination = Debug.ascendingNode = Debug.argofPericenter = Debug.meanAnomaly = Debug.obliquity = 0;
+			PrintShip(Debug, *DebugFileP);
+			break;
+		}
+		default:
+		{
+			SEPlanet Debug;
+			Debug.type = L"Moon";
+			Debug.class_ = L"Terra";
+			Debug.mass = 0.0001;
+			Debug.radius = 200;
+			Debug.name = message;
+			Debug.parentBody = &parent;
+			Debug.semimajorAxis = semimajorKm;
+			Debug.eccentricity = Debug.inclination = Debug.ascendingNode = Debug.argofPericenter = Debug.meanAnomaly = Debug.obliquity = 0;
+
+			switch (type)
+			{
+			case debug_INFO:
+				PrintDebug(Debug, color_NORMAL);
+				break;
+			case debug_WARNING:
+				PrintDebug(Debug, color_HALFRED);
+				break;
+			case debug_ERROR:
+				PrintDebug(Debug, color_RED);
+				break;
+			}
+			break;
+		}
+				
+		}
+	}
+
+	void PrintDebug(SEPlanet& Debug, std::string color)
+	{
+		*DebugFileP << wstr_to_str(Debug.type) << "\t\t\t\t\t\"" << wstr_to_str(Debug.name) << "\"\n{"
+			<< "\n\tParentBody\t\t\t\t\"" << wstr_to_str(Debug.parentBody->name) << "\""
+			<< "\n\tClass\t\t\t\t\t\"" << wstr_to_str(Debug.class_) << "\""
+			<< "\n\tMass\t\t\t\t\t" << Debug.mass
+			<< "\n\tRadius\t\t\t\t\t" << Debug.radius
+			<< "\n\tSurface\n\t{\n\t\t"
+			<< "ModulateColor\t\t" << color
+			<< "\n\t}"
+			<< "\n\tOrbit\n\t{\n\t\t"
+			<< "RefPlane\t\t\t\"Equator\""
+			<< "\n\t\tSemiMajorAxisKm\t\t" << Debug.semimajorAxis
+			<< "\n\t\tEccentricity\t\t" << Debug.eccentricity
+			<< "\n\t\tInclination\t\t\t" << Debug.inclination
+			<< "\n\t\tAscendingNode\t\t" << Debug.ascendingNode
+			<< "\n\t\tArgOfPericenter\t\t" << Debug.argofPericenter
+			<< "\n\t\tMeanAnomaly\t\t\t" << Debug.meanAnomaly
+			<< "\n\t}\n}\n\n";
 	}

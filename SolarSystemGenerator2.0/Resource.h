@@ -7,6 +7,18 @@
 #define MODLIST_SIZE			1024
 #define DATASET_SIZE			8192
 
+#define SendDebugMessage		if (CONFIG.debug) DebugMessage
+#define debug_INFO				1
+#define debug_WARNING			2
+#define debug_ERROR				3
+#define debug_STAR_LIMITS		4
+#define debug_PLANET_LIMITS		5
+#define color_NORMAL			"(0.1, 0.1, 0.1)"
+#define color_HALFRED			"(1.0, 0.5, 0.5)"
+#define color_RED				"(1.0, 0.0, 0.0)"
+
+
+
 /*---------------------------------------------
 		Button Commands
 ---------------------------------------------*/
