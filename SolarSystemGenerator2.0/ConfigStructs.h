@@ -186,18 +186,8 @@ struct ConfigurationHWNDs
 		*/	HWND HEADER_ADVANCED; /*
 	#####################################################*/
 
-	var saveNamePresetButton;
-
 	/*=====================================================
-		*/	var advNameGroup;
-			HWND buttonStar, 
-			buttonPlanet, 
-			buttonMoon, 
-			buttonDwarfMoon, 
-			buttonShip, 
-			buttonDataset,
-			buttonSimple,
-			buttonUpdate; /*
+		*/	 /*
 		buttons to load different screens for name
 		variables
 	=====================================================*/
@@ -264,8 +254,7 @@ struct Preset
 
 struct NameVariables
 {
-	int wordPercent;
-	var wordPercentH; // Extra is used for the test button
+	HWND Tab_Advanced_Outer, Tab_Advanced_Inner, Tab_Name_Inner, Tab_Ship_Inner;
 
 	/*#####################################################
 	*/	HWND GROUP_SIMPLE; /*
@@ -454,10 +443,13 @@ struct NameVariables
 	#####################################################*/
 
 	HWND Markov_INFO;
+	var saveNamePresetButton;
+	HWND buttonUpdate;
 
-	int order, wordVarience, max_length, min_length;
+	int order, wordVarience, max_length, min_length, wordPercent;
 	HWND orderH, wordVarienceH, max_lengthH, min_lengthH;
 	HWND orderDESC, wordVarienceDESC, max_lengthDESC, min_lengthDESC;
+	var wordPercentH; // Extra is used for the test button
 
 	HWND Markov_RawDatasetH, Markov_RawDatasetDESC;
 	std::vector<std::wstring> Markov_RawDataset;

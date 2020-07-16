@@ -35,17 +35,6 @@
 #define BUTTON_SAVEPRESET			9
 #define BUTTON_SETOUTPUT			10
 
-#define BUTTON_NAME_STAR			11
-#define BUTTON_NAME_PLANET			12
-#define BUTTON_NAME_MOON			13
-#define BUTTON_NAME_DWARFMOON		14
-#define BUTTON_NAME_SHIP_ALL		15
-#define BUTTON_NAME_SHIP_COLONY		16
-#define BUTTON_NAME_SHIP_INSTRUMENT	17
-#define BUTTON_NAME_SHIP_SATELLITE	18
-#define BUTTON_NAME_SHIP_STATION	19
-#define BUTTON_NAME_DATASET			20
-#define BUTTON_NAME_SIMPLE			21
 #define BUTTON_NAME_UPDATE			22
 #define BUTTON_NAME_LOAD_VECTORS	23
 #define BUTTON_NAME_SAVEPRESET		24
@@ -55,6 +44,38 @@
 #define BUTTON_BROWSE_STAR_FOLDER	26
 #define BUTTON_BROWSE_PLANET_FOLDER	27
 #define BUTTON_BROWSE_MODELS_FOLDER	28
+
+#define TABGROUP_ADVANCED_OUTER		0
+#define TABGROUP_ADVANCED_INNER		1 //not used for now
+#define TABGROUP_NAME_INNER			2
+#define TABGROUP_SHIP_INNER			3
+
+#define TAB_NAMES					0
+	#pragma region Under Name Variables
+	#define TAB_NAME_DATASET			0
+	#define TAB_NAME_STAR				1
+	#define TAB_NAME_PLANET				2
+	#define TAB_NAME_MOON				3
+	#define TAB_NAME_DWARFMOON			4
+	#define TAB_NAME_ASTEROID			5
+	#define TAB_NAME_COMET				6
+	#define TAB_NAME_SHIP				7
+		#pragma region Under Ship Variables
+		#define TAB_SHIP_ALL				0
+		#define TAB_SHIP_COLONY				1
+		#define TAB_SHIP_INSTRUMENT			2
+		#define TAB_SHIP_SATELLITE			3
+		#define TAB_SHIP_STATION			4
+		#pragma endregion
+	#define TAB_NAME_SIMPLE				8
+	#pragma endregion
+#define TAB_ADVANCED				1
+	#pragma region Under Advanced Variables
+
+	#pragma endregion
+
+
+
 
 //#define BUTTON_ADV_
 

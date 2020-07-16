@@ -54,8 +54,10 @@ std::ofstream* DebugFileP;
 	*/	LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM); /*
 	Processes messages for the main window.
 
-#######################################################
-	*/	void LoadImages();
+#######################################################*/	
+#pragma region UI Functions
+
+	void LoadImages();
 	void LoadPresets(HWND);
 	void LoadNamePresets(HWND);
 	void LoadMainScreen(HWND);
@@ -63,7 +65,7 @@ std::ofstream* DebugFileP;
 	void UpdatePreset(Preset, HWND);
 	void UpdateNamePreset(NamePreset, HWND);
 	void SavePreset();
-	void SaveNamePreset();	
+	void SaveNamePreset();
 
 	void Clear_Screen();
 	void Load_Screen_General();
@@ -75,7 +77,10 @@ std::ofstream* DebugFileP;
 
 	//void WINAPI TBNotifications(WPARAM wParam, HWND hwndTrack, UINT iSelMin, UINT iSelMax);
 
+	void Load_Name_Dataset();
+	void Load_Advanced_Main();
 	void Clear_Advanced();
+	
 	void Load_Name_Star();
 	void Load_Name_Planet();
 	void Load_Name_Moon();
@@ -84,9 +89,7 @@ std::ofstream* DebugFileP;
 	void Load_Name_Colony_Ship();
 	void Load_Name_Instrument_Ship();
 	void Load_Name_Satellite_Ship();
-	void Load_Name_Station_Ship();
-
-	void Load_Name_Dataset();
+	void Load_Name_Station_Ship();	
 	void Load_Name_Simple();
 
 	void GetConfigData(HWND);
@@ -97,36 +100,36 @@ std::ofstream* DebugFileP;
 	void SetInfoBox(int);
 	void SetCheckBoxText(HWND, int);
 
-	//Window Functions
+	//Windows Functions
 	void BrowseFolder(HWND); // handle parameter stores the folder path
-	
+#pragma endregion
 //#######################################################
-		std::wstring GenName(Object_Type);
-		std::wstring GenNumberModifier();
-		void BeginGenerate(HWND); 
-		template <typename vect, typename type> void SortVector(vect&, int, int);
-		template <typename vect, typename type> int Partition(vect&, int, int);
-		void GenerateStar(SEStar&);
-		void PrintStar(SEStar&, std::ofstream&);
-		void PrintPlanet(SEPlanet&, std::ofstream&);
-		void PrintShip(SEShip&, std::ofstream&);
-		void GeneratePlanet(SEStar&, SEPlanet&);
-		void GenerateDwarfPlanet(SEStar&, SEPlanet&);
-		bool GenerateMajorMoon(SEStar&, SEPlanet&, SEPlanet&, int);
-		void GenerateMinorMoon(SEPlanet&, SEPlanet&, int);
-		void GenerateAsteroid(SEStar&, SEPlanet&, double, double, double, double);
-		void GenerateComet(SEStar&, SEPlanet&);
+#pragma region Generator Functions
 
-		void ExoticGenerateLife(SEPlanet&);
-		void ExoticDebrisRing(SEPlanet&, SEPlanet&, double, double, double, double);
-		void GenerateShip(SEShip&, double, double, double, double, double, double);
+	std::wstring GenName(Object_Type);
+	std::wstring GenNumberModifier();
+	void BeginGenerate(HWND);
+	template <typename vect, typename type> void SortVector(vect&, int, int);
+	template <typename vect, typename type> int Partition(vect&, int, int);
+	void GenerateStar(SEStar&);
+	void PrintStar(SEStar&, std::ofstream&);
+	void PrintPlanet(SEPlanet&, std::ofstream&);
+	void PrintShip(SEShip&, std::ofstream&);
+	void GeneratePlanet(SEStar&, SEPlanet&);
+	void GenerateDwarfPlanet(SEStar&, SEPlanet&);
+	bool GenerateMajorMoon(SEStar&, SEPlanet&, SEPlanet&, int);
+	void GenerateMinorMoon(SEPlanet&, SEPlanet&, int);
+	void GenerateAsteroid(SEStar&, SEPlanet&, double, double, double, double);
+	void GenerateComet(SEStar&, SEPlanet&);
 
-		void DebugMessage(std::wstring, int, SEObject& = SystemDebug, double = (++SystemDebugCounter * 10000.0));
-		void PrintDebug(SEPlanet&, std::string);
-		/*
-	Generator Functions
+	void ExoticGenerateLife(SEPlanet&);
+	void ExoticDebrisRing(SEPlanet&, SEPlanet&, double, double, double, double);
+	void GenerateShip(SEShip&, double, double, double, double, double, double);
 
-#####################################################*/
+	void DebugMessage(std::wstring, int, SEObject & = SystemDebug, double = (++SystemDebugCounter * 10000.0));
+	void PrintDebug(SEPlanet&, std::string);
+#pragma endregion	
+//#######################################################
 
 /*---------------------------------------------------------------------------------------#
 |	THE WINDOW:																			 |
@@ -302,60 +305,103 @@ std::ofstream* DebugFileP;
 				CreateNameVectors(hWnd);
 				TestNames();
 				break;
-			case BUTTON_NAME_STAR:
-				Clear_Advanced();
-				Load_Name_Star();
-				break;
-			case BUTTON_NAME_PLANET:
-				Clear_Advanced();
-				Load_Name_Planet();
-				break;
-			case BUTTON_NAME_MOON:
-				Clear_Advanced();
-				Load_Name_Moon();
-				break;
-			case BUTTON_NAME_DWARFMOON:
-				Clear_Advanced();
-				Load_Name_DwarfMoon();
-				break;
-			case BUTTON_NAME_SHIP_ALL:
-				Clear_Advanced();
-				Load_Name_All_Ship();
-				break;
-			case BUTTON_NAME_SHIP_COLONY:
-				Clear_Advanced();
-				Load_Name_Colony_Ship();
-				break;
-			case BUTTON_NAME_SHIP_INSTRUMENT:
-				Clear_Advanced();
-				Load_Name_Instrument_Ship();
-				break;
-			case BUTTON_NAME_SHIP_SATELLITE:
-				Clear_Advanced();
-				Load_Name_Satellite_Ship();
-				break;
-			case BUTTON_NAME_SHIP_STATION:
-				Clear_Advanced();
-				Load_Name_Station_Ship();
-				break;
-			case BUTTON_NAME_DATASET:
-				Clear_Advanced();
-				Load_Name_Dataset();
-				break;
-			case BUTTON_NAME_SIMPLE:
-				Clear_Advanced();
-				Load_Name_Simple();
-				break;
-
-
-
-
+			
 
 			case IDM_EXIT:
 				DestroyWindow(hWnd);
 				break;
 			default:
 				return DefWindowProc(hWnd, message, wParam, lParam);
+			}
+		}
+		break;
+		case WM_NOTIFY:
+		{
+			NMHDR* note = (LPNMHDR)lParam;
+			switch (note->code)
+			{
+			case TCN_SELCHANGING:
+			{
+				Clear_Advanced();
+			}
+				break;
+			case TCN_SELCHANGE:
+			{
+				switch (note->idFrom) // determines which tab handle sent the message
+				{
+				case TABGROUP_ADVANCED_OUTER:
+				{
+					switch (TabCtrl_GetCurSel(note->hwndFrom))
+					{
+					case 0:
+						ShowWindow(NV.Tab_Name_Inner, 1);
+						switch (TabCtrl_GetCurSel(NV.Tab_Name_Inner))
+						{
+						case TAB_NAME_DATASET:
+							Load_Name_Dataset();
+							break;
+						case TAB_NAME_STAR:
+							Load_Name_Star();
+							break;
+						case TAB_NAME_PLANET:
+							Load_Name_Planet();
+							break;
+						case TAB_NAME_MOON:
+							Load_Name_Moon();
+							break;
+						case TAB_NAME_DWARFMOON:
+							Load_Name_DwarfMoon();
+							break;
+						case TAB_NAME_ASTEROID:
+							//Load_Name_Asteroid();
+							break;
+						case TAB_NAME_COMET:
+							//Load_Name_Comet();
+							break;
+						case TAB_NAME_SHIP:
+							Load_Name_All_Ship();
+							break;
+						case TAB_NAME_SIMPLE:
+							Load_Name_Simple();
+							break;
+						}
+					case 1:
+						ShowWindow(NV.Tab_Advanced_Inner, 1);
+						break;
+					}
+				}
+					break;
+				case TABGROUP_ADVANCED_INNER:
+				{
+					// empty for now
+				}
+					break;
+				case TABGROUP_NAME_INNER:
+				{
+					switch (TabCtrl_GetCurSel(note->hwndFrom))
+					{
+					case 0:
+						
+						break;
+					case 1:
+						
+						break;
+					}
+				}
+					break;
+				}
+
+
+
+				
+
+
+
+
+				break;
+			}
+			default:
+				break;
 			}
 		}
 		break;
@@ -1575,116 +1621,217 @@ std::ofstream* DebugFileP;
 				#pragma region Name Stuff
 			//###############################################################################
 			
-				// groupbox to hold the buttons
-				CONFIG_H.advNameGroup.EXTRA = CreateWindowW(L"button", L"Name Variables:",
-					WS_CHILD | WS_GROUP | BS_GROUPBOX,
-					370, 100, 260, 130,
-					hWnd, NULL, hInst, NULL);
+				TCITEM tab;
+				tab.mask = TCIF_TEXT;
 
-				// save preset stuff
-				CONFIG_H.saveNamePresetButton.DESC = CreateWindowW(L"static", L"Save Name Preset...",
-					WS_CHILD  | WS_BORDER,
-					630, 110, 140, 20,
-					hWnd, NULL, NULL, NULL);
-				CONFIG_H.saveNamePresetButton.HANDLE = CreateWindowW(L"edit", L"New Name Preset",
-					WS_CHILD | WS_BORDER | ES_AUTOHSCROLL,
-					630, 130, 160, 20,
-					hWnd, NULL, NULL, NULL);
-				CONFIG_H.saveNamePresetButton.EXTRA = CreateWindowW(L"button", L"Save",
-					WS_CHILD | WS_BORDER,
-					632, 152, 156, 20,
-					hWnd, (HMENU)BUTTON_NAME_SAVEPRESET, NULL, NULL);
-				CONFIG_H.saveNamePresetButton.INFOBUTTON = CreateWindowW(L"button", L"I",
-					WS_CHILD | WS_BORDER,
-					772, 112, 16, 16,
-					hWnd, (HMENU)IB_SAVENAMEPRESET, NULL, NULL);
+				/*=====================================================
+					Tab groups are declared in order from 
+					deepest layer to outmost layer. This is because
+					either Win32 is stupid, or I am. So the ship
+					tab group is the first, followed by the name
+					inner & advanced inner. Outmost tabs are last.
+				=====================================================*/
 
-				// all of the buttons for the name groups
-				// the buttons are only VISUALLY inside the groupbox, but their
-				// parent is still hWnd because they send messages to the
-				// window procedure
-				CONFIG_H.buttonUpdate = CreateWindowW(L"button", L"Update Names",
-					WS_CHILD | WS_BORDER | BS_MULTILINE,
-					550, 120, 70, 50,
-					hWnd, (HMENU)BUTTON_NAME_LOAD_VECTORS, NULL, NULL);
-				CONFIG_H.buttonStar = CreateWindowW(L"button", L"Star",
-					WS_CHILD | WS_BORDER,
-					380, 120, 50, 30,
-					hWnd, (HMENU)BUTTON_NAME_STAR, NULL, NULL);
-				CONFIG_H.buttonPlanet = CreateWindowW(L"button", L"Planet",
-					WS_CHILD | WS_BORDER,
-					430, 120, 50, 30,
-					hWnd, (HMENU)BUTTON_NAME_PLANET, NULL, NULL);
-				CONFIG_H.buttonMoon = CreateWindowW(L"button", L"Moon",
-					WS_CHILD | WS_BORDER,
-					480, 120, 50, 30,
-					hWnd, (HMENU)BUTTON_NAME_MOON, NULL, NULL);
-				CONFIG_H.buttonDwarfMoon = CreateWindowW(L"button", L"Dwarf Moon",
-					WS_CHILD | WS_BORDER,
-					380, 150, 90, 30,
-					hWnd, (HMENU)BUTTON_NAME_DWARFMOON, NULL, NULL);
-				CONFIG_H.buttonShip = CreateWindowW(L"button", L"Ship",
-					WS_CHILD | WS_BORDER,
-					470, 150, 50, 30,
-					hWnd, (HMENU)BUTTON_NAME_SHIP_ALL, NULL, NULL);
-				CONFIG_H.buttonDataset = CreateWindowW(L"button", L"Name Dataset",
-					WS_CHILD | WS_BORDER,
-					380, 180, 110, 30,
-					hWnd, (HMENU)BUTTON_NAME_DATASET, NULL, NULL);
-				CONFIG_H.buttonSimple = CreateWindowW(L"button", L"Simple Generator",
-					WS_CHILD | WS_BORDER,
-					490, 180, 130, 30,
-					hWnd, (HMENU)BUTTON_NAME_SIMPLE, NULL, NULL);
+				NV.Tab_Name_Inner = CreateWindowW(WC_TABCONTROL, L"",
+					WS_CHILD | TCS_MULTILINE | TCS_SCROLLOPPOSITE,
+					355, 125, 655, 540,
+					hWnd, (HMENU)TABGROUP_NAME_INNER, hInst, NULL);
+				//insterts tabs into name variables
+				TCHAR tab2[32] = L"Name Dataset";
+				TCHAR tab3[32] = L"Star Names";
+				TCHAR tab4[32] = L"Planet Names";
+				TCHAR tab5[32] = L"Moon Names";
+				TCHAR tab6[32] = L"DwarfMoon Names";
+				TCHAR tab7[32] = L"Asteroid Names";
+				TCHAR tab8[32] = L"Comet Names";
+				TCHAR tab9[32] = L"Ship Names";
+				TCHAR tab10[32] = L"Simple Name Gen";
+				tab.pszText = tab2;
+				TabCtrl_InsertItem(NV.Tab_Name_Inner, TAB_NAME_DATASET, &tab);
+				tab.pszText = tab3;
+				TabCtrl_InsertItem(NV.Tab_Name_Inner, TAB_NAME_STAR, &tab);
+				tab.pszText = tab4;
+				TabCtrl_InsertItem(NV.Tab_Name_Inner, TAB_NAME_PLANET, &tab);
+				tab.pszText = tab5;
+				TabCtrl_InsertItem(NV.Tab_Name_Inner, TAB_NAME_MOON, &tab);
+				tab.pszText = tab6;
+				TabCtrl_InsertItem(NV.Tab_Name_Inner, TAB_NAME_DWARFMOON, &tab);
+				tab.pszText = tab7;
+				TabCtrl_InsertItem(NV.Tab_Name_Inner, TAB_NAME_ASTEROID, &tab);
+				tab.pszText = tab8;
+				TabCtrl_InsertItem(NV.Tab_Name_Inner, TAB_NAME_COMET, &tab);
+				tab.pszText = tab9;
+				TabCtrl_InsertItem(NV.Tab_Name_Inner, TAB_NAME_SHIP, &tab);
+				tab.pszText = tab10;
+				TabCtrl_InsertItem(NV.Tab_Name_Inner, TAB_NAME_SIMPLE, &tab);
 
-				// Info buttons for the pre/post/number mods, which are the same for
-				// each name group
-				NV.PreMod_INFO.DESC = CreateWindowW(L"static", L"Pre Modification Description:",
-					WS_CHILD | WS_BORDER,
-					760, 260, 220, 20,
-					hWnd, NULL, NULL, NULL);
-				NV.PreMod_INFO.INFOBUTTON = CreateWindowW(L"button", L"I",
-					WS_CHILD | WS_BORDER,
-					962, 262, 16, 16,
-					hWnd, (HMENU)IB_NAMEPREMODS, NULL, NULL);
-				NV.PostMod_INFO.DESC = CreateWindowW(L"static", L"Post Modification Description:",
-					WS_CHILD | WS_BORDER,
-					760, 280, 220, 20,
-					hWnd, NULL, NULL, NULL);
-				NV.PostMod_INFO.INFOBUTTON = CreateWindowW(L"button", L"I",
-					WS_CHILD | WS_BORDER,
-					962, 282, 16, 16,
-					hWnd, (HMENU)IB_NAMEPOSTMODS, NULL, NULL);
-				NV.NumberMod_INFO.DESC = CreateWindowW(L"static", L"Num Modification Description:",
-					WS_CHILD | WS_BORDER,
-					760, 300, 220, 20,
-					hWnd, NULL, NULL, NULL);
-				NV.NumberMod_INFO.INFOBUTTON = CreateWindowW(L"button", L"I",
-					WS_CHILD | WS_BORDER,
-					962, 302, 16, 16,
-					hWnd, (HMENU)IB_NAMENUMBERMODS, NULL, NULL);
-
-				// Info buttons for the pre / post name lists, which are the same for
-				// each name group
-				NV.PreMods_List.DESC = CreateWindowW(L"static", L"Pre Modification List:",
-					WS_CHILD | WS_BORDER | SS_CENTER,
-					380, 350, 300, 20,
-					hWnd, NULL, NULL, NULL);
-				NV.PreMods_List.INFOBUTTON = CreateWindowW(L"button", L"I",
-					WS_CHILD | WS_BORDER,
-					662, 352, 16, 16,
-					hWnd, (HMENU)IB_NAMEPREMODLIST, NULL, NULL);
-				NV.PostMods_List.DESC = CreateWindowW(L"static", L"Post Modification List:",
-					WS_CHILD | WS_BORDER | SS_CENTER,
-					680, 350, 300, 20,
-					hWnd, NULL, NULL, NULL);
-				NV.PostMods_List.INFOBUTTON = CreateWindowW(L"button", L"I",
-					WS_CHILD | WS_BORDER,
-					962, 352, 16, 16,
-					hWnd, (HMENU)IB_NAMEPOSTMODLIST, NULL, NULL);
+				// tab to hold the outer buttons
+				NV.Tab_Advanced_Outer = CreateWindowW(WC_TABCONTROL, L"",
+					WS_CHILD | TCS_MULTILINE | TCS_RIGHTJUSTIFY,
+					350, 100, 665, 570,
+					hWnd, (HMENU)TABGROUP_ADVANCED_OUTER, hInst, NULL);
+				// insert main tabs
+				TCHAR tab0[32] = L"Name Variables";
+				TCHAR tab1[32] = L"Advanced Variables";
+				tab.pszText = tab0;
+				TabCtrl_InsertItem(NV.Tab_Advanced_Outer, TAB_NAMES, &tab);
+				tab.pszText = tab1;
+				TabCtrl_InsertItem(NV.Tab_Advanced_Outer, TAB_ADVANCED, &tab);
 
 				//###############################################################################
-					#pragma region Star Group
-				//###############################################################################
+					#pragma region Name Inner Tab
+
+					// Info buttons for the pre/post/number mods, which are the same for
+					// each name group
+					NV.PreMod_INFO.DESC = CreateWindowW(L"static", L"Pre Modification Description:",
+						WS_CHILD | WS_BORDER,
+						760, 260, 220, 20,
+						hWnd, NULL, NULL, NULL);
+					NV.PreMod_INFO.INFOBUTTON = CreateWindowW(L"button", L"I",
+						WS_CHILD | WS_BORDER,
+						962, 262, 16, 16,
+						hWnd, (HMENU)IB_NAMEPREMODS, NULL, NULL);
+					NV.PostMod_INFO.DESC = CreateWindowW(L"static", L"Post Modification Description:",
+						WS_CHILD | WS_BORDER,
+						760, 280, 220, 20,
+						hWnd, NULL, NULL, NULL);
+					NV.PostMod_INFO.INFOBUTTON = CreateWindowW(L"button", L"I",
+						WS_CHILD | WS_BORDER,
+						962, 282, 16, 16,
+						hWnd, (HMENU)IB_NAMEPOSTMODS, NULL, NULL);
+					NV.NumberMod_INFO.DESC = CreateWindowW(L"static", L"Num Modification Description:",
+						WS_CHILD | WS_BORDER,
+						760, 300, 220, 20,
+						hWnd, NULL, NULL, NULL);
+					NV.NumberMod_INFO.INFOBUTTON = CreateWindowW(L"button", L"I",
+						WS_CHILD | WS_BORDER,
+						962, 302, 16, 16,
+						hWnd, (HMENU)IB_NAMENUMBERMODS, NULL, NULL);
+
+					// Info buttons for the pre / post name lists, which are the same for
+					// each name group
+					NV.PreMods_List.DESC = CreateWindowW(L"static", L"Pre Modification List:",
+						WS_CHILD | WS_BORDER | SS_CENTER,
+						380, 350, 300, 20,
+						hWnd, NULL, NULL, NULL);
+					NV.PreMods_List.INFOBUTTON = CreateWindowW(L"button", L"I",
+						WS_CHILD | WS_BORDER,
+						662, 352, 16, 16,
+						hWnd, (HMENU)IB_NAMEPREMODLIST, NULL, NULL);
+					NV.PostMods_List.DESC = CreateWindowW(L"static", L"Post Modification List:",
+						WS_CHILD | WS_BORDER | SS_CENTER,
+						680, 350, 300, 20,
+						hWnd, NULL, NULL, NULL);
+					NV.PostMods_List.INFOBUTTON = CreateWindowW(L"button", L"I",
+						WS_CHILD | WS_BORDER,
+						962, 352, 16, 16,
+						hWnd, (HMENU)IB_NAMEPOSTMODLIST, NULL, NULL);
+
+					//###############################################################################
+						#pragma region Dataset Group
+					//###############################################################################
+
+					NV.GROUP_DATASET = CreateWindowW(L"button", L"Markov Variables:",
+						WS_CHILD | WS_GROUP | BS_GROUPBOX,
+						370, 240, 620, 410,
+						hWnd, NULL, NULL, NULL);
+
+					// save preset stuff
+					// parent is hWnd, but loads with dataset page
+					NV.saveNamePresetButton.DESC = CreateWindowW(L"static", L"Save Name Preset...",
+						WS_CHILD | WS_BORDER,
+						820, 180, 140, 20,
+						hWnd, NULL, NULL, NULL);
+					NV.saveNamePresetButton.HANDLE = CreateWindowW(L"edit", L"New Name Preset",
+						WS_CHILD | WS_BORDER | ES_AUTOHSCROLL,
+						820, 200, 160, 20,
+						hWnd, NULL, NULL, NULL);
+					NV.saveNamePresetButton.EXTRA = CreateWindowW(L"button", L"Save",
+						WS_CHILD | WS_BORDER,
+						822, 222, 156, 20,
+						hWnd, (HMENU)BUTTON_NAME_SAVEPRESET, NULL, NULL);
+					NV.saveNamePresetButton.INFOBUTTON = CreateWindowW(L"button", L"I",
+						WS_CHILD | WS_BORDER,
+						962, 182, 16, 16,
+						hWnd, (HMENU)IB_SAVENAMEPRESET, NULL, NULL);
+
+					NV.Markov_INFO = CreateWindowW(L"button", L"I",
+						WS_CHILD | WS_BORDER,
+						500, 242, 16, 16,
+						hWnd, (HMENU)IB_MARKOV, NULL, NULL);
+
+					// The word percent variable is shown on both the markov screen and the simple generator screen
+					// Therefore, it's parent is hWnd. It is only declared here because there is no group to put it under
+					NV.wordPercentH.DESC = CreateWindowW(L"static", L"Multi Word Percent:",
+						WS_CHILD | WS_BORDER,
+						760, 260, 140, 20,
+						hWnd, NULL, NULL, NULL);
+					NV.wordPercentH.HANDLE = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_BORDER | ES_RIGHT | ES_NUMBER,
+						900, 260, 50, 20,
+						hWnd, NULL, NULL, NULL);
+					NV.wordPercentH.INFOBUTTON = CreateWindowW(L"button", L"I",
+						WS_CHILD | WS_BORDER,
+						952, 262, 16, 16,
+						hWnd, (HMENU)IB_WORDPERCENT, NULL, NULL);
+
+					// The word percent extra is used for the test names button. It's parent is also hWnd
+					// because it sends a message to the main windows procedure, but visually it only appears
+					// under the markov screen
+					NV.wordPercentH.EXTRA = CreateWindowW(L"button", L"Test Names",
+						WS_CHILD | WS_BORDER,
+						800, 285, 100, 30,
+						hWnd, (HMENU)BUTTON_TEST_NAMES, NULL, NULL);
+
+					NV.orderDESC = CreateWindowW(L"static", L"Order:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 20, 120, 20,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+					NV.wordVarienceDESC = CreateWindowW(L"static", L"Word Varience:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 40, 120, 20,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+					NV.min_lengthDESC = CreateWindowW(L"static", L"Min Length:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						200, 20, 120, 20,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+					NV.max_lengthDESC = CreateWindowW(L"static", L"Max Length:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						200, 40, 120, 20,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+
+					NV.orderH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT | ES_NUMBER,
+						130, 20, 50, 20,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+					NV.wordVarienceH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT | ES_NUMBER,
+						130, 40, 50, 20,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+					NV.min_lengthH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT | ES_NUMBER,
+						320, 20, 50, 20,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+					NV.max_lengthH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT | ES_NUMBER,
+						320, 40, 50, 20,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+
+					NV.Markov_RawDatasetDESC = CreateWindowW(L"static", L"Dataset:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | SS_CENTER,
+						10, 80, 600, 20,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+					NV.Markov_RawDatasetH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						12, 100, 596, 300,
+						NV.GROUP_DATASET, NULL, NULL, NULL);
+
+						#pragma endregion
+					//###############################################################################
+
+					//###############################################################################
+						#pragma region Star Group
+					//###############################################################################
 					NV.GROUP_STAR = CreateWindowW(L"button", L"Star Name Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
@@ -1735,12 +1882,12 @@ std::ofstream* DebugFileP;
 						312, 130, 296, 266,
 						NV.GROUP_STAR, NULL, NULL, NULL);
 
-					#pragma endregion
-				//###############################################################################
+						#pragma endregion
+					//###############################################################################
 
-				//###############################################################################
-					#pragma region Planet Group
-				//###############################################################################
+					//###############################################################################
+						#pragma region Planet Group
+					//###############################################################################
 					NV.GROUP_PLANET = CreateWindowW(L"button", L"Planet Name Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
@@ -1791,13 +1938,13 @@ std::ofstream* DebugFileP;
 						312, 130, 296, 266,
 						NV.GROUP_PLANET, NULL, NULL, NULL);
 
-					#pragma endregion
-				//###############################################################################
+						#pragma endregion
+					//###############################################################################
 
-				//###############################################################################
-					#pragma region Moon Group
-				//###############################################################################
-				
+					//###############################################################################
+						#pragma region Moon Group
+					//###############################################################################
+
 					NV.GROUP_MOON = CreateWindowW(L"button", L"Moon Name Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
@@ -1861,13 +2008,13 @@ std::ofstream* DebugFileP;
 						312, 130, 296, 266,
 						NV.GROUP_MOON, NULL, NULL, NULL);
 
-					#pragma endregion
-				//###############################################################################
+						#pragma endregion
+					//###############################################################################
 
-				//###############################################################################
-					#pragma region Dwarf Moon Group
-				//###############################################################################
-				
+					//###############################################################################
+						#pragma region Dwarf Moon Group
+					//###############################################################################
+
 					NV.GROUP_DWARFMOON = CreateWindowW(L"button", L"Dwarf Moon Name Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
@@ -1935,13 +2082,13 @@ std::ofstream* DebugFileP;
 						312, 130, 296, 266,
 						NV.GROUP_DWARFMOON, NULL, NULL, NULL);
 
-					#pragma endregion
-				//###############################################################################
+						#pragma endregion
+					//###############################################################################
 
-				//###############################################################################
-					#pragma region Ship_All Group
-				//###############################################################################
-				
+					//###############################################################################
+						#pragma region Ship_All Group
+					//###############################################################################
+
 					NV.GROUP_ALL_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
@@ -1983,14 +2130,14 @@ std::ofstream* DebugFileP;
 						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 						312, 130, 296, 266,
 						NV.GROUP_ALL_SHIP, NULL, NULL, NULL);
-				
-					#pragma endregion
-				//###############################################################################
 
-				//###############################################################################
-					#pragma region Ship_Colony Group
-				//###############################################################################
-				
+						#pragma endregion
+					//###############################################################################
+
+					//###############################################################################
+						#pragma region Ship_Colony Group
+					//###############################################################################
+
 					NV.GROUP_COLONY_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
@@ -2041,13 +2188,13 @@ std::ofstream* DebugFileP;
 						312, 130, 296, 266,
 						NV.GROUP_COLONY_SHIP, NULL, NULL, NULL);
 
-					#pragma endregion
-				//###############################################################################
+						#pragma endregion
+					//###############################################################################
 
-				//###############################################################################
-					#pragma region Ship_Instrument Group
-				//###############################################################################
-				
+					//###############################################################################
+						#pragma region Ship_Instrument Group
+					//###############################################################################
+
 					NV.GROUP_INSTRUMENT_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
@@ -2098,13 +2245,13 @@ std::ofstream* DebugFileP;
 						312, 130, 296, 266,
 						NV.GROUP_INSTRUMENT_SHIP, NULL, NULL, NULL);
 
-					#pragma endregion
-				//###############################################################################
+						#pragma endregion
+					//###############################################################################
 
-				//###############################################################################
-					#pragma region Ship_Satellite Group
-				//###############################################################################
-				
+					//###############################################################################
+						#pragma region Ship_Satellite Group
+					//###############################################################################
+
 					NV.GROUP_SATELLITE_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
@@ -2155,12 +2302,12 @@ std::ofstream* DebugFileP;
 						312, 130, 296, 266,
 						NV.GROUP_SATELLITE_SHIP, NULL, NULL, NULL);
 
-					#pragma endregion
-				//###############################################################################
+						#pragma endregion
+					//###############################################################################
 
-				//###############################################################################
-					#pragma region Ship_Station Group
-				//###############################################################################
+					//###############################################################################
+						#pragma region Ship_Station Group
+					//###############################################################################
 
 					NV.GROUP_STATION_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
@@ -2212,114 +2359,13 @@ std::ofstream* DebugFileP;
 						312, 130, 296, 266,
 						NV.GROUP_STATION_SHIP, NULL, NULL, NULL);
 
-					// These buttons load with the ship page, but will load their own page for storeing different data
-					NV.BUTTON_COLONY = CreateWindowW(L"button", L"Colony",
-						WS_CHILD | WS_BORDER,
-						550, 238, 80, 20,
-						hWnd, (HMENU)BUTTON_NAME_SHIP_COLONY, NULL, NULL);
-					NV.BUTTON_INSTRUMENT = CreateWindowW(L"button", L"Instrument",
-						WS_CHILD | WS_BORDER,
-						650, 238, 80, 20,
-						hWnd, (HMENU)BUTTON_NAME_SHIP_INSTRUMENT, NULL, NULL);
-					NV.BUTTON_SATELLITE = CreateWindowW(L"button", L"Satellite",
-						WS_CHILD | WS_BORDER,
-						750, 238, 80, 20,
-						hWnd, (HMENU)BUTTON_NAME_SHIP_SATELLITE, NULL, NULL);
-					NV.BUTTON_STATION = CreateWindowW(L"button", L"Station",
-						WS_CHILD | WS_BORDER,
-						850, 238, 80, 20,
-						hWnd, (HMENU)BUTTON_NAME_SHIP_STATION, NULL, NULL);
+						#pragma endregion
+					//###############################################################################
 
-					#pragma endregion
-				//###############################################################################
+					//###############################################################################
+						#pragma region Simple Generator Group	
+					//###############################################################################
 
-				//###############################################################################
-					#pragma region Dataset Group
-				//###############################################################################
-				
-					NV.GROUP_DATASET = CreateWindowW(L"button", L"Markov Variables:",
-						WS_CHILD | WS_GROUP | BS_GROUPBOX,
-						370, 240, 620, 410,
-						hWnd, NULL, NULL, NULL);
-
-					NV.Markov_INFO = CreateWindowW(L"button", L"I",
-						WS_CHILD | WS_BORDER,
-						500, 242, 16, 16,
-						hWnd, (HMENU)IB_MARKOV, NULL, NULL);
-
-					// The word percent variable is shown on both the markov screen and the simple generator screen
-					// Therefore, it's parent is hWnd. It is only declared here because there is no group to put it under
-					NV.wordPercentH.DESC = CreateWindowW(L"static", L"Multi Word Percent:",
-						WS_CHILD | WS_BORDER,
-						760, 260, 140, 20,
-						hWnd, NULL, NULL, NULL);
-					NV.wordPercentH.HANDLE = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_BORDER | ES_RIGHT | ES_NUMBER,
-						900, 260, 50, 20,
-						hWnd, NULL, NULL, NULL);
-					NV.wordPercentH.INFOBUTTON = CreateWindowW(L"button", L"I",
-						WS_CHILD | WS_BORDER,
-						952, 262, 16, 16,
-						hWnd, (HMENU)IB_WORDPERCENT, NULL, NULL);
-					
-					// The word percent extra is used for the test names button. It's parent is also hWnd
-					// because it sends a message to the main windows procedure, but visually it only appears
-					// under the markov screen
-					NV.wordPercentH.EXTRA = CreateWindowW(L"button", L"Test Names",
-						WS_CHILD | WS_BORDER,
-						800, 285, 100, 30,
-						hWnd, (HMENU)BUTTON_TEST_NAMES, NULL, NULL);
-
-					NV.orderDESC = CreateWindowW(L"static", L"Order:",
-						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						10, 20, 120, 20,
-						NV.GROUP_DATASET, NULL, NULL, NULL);
-					NV.wordVarienceDESC = CreateWindowW(L"static", L"Word Varience:",
-						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						10, 40, 120, 20,
-						NV.GROUP_DATASET, NULL, NULL, NULL);
-					NV.min_lengthDESC = CreateWindowW(L"static", L"Min Length:",
-						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						200, 20, 120, 20,
-						NV.GROUP_DATASET, NULL, NULL, NULL);
-					NV.max_lengthDESC = CreateWindowW(L"static", L"Max Length:",
-						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						200, 40, 120, 20,
-						NV.GROUP_DATASET, NULL, NULL, NULL);
-
-					NV.orderH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT | ES_NUMBER,
-						130, 20, 50, 20,
-						NV.GROUP_DATASET, NULL, NULL, NULL);
-					NV.wordVarienceH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT | ES_NUMBER,
-						130, 40, 50, 20,
-						NV.GROUP_DATASET, NULL, NULL, NULL);
-					NV.min_lengthH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT | ES_NUMBER,
-						320, 20, 50, 20,
-						NV.GROUP_DATASET, NULL, NULL, NULL);
-					NV.max_lengthH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_RIGHT | ES_NUMBER,
-						320, 40, 50, 20,
-						NV.GROUP_DATASET, NULL, NULL, NULL);
-
-					NV.Markov_RawDatasetDESC = CreateWindowW(L"static", L"Dataset:",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | SS_CENTER,
-						10, 80, 600, 20,
-						NV.GROUP_DATASET, NULL, NULL, NULL);
-					NV.Markov_RawDatasetH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
-						12, 100, 596, 300,
-						NV.GROUP_DATASET, NULL, NULL, NULL);
-
-					#pragma endregion
-				//###############################################################################
-
-				//###############################################################################
-					#pragma region Simple Generator Group	
-				//###############################################################################
-				
 					NV.GROUP_SIMPLE = CreateWindowW(L"button", L"Simple Generator:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
@@ -2357,7 +2403,18 @@ std::ofstream* DebugFileP;
 						12, 250, 596, 130,
 						NV.GROUP_SIMPLE, NULL, NULL, NULL);
 
+						#pragma endregion
+					//###############################################################################
+
 					#pragma endregion
+				//###############################################################################
+
+				//###############################################################################
+					#pragma region Advanced Inner Tab
+
+					#pragma endregion
+				//###############################################################################
+
 				//###############################################################################
 				#pragma endregion
 			//###############################################################################
@@ -2634,7 +2691,7 @@ std::ofstream* DebugFileP;
 		wchar_t wfileName[NAMESIZE];
 		std::wstring fileName;
 
-		GetWindowTextW(CONFIG_H.saveNamePresetButton.HANDLE, wfileName, NAMESIZE);
+		GetWindowTextW(NV.saveNamePresetButton.HANDLE, wfileName, NAMESIZE);
 		fileName = wfileName;
 		filePath += fileName + L".npreset";
 		std::ofstream outputFile(filePath.c_str()); // creates the file
@@ -2935,20 +2992,7 @@ std::ofstream* DebugFileP;
 		case Advanced:
 		{
 			ShowWindow(CONFIG_H.HEADER_ADVANCED, 0);
-			ShowWindow(CONFIG_H.advNameGroup.EXTRA, 0);
-			ShowWindow(CONFIG_H.saveNamePresetButton.HANDLE, 0);
-			ShowWindow(CONFIG_H.saveNamePresetButton.DESC, 0);
-			ShowWindow(CONFIG_H.saveNamePresetButton.INFOBUTTON, 0);
-			ShowWindow(CONFIG_H.saveNamePresetButton.EXTRA, 0);
-			ShowWindow(CONFIG_H.buttonDwarfMoon, 0);
-			ShowWindow(CONFIG_H.buttonMoon, 0);
-			ShowWindow(CONFIG_H.buttonPlanet, 0);
-			ShowWindow(CONFIG_H.buttonUpdate, 0);
-			ShowWindow(CONFIG_H.buttonShip, 0);
-			ShowWindow(CONFIG_H.buttonStar, 0);
-			ShowWindow(CONFIG_H.buttonDataset, 0);
-			ShowWindow(CONFIG_H.buttonSimple, 0);
-
+			ShowWindow(NV.Tab_Advanced_Outer, 0);
 			Clear_Advanced();
 		}
 			break;
@@ -3173,22 +3217,50 @@ std::ofstream* DebugFileP;
 	{
 		//Header
 		ShowWindow(CONFIG_H.HEADER_ADVANCED, 1);
+		ShowWindow(NV.Tab_Advanced_Outer, 1);
 
-		ShowWindow(CONFIG_H.saveNamePresetButton.HANDLE, 1);
-		ShowWindow(CONFIG_H.saveNamePresetButton.DESC, 1);
-		ShowWindow(CONFIG_H.saveNamePresetButton.INFOBUTTON, 1);
-		ShowWindow(CONFIG_H.saveNamePresetButton.EXTRA, 1);
-
-		ShowWindow(CONFIG_H.advNameGroup.EXTRA, 1);
-
-		ShowWindow(CONFIG_H.buttonUpdate, 1);
-		ShowWindow(CONFIG_H.buttonStar, 1);
-		ShowWindow(CONFIG_H.buttonPlanet, 1);
-		ShowWindow(CONFIG_H.buttonMoon, 1);
-		ShowWindow(CONFIG_H.buttonDwarfMoon, 1);
-		ShowWindow(CONFIG_H.buttonShip, 1);
-		ShowWindow(CONFIG_H.buttonDataset, 1);
-		ShowWindow(CONFIG_H.buttonSimple, 1);
+		// outer switch statment loads either the name variables tab or advanced variables tab
+		switch (TabCtrl_GetCurSel(NV.Tab_Advanced_Outer))
+		{
+		case TABGROUP_NAME_INNER:
+		{
+			ShowWindow(NV.Tab_Name_Inner, 1);
+			switch (TabCtrl_GetCurSel(NV.Tab_Name_Inner))
+			{
+			case TAB_NAME_DATASET:
+				Load_Name_Dataset();
+				break;
+			case TAB_NAME_STAR:
+				Load_Name_Star();
+				break;
+			case TAB_NAME_PLANET:
+				Load_Name_Planet();
+				break;
+			case TAB_NAME_MOON:
+				Load_Name_Moon();
+				break;
+			case TAB_NAME_DWARFMOON:
+				Load_Name_DwarfMoon();
+				break;
+			case TAB_NAME_ASTEROID:
+				//Load_Name_Asteroid();
+				break;
+			case TAB_NAME_COMET:
+				//Load_Name_Comet();
+				break;
+			case TAB_NAME_SHIP:
+				Load_Name_All_Ship();
+				break;
+			case TAB_NAME_SIMPLE:
+				Load_Name_Simple();
+				break;
+			}
+		}
+			break;
+		case TABGROUP_ADVANCED_INNER:
+			Load_Advanced_Main();
+			break;
+		}
 
 		lastScreen = Advanced;
 	}
@@ -3205,6 +3277,10 @@ std::ofstream* DebugFileP;
 
 	void Clear_Advanced()
 	{
+		ShowWindow(NV.Tab_Advanced_Inner, 0);
+		ShowWindow(NV.Tab_Name_Inner, 0);
+		ShowWindow(NV.Tab_Ship_Inner, 0);
+
 		ShowWindow(NV.PreMod_INFO.DESC, 0);
 		ShowWindow(NV.PostMod_INFO.DESC, 0);
 		ShowWindow(NV.NumberMod_INFO.DESC, 0);
@@ -3235,6 +3311,11 @@ std::ofstream* DebugFileP;
 		ShowWindow(NV.BUTTON_INSTRUMENT, 0);
 		ShowWindow(NV.BUTTON_SATELLITE, 0);
 		ShowWindow(NV.BUTTON_STATION, 0);
+
+		ShowWindow(NV.saveNamePresetButton.DESC, 0);
+		ShowWindow(NV.saveNamePresetButton.HANDLE, 0);
+		ShowWindow(NV.saveNamePresetButton.INFOBUTTON, 0);
+		ShowWindow(NV.saveNamePresetButton.EXTRA, 0);
 
 		ShowWindow(NV.wordPercentH.DESC, 0);
 		ShowWindow(NV.wordPercentH.HANDLE, 0);
@@ -3419,14 +3500,24 @@ std::ofstream* DebugFileP;
 
 	void Load_Name_Dataset()
 	{
+		
 		ShowWindow(NV.Markov_INFO, 1);
+		ShowWindow(NV.buttonUpdate, 1);
 
 		ShowWindow(NV.wordPercentH.DESC, 1);
 		ShowWindow(NV.wordPercentH.HANDLE, 1);
 		ShowWindow(NV.wordPercentH.INFOBUTTON, 1);
 		ShowWindow(NV.wordPercentH.EXTRA, 1);
 
+		ShowWindow(NV.saveNamePresetButton.HANDLE, 1);
+		ShowWindow(NV.saveNamePresetButton.DESC, 1);
+		ShowWindow(NV.saveNamePresetButton.INFOBUTTON, 1);
+		ShowWindow(NV.saveNamePresetButton.EXTRA, 1);
+
 		ShowWindow(NV.GROUP_DATASET, 1);
+	}
+	void Load_Advanced_Main()
+	{
 	}
 	void Load_Name_Simple()
 	{
