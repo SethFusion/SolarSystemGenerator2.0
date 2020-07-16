@@ -25,8 +25,8 @@ std::vector<NamePreset> npreset;
 std::mt19937 mt_star, mt_planet, mt_moon, mt_ship, mt_name;
 std::uniform_int_distribution<int> genpercent{ 0, 99 }; // Number to compare represents real % ex: genpercent() < 50 = 50%
 std::uniform_real_distribution<> gendegree{ 0, 360 };
-enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4,
-	typeShipColony = 5, typeShipInstrument = 6, typeShipSatellite = 7, typeShipStation = 8};
+enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4, typeAsteroid = 5, typeComet = 6,
+	typeShipColony = 7, typeShipInstrument = 8, typeShipSatellite = 9, typeShipStation = 10};
 enum Screen {General = 1, System = 2, Planet = 3, Surface = 4, Special = 5, Advanced = 6};
 Screen lastScreen;
 
@@ -90,6 +90,8 @@ std::ofstream* DebugFileP;
 	void Load_Name_Planet();
 	void Load_Name_Moon();
 	void Load_Name_DwarfMoon();
+	void Load_Name_Asteroid();
+	void Load_Name_Comet();
 	void Load_Name_All_Ship();
 	void Load_Name_Colony_Ship();
 	void Load_Name_Instrument_Ship();
@@ -177,7 +179,7 @@ std::ofstream* DebugFileP;
 
 		return (int)msg.wParam;
 	}
-	/*###################################################*/
+/*###################################################*/
 
 	ATOM MyRegisterClass(HINSTANCE hInstance)
 	{
@@ -336,25 +338,17 @@ std::ofstream* DebugFileP;
 				switch (note->idFrom) 
 				{
 				case TABGROUP_ADVANCED_OUTER:
-				{
 					Load_Tabgroup_Advanced_Outer();
-				}
-				break;
+					break;
 				case TABGROUP_ADVANCED_INNER:
-				{
 					//empty for now
-				}
-				break;
+					break;
 				case TABGROUP_NAME_INNER:
-				{
 					Load_Tabgroup_Name_Inner();
-				}
-				break;
+					break;
 				case TABGROUP_SHIP_INNER:
-				{
-					//empty for now
-				}
-				break;
+					Load_Tabgroup_Ship_Inner();
+					break;
 				}
 			}
 			break;
@@ -655,6 +649,26 @@ std::ofstream* DebugFileP;
 			LoadListFromFile(Buffer, parse, temp.DwarfMoonPostMods);
 			LoadVariableFromFile(Buffer, parse, temp.useDwarfMoonNumberMods);
 			LoadVariableFromFile(Buffer, parse, temp.probDwarfMoonNumberMod);
+
+			LoadVariableFromFile(Buffer, parse, temp.nameAsteroids);
+			LoadVariableFromFile(Buffer, parse, temp.useAsteroidPreMods);
+			LoadVariableFromFile(Buffer, parse, temp.probAsteroidPreMod);
+			LoadListFromFile(Buffer, parse, temp.AsteroidPreMods);
+			LoadVariableFromFile(Buffer, parse, temp.useAsteroidPostMods);
+			LoadVariableFromFile(Buffer, parse, temp.probAsteroidPostMod);
+			LoadListFromFile(Buffer, parse, temp.AsteroidPostMods);
+			LoadVariableFromFile(Buffer, parse, temp.useAsteroidNumberMods);
+			LoadVariableFromFile(Buffer, parse, temp.probAsteroidNumberMod);
+
+			LoadVariableFromFile(Buffer, parse, temp.nameComets);
+			LoadVariableFromFile(Buffer, parse, temp.useCometPreMods);
+			LoadVariableFromFile(Buffer, parse, temp.probCometPreMod);
+			LoadListFromFile(Buffer, parse, temp.CometPreMods);
+			LoadVariableFromFile(Buffer, parse, temp.useCometPostMods);
+			LoadVariableFromFile(Buffer, parse, temp.probCometPostMod);
+			LoadListFromFile(Buffer, parse, temp.CometPostMods);
+			LoadVariableFromFile(Buffer, parse, temp.useCometNumberMods);
+			LoadVariableFromFile(Buffer, parse, temp.probCometNumberMod);
 
 			LoadVariableFromFile(Buffer, parse, temp.useShipPreMods_All);
 			LoadVariableFromFile(Buffer, parse, temp.probShipPreMod_All);
@@ -1588,6 +1602,29 @@ std::ofstream* DebugFileP;
 					inner & advanced inner. Outmost tabs are last.
 				=====================================================*/
 
+				// tab to hold the ship buttons
+				NV.Tab_Ship_Inner = CreateWindowW(WC_TABCONTROL, L"",
+					WS_CHILD,
+					360, 170, 645, 490,
+					hWnd, (HMENU)TABGROUP_SHIP_INNER, hInst, NULL);
+				// insert main tabs
+				TCHAR tab11[32] = L"All Ship Names";
+				TCHAR tab12[32] = L"Colony";
+				TCHAR tab13[32] = L"Instrument";
+				TCHAR tab14[32] = L"Satellite";
+				TCHAR tab15[32] = L"Station";
+				tab.pszText = tab11;
+				TabCtrl_InsertItem(NV.Tab_Ship_Inner, TAB_SHIP_ALL, &tab);
+				tab.pszText = tab12;
+				TabCtrl_InsertItem(NV.Tab_Ship_Inner, TAB_SHIP_COLONY, &tab);
+				tab.pszText = tab13;
+				TabCtrl_InsertItem(NV.Tab_Ship_Inner, TAB_SHIP_INSTRUMENT, &tab);
+				tab.pszText = tab14;
+				TabCtrl_InsertItem(NV.Tab_Ship_Inner, TAB_SHIP_SATELLITE, &tab);
+				tab.pszText = tab15;
+				TabCtrl_InsertItem(NV.Tab_Ship_Inner, TAB_SHIP_STATION, &tab);
+
+
 				NV.Tab_Name_Inner = CreateWindowW(WC_TABCONTROL, L"",
 					WS_CHILD | TCS_MULTILINE,
 					355, 125, 655, 540,
@@ -1623,7 +1660,7 @@ std::ofstream* DebugFileP;
 				
 			
 				// tab to hold the outer buttons
-				NV.Tab_Advanced_Outer = CreateWindowW(WC_TABCONTROL, L"",
+				CONFIG.Tab_Advanced_Outer = CreateWindowW(WC_TABCONTROL, L"",
 					WS_CHILD | TCS_MULTILINE | TCS_RIGHTJUSTIFY,
 					350, 100, 665, 570,
 					hWnd, (HMENU)TABGROUP_ADVANCED_OUTER, hInst, NULL);
@@ -1631,9 +1668,9 @@ std::ofstream* DebugFileP;
 				TCHAR tab0[32] = L"Name Variables";
 				TCHAR tab1[32] = L"Advanced Variables";
 				tab.pszText = tab0;
-				TabCtrl_InsertItem(NV.Tab_Advanced_Outer, TAB_NAMES, &tab);
+				TabCtrl_InsertItem(CONFIG.Tab_Advanced_Outer, TAB_NAMES, &tab);
 				tab.pszText = tab1;
-				TabCtrl_InsertItem(NV.Tab_Advanced_Outer, TAB_ADVANCED, &tab);
+				TabCtrl_InsertItem(CONFIG.Tab_Advanced_Outer, TAB_ADVANCED, &tab);
 
 				//###############################################################################
 					#pragma region Name Inner Tab
@@ -2049,10 +2086,146 @@ std::ofstream* DebugFileP;
 					//###############################################################################
 
 					//###############################################################################
+						#pragma region Asteroid Group
+					//###############################################################################
+
+					NV.GROUP_ASTEROID = CreateWindowW(L"button", L"Asteroid Name Variables:",
+						WS_CHILD | WS_GROUP | BS_GROUPBOX,
+						370, 240, 620, 410,
+						hWnd, NULL, NULL, NULL);
+
+					NV.nameAsteroidsH.DESC = CreateWindowW(L"static", L"Name Asteroids:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 16, 420, 24,
+						NV.GROUP_ASTEROID, NULL, NULL, NULL);
+					NV.nameAsteroidsH.HANDLE = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						402, 18, 20, 20,
+						NV.GROUP_ASTEROID, (HMENU)NVCB_NAMEASTEROIDS, NULL, NULL);
+					NV.nameAsteroidsH.INFOBUTTON = CreateWindowW(L"button", L"I",
+						WS_CHILD | WS_BORDER,
+						802, 259, 16, 16,
+						hWnd, (HMENU)IB_NAMEASTEROIDS, NULL, NULL);
+
+					// These handes are initialized as visible because they are
+					// shown/hiden with the group
+					NV.useAsteroidModsDESC = CreateWindowW(L"static", L"Use Asteroid Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 38, 420, 22,
+						NV.GROUP_ASTEROID, NULL, NULL, NULL);
+					NV.useAsteroidPreModsH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						322, 39, 20, 20,
+						NV.GROUP_ASTEROID, (HMENU)NVCB_ASTEROIDPREMOD, NULL, NULL);
+					NV.useAsteroidPostModsH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						362, 39, 20, 20,
+						NV.GROUP_ASTEROID, (HMENU)NVCB_ASTEROIDPOSTMOD, NULL, NULL);
+					NV.useAsteroidNumberModsH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						402, 39, 20, 20,
+						NV.GROUP_ASTEROID, (HMENU)NVCB_ASTEROIDNUMBERMOD, NULL, NULL);
+
+					NV.starModsProbDESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 60, 300, 20,
+						NV.GROUP_ASTEROID, NULL, NULL, NULL);
+					NV.probAsteroidPreModH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_CENTER,
+						310, 60, 40, 20,
+						NV.GROUP_ASTEROID, NULL, NULL, NULL);
+					NV.probAsteroidPostModH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_CENTER,
+						350, 60, 40, 20,
+						NV.GROUP_ASTEROID, NULL, NULL, NULL);
+					NV.probAsteroidNumberModH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_CENTER,
+						390, 60, 40, 20,
+						NV.GROUP_ASTEROID, NULL, NULL, NULL);
+
+					NV.asteroidPreModList = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						12, 130, 296, 266,
+						NV.GROUP_ASTEROID, NULL, NULL, NULL);
+					NV.asteroidPostModList = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						312, 130, 296, 266,
+						NV.GROUP_ASTEROID, NULL, NULL, NULL);
+
+						#pragma endregion
+					//###############################################################################
+
+					//###############################################################################
+						#pragma region Comet Group
+					//###############################################################################
+
+					NV.GROUP_COMET = CreateWindowW(L"button", L"Comet Name Variables:",
+						WS_CHILD | WS_GROUP | BS_GROUPBOX,
+						370, 240, 620, 410,
+						hWnd, NULL, NULL, NULL);
+
+					NV.nameCometsH.DESC = CreateWindowW(L"static", L"Name Comets:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 16, 420, 24,
+						NV.GROUP_COMET, NULL, NULL, NULL);
+					NV.nameCometsH.HANDLE = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						402, 18, 20, 20,
+						NV.GROUP_COMET, (HMENU)NVCB_NAMECOMETS, NULL, NULL);
+
+					// These handes are initialized as visible because they are
+					// shown/hiden with the group
+					NV.useCometModsDESC = CreateWindowW(L"static", L"Use Comet Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 38, 420, 22,
+						NV.GROUP_COMET, NULL, NULL, NULL);
+					NV.useCometPreModsH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						322, 39, 20, 20,
+						NV.GROUP_COMET, (HMENU)NVCB_COMETPREMOD, NULL, NULL);
+					NV.useCometPostModsH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						362, 39, 20, 20,
+						NV.GROUP_COMET, (HMENU)NVCB_COMETPOSTMOD, NULL, NULL);
+					NV.useCometNumberModsH = CreateWindowW(L"button", L"",
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						402, 39, 20, 20,
+						NV.GROUP_COMET, (HMENU)NVCB_COMETNUMBERMOD, NULL, NULL);
+
+					NV.starModsProbDESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+						WS_CHILD | WS_VISIBLE | WS_BORDER,
+						10, 60, 300, 20,
+						NV.GROUP_COMET, NULL, NULL, NULL);
+					NV.probCometPreModH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_CENTER,
+						310, 60, 40, 20,
+						NV.GROUP_COMET, NULL, NULL, NULL);
+					NV.probCometPostModH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_CENTER,
+						350, 60, 40, 20,
+						NV.GROUP_COMET, NULL, NULL, NULL);
+					NV.probCometNumberModH = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_CENTER,
+						390, 60, 40, 20,
+						NV.GROUP_COMET, NULL, NULL, NULL);
+
+					NV.cometPreModList = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						12, 130, 296, 266,
+						NV.GROUP_COMET, NULL, NULL, NULL);
+					NV.cometPostModList = CreateWindowW(L"edit", L"",
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+						312, 130, 296, 266,
+						NV.GROUP_COMET, NULL, NULL, NULL);
+
+						#pragma endregion
+					//###############################################################################
+
+					//###############################################################################
 						#pragma region Ship_All Group
 					//###############################################################################
 
-					NV.GROUP_ALL_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
+					NV.GROUP_SHIP_ALL = CreateWindowW(L"button", L"Ship Name Variables:",
 						WS_CHILD | WS_GROUP | BS_GROUPBOX,
 						370, 240, 620, 410,
 						hWnd, NULL, NULL, NULL);
@@ -2061,266 +2234,272 @@ std::ofstream* DebugFileP;
 					// shown/hiden with the group
 					NV.useShipMods_All_DESC = CreateWindowW(L"static", L"Use Pre / Post Mods for All Ships:",
 						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						10, 40, 300, 20,
-						NV.GROUP_ALL_SHIP, NULL, NULL, NULL);
+						10, 38, 380, 22,
+						NV.GROUP_SHIP_ALL, NULL, NULL, NULL);
 					NV.useShipPreMods_AllH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-						310, 40, 20, 20,
-						NV.GROUP_ALL_SHIP, (HMENU)NVCB_SHIPALLPREMOD, NULL, NULL);
+						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+						322, 39, 20, 20,
+						NV.GROUP_SHIP_ALL, (HMENU)NVCB_SHIPALLPREMOD, NULL, NULL);
 					NV.useShipPostMods_AllH = CreateWindowW(L"button", L"",
 						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-						330, 40, 20, 20,
-						NV.GROUP_ALL_SHIP, (HMENU)NVCB_SHIPALLPOSTMOD, NULL, NULL);
+						362, 39, 20, 20,
+						NV.GROUP_SHIP_ALL, (HMENU)NVCB_SHIPALLPOSTMOD, NULL, NULL);
 
 					NV.shipModsProb_All_DESC = CreateWindowW(L"static", L"Probability for Pre / Post Mods:",
 						WS_CHILD | WS_VISIBLE | WS_BORDER,
 						10, 60, 300, 20,
-						NV.GROUP_ALL_SHIP, NULL, NULL, NULL);
+						NV.GROUP_SHIP_ALL, NULL, NULL, NULL);
 					NV.probShipPreMod_AllH = CreateWindowW(L"edit", L"",
 						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						10, 80, 40, 20,
-						NV.GROUP_ALL_SHIP, NULL, NULL, NULL);
+						310, 60, 40, 20,
+						NV.GROUP_SHIP_ALL, NULL, NULL, NULL);
 					NV.probShipPostMod_AllH = CreateWindowW(L"edit", L"",
 						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						50, 80, 40, 20,
-						NV.GROUP_ALL_SHIP, NULL, NULL, NULL);
+						350, 60, 40, 20,
+						NV.GROUP_SHIP_ALL, NULL, NULL, NULL);
 
 					NV.shipPreModList_All = CreateWindowW(L"edit", L"",
 						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 						12, 130, 296, 266,
-						NV.GROUP_ALL_SHIP, NULL, NULL, NULL);
+						NV.GROUP_SHIP_ALL, NULL, NULL, NULL);
 					NV.shipPostModList_All = CreateWindowW(L"edit", L"",
 						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 						312, 130, 296, 266,
-						NV.GROUP_ALL_SHIP, NULL, NULL, NULL);
+						NV.GROUP_SHIP_ALL, NULL, NULL, NULL);
 
-						#pragma endregion
-					//###############################################################################
+						//###############################################################################
+							#pragma region Ship Types
 
-					//###############################################################################
-						#pragma region Ship_Colony Group
-					//###############################################################################
+							//###############################################################################
+								#pragma region Ship_Colony Group
+							//###############################################################################
 
-					NV.GROUP_COLONY_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
-						WS_CHILD | WS_GROUP | BS_GROUPBOX,
-						370, 240, 620, 410,
-						hWnd, NULL, NULL, NULL);
+							NV.GROUP_SHIP_COLONY = CreateWindowW(L"button", L"Ship Name Variables:",
+								WS_CHILD | WS_GROUP | BS_GROUPBOX,
+								370, 240, 620, 410,
+								hWnd, NULL, NULL, NULL);
 
-					// These handes are initialized as visible because they are
-					// shown/hiden with the group
-					NV.useShipMods_Colony_DESC = CreateWindowW(L"static", L"Use Colony Pre / Post / Number Mods:",
-						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						10, 40, 300, 20,
-						NV.GROUP_COLONY_SHIP, NULL, NULL, NULL);
-					NV.useShipPreMods_ColonyH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-						310, 40, 20, 20,
-						NV.GROUP_COLONY_SHIP, (HMENU)NVCB_SHIPCOLONYPREMOD, NULL, NULL);
-					NV.useShipPostMods_ColonyH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-						330, 40, 20, 20,
-						NV.GROUP_COLONY_SHIP, (HMENU)NVCB_SHIPCOLONYPOSTMOD, NULL, NULL);
-					NV.useShipNumberMods_ColonyH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-						350, 40, 20, 20,
-						NV.GROUP_COLONY_SHIP, (HMENU)NVCB_SHIPCOLONYNUMBERMOD, NULL, NULL);
+							// These handes are initialized as visible because they are
+							// shown/hiden with the group
+							NV.useShipMods_Colony_DESC = CreateWindowW(L"static", L"Use Colony Pre / Post Mods for Ships:",
+								WS_CHILD | WS_VISIBLE | WS_BORDER,
+								10, 38, 420, 22,
+								NV.GROUP_SHIP_COLONY, NULL, NULL, NULL);
+							NV.useShipPreMods_ColonyH = CreateWindowW(L"button", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+								322, 39, 20, 20,
+								NV.GROUP_SHIP_COLONY, (HMENU)NVCB_SHIPCOLONYPREMOD, NULL, NULL);
+							NV.useShipPostMods_ColonyH = CreateWindowW(L"button", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+								362, 39, 20, 20,
+								NV.GROUP_SHIP_COLONY, (HMENU)NVCB_SHIPCOLONYPOSTMOD, NULL, NULL);
+							NV.useShipNumberMods_ColonyH = CreateWindowW(L"button", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+								402, 39, 20, 20,
+								NV.GROUP_SHIP_COLONY, (HMENU)NVCB_SHIPCOLONYNUMBERMOD, NULL, NULL);
 
-					NV.shipModsProb_Colony_DESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
-						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						10, 60, 300, 20,
-						NV.GROUP_COLONY_SHIP, NULL, NULL, NULL);
-					NV.probShipPreMod_ColonyH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						10, 80, 40, 20,
-						NV.GROUP_COLONY_SHIP, NULL, NULL, NULL);
-					NV.probShipPostMod_ColonyH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						50, 80, 40, 20,
-						NV.GROUP_COLONY_SHIP, NULL, NULL, NULL);
-					NV.probShipNumberMod_ColonyH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						90, 80, 40, 20,
-						NV.GROUP_COLONY_SHIP, NULL, NULL, NULL);
+							NV.shipModsProb_Colony_DESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+								WS_CHILD | WS_VISIBLE | WS_BORDER,
+								10, 60, 300, 20,
+								NV.GROUP_SHIP_COLONY, NULL, NULL, NULL);
+							NV.probShipPreMod_ColonyH = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+								310, 60, 40, 20,
+								NV.GROUP_SHIP_COLONY, NULL, NULL, NULL);
+							NV.probShipPostMod_ColonyH = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+								350, 60, 40, 20,
+								NV.GROUP_SHIP_COLONY, NULL, NULL, NULL);
+							NV.probShipNumberMod_ColonyH = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+								390, 60, 40, 20,
+								NV.GROUP_SHIP_COLONY, NULL, NULL, NULL);
 
-					NV.shipPreModList_Colony = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
-						12, 130, 296, 266,
-						NV.GROUP_COLONY_SHIP, NULL, NULL, NULL);
-					NV.shipPostModList_Colony = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
-						312, 130, 296, 266,
-						NV.GROUP_COLONY_SHIP, NULL, NULL, NULL);
+							NV.shipPreModList_Colony = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+								12, 130, 296, 266,
+								NV.GROUP_SHIP_COLONY, NULL, NULL, NULL);
+							NV.shipPostModList_Colony = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+								312, 130, 296, 266,
+								NV.GROUP_SHIP_COLONY, NULL, NULL, NULL);
 
-						#pragma endregion
-					//###############################################################################
+								#pragma endregion
+							//###############################################################################
 
-					//###############################################################################
-						#pragma region Ship_Instrument Group
-					//###############################################################################
+							//###############################################################################
+								#pragma region Ship_Instrument Group
+							//###############################################################################
 
-					NV.GROUP_INSTRUMENT_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
-						WS_CHILD | WS_GROUP | BS_GROUPBOX,
-						370, 240, 620, 410,
-						hWnd, NULL, NULL, NULL);
+							NV.GROUP_SHIP_INSTRUMENT = CreateWindowW(L"button", L"Ship Name Variables:",
+								WS_CHILD | WS_GROUP | BS_GROUPBOX,
+								370, 240, 620, 410,
+								hWnd, NULL, NULL, NULL);
 
-					// These handes are initialized as visible because they are
-					// shown/hiden with the group
-					NV.useShipMods_Instrument_DESC = CreateWindowW(L"static", L"Use Instrument Pre / Post / Number Mods:",
-						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						10, 40, 300, 20,
-						NV.GROUP_INSTRUMENT_SHIP, NULL, NULL, NULL);
-					NV.useShipPreMods_InstrumentH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-						310, 40, 20, 20,
-						NV.GROUP_INSTRUMENT_SHIP, (HMENU)NVCB_SHIPINSTRUMENTPREMOD, NULL, NULL);
-					NV.useShipPostMods_InstrumentH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-						330, 40, 20, 20,
-						NV.GROUP_INSTRUMENT_SHIP, (HMENU)NVCB_SHIPINSTRUMENTPOSTMOD, NULL, NULL);
-					NV.useShipNumberMods_InstrumentH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-						350, 40, 20, 20,
-						NV.GROUP_INSTRUMENT_SHIP, (HMENU)NVCB_SHIPINSTRUMENTNUMBERMOD, NULL, NULL);
+							// These handes are initialized as visible because they are
+							// shown/hiden with the group
+							NV.useShipMods_Instrument_DESC = CreateWindowW(L"static", L"Use Instrument Pre / Post Mods for Ships:",
+								WS_CHILD | WS_VISIBLE | WS_BORDER,
+								10, 38, 420, 22,
+								NV.GROUP_SHIP_INSTRUMENT, NULL, NULL, NULL);
+							NV.useShipPreMods_InstrumentH = CreateWindowW(L"button", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+								322, 39, 20, 20,
+								NV.GROUP_SHIP_INSTRUMENT, (HMENU)NVCB_SHIPINSTRUMENTPREMOD, NULL, NULL);
+							NV.useShipPostMods_InstrumentH = CreateWindowW(L"button", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+								362, 39, 20, 20,
+								NV.GROUP_SHIP_INSTRUMENT, (HMENU)NVCB_SHIPINSTRUMENTPOSTMOD, NULL, NULL);
+							NV.useShipNumberMods_InstrumentH = CreateWindowW(L"button", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+								402, 39, 20, 20,
+								NV.GROUP_SHIP_INSTRUMENT, (HMENU)NVCB_SHIPINSTRUMENTNUMBERMOD, NULL, NULL);
 
-					NV.shipModsProb_Instrument_DESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
-						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						10, 60, 300, 20,
-						NV.GROUP_INSTRUMENT_SHIP, NULL, NULL, NULL);
-					NV.probShipPreMod_InstrumentH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						10, 80, 40, 20,
-						NV.GROUP_INSTRUMENT_SHIP, NULL, NULL, NULL);
-					NV.probShipPostMod_InstrumentH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						50, 80, 40, 20,
-						NV.GROUP_INSTRUMENT_SHIP, NULL, NULL, NULL);
-					NV.probShipNumberMod_InstrumentH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						90, 80, 40, 20,
-						NV.GROUP_INSTRUMENT_SHIP, NULL, NULL, NULL);
+							NV.shipModsProb_Instrument_DESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+								WS_CHILD | WS_VISIBLE | WS_BORDER,
+								10, 60, 300, 20,
+								NV.GROUP_SHIP_INSTRUMENT, NULL, NULL, NULL);
+							NV.probShipPreMod_InstrumentH = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+								310, 60, 40, 20,
+								NV.GROUP_SHIP_INSTRUMENT, NULL, NULL, NULL);
+							NV.probShipPostMod_InstrumentH = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+								350, 60, 40, 20,
+								NV.GROUP_SHIP_INSTRUMENT, NULL, NULL, NULL);
+							NV.probShipNumberMod_InstrumentH = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+								390, 60, 40, 20,
+								NV.GROUP_SHIP_INSTRUMENT, NULL, NULL, NULL);
 
-					NV.shipPreModList_Instrument = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
-						12, 130, 296, 266,
-						NV.GROUP_INSTRUMENT_SHIP, NULL, NULL, NULL);
-					NV.shipPostModList_Instrument = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
-						312, 130, 296, 266,
-						NV.GROUP_INSTRUMENT_SHIP, NULL, NULL, NULL);
+							NV.shipPreModList_Instrument = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+								12, 130, 296, 266,
+								NV.GROUP_SHIP_INSTRUMENT, NULL, NULL, NULL);
+							NV.shipPostModList_Instrument = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+								312, 130, 296, 266,
+								NV.GROUP_SHIP_INSTRUMENT, NULL, NULL, NULL);
 
-						#pragma endregion
-					//###############################################################################
+								#pragma endregion
+							//###############################################################################
 
-					//###############################################################################
-						#pragma region Ship_Satellite Group
-					//###############################################################################
+							//###############################################################################
+								#pragma region Ship_Satellite Group
+							//###############################################################################
 
-					NV.GROUP_SATELLITE_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
-						WS_CHILD | WS_GROUP | BS_GROUPBOX,
-						370, 240, 620, 410,
-						hWnd, NULL, NULL, NULL);
+							NV.GROUP_SHIP_SATELLITE = CreateWindowW(L"button", L"Ship Name Variables:",
+								WS_CHILD | WS_GROUP | BS_GROUPBOX,
+								370, 240, 620, 410,
+								hWnd, NULL, NULL, NULL);
 
-					// These handes are initialized as visible because they are
-					// shown/hiden with the group
-					NV.useShipMods_Satellite_DESC = CreateWindowW(L"static", L"Use Satellite Pre / Post / Number Mods:",
-						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						10, 40, 300, 20,
-						NV.GROUP_SATELLITE_SHIP, NULL, NULL, NULL);
-					NV.useShipPreMods_SatelliteH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-						310, 40, 20, 20,
-						NV.GROUP_SATELLITE_SHIP, (HMENU)NVCB_SHIPSATELLITEPREMOD, NULL, NULL);
-					NV.useShipPostMods_SatelliteH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-						330, 40, 20, 20,
-						NV.GROUP_SATELLITE_SHIP, (HMENU)NVCB_SHIPSATELLITEPOSTMOD, NULL, NULL);
-					NV.useShipNumberMods_SatelliteH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-						350, 40, 20, 20,
-						NV.GROUP_SATELLITE_SHIP, (HMENU)NVCB_SHIPSATELLITENUMBERMOD, NULL, NULL);
+							// These handes are initialized as visible because they are
+							// shown/hiden with the group
+							NV.useShipMods_Satellite_DESC = CreateWindowW(L"static", L"Use Satellite Pre / Post Mods for Ships:",
+								WS_CHILD | WS_VISIBLE | WS_BORDER,
+								10, 38, 420, 22,
+								NV.GROUP_SHIP_SATELLITE, NULL, NULL, NULL);
+							NV.useShipPreMods_SatelliteH = CreateWindowW(L"button", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+								322, 39, 20, 20,
+								NV.GROUP_SHIP_SATELLITE, (HMENU)NVCB_SHIPSATELLITEPREMOD, NULL, NULL);
+							NV.useShipPostMods_SatelliteH = CreateWindowW(L"button", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+								362, 39, 20, 20,
+								NV.GROUP_SHIP_SATELLITE, (HMENU)NVCB_SHIPSATELLITEPOSTMOD, NULL, NULL);
+							NV.useShipNumberMods_SatelliteH = CreateWindowW(L"button", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+								402, 39, 20, 20,
+								NV.GROUP_SHIP_SATELLITE, (HMENU)NVCB_SHIPSATELLITENUMBERMOD, NULL, NULL);
 
-					NV.shipModsProb_Satellite_DESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
-						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						10, 60, 300, 20,
-						NV.GROUP_SATELLITE_SHIP, NULL, NULL, NULL);
-					NV.probShipPreMod_SatelliteH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						10, 80, 40, 20,
-						NV.GROUP_SATELLITE_SHIP, NULL, NULL, NULL);
-					NV.probShipPostMod_SatelliteH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						50, 80, 40, 20,
-						NV.GROUP_SATELLITE_SHIP, NULL, NULL, NULL);
-					NV.probShipNumberMod_SatelliteH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						90, 80, 40, 20,
-						NV.GROUP_SATELLITE_SHIP, NULL, NULL, NULL);
+							NV.shipModsProb_Satellite_DESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+								WS_CHILD | WS_VISIBLE | WS_BORDER,
+								10, 60, 300, 20,
+								NV.GROUP_SHIP_SATELLITE, NULL, NULL, NULL);
+							NV.probShipPreMod_SatelliteH = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+								310, 60, 40, 20,
+								NV.GROUP_SHIP_SATELLITE, NULL, NULL, NULL);
+							NV.probShipPostMod_SatelliteH = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+								350, 60, 40, 20,
+								NV.GROUP_SHIP_SATELLITE, NULL, NULL, NULL);
+							NV.probShipNumberMod_SatelliteH = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+								390, 60, 40, 20,
+								NV.GROUP_SHIP_SATELLITE, NULL, NULL, NULL);
 
-					NV.shipPreModList_Satellite = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
-						12, 130, 296, 266,
-						NV.GROUP_SATELLITE_SHIP, NULL, NULL, NULL);
-					NV.shipPostModList_Satellite = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
-						312, 130, 296, 266,
-						NV.GROUP_SATELLITE_SHIP, NULL, NULL, NULL);
+							NV.shipPreModList_Satellite = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+								12, 130, 296, 266,
+								NV.GROUP_SHIP_SATELLITE, NULL, NULL, NULL);
+							NV.shipPostModList_Satellite = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+								312, 130, 296, 266,
+								NV.GROUP_SHIP_SATELLITE, NULL, NULL, NULL);
 
-						#pragma endregion
-					//###############################################################################
+								#pragma endregion
+							//###############################################################################
 
-					//###############################################################################
-						#pragma region Ship_Station Group
-					//###############################################################################
+							//###############################################################################
+								#pragma region Ship_Station Group
+							//###############################################################################
 
-					NV.GROUP_STATION_SHIP = CreateWindowW(L"button", L"Ship Name Variables:",
-						WS_CHILD | WS_GROUP | BS_GROUPBOX,
-						370, 240, 620, 410,
-						hWnd, NULL, NULL, NULL);
+							NV.GROUP_SHIP_STATION = CreateWindowW(L"button", L"Ship Name Variables:",
+								WS_CHILD | WS_GROUP | BS_GROUPBOX,
+								370, 240, 620, 410,
+								hWnd, NULL, NULL, NULL);
 
-					// These handes are initialized as visible because they are
-					// shown/hiden with the group
-					NV.useShipMods_Station_DESC = CreateWindowW(L"static", L"Use Station Pre / Post / Number Mods:",
-						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						10, 40, 300, 20,
-						NV.GROUP_STATION_SHIP, NULL, NULL, NULL);
-					NV.useShipPreMods_StationH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-						310, 40, 20, 20,
-						NV.GROUP_STATION_SHIP, (HMENU)NVCB_SHIPSTATIONPREMOD, NULL, NULL);
-					NV.useShipPostMods_StationH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-						330, 40, 20, 20,
-						NV.GROUP_STATION_SHIP, (HMENU)NVCB_SHIPSTATIONPOSTMOD, NULL, NULL);
-					NV.useShipNumberMods_StationH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-						350, 40, 20, 20,
-						NV.GROUP_STATION_SHIP, (HMENU)NVCB_SHIPSTATIONNUMBERMOD, NULL, NULL);
+							// These handes are initialized as visible because they are
+							// shown/hiden with the group
+							NV.useShipMods_Station_DESC = CreateWindowW(L"static", L"Use Station Pre / Post Mods for Ships:",
+								WS_CHILD | WS_VISIBLE | WS_BORDER,
+								10, 38, 420, 22,
+								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
+							NV.useShipPreMods_StationH = CreateWindowW(L"button", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+								322, 39, 20, 20,
+								NV.GROUP_SHIP_STATION, (HMENU)NVCB_SHIPSTATIONPREMOD, NULL, NULL);
+							NV.useShipPostMods_StationH = CreateWindowW(L"button", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+								362, 39, 20, 20,
+								NV.GROUP_SHIP_STATION, (HMENU)NVCB_SHIPSTATIONPOSTMOD, NULL, NULL);
+							NV.useShipNumberMods_StationH = CreateWindowW(L"button", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+								402, 39, 20, 20,
+								NV.GROUP_SHIP_STATION, (HMENU)NVCB_SHIPSTATIONNUMBERMOD, NULL, NULL);
 
-					NV.shipModsProb_Station_DESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
-						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						10, 60, 300, 20,
-						NV.GROUP_STATION_SHIP, NULL, NULL, NULL);
-					NV.probShipPreMod_StationH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						10, 80, 40, 20,
-						NV.GROUP_STATION_SHIP, NULL, NULL, NULL);
-					NV.probShipPostMod_StationH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						50, 80, 40, 20,
-						NV.GROUP_STATION_SHIP, NULL, NULL, NULL);
-					NV.probShipNumberMod_StationH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						90, 80, 40, 20,
-						NV.GROUP_STATION_SHIP, NULL, NULL, NULL);
+							NV.shipModsProb_Station_DESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+								WS_CHILD | WS_VISIBLE | WS_BORDER,
+								10, 60, 300, 20,
+								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
+							NV.probShipPreMod_StationH = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+								310, 60, 40, 20,
+								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
+							NV.probShipPostMod_StationH = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+								350, 60, 40, 20,
+								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
+							NV.probShipNumberMod_StationH = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+								390, 60, 40, 20,
+								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
 
-					NV.shipPreModList_Station = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
-						12, 130, 296, 266,
-						NV.GROUP_STATION_SHIP, NULL, NULL, NULL);
-					NV.shipPostModList_Station = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
-						312, 130, 296, 266,
-						NV.GROUP_STATION_SHIP, NULL, NULL, NULL);
+							NV.shipPreModList_Station = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+								12, 130, 296, 266,
+								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
+							NV.shipPostModList_Station = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+								312, 130, 296, 266,
+								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
+
+								#pragma endregion
+							//###############################################################################
+
+							#pragma endregion
+						//###############################################################################
 
 						#pragma endregion
 					//###############################################################################
@@ -2516,6 +2695,26 @@ std::ofstream* DebugFileP;
 		CheckDlgButton(NV.GROUP_MOON, NVCB_MOONNUMBERMOD, P.useMoonNumberMods);
 		SetVariableToWindow(NV.probMoonNumberModH, P.probMoonNumberMod);
 
+		CheckDlgButton(NV.GROUP_ASTEROID, NVCB_NAMEASTEROIDS, P.nameAsteroids);
+		CheckDlgButton(NV.GROUP_ASTEROID, NVCB_ASTEROIDPREMOD, P.useAsteroidPreMods);
+		SetVariableToWindow(NV.probAsteroidPreModH, P.probAsteroidPreMod);
+		SetWindowTextW(NV.asteroidPreModList, P.AsteroidPreMods);
+		CheckDlgButton(NV.GROUP_ASTEROID, NVCB_ASTEROIDPOSTMOD, P.useAsteroidPostMods);
+		SetVariableToWindow(NV.probAsteroidPostModH, P.probAsteroidPostMod);
+		SetWindowTextW(NV.asteroidPostModList, P.AsteroidPostMods);
+		CheckDlgButton(NV.GROUP_ASTEROID, NVCB_ASTEROIDNUMBERMOD, P.useAsteroidNumberMods);
+		SetVariableToWindow(NV.probAsteroidNumberModH, P.probAsteroidNumberMod);
+
+		CheckDlgButton(NV.GROUP_COMET, NVCB_NAMECOMETS, P.nameComets);
+		CheckDlgButton(NV.GROUP_COMET, NVCB_COMETPREMOD, P.useCometPreMods);
+		SetVariableToWindow(NV.probCometPreModH, P.probCometPreMod);
+		SetWindowTextW(NV.cometPreModList, P.CometPreMods);
+		CheckDlgButton(NV.GROUP_COMET, NVCB_COMETPOSTMOD, P.useCometPostMods);
+		SetVariableToWindow(NV.probCometPostModH, P.probCometPostMod);
+		SetWindowTextW(NV.cometPostModList, P.CometPostMods);
+		CheckDlgButton(NV.GROUP_COMET, NVCB_COMETNUMBERMOD, P.useCometNumberMods);
+		SetVariableToWindow(NV.probCometNumberModH, P.probCometNumberMod);
+
 		CheckDlgButton(NV.GROUP_DWARFMOON, NVCB_NAMETERRADWARFMOONS, P.nameTerraDwarfMoons);
 		CheckDlgButton(NV.GROUP_DWARFMOON, NVCB_NAMEGASDWARFMOONS, P.nameGasDwarfMoons);
 		CheckDlgButton(NV.GROUP_DWARFMOON, NVCB_DWARFMOONPREMOD, P.useDwarfMoonPreMods);
@@ -2527,47 +2726,47 @@ std::ofstream* DebugFileP;
 		CheckDlgButton(NV.GROUP_DWARFMOON, NVCB_DWARFMOONNUMBERMOD, P.useDwarfMoonNumberMods);
 		SetVariableToWindow(NV.probDwarfMoonNumberModH, P.probDwarfMoonNumberMod);
 
-		CheckDlgButton(NV.GROUP_ALL_SHIP, NVCB_SHIPALLPREMOD, P.useShipPreMods_All);
+		CheckDlgButton(NV.GROUP_SHIP_ALL, NVCB_SHIPALLPREMOD, P.useShipPreMods_All);
 		SetVariableToWindow(NV.probShipPreMod_AllH, P.probShipPreMod_All);
 		SetWindowTextW(NV.shipPreModList_All, P.ShipPreMods_All);
-		CheckDlgButton(NV.GROUP_ALL_SHIP, NVCB_SHIPALLPOSTMOD, P.useShipPostMods_All);
+		CheckDlgButton(NV.GROUP_SHIP_ALL, NVCB_SHIPALLPOSTMOD, P.useShipPostMods_All);
 		SetVariableToWindow(NV.probShipPostMod_AllH, P.probShipPostMod_All);
 		SetWindowTextW(NV.shipPostModList_All, P.ShipPostMods_All);
 
-		CheckDlgButton(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYPREMOD, P.useShipPreMods_Colony);
+		CheckDlgButton(NV.GROUP_SHIP_COLONY, NVCB_SHIPCOLONYPREMOD, P.useShipPreMods_Colony);
 		SetVariableToWindow(NV.probShipPreMod_ColonyH, P.probShipPreMod_Colony);
 		SetWindowTextW(NV.shipPreModList_Colony, P.ShipPreMods_Colony);
-		CheckDlgButton(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYPOSTMOD, P.useShipPostMods_Colony);
+		CheckDlgButton(NV.GROUP_SHIP_COLONY, NVCB_SHIPCOLONYPOSTMOD, P.useShipPostMods_Colony);
 		SetVariableToWindow(NV.probShipPostMod_ColonyH, P.probShipPostMod_Colony);
 		SetWindowTextW(NV.shipPostModList_Colony, P.ShipPostMods_Colony);
-		CheckDlgButton(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYNUMBERMOD, P.useShipNumberMods_Colony);
+		CheckDlgButton(NV.GROUP_SHIP_COLONY, NVCB_SHIPCOLONYNUMBERMOD, P.useShipNumberMods_Colony);
 		SetVariableToWindow(NV.probShipNumberMod_ColonyH, P.probShipNumberMod_Colony);
 
-		CheckDlgButton(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTPREMOD, P.useShipPreMods_Instrument);
+		CheckDlgButton(NV.GROUP_SHIP_INSTRUMENT, NVCB_SHIPINSTRUMENTPREMOD, P.useShipPreMods_Instrument);
 		SetVariableToWindow(NV.probShipPreMod_InstrumentH, P.probShipPreMod_Instrument);
 		SetWindowTextW(NV.shipPreModList_Instrument, P.ShipPreMods_Instrument);
-		CheckDlgButton(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTPOSTMOD, P.useShipPostMods_Instrument);
+		CheckDlgButton(NV.GROUP_SHIP_INSTRUMENT, NVCB_SHIPINSTRUMENTPOSTMOD, P.useShipPostMods_Instrument);
 		SetVariableToWindow(NV.probShipPostMod_InstrumentH, P.probShipPostMod_Instrument);
 		SetWindowTextW(NV.shipPostModList_Instrument, P.ShipPostMods_Instrument);
-		CheckDlgButton(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTNUMBERMOD, P.useShipNumberMods_Instrument);
+		CheckDlgButton(NV.GROUP_SHIP_INSTRUMENT, NVCB_SHIPINSTRUMENTNUMBERMOD, P.useShipNumberMods_Instrument);
 		SetVariableToWindow(NV.probShipNumberMod_InstrumentH, P.probShipNumberMod_Instrument);
 
-		CheckDlgButton(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITEPREMOD, P.useShipPreMods_Satellite);
+		CheckDlgButton(NV.GROUP_SHIP_SATELLITE, NVCB_SHIPSATELLITEPREMOD, P.useShipPreMods_Satellite);
 		SetVariableToWindow(NV.probShipPreMod_SatelliteH, P.probShipPreMod_Satellite);
 		SetWindowTextW(NV.shipPreModList_Satellite, P.ShipPreMods_Satellite);
-		CheckDlgButton(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITEPOSTMOD, P.useShipPostMods_Satellite);
+		CheckDlgButton(NV.GROUP_SHIP_SATELLITE, NVCB_SHIPSATELLITEPOSTMOD, P.useShipPostMods_Satellite);
 		SetVariableToWindow(NV.probShipPostMod_SatelliteH, P.probShipPostMod_Satellite);
 		SetWindowTextW(NV.shipPostModList_Satellite, P.ShipPostMods_Satellite);
-		CheckDlgButton(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITENUMBERMOD, P.useShipNumberMods_Satellite);
+		CheckDlgButton(NV.GROUP_SHIP_SATELLITE, NVCB_SHIPSATELLITENUMBERMOD, P.useShipNumberMods_Satellite);
 		SetVariableToWindow(NV.probShipNumberMod_SatelliteH, P.probShipNumberMod_Satellite);
 
-		CheckDlgButton(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONPREMOD, P.useShipPreMods_Station);
+		CheckDlgButton(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONPREMOD, P.useShipPreMods_Station);
 		SetVariableToWindow(NV.probShipPreMod_StationH, P.probShipPreMod_Station);
 		SetWindowTextW(NV.shipPreModList_Station, P.ShipPreMods_Station);
-		CheckDlgButton(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONPOSTMOD, P.useShipPostMods_Station);
+		CheckDlgButton(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONPOSTMOD, P.useShipPostMods_Station);
 		SetVariableToWindow(NV.probShipPostMod_StationH, P.probShipPostMod_Station);
 		SetWindowTextW(NV.shipPostModList_Station, P.ShipPostMods_Station);
-		CheckDlgButton(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONNUMBERMOD, P.useShipNumberMods_Station);
+		CheckDlgButton(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONNUMBERMOD, P.useShipNumberMods_Station);
 		SetVariableToWindow(NV.probShipNumberMod_StationH, P.probShipNumberMod_Station);
 
 		SetVariableToWindow(NV.orderH, P.order);
@@ -2704,6 +2903,26 @@ std::ofstream* DebugFileP;
 			<< "dwarfMoonPostMods {" << wstr_to_str(NV.DwarfMoonPostMods) << "}\n"
 			<< "useDwarfMoonNumberMods=" << NV.useDwarfMoonNumberMods << "\n"
 			<< "probDwarfMoonNumberMod=" << NV.probDwarfMoonNumberMod << "\n"
+			<< "\n"
+			<< "nameAsteroids=" << NV.nameAsteroids << "\n"
+			<< "useAsteroidPreMods=" << NV.useAsteroidPreMods << "\n"
+			<< "probAsteroidPreMod=" << NV.probAsteroidPreMod << "\n"
+			<< "asteroidPreMods {" << wstr_to_str(NV.AsteroidPreMods) << "}\n"
+			<< "useAsteroidPostMods=" << NV.useAsteroidPostMods << "\n"
+			<< "probAsteroidPostMod=" << NV.probAsteroidPostMod << "\n"
+			<< "asteroidPostMods {" << wstr_to_str(NV.AsteroidPostMods) << "}\n"
+			<< "useAsteroidNumberMods=" << NV.useAsteroidNumberMods << "\n"
+			<< "probAsteroidNumberMod=" << NV.probAsteroidNumberMod << "\n"
+			<< "\n"
+			<< "nameComets=" << NV.nameComets << "\n"
+			<< "useCometPreMods=" << NV.useCometPreMods << "\n"
+			<< "probCometPreMod=" << NV.probCometPreMod << "\n"
+			<< "cometPreMods {" << wstr_to_str(NV.CometPreMods) << "}\n"
+			<< "useCometPostMods=" << NV.useCometPostMods << "\n"
+			<< "probCometPostMod=" << NV.probCometPostMod << "\n"
+			<< "cometPostMods {" << wstr_to_str(NV.CometPostMods) << "}\n"
+			<< "useCometNumberMods=" << NV.useCometNumberMods << "\n"
+			<< "probCometNumberMod=" << NV.probCometNumberMod << "\n"
 			<< "\n"
 			<< "useShipPreMods_All=" << NV.useShipPreMods_All << "\n"
 			<< "probShipPreMod_All=" << NV.probShipPreMod_All << "\n"
@@ -2955,7 +3174,7 @@ std::ofstream* DebugFileP;
 		case Advanced:
 		{
 			ShowWindow(CONFIG_H.HEADER_ADVANCED, 0);
-			ShowWindow(NV.Tab_Advanced_Outer, 0);
+			ShowWindow(CONFIG.Tab_Advanced_Outer, 0);
 			Clear_Advanced();
 		}
 			break;
@@ -3180,7 +3399,7 @@ std::ofstream* DebugFileP;
 	{
 		//Header
 		ShowWindow(CONFIG_H.HEADER_ADVANCED, 1);
-		ShowWindow(NV.Tab_Advanced_Outer, 1);
+		ShowWindow(CONFIG.Tab_Advanced_Outer, 1);
 		Load_Tabgroup_Advanced_Outer();
 
 		lastScreen = Advanced;
@@ -3198,7 +3417,7 @@ std::ofstream* DebugFileP;
 
 	void Clear_Advanced()
 	{
-		ShowWindow(NV.Tab_Advanced_Inner, 0);
+		ShowWindow(CONFIG.Tab_Advanced_Inner, 0);
 		ShowWindow(NV.Tab_Name_Inner, 0);
 		ShowWindow(NV.Tab_Ship_Inner, 0);
 
@@ -3220,19 +3439,16 @@ std::ofstream* DebugFileP;
 		ShowWindow(NV.GROUP_STAR, 0);
 		ShowWindow(NV.GROUP_PLANET, 0);
 		ShowWindow(NV.GROUP_MOON, 0);
+		ShowWindow(NV.GROUP_ASTEROID, 0);
+		ShowWindow(NV.GROUP_COMET, 0);
 		ShowWindow(NV.GROUP_DWARFMOON, 0);
-		ShowWindow(NV.GROUP_ALL_SHIP, 0);
-		ShowWindow(NV.GROUP_COLONY_SHIP, 0);
-		ShowWindow(NV.GROUP_INSTRUMENT_SHIP, 0);
-		ShowWindow(NV.GROUP_SATELLITE_SHIP, 0);
-		ShowWindow(NV.GROUP_STATION_SHIP, 0);
+		ShowWindow(NV.GROUP_SHIP_ALL, 0);
+		ShowWindow(NV.GROUP_SHIP_COLONY, 0);
+		ShowWindow(NV.GROUP_SHIP_INSTRUMENT, 0);
+		ShowWindow(NV.GROUP_SHIP_SATELLITE, 0);
+		ShowWindow(NV.GROUP_SHIP_STATION, 0);
 		ShowWindow(NV.GROUP_DATASET, 0);
 		ShowWindow(NV.GROUP_SIMPLE, 0);
-
-		ShowWindow(NV.BUTTON_COLONY, 0);
-		ShowWindow(NV.BUTTON_INSTRUMENT, 0);
-		ShowWindow(NV.BUTTON_SATELLITE, 0);
-		ShowWindow(NV.BUTTON_STATION, 0);
 
 		ShowWindow(NV.saveNamePresetButton.DESC, 0);
 		ShowWindow(NV.saveNamePresetButton.HANDLE, 0);
@@ -3246,10 +3462,11 @@ std::ofstream* DebugFileP;
 		ShowWindow(NV.wordPercentH.EXTRA, 0);
 
 		ShowWindow(NV.nameMoonsH.INFOBUTTON, 0);
+		ShowWindow(NV.nameAsteroidsH.INFOBUTTON, 0);
 	}
 	void Load_Tabgroup_Advanced_Outer()
 	{
-		switch (TabCtrl_GetCurSel(NV.Tab_Advanced_Outer))
+		switch (TabCtrl_GetCurSel(CONFIG.Tab_Advanced_Outer))
 		{
 		case TAB_NAMES:
 			Load_Tabgroup_Name_Inner();
@@ -3278,16 +3495,16 @@ std::ofstream* DebugFileP;
 			Load_Name_Moon();
 			break;
 		case TAB_NAME_SHIP:
-			Load_Name_All_Ship();
+			Load_Tabgroup_Ship_Inner();
 			break;
 		case TAB_NAME_DWARFMOON:
 			Load_Name_DwarfMoon();
 			break;
 		case TAB_NAME_ASTEROID:
-			//Load_Name_Asteroid();
+			Load_Name_Asteroid();
 			break;
 		case TAB_NAME_COMET:
-			//Load_Name_Comet();
+			Load_Name_Comet();
 			break;	
 		case TAB_NAME_SIMPLE:
 			Load_Name_Simple();
@@ -3299,6 +3516,27 @@ std::ofstream* DebugFileP;
 	}
 	void Load_Tabgroup_Ship_Inner()
 	{
+		ShowWindow(NV.Tab_Name_Inner, 1);
+		ShowWindow(NV.Tab_Ship_Inner, 1);
+		ShowWindow(NV.buttonUpdate, 1);
+		switch (TabCtrl_GetCurSel(NV.Tab_Ship_Inner))
+		{
+		case TAB_SHIP_ALL:
+			Load_Name_All_Ship();
+			break;
+		case TAB_SHIP_COLONY:
+			Load_Name_Colony_Ship();
+			break;
+		case TAB_SHIP_INSTRUMENT:
+			Load_Name_Instrument_Ship();
+			break;
+		case TAB_SHIP_SATELLITE:
+			Load_Name_Satellite_Ship();
+			break;
+		case TAB_SHIP_STATION:
+			Load_Name_Station_Ship();
+			break;
+		}
 	}
 	void Load_Name_Dataset()
 	{
@@ -3384,6 +3622,42 @@ std::ofstream* DebugFileP;
 
 		ShowWindow(NV.GROUP_DWARFMOON, 1);
 	}
+	void Load_Name_Asteroid()
+	{
+		ShowWindow(NV.PreMod_INFO.DESC, 1);
+		ShowWindow(NV.PostMod_INFO.DESC, 1);
+		ShowWindow(NV.NumberMod_INFO.DESC, 1);
+		ShowWindow(NV.PreMod_INFO.INFOBUTTON, 1);
+		ShowWindow(NV.PostMod_INFO.INFOBUTTON, 1);
+		ShowWindow(NV.NumberMod_INFO.INFOBUTTON, 1);
+
+		ShowWindow(NV.PreMods_List.DESC, 1);
+		ShowWindow(NV.PostMods_List.DESC, 1);
+		ShowWindow(NV.PreMods_List.INFOBUTTON, 1);
+		ShowWindow(NV.PostMods_List.INFOBUTTON, 1);
+
+		ShowWindow(NV.nameAsteroidsH.INFOBUTTON, 1);
+
+		ShowWindow(NV.GROUP_ASTEROID, 1);
+	}
+	void Load_Name_Comet()
+	{
+		ShowWindow(NV.PreMod_INFO.DESC, 1);
+		ShowWindow(NV.PostMod_INFO.DESC, 1);
+		ShowWindow(NV.NumberMod_INFO.DESC, 1);
+		ShowWindow(NV.PreMod_INFO.INFOBUTTON, 1);
+		ShowWindow(NV.PostMod_INFO.INFOBUTTON, 1);
+		ShowWindow(NV.NumberMod_INFO.INFOBUTTON, 1);
+
+		ShowWindow(NV.PreMods_List.DESC, 1);
+		ShowWindow(NV.PostMods_List.DESC, 1);
+		ShowWindow(NV.PreMods_List.INFOBUTTON, 1);
+		ShowWindow(NV.PostMods_List.INFOBUTTON, 1);
+
+		ShowWindow(NV.nameAsteroidsH.INFOBUTTON, 1);
+
+		ShowWindow(NV.GROUP_COMET, 1);
+	}
 	void Load_Name_All_Ship()
 	{
 		ShowWindow(NV.PreMod_INFO.DESC, 1);
@@ -3398,12 +3672,7 @@ std::ofstream* DebugFileP;
 		ShowWindow(NV.PreMods_List.INFOBUTTON, 1);
 		ShowWindow(NV.PostMods_List.INFOBUTTON, 1);
 
-		ShowWindow(NV.BUTTON_COLONY, 1);
-		ShowWindow(NV.BUTTON_INSTRUMENT, 1);
-		ShowWindow(NV.BUTTON_SATELLITE, 1);
-		ShowWindow(NV.BUTTON_STATION, 1);
-
-		ShowWindow(NV.GROUP_ALL_SHIP, 1);
+		ShowWindow(NV.GROUP_SHIP_ALL, 1);
 	}
 	void Load_Name_Colony_Ship()
 	{
@@ -3419,12 +3688,7 @@ std::ofstream* DebugFileP;
 		ShowWindow(NV.PreMods_List.INFOBUTTON, 1);
 		ShowWindow(NV.PostMods_List.INFOBUTTON, 1);
 
-		ShowWindow(NV.BUTTON_COLONY, 1);
-		ShowWindow(NV.BUTTON_INSTRUMENT, 1);
-		ShowWindow(NV.BUTTON_SATELLITE, 1);
-		ShowWindow(NV.BUTTON_STATION, 1);
-
-		ShowWindow(NV.GROUP_COLONY_SHIP, 1);
+		ShowWindow(NV.GROUP_SHIP_COLONY, 1);
 	}
 	void Load_Name_Instrument_Ship()
 	{
@@ -3440,12 +3704,7 @@ std::ofstream* DebugFileP;
 		ShowWindow(NV.PreMods_List.INFOBUTTON, 1);
 		ShowWindow(NV.PostMods_List.INFOBUTTON, 1);
 
-		ShowWindow(NV.BUTTON_COLONY, 1);
-		ShowWindow(NV.BUTTON_INSTRUMENT, 1);
-		ShowWindow(NV.BUTTON_SATELLITE, 1);
-		ShowWindow(NV.BUTTON_STATION, 1);
-
-		ShowWindow(NV.GROUP_INSTRUMENT_SHIP, 1);
+		ShowWindow(NV.GROUP_SHIP_INSTRUMENT, 1);
 	}
 	void Load_Name_Satellite_Ship()
 	{
@@ -3461,12 +3720,7 @@ std::ofstream* DebugFileP;
 		ShowWindow(NV.PreMods_List.INFOBUTTON, 1);
 		ShowWindow(NV.PostMods_List.INFOBUTTON, 1);
 
-		ShowWindow(NV.BUTTON_COLONY, 1);
-		ShowWindow(NV.BUTTON_INSTRUMENT, 1);
-		ShowWindow(NV.BUTTON_SATELLITE, 1);
-		ShowWindow(NV.BUTTON_STATION, 1);
-
-		ShowWindow(NV.GROUP_SATELLITE_SHIP, 1);
+		ShowWindow(NV.GROUP_SHIP_SATELLITE, 1);
 	}
 	void Load_Name_Station_Ship()
 	{
@@ -3482,12 +3736,7 @@ std::ofstream* DebugFileP;
 		ShowWindow(NV.PreMods_List.INFOBUTTON, 1);
 		ShowWindow(NV.PostMods_List.INFOBUTTON, 1);
 
-		ShowWindow(NV.BUTTON_COLONY, 1);
-		ShowWindow(NV.BUTTON_INSTRUMENT, 1);
-		ShowWindow(NV.BUTTON_SATELLITE, 1);
-		ShowWindow(NV.BUTTON_STATION, 1);
-
-		ShowWindow(NV.GROUP_STATION_SHIP, 1);
+		ShowWindow(NV.GROUP_SHIP_STATION, 1);
 	}
 	void Load_Name_Simple()
 	{
@@ -3835,6 +4084,50 @@ std::ofstream* DebugFileP;
 		NV.useMoonNumberMods = (IsDlgButtonChecked(NV.GROUP_MOON, NVCB_MOONNUMBERMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probMoonNumberModH, NV.probMoonNumberMod);
 
+		if (NV.AsteroidPreMods.size() > 0)
+		{
+			int size = NV.AsteroidPreMods.size();
+			for (int i = 0; i < size; i++)
+				NV.AsteroidPreMods.pop_back();
+		}
+		if (NV.AsteroidPostMods.size() > 0)
+		{
+			int size = NV.AsteroidPostMods.size();
+			for (int i = 0; i < size; i++)
+				NV.AsteroidPostMods.pop_back();
+		}
+		NV.nameAsteroids = (IsDlgButtonChecked(NV.GROUP_ASTEROID, NVCB_NAMEASTEROIDS) == BST_CHECKED) ? true : false;
+		NV.useAsteroidPreMods = (IsDlgButtonChecked(NV.GROUP_ASTEROID, NVCB_ASTEROIDPREMOD) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(NV.probAsteroidPreModH, NV.probAsteroidPreMod);
+		FillModList(NV.asteroidPreModList, NV.AsteroidPreMods);
+		NV.useAsteroidPostMods = (IsDlgButtonChecked(NV.GROUP_ASTEROID, NVCB_ASTEROIDPOSTMOD) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(NV.probAsteroidPostModH, NV.probAsteroidPostMod);
+		FillModList(NV.asteroidPostModList, NV.AsteroidPostMods);
+		NV.useAsteroidNumberMods = (IsDlgButtonChecked(NV.GROUP_ASTEROID, NVCB_ASTEROIDNUMBERMOD) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(NV.probAsteroidNumberModH, NV.probAsteroidNumberMod);
+
+		if (NV.CometPreMods.size() > 0)
+		{
+			int size = NV.CometPreMods.size();
+			for (int i = 0; i < size; i++)
+				NV.CometPreMods.pop_back();
+		}
+		if (NV.CometPostMods.size() > 0)
+		{
+			int size = NV.CometPostMods.size();
+			for (int i = 0; i < size; i++)
+				NV.CometPostMods.pop_back();
+		}
+		NV.nameComets = (IsDlgButtonChecked(NV.GROUP_COMET, NVCB_NAMECOMETS) == BST_CHECKED) ? true : false;
+		NV.useCometPreMods = (IsDlgButtonChecked(NV.GROUP_COMET, NVCB_COMETPREMOD) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(NV.probCometPreModH, NV.probCometPreMod);
+		FillModList(NV.cometPreModList, NV.CometPreMods);
+		NV.useCometPostMods = (IsDlgButtonChecked(NV.GROUP_COMET, NVCB_COMETPOSTMOD) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(NV.probCometPostModH, NV.probCometPostMod);
+		FillModList(NV.cometPostModList, NV.CometPostMods);
+		NV.useCometNumberMods = (IsDlgButtonChecked(NV.GROUP_COMET, NVCB_COMETNUMBERMOD) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(NV.probCometNumberModH, NV.probCometNumberMod);
+
 		if (NV.DwarfMoonPreMods.size() > 0)
 		{
 			int size = NV.DwarfMoonPreMods.size();
@@ -3870,10 +4163,10 @@ std::ofstream* DebugFileP;
 			for (int i = 0; i < size; i++)
 				NV.ShipPostMods_All.pop_back();
 		}
-		NV.useShipPreMods_All = (IsDlgButtonChecked(NV.GROUP_ALL_SHIP, NVCB_SHIPALLPREMOD) == BST_CHECKED) ? true : false;
+		NV.useShipPreMods_All = (IsDlgButtonChecked(NV.GROUP_SHIP_ALL, NVCB_SHIPALLPREMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipPreMod_AllH, NV.probShipPreMod_All);
 		FillModList(NV.shipPreModList_All, NV.ShipPreMods_All);
-		NV.useShipPostMods_All = (IsDlgButtonChecked(NV.GROUP_ALL_SHIP, NVCB_SHIPALLPOSTMOD) == BST_CHECKED) ? true : false;
+		NV.useShipPostMods_All = (IsDlgButtonChecked(NV.GROUP_SHIP_ALL, NVCB_SHIPALLPOSTMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipPostMod_AllH, NV.probShipPostMod_All);
 		FillModList(NV.shipPostModList_All, NV.ShipPostMods_All);
 
@@ -3889,13 +4182,13 @@ std::ofstream* DebugFileP;
 			for (int i = 0; i < size; i++)
 				NV.ShipPostMods_Colony.pop_back();
 		}
-		NV.useShipPreMods_Colony = (IsDlgButtonChecked(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYPREMOD) == BST_CHECKED) ? true : false;
+		NV.useShipPreMods_Colony = (IsDlgButtonChecked(NV.GROUP_SHIP_COLONY, NVCB_SHIPCOLONYPREMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipPreMod_ColonyH, NV.probShipPreMod_Colony);
 		FillModList(NV.shipPreModList_Colony, NV.ShipPreMods_Colony);
-		NV.useShipPostMods_Colony = (IsDlgButtonChecked(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYPOSTMOD) == BST_CHECKED) ? true : false;
+		NV.useShipPostMods_Colony = (IsDlgButtonChecked(NV.GROUP_SHIP_COLONY, NVCB_SHIPCOLONYPOSTMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipPostMod_ColonyH, NV.probShipPostMod_Colony);
 		FillModList(NV.shipPostModList_Colony, NV.ShipPostMods_Colony);
-		NV.useShipNumberMods_Colony = (IsDlgButtonChecked(NV.GROUP_COLONY_SHIP, NVCB_SHIPCOLONYNUMBERMOD) == BST_CHECKED) ? true : false;
+		NV.useShipNumberMods_Colony = (IsDlgButtonChecked(NV.GROUP_SHIP_COLONY, NVCB_SHIPCOLONYNUMBERMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipNumberMod_ColonyH, NV.probShipNumberMod_Colony);
 
 		if (NV.ShipPreMods_Instrument.size() > 0)
@@ -3910,13 +4203,13 @@ std::ofstream* DebugFileP;
 			for (int i = 0; i < size; i++)
 				NV.ShipPostMods_Instrument.pop_back();
 		}
-		NV.useShipPreMods_Instrument = (IsDlgButtonChecked(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTPREMOD) == BST_CHECKED) ? true : false;
+		NV.useShipPreMods_Instrument = (IsDlgButtonChecked(NV.GROUP_SHIP_INSTRUMENT, NVCB_SHIPINSTRUMENTPREMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipPreMod_InstrumentH, NV.probShipPreMod_Instrument);
 		FillModList(NV.shipPreModList_Instrument, NV.ShipPreMods_Instrument);
-		NV.useShipPostMods_Instrument = (IsDlgButtonChecked(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTPOSTMOD) == BST_CHECKED) ? true : false;
+		NV.useShipPostMods_Instrument = (IsDlgButtonChecked(NV.GROUP_SHIP_INSTRUMENT, NVCB_SHIPINSTRUMENTPOSTMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipPostMod_InstrumentH, NV.probShipPostMod_Instrument);
 		FillModList(NV.shipPostModList_Instrument, NV.ShipPostMods_Instrument);
-		NV.useShipNumberMods_Instrument = (IsDlgButtonChecked(NV.GROUP_INSTRUMENT_SHIP, NVCB_SHIPINSTRUMENTNUMBERMOD) == BST_CHECKED) ? true : false;
+		NV.useShipNumberMods_Instrument = (IsDlgButtonChecked(NV.GROUP_SHIP_INSTRUMENT, NVCB_SHIPINSTRUMENTNUMBERMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipNumberMod_InstrumentH, NV.probShipNumberMod_Instrument);
 
 		if (NV.ShipPreMods_Satellite.size() > 0)
@@ -3931,13 +4224,13 @@ std::ofstream* DebugFileP;
 			for (int i = 0; i < size; i++)
 				NV.ShipPostMods_Satellite.pop_back();
 		}
-		NV.useShipPreMods_Satellite = (IsDlgButtonChecked(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITEPREMOD) == BST_CHECKED) ? true : false;
+		NV.useShipPreMods_Satellite = (IsDlgButtonChecked(NV.GROUP_SHIP_SATELLITE, NVCB_SHIPSATELLITEPREMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipPreMod_SatelliteH, NV.probShipPreMod_Satellite);
 		FillModList(NV.shipPreModList_Satellite, NV.ShipPreMods_Satellite);
-		NV.useShipPostMods_Satellite = (IsDlgButtonChecked(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITEPOSTMOD) == BST_CHECKED) ? true : false;
+		NV.useShipPostMods_Satellite = (IsDlgButtonChecked(NV.GROUP_SHIP_SATELLITE, NVCB_SHIPSATELLITEPOSTMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipPostMod_SatelliteH, NV.probShipPostMod_Satellite);
 		FillModList(NV.shipPostModList_Satellite, NV.ShipPostMods_Satellite);
-		NV.useShipNumberMods_Satellite = (IsDlgButtonChecked(NV.GROUP_SATELLITE_SHIP, NVCB_SHIPSATELLITENUMBERMOD) == BST_CHECKED) ? true : false;
+		NV.useShipNumberMods_Satellite = (IsDlgButtonChecked(NV.GROUP_SHIP_SATELLITE, NVCB_SHIPSATELLITENUMBERMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipNumberMod_SatelliteH, NV.probShipNumberMod_Satellite);
 		
 		if (NV.ShipPreMods_Station.size() > 0)
@@ -3952,13 +4245,13 @@ std::ofstream* DebugFileP;
 			for (int i = 0; i < size; i++)
 				NV.ShipPostMods_Station.pop_back();
 		}
-		NV.useShipPreMods_Station = (IsDlgButtonChecked(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONPREMOD) == BST_CHECKED) ? true : false;
+		NV.useShipPreMods_Station = (IsDlgButtonChecked(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONPREMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipPreMod_StationH, NV.probShipPreMod_Station);
 		FillModList(NV.shipPreModList_Station, NV.ShipPreMods_Station);
-		NV.useShipPostMods_Station = (IsDlgButtonChecked(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONPOSTMOD) == BST_CHECKED) ? true : false;
+		NV.useShipPostMods_Station = (IsDlgButtonChecked(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONPOSTMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipPostMod_StationH, NV.probShipPostMod_Station);
 		FillModList(NV.shipPostModList_Station, NV.ShipPostMods_Station);
-		NV.useShipNumberMods_Station = (IsDlgButtonChecked(NV.GROUP_STATION_SHIP, NVCB_SHIPSTATIONNUMBERMOD) == BST_CHECKED) ? true : false;
+		NV.useShipNumberMods_Station = (IsDlgButtonChecked(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONNUMBERMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipNumberMod_StationH, NV.probShipNumberMod_Station);
 
 		if (NV.Markov_RawDataset.size() > 0)
@@ -4259,6 +4552,9 @@ std::ofstream* DebugFileP;
 		case IB_WORDPERCENT:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"This is the percentage chance for a name to have another word added to it, and then to continue having more words. Every time another word is added to a name, once percent is subtracted from the total.");
 			break;
+		case IB_NAMEASTEROIDS:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"If disabled, asteroids/comets will not generate names, but will instead have a name counting up from 1. This will make the generator much faster since a lot of time could be spent generating asteroid/comet names if they are enabled.\n\nThis checkbox can be toggled for asteroids, comets, or both.");
+			break;
 		}
 	#pragma endregion
 //###############
@@ -4473,6 +4769,26 @@ std::ofstream* DebugFileP;
 
 			switch (type)
 			{
+			case typeAsteroid:
+			{
+				if (NV.useAsteroidPreMods)
+					has_prename_mod = (genpercent(mt_name) < NV.probAsteroidPreMod) ? true : false;
+				if (NV.useAsteroidPostMods)
+					has_postname_mod = (genpercent(mt_name) < NV.probAsteroidPostMod) ? true : false;
+				if (NV.useAsteroidNumberMods)
+					has_number_mod = (genpercent(mt_name) < NV.probAsteroidNumberMod) ? true : false;
+			}
+				break;
+			case typeComet:
+			{
+				if (NV.useCometPreMods)
+					has_prename_mod = (genpercent(mt_name) < NV.probCometPreMod) ? true : false;
+				if (NV.useCometPostMods)
+					has_postname_mod = (genpercent(mt_name) < NV.probCometPostMod) ? true : false;
+				if (NV.useCometNumberMods)
+					has_number_mod = (genpercent(mt_name) < NV.probCometNumberMod) ? true : false;
+			}
+				break;
 			case typeDwarfMoon:
 			{
 				if (NV.useDwarfMoonPreMods)
@@ -4586,6 +4902,22 @@ std::ofstream* DebugFileP;
 			{
 				switch (type)
 				{
+				case typeAsteroid:
+				{
+					int listsize = NV.AsteroidPreMods.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName = NV.AsteroidPreMods.at(gen_mod_position(mt_name));
+					finalName += L" ";
+				}
+				break;
+				case typeComet:
+				{
+					int listsize = NV.CometPreMods.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName = NV.CometPreMods.at(gen_mod_position(mt_name));
+					finalName += L" ";
+				}
+				break;
 				case typeDwarfMoon:
 				{
 					int listsize = NV.DwarfMoonPreMods.size() - 1;
@@ -4782,6 +5114,22 @@ std::ofstream* DebugFileP;
 			{
 				switch (type)
 				{
+				case typeAsteroid:
+				{
+					int listsize = NV.AsteroidPostMods.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName += L" ";
+					finalName += NV.AsteroidPostMods.at(gen_mod_position(mt_name));
+				}
+					break;
+				case typeComet:
+				{
+					int listsize = NV.CometPostMods.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName += L" ";
+					finalName += NV.CometPostMods.at(gen_mod_position(mt_name));
+				}
+					break;
 				case typeDwarfMoon:
 				{
 					int listsize = NV.DwarfMoonPostMods.size() - 1;
@@ -5449,7 +5797,7 @@ std::ofstream* DebugFileP;
 						if (enable_colony || enable_instrument || enable_station)
 						{
 							double min_dist = 0, max_dist = 0;
-							std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, (double)enable_colony, (double)enable_instrument, 0, (double)enable_station };
+							std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, 0, 0, (double)enable_colony, (double)enable_instrument, 0, (double)enable_station };
 							Object_Type shipType = static_cast<Object_Type>(genshiptype(mt_ship));
 							ship.name = GenName(shipType);
 
@@ -5515,7 +5863,7 @@ std::ofstream* DebugFileP;
 						{
 							// seelctes the ship type
 							double min_dist = 0, max_dist = 0;
-							std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, (double)enable_colony, (double)enable_instrument, (double)enable_satellite, (double)enable_station };
+							std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, 0, 0, (double)enable_colony, (double)enable_instrument, (double)enable_satellite, (double)enable_station };
 							Object_Type shipType = static_cast<Object_Type>(genshiptype(mt_ship));
 							ship.name = GenName(shipType);
 
@@ -7621,7 +7969,7 @@ std::ofstream* DebugFileP;
 	}
 	void GenerateAsteroid(SEStar& parent, SEPlanet& asteroid, double minSemimajor, double maxSemimajor, double avgSemimajor, double sdSemimajor)
 	{
-		asteroid.name = GenName(typeDwarfMoon);
+		asteroid.name = GenName(typeAsteroid);
 
 		std::normal_distribution<> genr{ 25, 75 };
 		do asteroid.radius = genr(mt_star);
@@ -7654,7 +8002,7 @@ std::ofstream* DebugFileP;
 	}
 	void GenerateComet(SEStar& parent, SEPlanet& comet)
 	{
-		comet.name = GenName(typeDwarfMoon);
+		comet.name = GenName(typeComet);
 
 		std::normal_distribution<> genr{ 25, 50 };
 		do comet.radius = genr(mt_star);

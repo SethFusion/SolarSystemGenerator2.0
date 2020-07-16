@@ -44,6 +44,26 @@ dwarfMoonPostMods {Minor}
 useDwarfMoonNumberMods=1
 probDwarfMoonNumberMod=10
 
+nameAsteroids=1
+useAsteroidPreMods=1
+probAsteroidPreMod=2
+asteroidPreMods {ast}
+useAsteroidPostMods=0
+probAsteroidPostMod=0
+asteroidPostMods {}
+useAsteroidNumberMods=0
+probAsteroidNumberMod=0
+
+nameComets=1
+useCometPreMods=1
+probCometPreMod=2
+cometPreMods {com}
+useCometPostMods=0
+probCometPostMod=0
+cometPostMods {}
+useCometNumberMods=0
+probCometNumberMod=0
+
 useShipPreMods_All=1
 probShipPreMod_All=50
 ShipPreMods_All {The}

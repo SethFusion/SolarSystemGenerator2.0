@@ -109,8 +109,7 @@ struct ConfigurationVariables
 			ADVANCED
 	#####################################################*/
 
-	// empty for now
-
+	HWND Tab_Advanced_Outer, Tab_Advanced_Inner;
 };
 
 struct ConfigurationHWNDs
@@ -254,24 +253,16 @@ struct Preset
 
 struct NameVariables
 {
-	HWND Tab_Advanced_Outer, Tab_Advanced_Inner, Tab_Name_Inner, Tab_Ship_Inner;
-
-	/*#####################################################
-	*/	HWND GROUP_SIMPLE; /*
-	#####################################################*/
-
-	HWND SimpleGenerator_INFO;
-
-	bool useSimpleGenerator;
-	HWND useSimpleGeneratorDESC, useSimpleGeneratorH;
-
-	HWND PrefixListDESC, PrefixListH, SuffixListDESC, SuffixListH;
-	std::vector<std::wstring> PrefixList, SuffixList;
-
-
+	/*=====================================================
+		*/	HWND Tab_Name_Inner, Tab_Ship_Inner;	/*
+			The tab handles display the list of tabs
+		the user can select, each tab loading
+		a differnt screen a variables to edit
+	=====================================================*/
+	
 	/*=====================================================
 		*/	std::vector<std::wstring> usedNames;	/*
-		This vector fills up with names as the program
+			This vector fills up with names as the program
 		generates them. Every time a new name is
 		generated, it checks the vector to see if that
 		name has already been used. This ensures every
@@ -279,12 +270,9 @@ struct NameVariables
 	=====================================================*/
 
 	/*=====================================================
-		*/	var PreMod_INFO,
-			PostMod_INFO,
-			NumberMod_INFO, 
-			PreMods_List, 
-			PostMods_List;	/*
-		These info buttons appear for all name groups
+		*/	var PreMod_INFO, PostMod_INFO, NumberMod_INFO, 
+			PreMods_List, PostMods_List;	/*
+			These info buttons appear for all name groups
 		because they remain true for each type of group.
 		They are loaded in with parent hWnd, not using
 		the group handle because when clicked, it needs
@@ -293,173 +281,308 @@ struct NameVariables
 		Vissually, their position is inside the group. 
 	=====================================================*/
 
-	/*#####################################################
-		*/	HWND GROUP_STAR; /*
-	#####################################################*/
+	//#####################################################
+		#pragma region Star Names
+		/*=====================================================
+			*/	HWND GROUP_STAR;	/*
+				Groupbox holding all variables below, making
+			showing and hiding them all at once super easy
+		=====================================================*/
 
-	bool useStarPreMods, useStarPostMods, useStarNumberMods;
-	HWND useStarPreModsH, useStarPostModsH, useStarNumberModsH; // holds the checkboxs
-	HWND useStarModsDESC; // static handle to hold the description
-	
-	int probStarPreMod, probStarPostMod, probStarNumberMod;
-	HWND probStarPreModH, probStarPostModH, probStarNumberModH; // holds the checkboxs
-	HWND starModsProbDESC; // static handle to hold description
+		bool useStarPreMods, useStarPostMods, useStarNumberMods;
+		HWND useStarPreModsH, useStarPostModsH, useStarNumberModsH; // holds the checkboxs
+		HWND useStarModsDESC; // static handle to hold the description
 
-	HWND starPreModList, starPostModList; // edit handles to hold the lists
-	std::vector<std::wstring> StarPreMods, StarPostMods;
+		int probStarPreMod, probStarPostMod, probStarNumberMod;
+		HWND probStarPreModH, probStarPostModH, probStarNumberModH; // holds the checkboxs
+		HWND starModsProbDESC; // static handle to hold description
 
-	/*#####################################################
-		*/	HWND GROUP_PLANET; /*
-	#####################################################*/
+		HWND starPreModList, starPostModList; // edit handles to hold the lists
+		std::vector<std::wstring> StarPreMods, StarPostMods;
 
-	bool usePlanetPreMods, usePlanetPostMods, usePlanetNumberMods;
-	HWND usePlanetPreModsH, usePlanetPostModsH, usePlanetNumberModsH; // holds the checkboxs
-	HWND usePlanetModsDESC; // static handle to hold the description
+		#pragma endregion
+	//#####################################################
 
-	int probPlanetPreMod, probPlanetPostMod, probPlanetNumberMod;
-	HWND probPlanetPreModH, probPlanetPostModH, probPlanetNumberModH; // holds the checkboxs
-	HWND planetModsProbDESC; // static handle to hold description
+	//#####################################################
+		#pragma region Planet Names
+		/*=====================================================
+			*/	HWND GROUP_PLANET;	/*
+				Groupbox holding all variables below, making
+			showing and hiding them all at once super easy
+		=====================================================*/
 
-	HWND planetPreModList, planetPostModList; // edit handles to hold the lists
-	std::vector<std::wstring> PlanetPreMods, PlanetPostMods;
+		bool usePlanetPreMods, usePlanetPostMods, usePlanetNumberMods;
+		HWND usePlanetPreModsH, usePlanetPostModsH, usePlanetNumberModsH; // holds the checkboxs
+		HWND usePlanetModsDESC; // static handle to hold the description
 
-	/*#####################################################
-		*/	HWND GROUP_MOON; /*
-	#####################################################*/
+		int probPlanetPreMod, probPlanetPostMod, probPlanetNumberMod;
+		HWND probPlanetPreModH, probPlanetPostModH, probPlanetNumberModH; // holds the checkboxs
+		HWND planetModsProbDESC; // static handle to hold description
 
-	bool nameTerraMoons, nameGasMoons;
-	var nameMoonsH; // DESC and INFOBOX used normally, HANDLE and EXTRA are used for checkboxes.
-		
-	bool useMoonPreMods, useMoonPostMods, useMoonNumberMods;
-	HWND useMoonPreModsH, useMoonPostModsH, useMoonNumberModsH; // holds the checkboxs
-	HWND useMoonModsDESC; // static handle to hold the description
+		HWND planetPreModList, planetPostModList; // edit handles to hold the lists
+		std::vector<std::wstring> PlanetPreMods, PlanetPostMods;
 
-	int probMoonPreMod, probMoonPostMod, probMoonNumberMod;
-	HWND probMoonPreModH, probMoonPostModH, probMoonNumberModH; // holds the checkboxs
-	HWND moonModsProbDESC; // static handle to hold description
+		#pragma endregion
+	//#####################################################
 
-	HWND moonPreModList, moonPostModList; // edit handles to hold the lists
-	std::vector<std::wstring> MoonPreMods, MoonPostMods;
+	//#####################################################
+		#pragma region Moon Names
+		/*=====================================================
+			*/	HWND GROUP_MOON;	/*
+				Groupbox holding all variables below, making
+			showing and hiding them all at once super easy
+		=====================================================*/
 
-	/*#####################################################
-		*/	HWND GROUP_DWARFMOON; /*
-	#####################################################*/
+		bool nameTerraMoons, nameGasMoons;
+		var nameMoonsH; // DESC and INFOBOX used normally, HANDLE and EXTRA are used for checkboxes.
 
-	bool nameTerraDwarfMoons, nameGasDwarfMoons;
-	var nameDwarfMoonsH; // DESC and INFOBOX used normally, HANDLE and EXTRA are used for checkboxes.
+		bool useMoonPreMods, useMoonPostMods, useMoonNumberMods;
+		HWND useMoonPreModsH, useMoonPostModsH, useMoonNumberModsH; // holds the checkboxs
+		HWND useMoonModsDESC; // static handle to hold the description
 
-	bool useDwarfMoonPreMods, useDwarfMoonPostMods, useDwarfMoonNumberMods;
-	HWND useDwarfMoonPreModsH, useDwarfMoonPostModsH, useDwarfMoonNumberModsH; // holds the checkboxs
-	HWND useDwarfMoonModsDESC; // static handle to hold the description
+		int probMoonPreMod, probMoonPostMod, probMoonNumberMod;
+		HWND probMoonPreModH, probMoonPostModH, probMoonNumberModH; // holds the checkboxs
+		HWND moonModsProbDESC; // static handle to hold description
 
-	int probDwarfMoonPreMod, probDwarfMoonPostMod, probDwarfMoonNumberMod;
-	HWND probDwarfMoonPreModH, probDwarfMoonPostModH, probDwarfMoonNumberModH; // holds the checkboxs
-	HWND dwarfMoonModsProbDESC; // static handle to hold description
+		HWND moonPreModList, moonPostModList; // edit handles to hold the lists
+		std::vector<std::wstring> MoonPreMods, MoonPostMods;
 
-	HWND dwarfMoonPreModList, dwarfMoonPostModList; // edit handles to hold the lists
-	std::vector<std::wstring> DwarfMoonPreMods, DwarfMoonPostMods;
+		#pragma endregion
+	//#####################################################
 
-	/*#####################################################
-		*/	HWND GROUP_ALL_SHIP; /*
-	#####################################################*/
-		
-	bool useShipPreMods_All, useShipPostMods_All;
-	HWND useShipPreMods_AllH, useShipPostMods_AllH;
-	HWND useShipMods_All_DESC;
+	//#####################################################
+		#pragma region DwarfMoon Names
+		/*=====================================================
+			*/	HWND GROUP_DWARFMOON;	/*
+				Groupbox holding all variables below, making
+			showing and hiding them all at once super easy
+		=====================================================*/
 
-	int probShipPreMod_All, probShipPostMod_All;
-	HWND probShipPreMod_AllH, probShipPostMod_AllH;
-	HWND shipModsProb_All_DESC;
+		bool nameTerraDwarfMoons, nameGasDwarfMoons;
+		var nameDwarfMoonsH; // DESC and INFOBOX used normally, HANDLE and EXTRA are used for checkboxes.
 
-	HWND shipPreModList_All, shipPostModList_All;
-	std::vector<std::wstring> ShipPreMods_All, ShipPostMods_All;
+		bool useDwarfMoonPreMods, useDwarfMoonPostMods, useDwarfMoonNumberMods;
+		HWND useDwarfMoonPreModsH, useDwarfMoonPostModsH, useDwarfMoonNumberModsH; // holds the checkboxs
+		HWND useDwarfMoonModsDESC; // static handle to hold the description
 
-	/*#####################################################
-		*/	HWND GROUP_COLONY_SHIP, 
-				BUTTON_COLONY; /*
-	#####################################################*/
+		int probDwarfMoonPreMod, probDwarfMoonPostMod, probDwarfMoonNumberMod;
+		HWND probDwarfMoonPreModH, probDwarfMoonPostModH, probDwarfMoonNumberModH; // holds the checkboxs
+		HWND dwarfMoonModsProbDESC; // static handle to hold description
 
-	bool useShipPreMods_Colony, useShipPostMods_Colony, useShipNumberMods_Colony;
-	HWND useShipPreMods_ColonyH, useShipPostMods_ColonyH, useShipNumberMods_ColonyH;
-	HWND useShipMods_Colony_DESC;
+		HWND dwarfMoonPreModList, dwarfMoonPostModList; // edit handles to hold the lists
+		std::vector<std::wstring> DwarfMoonPreMods, DwarfMoonPostMods;
 
-	int probShipPreMod_Colony, probShipPostMod_Colony, probShipNumberMod_Colony;
-	HWND probShipPreMod_ColonyH, probShipPostMod_ColonyH, probShipNumberMod_ColonyH;
-	HWND shipModsProb_Colony_DESC;
+		#pragma endregion
+	//#####################################################
 
-	HWND shipPreModList_Colony, shipPostModList_Colony;
-	std::vector<std::wstring> ShipPreMods_Colony, ShipPostMods_Colony;
+	//#####################################################
+		#pragma region Asteroid Names
+		/*=====================================================
+			*/	HWND GROUP_ASTEROID;	/*
+				Groupbox holding all variables below, making
+			showing and hiding them all at once super easy
+		=====================================================*/
 
-	/*#####################################################
-	*/	HWND GROUP_INSTRUMENT_SHIP, 
-			BUTTON_INSTRUMENT; /*
-	#####################################################*/
+		bool nameAsteroids;
+		var nameAsteroidsH; // DESC and INFOBOX used normally, HANDLE used for checkbox.
 
-	bool useShipPreMods_Instrument, useShipPostMods_Instrument, useShipNumberMods_Instrument;
-	HWND useShipPreMods_InstrumentH, useShipPostMods_InstrumentH, useShipNumberMods_InstrumentH;
-	HWND useShipMods_Instrument_DESC;
+		bool useAsteroidPreMods, useAsteroidPostMods, useAsteroidNumberMods;
+		HWND useAsteroidPreModsH, useAsteroidPostModsH, useAsteroidNumberModsH; // holds the checkboxs
+		HWND useAsteroidModsDESC; // static handle to hold the description
 
-	int probShipPreMod_Instrument, probShipPostMod_Instrument, probShipNumberMod_Instrument;
-	HWND probShipPreMod_InstrumentH, probShipPostMod_InstrumentH, probShipNumberMod_InstrumentH;
-	HWND shipModsProb_Instrument_DESC;
+		int probAsteroidPreMod, probAsteroidPostMod, probAsteroidNumberMod;
+		HWND probAsteroidPreModH, probAsteroidPostModH, probAsteroidNumberModH; // holds the checkboxs
+		HWND asteroidModsProbDESC; // static handle to hold description
 
-	HWND shipPreModList_Instrument, shipPostModList_Instrument;
-	std::vector<std::wstring> ShipPreMods_Instrument, ShipPostMods_Instrument;
+		HWND asteroidPreModList, asteroidPostModList; // edit handles to hold the lists
+		std::vector<std::wstring> AsteroidPreMods, AsteroidPostMods;
 
-	/*#####################################################
-	*/	HWND GROUP_SATELLITE_SHIP, 
-			BUTTON_SATELLITE; /*
-	#####################################################*/
+		#pragma endregion
+	//#####################################################
 
-	bool useShipPreMods_Satellite, useShipPostMods_Satellite, useShipNumberMods_Satellite;
-	HWND useShipPreMods_SatelliteH, useShipPostMods_SatelliteH, useShipNumberMods_SatelliteH;
-	HWND useShipMods_Satellite_DESC;
+	//#####################################################
+		#pragma region Comet Names
+		/*=====================================================
+			*/	HWND GROUP_COMET;	/*
+				Groupbox holding all variables below, making
+			showing and hiding them all at once super easy
+		=====================================================*/
 
-	int probShipPreMod_Satellite, probShipPostMod_Satellite, probShipNumberMod_Satellite;
-	HWND probShipPreMod_SatelliteH, probShipPostMod_SatelliteH, probShipNumberMod_SatelliteH;
-	HWND shipModsProb_Satellite_DESC;
+		bool nameComets;
+		var nameCometsH; // DESC and INFOBOX used normally, HANDLE used for checkbox.
 
-	HWND shipPreModList_Satellite, shipPostModList_Satellite;
-	std::vector<std::wstring> ShipPreMods_Satellite, ShipPostMods_Satellite;
+		bool useCometPreMods, useCometPostMods, useCometNumberMods;
+		HWND useCometPreModsH, useCometPostModsH, useCometNumberModsH; // holds the checkboxs
+		HWND useCometModsDESC; // static handle to hold the description
 
-	/*#####################################################
-	*/	HWND GROUP_STATION_SHIP, 
-			BUTTON_STATION; /*
-	#####################################################*/
+		int probCometPreMod, probCometPostMod, probCometNumberMod;
+		HWND probCometPreModH, probCometPostModH, probCometNumberModH; // holds the checkboxs
+		HWND cometModsProbDESC; // static handle to hold description
 
-	bool useShipPreMods_Station, useShipPostMods_Station, useShipNumberMods_Station;
-	HWND useShipPreMods_StationH, useShipPostMods_StationH, useShipNumberMods_StationH;
-	HWND useShipMods_Station_DESC;
+		HWND cometPreModList, cometPostModList; // edit handles to hold the lists
+		std::vector<std::wstring> CometPreMods, CometPostMods;
 
-	int probShipPreMod_Station, probShipPostMod_Station, probShipNumberMod_Station;
-	HWND probShipPreMod_StationH, probShipPostMod_StationH, probShipNumberMod_StationH;
-	HWND shipModsProb_Station_DESC;
+		#pragma endregion
+	//#####################################################
 
-	HWND shipPreModList_Station, shipPostModList_Station;
-	std::vector<std::wstring> ShipPreMods_Station, ShipPostMods_Station;
+	//#####################################################
+		#pragma region Ship All Names
+		/*=====================================================
+			*/	HWND GROUP_SHIP_ALL;	/*
+				Groupbox holding all variables below, making
+			showing and hiding them all at once super easy
+		=====================================================*/
 
-	/*#####################################################
-		*/	HWND GROUP_DATASET; /*
-	#####################################################*/
+		bool useShipPreMods_All, useShipPostMods_All;
+		HWND useShipPreMods_AllH, useShipPostMods_AllH;
+		HWND useShipMods_All_DESC;
 
-	HWND Markov_INFO;
-	var saveNamePresetButton;
-	HWND buttonUpdate;
+		int probShipPreMod_All, probShipPostMod_All;
+		HWND probShipPreMod_AllH, probShipPostMod_AllH;
+		HWND shipModsProb_All_DESC;
 
-	int order, wordVarience, max_length, min_length, wordPercent;
-	HWND orderH, wordVarienceH, max_lengthH, min_lengthH;
-	HWND orderDESC, wordVarienceDESC, max_lengthDESC, min_lengthDESC;
-	var wordPercentH; // Extra is used for the test button
+		HWND shipPreModList_All, shipPostModList_All;
+		std::vector<std::wstring> ShipPreMods_All, ShipPostMods_All;
 
-	HWND Markov_RawDatasetH, Markov_RawDatasetDESC;
-	std::vector<std::wstring> Markov_RawDataset;
+		#pragma endregion
+	//#####################################################
 
-	struct NGRAMS
-	{
-		std::vector<std::wstring> ngrams;
-		std::vector<std::wstring> nextCharList;
-	};
-	NGRAMS main_ngrams, twogram_list;
+	//#####################################################
+		#pragma region Ship Colony Names
+		/*=====================================================
+			*/	HWND GROUP_SHIP_COLONY;	/*
+				Groupbox holding all variables below, making
+			showing and hiding them all at once super easy
+		=====================================================*/
+
+		bool useShipPreMods_Colony, useShipPostMods_Colony, useShipNumberMods_Colony;
+		HWND useShipPreMods_ColonyH, useShipPostMods_ColonyH, useShipNumberMods_ColonyH;
+		HWND useShipMods_Colony_DESC;
+
+		int probShipPreMod_Colony, probShipPostMod_Colony, probShipNumberMod_Colony;
+		HWND probShipPreMod_ColonyH, probShipPostMod_ColonyH, probShipNumberMod_ColonyH;
+		HWND shipModsProb_Colony_DESC;
+
+		HWND shipPreModList_Colony, shipPostModList_Colony;
+		std::vector<std::wstring> ShipPreMods_Colony, ShipPostMods_Colony;
+
+		#pragma endregion
+	//#####################################################
+
+	//#####################################################
+		#pragma region Ship Instrument Names
+		/*=====================================================
+		*/	HWND GROUP_SHIP_INSTRUMENT;	/*
+			Groupbox holding all variables below, making
+		showing and hiding them all at once super easy
+		=====================================================*/
+
+		bool useShipPreMods_Instrument, useShipPostMods_Instrument, useShipNumberMods_Instrument;
+		HWND useShipPreMods_InstrumentH, useShipPostMods_InstrumentH, useShipNumberMods_InstrumentH;
+		HWND useShipMods_Instrument_DESC;
+
+		int probShipPreMod_Instrument, probShipPostMod_Instrument, probShipNumberMod_Instrument;
+		HWND probShipPreMod_InstrumentH, probShipPostMod_InstrumentH, probShipNumberMod_InstrumentH;
+		HWND shipModsProb_Instrument_DESC;
+
+		HWND shipPreModList_Instrument, shipPostModList_Instrument;
+		std::vector<std::wstring> ShipPreMods_Instrument, ShipPostMods_Instrument;
+
+		#pragma endregion
+	//#####################################################
+
+	//#####################################################
+		#pragma region Ship Satellite Names
+		/*=====================================================
+		*/	HWND GROUP_SHIP_SATELLITE;	/*
+			Groupbox holding all variables below, making
+		showing and hiding them all at once super easy
+		=====================================================*/
+
+		bool useShipPreMods_Satellite, useShipPostMods_Satellite, useShipNumberMods_Satellite;
+		HWND useShipPreMods_SatelliteH, useShipPostMods_SatelliteH, useShipNumberMods_SatelliteH;
+		HWND useShipMods_Satellite_DESC;
+
+		int probShipPreMod_Satellite, probShipPostMod_Satellite, probShipNumberMod_Satellite;
+		HWND probShipPreMod_SatelliteH, probShipPostMod_SatelliteH, probShipNumberMod_SatelliteH;
+		HWND shipModsProb_Satellite_DESC;
+
+		HWND shipPreModList_Satellite, shipPostModList_Satellite;
+		std::vector<std::wstring> ShipPreMods_Satellite, ShipPostMods_Satellite;
+
+		#pragma endregion
+	//#####################################################
+
+	//#####################################################
+		#pragma region Ship Station Names
+		/*=====================================================
+		*/	HWND GROUP_SHIP_STATION;	/*
+			Groupbox holding all variables below, making
+		showing and hiding them all at once super easy
+		=====================================================*/
+
+		bool useShipPreMods_Station, useShipPostMods_Station, useShipNumberMods_Station;
+		HWND useShipPreMods_StationH, useShipPostMods_StationH, useShipNumberMods_StationH;
+		HWND useShipMods_Station_DESC;
+
+		int probShipPreMod_Station, probShipPostMod_Station, probShipNumberMod_Station;
+		HWND probShipPreMod_StationH, probShipPostMod_StationH, probShipNumberMod_StationH;
+		HWND shipModsProb_Station_DESC;
+
+		HWND shipPreModList_Station, shipPostModList_Station;
+		std::vector<std::wstring> ShipPreMods_Station, ShipPostMods_Station;
+
+		#pragma endregion
+	//#####################################################
+
+	//#####################################################
+		#pragma region Dataset Stuff
+		/*=====================================================
+		*/	HWND GROUP_DATASET;	/*
+			Groupbox holding all variables below, making
+		showing and hiding them all at once super easy
+		=====================================================*/
+
+		HWND Markov_INFO;
+		var saveNamePresetButton;
+		HWND buttonUpdate;
+
+		int order, wordVarience, max_length, min_length, wordPercent;
+		HWND orderH, wordVarienceH, max_lengthH, min_lengthH;
+		HWND orderDESC, wordVarienceDESC, max_lengthDESC, min_lengthDESC;
+		var wordPercentH; // Extra is used for the test button
+
+		HWND Markov_RawDatasetH, Markov_RawDatasetDESC;
+		std::vector<std::wstring> Markov_RawDataset;
+
+		struct NGRAMS
+		{
+			std::vector<std::wstring> ngrams;
+			std::vector<std::wstring> nextCharList;
+		};
+		NGRAMS main_ngrams, twogram_list;
+
+		#pragma endregion
+	//#####################################################
+
+	//#####################################################
+		#pragma region Simple Generator Stuff
+		/*=====================================================
+		*/	HWND GROUP_SIMPLE;	/*
+			Groupbox holding all variables below, making
+		showing and hiding them all at once super easy
+		=====================================================*/
+
+		HWND SimpleGenerator_INFO;
+
+		bool useSimpleGenerator;
+		HWND useSimpleGeneratorDESC, useSimpleGeneratorH;
+
+		HWND PrefixListDESC, PrefixListH, SuffixListDESC, SuffixListH;
+		std::vector<std::wstring> PrefixList, SuffixList;
+
+		#pragma endregion
+//#####################################################
 };
 
 struct NamePreset
@@ -489,6 +612,18 @@ struct NamePreset
 	bool useDwarfMoonPreMods, useDwarfMoonPostMods, useDwarfMoonNumberMods;
 	int probDwarfMoonPreMod, probDwarfMoonPostMod, probDwarfMoonNumberMod;
 	wchar_t DwarfMoonPreMods[MODLIST_SIZE], DwarfMoonPostMods[MODLIST_SIZE];
+
+	//Asteroid
+	bool nameAsteroids;
+	bool useAsteroidPreMods, useAsteroidPostMods, useAsteroidNumberMods;
+	int probAsteroidPreMod, probAsteroidPostMod, probAsteroidNumberMod;
+	wchar_t AsteroidPreMods[MODLIST_SIZE], AsteroidPostMods[MODLIST_SIZE];
+
+	//Comet
+	bool nameComets;
+	bool useCometPreMods, useCometPostMods, useCometNumberMods;
+	int probCometPreMod, probCometPostMod, probCometNumberMod;
+	wchar_t CometPreMods[MODLIST_SIZE], CometPostMods[MODLIST_SIZE];
 
 	//Ship All
 	bool useShipPreMods_All, useShipPostMods_All;
