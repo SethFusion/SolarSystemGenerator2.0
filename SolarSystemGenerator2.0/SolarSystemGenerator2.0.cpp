@@ -5931,6 +5931,7 @@ std::ofstream* DebugFileP;
 				asteroid.type = asteroid.class_ = L"Asteroid";
 				asteroid.parentBody = &currentStar;
 				bool usedInner = false, usedOuter = false;
+				int totalAsteroids = 0;
 
 				std::uniform_int_distribution<> genruns{ 1, CONFIG.maxAsteroidBelts };
 				int numberofBelts = genruns(mt_star);
@@ -6024,9 +6025,11 @@ std::ofstream* DebugFileP;
 						}	
 					}
 
-					for (int i = 0; i < asteroidCount; i++)
+					for (int currentAsteroid = 0; currentAsteroid < asteroidCount; currentAsteroid++)
 					{
 						GenerateAsteroid(currentStar, asteroid, minSemimajor, maxSemimajor, avgSemimajor, sdSemimajor);
+						if (!NV.nameAsteroids)
+							asteroid.name += std::to_wstring(++totalAsteroids);
 						PrintPlanet(asteroid, planetFile);
 					}
 				NoBelt:;
@@ -6047,6 +6050,8 @@ std::ofstream* DebugFileP;
 				for (int currentComet = 0; currentComet < cometCount; currentComet++)
 				{
 					GenerateComet(currentStar, comet);
+					if (!NV.nameComets)
+						comet.name += std::to_wstring(currentComet + 1);
 					PrintPlanet(comet, planetFile);
 				}
 			}
@@ -7969,7 +7974,10 @@ std::ofstream* DebugFileP;
 	}
 	void GenerateAsteroid(SEStar& parent, SEPlanet& asteroid, double minSemimajor, double maxSemimajor, double avgSemimajor, double sdSemimajor)
 	{
-		asteroid.name = GenName(typeAsteroid);
+		if (NV.nameAsteroids)
+			asteroid.name = GenName(typeAsteroid);
+		else
+			asteroid.name = L"Asteroid ";
 
 		std::normal_distribution<> genr{ 25, 75 };
 		do asteroid.radius = genr(mt_star);
@@ -8002,7 +8010,10 @@ std::ofstream* DebugFileP;
 	}
 	void GenerateComet(SEStar& parent, SEPlanet& comet)
 	{
-		comet.name = GenName(typeComet);
+		if (NV.nameComets)
+			comet.name = GenName(typeComet);
+		else
+			comet.name = L"Comet ";
 
 		std::normal_distribution<> genr{ 25, 50 };
 		do comet.radius = genr(mt_star);
