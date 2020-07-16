@@ -80,6 +80,11 @@ std::ofstream* DebugFileP;
 	void Load_Name_Dataset();
 	void Load_Advanced_Main();
 	void Clear_Advanced();
+
+	void Load_Tabgroup_Advanced_Outer();
+	void Load_Tabgroup_Name_Inner();
+	void Load_Tabgroup_Advanced_Inner();
+	void Load_Tabgroup_Ship_Inner();
 	
 	void Load_Name_Star();
 	void Load_Name_Planet();
@@ -305,7 +310,7 @@ std::ofstream* DebugFileP;
 				CreateNameVectors(hWnd);
 				TestNames();
 				break;
-			
+
 
 			case IDM_EXIT:
 				DestroyWindow(hWnd);
@@ -324,84 +329,35 @@ std::ofstream* DebugFileP;
 			{
 				Clear_Advanced();
 			}
-				break;
+			break;
 			case TCN_SELCHANGE:
 			{
-				switch (note->idFrom) // determines which tab handle sent the message
+				// determines which tabgroup is trying to switch screens
+				switch (note->idFrom) 
 				{
 				case TABGROUP_ADVANCED_OUTER:
 				{
-					switch (TabCtrl_GetCurSel(note->hwndFrom))
-					{
-					case 0:
-						ShowWindow(NV.Tab_Name_Inner, 1);
-						switch (TabCtrl_GetCurSel(NV.Tab_Name_Inner))
-						{
-						case TAB_NAME_DATASET:
-							Load_Name_Dataset();
-							break;
-						case TAB_NAME_STAR:
-							Load_Name_Star();
-							break;
-						case TAB_NAME_PLANET:
-							Load_Name_Planet();
-							break;
-						case TAB_NAME_MOON:
-							Load_Name_Moon();
-							break;
-						case TAB_NAME_DWARFMOON:
-							Load_Name_DwarfMoon();
-							break;
-						case TAB_NAME_ASTEROID:
-							//Load_Name_Asteroid();
-							break;
-						case TAB_NAME_COMET:
-							//Load_Name_Comet();
-							break;
-						case TAB_NAME_SHIP:
-							Load_Name_All_Ship();
-							break;
-						case TAB_NAME_SIMPLE:
-							Load_Name_Simple();
-							break;
-						}
-					case 1:
-						ShowWindow(NV.Tab_Advanced_Inner, 1);
-						break;
-					}
+					Load_Tabgroup_Advanced_Outer();
 				}
-					break;
+				break;
 				case TABGROUP_ADVANCED_INNER:
 				{
-					// empty for now
+					//empty for now
 				}
-					break;
+				break;
 				case TABGROUP_NAME_INNER:
 				{
-					switch (TabCtrl_GetCurSel(note->hwndFrom))
-					{
-					case 0:
-						
-						break;
-					case 1:
-						
-						break;
-					}
+					Load_Tabgroup_Name_Inner();
 				}
-					break;
-				}
-
-
-
-				
-
-
-
-
 				break;
+				case TABGROUP_SHIP_INNER:
+				{
+					//empty for now
+				}
+				break;
+				}
 			}
-			default:
-				break;
+			break;
 			}
 		}
 		break;
@@ -3218,49 +3174,7 @@ std::ofstream* DebugFileP;
 		//Header
 		ShowWindow(CONFIG_H.HEADER_ADVANCED, 1);
 		ShowWindow(NV.Tab_Advanced_Outer, 1);
-
-		// outer switch statment loads either the name variables tab or advanced variables tab
-		switch (TabCtrl_GetCurSel(NV.Tab_Advanced_Outer))
-		{
-		case TABGROUP_NAME_INNER:
-		{
-			ShowWindow(NV.Tab_Name_Inner, 1);
-			switch (TabCtrl_GetCurSel(NV.Tab_Name_Inner))
-			{
-			case TAB_NAME_DATASET:
-				Load_Name_Dataset();
-				break;
-			case TAB_NAME_STAR:
-				Load_Name_Star();
-				break;
-			case TAB_NAME_PLANET:
-				Load_Name_Planet();
-				break;
-			case TAB_NAME_MOON:
-				Load_Name_Moon();
-				break;
-			case TAB_NAME_DWARFMOON:
-				Load_Name_DwarfMoon();
-				break;
-			case TAB_NAME_ASTEROID:
-				//Load_Name_Asteroid();
-				break;
-			case TAB_NAME_COMET:
-				//Load_Name_Comet();
-				break;
-			case TAB_NAME_SHIP:
-				Load_Name_All_Ship();
-				break;
-			case TAB_NAME_SIMPLE:
-				Load_Name_Simple();
-				break;
-			}
-		}
-			break;
-		case TABGROUP_ADVANCED_INNER:
-			Load_Advanced_Main();
-			break;
-		}
+		Load_Tabgroup_Advanced_Outer();
 
 		lastScreen = Advanced;
 	}
@@ -3323,6 +3237,75 @@ std::ofstream* DebugFileP;
 		ShowWindow(NV.wordPercentH.EXTRA, 0);
 
 		ShowWindow(NV.nameMoonsH.INFOBUTTON, 0);
+	}
+	void Load_Tabgroup_Advanced_Outer()
+	{
+		switch (TabCtrl_GetCurSel(NV.Tab_Advanced_Outer))
+		{
+		case TAB_NAMES:
+			Load_Tabgroup_Name_Inner();
+			break;
+		case TAB_ADVANCED:
+			//empty
+			break;
+		}
+	}
+	void Load_Tabgroup_Name_Inner()
+	{
+		ShowWindow(NV.Tab_Name_Inner, 1);
+		switch (TabCtrl_GetCurSel(NV.Tab_Name_Inner))
+		{
+		case TAB_NAME_DATASET:
+			Load_Name_Dataset();
+			break;
+		case TAB_NAME_STAR:
+			Load_Name_Star();
+			break;
+		case TAB_NAME_PLANET:
+			Load_Name_Planet();
+			break;
+		case TAB_NAME_MOON:
+			Load_Name_Moon();
+			break;
+		case TAB_NAME_DWARFMOON:
+			Load_Name_DwarfMoon();
+			break;
+		case TAB_NAME_ASTEROID:
+			//Load_Name_Asteroid();
+			break;
+		case TAB_NAME_COMET:
+			//Load_Name_Comet();
+			break;
+		case TAB_NAME_SHIP:
+			Load_Name_All_Ship();
+			break;
+		case TAB_NAME_SIMPLE:
+			Load_Name_Simple();
+			break;
+		}
+	}
+	void Load_Tabgroup_Advanced_Inner()
+	{
+	}
+	void Load_Tabgroup_Ship_Inner()
+	{
+	}
+	void Load_Name_Dataset()
+	{
+		ShowWindow(NV.Markov_INFO, 1);
+		ShowWindow(NV.buttonUpdate, 1);
+
+		ShowWindow(NV.wordPercentH.DESC, 1);
+		ShowWindow(NV.wordPercentH.HANDLE, 1);
+		ShowWindow(NV.wordPercentH.INFOBUTTON, 1);
+		ShowWindow(NV.wordPercentH.EXTRA, 1);
+
+		ShowWindow(NV.saveNamePresetButton.HANDLE, 1);
+		ShowWindow(NV.saveNamePresetButton.DESC, 1);
+		ShowWindow(NV.saveNamePresetButton.INFOBUTTON, 1);
+		ShowWindow(NV.saveNamePresetButton.EXTRA, 1);
+
+		ShowWindow(NV.GROUP_DATASET, 1);
 	}
 	void Load_Name_Star()
 	{
@@ -3497,28 +3480,6 @@ std::ofstream* DebugFileP;
 
 		ShowWindow(NV.GROUP_STATION_SHIP, 1);
 	}
-
-	void Load_Name_Dataset()
-	{
-		
-		ShowWindow(NV.Markov_INFO, 1);
-		ShowWindow(NV.buttonUpdate, 1);
-
-		ShowWindow(NV.wordPercentH.DESC, 1);
-		ShowWindow(NV.wordPercentH.HANDLE, 1);
-		ShowWindow(NV.wordPercentH.INFOBUTTON, 1);
-		ShowWindow(NV.wordPercentH.EXTRA, 1);
-
-		ShowWindow(NV.saveNamePresetButton.HANDLE, 1);
-		ShowWindow(NV.saveNamePresetButton.DESC, 1);
-		ShowWindow(NV.saveNamePresetButton.INFOBUTTON, 1);
-		ShowWindow(NV.saveNamePresetButton.EXTRA, 1);
-
-		ShowWindow(NV.GROUP_DATASET, 1);
-	}
-	void Load_Advanced_Main()
-	{
-	}
 	void Load_Name_Simple()
 	{
 		ShowWindow(NV.SimpleGenerator_INFO, 1);
@@ -3530,6 +3491,10 @@ std::ofstream* DebugFileP;
 		ShowWindow(NV.GROUP_SIMPLE, 1);
 	}
 
+	void Load_Advanced_Main()
+	{
+	}
+	
 	void GetConfigData(HWND hWnd)
 	{
 		GetVariableFromWindow(CONFIG_H.starOutputFolder.HANDLE, CONFIG.starOutputFolder);
@@ -7844,7 +7809,6 @@ std::ofstream* DebugFileP;
 				
 		}
 	}
-
 	void PrintDebug(SEPlanet& Debug, std::string color)
 	{
 		*DebugFileP << wstr_to_str(Debug.type) << "\t\t\t\t\t\"" << wstr_to_str(Debug.name) << "\"\n{"
