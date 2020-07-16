@@ -1589,7 +1589,7 @@ std::ofstream* DebugFileP;
 				=====================================================*/
 
 				NV.Tab_Name_Inner = CreateWindowW(WC_TABCONTROL, L"",
-					WS_CHILD | TCS_MULTILINE | TCS_SCROLLOPPOSITE,
+					WS_CHILD | TCS_MULTILINE,
 					355, 125, 655, 540,
 					hWnd, (HMENU)TABGROUP_NAME_INNER, hInst, NULL);
 				//insterts tabs into name variables
@@ -1597,10 +1597,10 @@ std::ofstream* DebugFileP;
 				TCHAR tab3[32] = L"Star Names";
 				TCHAR tab4[32] = L"Planet Names";
 				TCHAR tab5[32] = L"Moon Names";
-				TCHAR tab6[32] = L"DwarfMoon Names";
-				TCHAR tab7[32] = L"Asteroid Names";
-				TCHAR tab8[32] = L"Comet Names";
-				TCHAR tab9[32] = L"Ship Names";
+				TCHAR tab6[32] = L"Ship Names";
+				TCHAR tab7[32] = L"DwarfMoon Names";
+				TCHAR tab8[32] = L"Asteroid Names";
+				TCHAR tab9[32] = L"Comet Names";				
 				TCHAR tab10[32] = L"Simple Name Gen";
 				tab.pszText = tab2;
 				TabCtrl_InsertItem(NV.Tab_Name_Inner, TAB_NAME_DATASET, &tab);
@@ -1611,16 +1611,17 @@ std::ofstream* DebugFileP;
 				tab.pszText = tab5;
 				TabCtrl_InsertItem(NV.Tab_Name_Inner, TAB_NAME_MOON, &tab);
 				tab.pszText = tab6;
-				TabCtrl_InsertItem(NV.Tab_Name_Inner, TAB_NAME_DWARFMOON, &tab);
-				tab.pszText = tab7;
-				TabCtrl_InsertItem(NV.Tab_Name_Inner, TAB_NAME_ASTEROID, &tab);
-				tab.pszText = tab8;
-				TabCtrl_InsertItem(NV.Tab_Name_Inner, TAB_NAME_COMET, &tab);
-				tab.pszText = tab9;
 				TabCtrl_InsertItem(NV.Tab_Name_Inner, TAB_NAME_SHIP, &tab);
+				tab.pszText = tab7;
+				TabCtrl_InsertItem(NV.Tab_Name_Inner, TAB_NAME_DWARFMOON, &tab);
+				tab.pszText = tab8;
+				TabCtrl_InsertItem(NV.Tab_Name_Inner, TAB_NAME_ASTEROID, &tab);			
+				tab.pszText = tab9;
+				TabCtrl_InsertItem(NV.Tab_Name_Inner, TAB_NAME_COMET, &tab);
 				tab.pszText = tab10;
 				TabCtrl_InsertItem(NV.Tab_Name_Inner, TAB_NAME_SIMPLE, &tab);
-
+				
+			
 				// tab to hold the outer buttons
 				NV.Tab_Advanced_Outer = CreateWindowW(WC_TABCONTROL, L"",
 					WS_CHILD | TCS_MULTILINE | TCS_RIGHTJUSTIFY,
@@ -1639,29 +1640,29 @@ std::ofstream* DebugFileP;
 
 					// Info buttons for the pre/post/number mods, which are the same for
 					// each name group
-					NV.PreMod_INFO.DESC = CreateWindowW(L"static", L"Pre Modification Description:",
+					NV.PreMod_INFO.DESC = CreateWindowW(L"static", L"Pre Modification",
 						WS_CHILD | WS_BORDER,
-						760, 260, 220, 20,
+						380, 325, 170, 20,
 						hWnd, NULL, NULL, NULL);
-					NV.PreMod_INFO.INFOBUTTON = CreateWindowW(L"button", L"I",
+					NV.PreMod_INFO.INFOBUTTON = CreateWindowW(L"button", L"INFO",
 						WS_CHILD | WS_BORDER,
-						962, 262, 16, 16,
+						500, 327, 46, 16,
 						hWnd, (HMENU)IB_NAMEPREMODS, NULL, NULL);
-					NV.PostMod_INFO.DESC = CreateWindowW(L"static", L"Post Modification Description:",
+					NV.PostMod_INFO.DESC = CreateWindowW(L"static", L"Post Modification",
 						WS_CHILD | WS_BORDER,
-						760, 280, 220, 20,
+						550, 325, 170, 20,
 						hWnd, NULL, NULL, NULL);
-					NV.PostMod_INFO.INFOBUTTON = CreateWindowW(L"button", L"I",
+					NV.PostMod_INFO.INFOBUTTON = CreateWindowW(L"button", L"INFO",
 						WS_CHILD | WS_BORDER,
-						962, 282, 16, 16,
+						670, 327, 46, 16,
 						hWnd, (HMENU)IB_NAMEPOSTMODS, NULL, NULL);
-					NV.NumberMod_INFO.DESC = CreateWindowW(L"static", L"Num Modification Description:",
+					NV.NumberMod_INFO.DESC = CreateWindowW(L"static", L"Num Modification",
 						WS_CHILD | WS_BORDER,
-						760, 300, 220, 20,
+						720, 325, 170, 20,
 						hWnd, NULL, NULL, NULL);
-					NV.NumberMod_INFO.INFOBUTTON = CreateWindowW(L"button", L"I",
+					NV.NumberMod_INFO.INFOBUTTON = CreateWindowW(L"button", L"INFO",
 						WS_CHILD | WS_BORDER,
-						962, 302, 16, 16,
+						840, 327, 46, 16,
 						hWnd, (HMENU)IB_NAMENUMBERMODS, NULL, NULL);
 
 					// Info buttons for the pre / post name lists, which are the same for
@@ -1692,6 +1693,12 @@ std::ofstream* DebugFileP;
 						370, 240, 620, 410,
 						hWnd, NULL, NULL, NULL);
 
+					// Update names button
+					NV.buttonUpdate = CreateWindowW(L"button", L"Update Names",
+						WS_CHILD | WS_BORDER | BS_MULTILINE,
+						880, 260, 80, 40,
+						hWnd, (HMENU)BUTTON_NAME_LOAD_VECTORS, NULL, NULL);
+
 					// save preset stuff
 					// parent is hWnd, but loads with dataset page
 					NV.saveNamePresetButton.DESC = CreateWindowW(L"static", L"Save Name Preset...",
@@ -1720,23 +1727,23 @@ std::ofstream* DebugFileP;
 					// Therefore, it's parent is hWnd. It is only declared here because there is no group to put it under
 					NV.wordPercentH.DESC = CreateWindowW(L"static", L"Multi Word Percent:",
 						WS_CHILD | WS_BORDER,
-						760, 260, 140, 20,
+						560, 220, 140, 20,
 						hWnd, NULL, NULL, NULL);
 					NV.wordPercentH.HANDLE = CreateWindowW(L"edit", L"",
 						WS_CHILD | WS_BORDER | ES_RIGHT | ES_NUMBER,
-						900, 260, 50, 20,
+						700, 220, 50, 20,
 						hWnd, NULL, NULL, NULL);
 					NV.wordPercentH.INFOBUTTON = CreateWindowW(L"button", L"I",
 						WS_CHILD | WS_BORDER,
-						952, 262, 16, 16,
+						752, 222, 16, 16,
 						hWnd, (HMENU)IB_WORDPERCENT, NULL, NULL);
 
 					// The word percent extra is used for the test names button. It's parent is also hWnd
 					// because it sends a message to the main windows procedure, but visually it only appears
 					// under the markov screen
 					NV.wordPercentH.EXTRA = CreateWindowW(L"button", L"Test Names",
-						WS_CHILD | WS_BORDER,
-						800, 285, 100, 30,
+						WS_CHILD | WS_BORDER | BS_MULTILINE,
+						760, 260, 80, 40,
 						hWnd, (HMENU)BUTTON_TEST_NAMES, NULL, NULL);
 
 					NV.orderDESC = CreateWindowW(L"static", L"Order:",
@@ -1797,19 +1804,19 @@ std::ofstream* DebugFileP;
 					// shown/hiden with the group
 					NV.useStarModsDESC = CreateWindowW(L"static", L"Use Star Pre / Post / Number Mods:",
 						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						10, 40, 300, 20,
+						10, 38, 420, 22,
 						NV.GROUP_STAR, NULL, NULL, NULL);
 					NV.useStarPreModsH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-						310, 40, 20, 20,
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						322, 39, 20, 20,
 						NV.GROUP_STAR, (HMENU)NVCB_STARPREMOD, NULL, NULL);
 					NV.useStarPostModsH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-						330, 40, 20, 20,
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						362, 39, 20, 20,
 						NV.GROUP_STAR, (HMENU)NVCB_STARPOSTMOD, NULL, NULL);
 					NV.useStarNumberModsH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-						350, 40, 20, 20,
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						402, 39, 20, 20,
 						NV.GROUP_STAR, (HMENU)NVCB_STARNUMBERMOD, NULL, NULL);
 
 					NV.starModsProbDESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
@@ -1817,16 +1824,16 @@ std::ofstream* DebugFileP;
 						10, 60, 300, 20,
 						NV.GROUP_STAR, NULL, NULL, NULL);
 					NV.probStarPreModH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						10, 80, 40, 20,
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_CENTER,
+						310, 60, 40, 20,
 						NV.GROUP_STAR, NULL, NULL, NULL);
 					NV.probStarPostModH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						50, 80, 40, 20,
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_CENTER,
+						350, 60, 40, 20,
 						NV.GROUP_STAR, NULL, NULL, NULL);
 					NV.probStarNumberModH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						90, 80, 40, 20,
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_CENTER,
+						390, 60, 40, 20,
 						NV.GROUP_STAR, NULL, NULL, NULL);
 
 					NV.starPreModList = CreateWindowW(L"edit", L"",
@@ -1853,36 +1860,36 @@ std::ofstream* DebugFileP;
 					// shown/hiden with the group
 					NV.usePlanetModsDESC = CreateWindowW(L"static", L"Use Planet Pre / Post / Number Mods:",
 						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						10, 40, 300, 20,
+						10, 38, 420, 22,
 						NV.GROUP_PLANET, NULL, NULL, NULL);
 					NV.usePlanetPreModsH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-						310, 40, 20, 20,
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						322, 39, 20, 20,
 						NV.GROUP_PLANET, (HMENU)NVCB_PLANETPREMOD, NULL, NULL);
 					NV.usePlanetPostModsH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-						330, 40, 20, 20,
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						362, 39, 20, 20,
 						NV.GROUP_PLANET, (HMENU)NVCB_PLANETPOSTMOD, NULL, NULL);
 					NV.usePlanetNumberModsH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-						350, 40, 20, 20,
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						402, 39, 20, 20,
 						NV.GROUP_PLANET, (HMENU)NVCB_PLANETNUMBERMOD, NULL, NULL);
 
-					NV.planetModsProbDESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+					NV.starModsProbDESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
 						WS_CHILD | WS_VISIBLE | WS_BORDER,
 						10, 60, 300, 20,
 						NV.GROUP_PLANET, NULL, NULL, NULL);
 					NV.probPlanetPreModH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						10, 80, 40, 20,
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_CENTER,
+						310, 60, 40, 20,
 						NV.GROUP_PLANET, NULL, NULL, NULL);
 					NV.probPlanetPostModH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						50, 80, 40, 20,
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_CENTER,
+						350, 60, 40, 20,
 						NV.GROUP_PLANET, NULL, NULL, NULL);
 					NV.probPlanetNumberModH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						90, 80, 40, 20,
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_CENTER,
+						390, 60, 40, 20,
 						NV.GROUP_PLANET, NULL, NULL, NULL);
 
 					NV.planetPreModList = CreateWindowW(L"edit", L"",
@@ -1908,51 +1915,51 @@ std::ofstream* DebugFileP;
 
 					NV.nameMoonsH.DESC = CreateWindowW(L"static", L"Name Terra / Gas Giant Moons:",
 						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						10, 20, 300, 20,
+						10, 16, 420, 24,
 						NV.GROUP_MOON, NULL, NULL, NULL);
 					NV.nameMoonsH.HANDLE = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-						310, 20, 20, 20,
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						362, 18, 20, 20,
 						NV.GROUP_MOON, (HMENU)NVCB_NAMETERRAMOONS, NULL, NULL);
 					NV.nameMoonsH.EXTRA = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-						330, 20, 20, 20,
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						402, 18, 20, 20,
 						NV.GROUP_MOON, (HMENU)NVCB_NAMEGASMOONS, NULL, NULL);
 
 					// These handes are initialized as visible because they are
 					// shown/hiden with the group
 					NV.useMoonModsDESC = CreateWindowW(L"static", L"Use Moon Pre / Post / Number Mods:",
 						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						10, 40, 300, 20,
+						10, 38, 420, 22,
 						NV.GROUP_MOON, NULL, NULL, NULL);
 					NV.useMoonPreModsH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-						310, 40, 20, 20,
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						322, 39, 20, 20,
 						NV.GROUP_MOON, (HMENU)NVCB_MOONPREMOD, NULL, NULL);
 					NV.useMoonPostModsH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-						330, 40, 20, 20,
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						362, 39, 20, 20,
 						NV.GROUP_MOON, (HMENU)NVCB_MOONPOSTMOD, NULL, NULL);
 					NV.useMoonNumberModsH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-						350, 40, 20, 20,
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						402, 39, 20, 20,
 						NV.GROUP_MOON, (HMENU)NVCB_MOONNUMBERMOD, NULL, NULL);
 
-					NV.moonModsProbDESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+					NV.starModsProbDESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
 						WS_CHILD | WS_VISIBLE | WS_BORDER,
 						10, 60, 300, 20,
 						NV.GROUP_MOON, NULL, NULL, NULL);
 					NV.probMoonPreModH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						10, 80, 40, 20,
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_CENTER,
+						310, 60, 40, 20,
 						NV.GROUP_MOON, NULL, NULL, NULL);
 					NV.probMoonPostModH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						50, 80, 40, 20,
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_CENTER,
+						350, 60, 40, 20,
 						NV.GROUP_MOON, NULL, NULL, NULL);
 					NV.probMoonNumberModH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						90, 80, 40, 20,
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_CENTER,
+						390, 60, 40, 20,
 						NV.GROUP_MOON, NULL, NULL, NULL);
 
 					NV.moonPreModList = CreateWindowW(L"edit", L"",
@@ -1978,55 +1985,55 @@ std::ofstream* DebugFileP;
 
 					NV.nameDwarfMoonsH.DESC = CreateWindowW(L"static", L"Name Terra / Gas Giant Dwarf Moons:",
 						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						10, 20, 300, 20,
+						10, 16, 420, 24,
 						NV.GROUP_DWARFMOON, NULL, NULL, NULL);
 					NV.nameDwarfMoonsH.HANDLE = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-						310, 20, 20, 20,
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						362, 18, 20, 20,
 						NV.GROUP_DWARFMOON, (HMENU)NVCB_NAMETERRADWARFMOONS, NULL, NULL);
 					NV.nameDwarfMoonsH.EXTRA = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-						330, 20, 20, 20,
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						402, 18, 20, 20,
 						NV.GROUP_DWARFMOON, (HMENU)NVCB_NAMEGASDWARFMOONS, NULL, NULL);
 					NV.nameMoonsH.INFOBUTTON = CreateWindowW(L"button", L"I",
 						WS_CHILD | WS_BORDER,
-						662, 262, 16, 16,
+						802, 259, 16, 16,
 						hWnd, (HMENU)IB_NAMEMOONS, NULL, NULL);
 
 					// These handes are initialized as visible because they are
 					// shown/hiden with the group
-					NV.useDwarfMoonModsDESC = CreateWindowW(L"static", L"Use Dwarf Moon Pre / Post / Number Mods:",
+					NV.useDwarfMoonModsDESC = CreateWindowW(L"static", L"Use DwarfMoon Pre / Post / Number Mods:",
 						WS_CHILD | WS_VISIBLE | WS_BORDER,
-						10, 40, 300, 20,
+						10, 38, 420, 22,
 						NV.GROUP_DWARFMOON, NULL, NULL, NULL);
 					NV.useDwarfMoonPreModsH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX | BS_CENTER,
-						310, 40, 20, 20,
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						322, 39, 20, 20,
 						NV.GROUP_DWARFMOON, (HMENU)NVCB_DWARFMOONPREMOD, NULL, NULL);
 					NV.useDwarfMoonPostModsH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-						330, 40, 20, 20,
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						362, 39, 20, 20,
 						NV.GROUP_DWARFMOON, (HMENU)NVCB_DWARFMOONPOSTMOD, NULL, NULL);
 					NV.useDwarfMoonNumberModsH = CreateWindowW(L"button", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
-						350, 40, 20, 20,
+						WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
+						402, 39, 20, 20,
 						NV.GROUP_DWARFMOON, (HMENU)NVCB_DWARFMOONNUMBERMOD, NULL, NULL);
 
-					NV.dwarfMoonModsProbDESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+					NV.starModsProbDESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
 						WS_CHILD | WS_VISIBLE | WS_BORDER,
 						10, 60, 300, 20,
 						NV.GROUP_DWARFMOON, NULL, NULL, NULL);
 					NV.probDwarfMoonPreModH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						10, 80, 40, 20,
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_CENTER,
+						310, 60, 40, 20,
 						NV.GROUP_DWARFMOON, NULL, NULL, NULL);
 					NV.probDwarfMoonPostModH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						50, 80, 40, 20,
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_CENTER,
+						350, 60, 40, 20,
 						NV.GROUP_DWARFMOON, NULL, NULL, NULL);
 					NV.probDwarfMoonNumberModH = CreateWindowW(L"edit", L"",
-						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
-						90, 80, 40, 20,
+						WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER | ES_CENTER,
+						390, 60, 40, 20,
 						NV.GROUP_DWARFMOON, NULL, NULL, NULL);
 
 					NV.dwarfMoonPreModList = CreateWindowW(L"edit", L"",
@@ -3195,6 +3202,7 @@ std::ofstream* DebugFileP;
 		ShowWindow(NV.Tab_Name_Inner, 0);
 		ShowWindow(NV.Tab_Ship_Inner, 0);
 
+
 		ShowWindow(NV.PreMod_INFO.DESC, 0);
 		ShowWindow(NV.PostMod_INFO.DESC, 0);
 		ShowWindow(NV.NumberMod_INFO.DESC, 0);
@@ -3230,6 +3238,7 @@ std::ofstream* DebugFileP;
 		ShowWindow(NV.saveNamePresetButton.HANDLE, 0);
 		ShowWindow(NV.saveNamePresetButton.INFOBUTTON, 0);
 		ShowWindow(NV.saveNamePresetButton.EXTRA, 0);
+		ShowWindow(NV.buttonUpdate, 0);
 
 		ShowWindow(NV.wordPercentH.DESC, 0);
 		ShowWindow(NV.wordPercentH.HANDLE, 0);
@@ -3253,6 +3262,7 @@ std::ofstream* DebugFileP;
 	void Load_Tabgroup_Name_Inner()
 	{
 		ShowWindow(NV.Tab_Name_Inner, 1);
+		ShowWindow(NV.buttonUpdate, 1);
 		switch (TabCtrl_GetCurSel(NV.Tab_Name_Inner))
 		{
 		case TAB_NAME_DATASET:
@@ -3267,6 +3277,9 @@ std::ofstream* DebugFileP;
 		case TAB_NAME_MOON:
 			Load_Name_Moon();
 			break;
+		case TAB_NAME_SHIP:
+			Load_Name_All_Ship();
+			break;
 		case TAB_NAME_DWARFMOON:
 			Load_Name_DwarfMoon();
 			break;
@@ -3275,10 +3288,7 @@ std::ofstream* DebugFileP;
 			break;
 		case TAB_NAME_COMET:
 			//Load_Name_Comet();
-			break;
-		case TAB_NAME_SHIP:
-			Load_Name_All_Ship();
-			break;
+			break;	
 		case TAB_NAME_SIMPLE:
 			Load_Name_Simple();
 			break;
@@ -3293,7 +3303,6 @@ std::ofstream* DebugFileP;
 	void Load_Name_Dataset()
 	{
 		ShowWindow(NV.Markov_INFO, 1);
-		ShowWindow(NV.buttonUpdate, 1);
 
 		ShowWindow(NV.wordPercentH.DESC, 1);
 		ShowWindow(NV.wordPercentH.HANDLE, 1);

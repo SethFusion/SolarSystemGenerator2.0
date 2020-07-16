@@ -56,10 +56,10 @@
 	#define TAB_NAME_STAR				1
 	#define TAB_NAME_PLANET				2
 	#define TAB_NAME_MOON				3
-	#define TAB_NAME_DWARFMOON			4
-	#define TAB_NAME_ASTEROID			5
-	#define TAB_NAME_COMET				6
-	#define TAB_NAME_SHIP				7
+	#define TAB_NAME_SHIP				4
+	#define TAB_NAME_DWARFMOON			5
+	#define TAB_NAME_ASTEROID			6
+	#define TAB_NAME_COMET				7	
 		#pragma region Under Ship Variables
 		#define TAB_SHIP_ALL				0
 		#define TAB_SHIP_COLONY				1
