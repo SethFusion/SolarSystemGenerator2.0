@@ -1,5 +1,6 @@
 PresetName=Default
 WordPercent=5
+
 useSimpleNameGenerator=0
 prefixList {Al B Br C Ch Cr Cl D Dr El En Em Ep Ed F Fr Fl G Gl H K Kn Kl L M Mr N P Pl Pr R S St Sl Sn Sc Sp Sh Sk Sr T Th Tr V Vr Z}
 suffixList {it ex al un una ion ectra oas ir of aln ora orah en eg up ul ud un ag ug ist ust irt olla alla alah ill ell erth arth inda ov ove ade ald os or ix ux ax yl yt yd ih yre ast et er ome omil am ak}
@@ -71,23 +72,32 @@ useShipPostMods_All=0
 probShipPostMod_All=0
 ShipPostMods_All {}
 
-useShipPreMods_Colony=1
-probShipPreMod_Colony=50
-ShipPreMods_Colony {SS HMS SC USS}
-useShipPostMods_Colony=1
-probShipPostMod_Colony=30
-ShipPostMods_Colony {Adventure Explorer Drifter Voyager}
-useShipNumberMods_Colony=1
-probShipNumberMod_Colony=10
+useShipPreMods_Starship=1
+probShipPreMod_Starship=50
+ShipPreMods_Starship {SS HMS SC USS}
+useShipPostMods_Starship=1
+probShipPostMod_Starship=30
+ShipPostMods_Starship {Adventure Explorer Drifter Voyager}
+useShipNumberMods_Starship=1
+probShipNumberMod_Starship=10
 
-useShipPreMods_Instrument=1
-probShipPreMod_Instrument=80
-ShipPreMods_Instrument {NASA SpaceX Geological Meteorological Upper-Atmosphere Low-Orbit}
-useShipPostMods_Instrument=1
-probShipPostMod_Instrument=80
-ShipPostMods_Instrument {Researcher Observer Probe}
-useShipNumberMods_Instrument=1
-probShipNumberMod_Instrument=10
+useShipPreMods_Planetship=1
+probShipPreMod_Planetship=50
+ShipPreMods_Planetship {-pla}
+useShipPostMods_Planetship=1
+probShipPostMod_Planetship=30
+ShipPostMods_Planetship {-pla}
+useShipNumberMods_Planetship=1
+probShipNumberMod_Planetship=10
+
+useShipPreMods_Station=1
+probShipPreMod_Station=50
+ShipPreMods_Station {United Orbital}
+useShipPostMods_Station=1
+probShipPostMod_Station=80
+ShipPostMods_Station {Station Outpost Rest Lab Researcher}
+useShipNumberMods_Station=1
+probShipNumberMod_Station=10
 
 useShipPreMods_Satellite=1
 probShipPreMod_Satellite=80
@@ -98,14 +108,14 @@ ShipPostMods_Satellite {Communications Comms Network Radio FM GPS}
 useShipNumberMods_Satellite=1
 probShipNumberMod_Satellite=20
 
-useShipPreMods_Station=1
-probShipPreMod_Station=50
-ShipPreMods_Station {United Orbital}
-useShipPostMods_Station=1
-probShipPostMod_Station=80
-ShipPostMods_Station {Station Outpost Rest Lab Researcher}
-useShipNumberMods_Station=1
-probShipNumberMod_Station=10
+useShipPreMods_Probe=1
+probShipPreMod_Probe=80
+ShipPreMods_Probe {NASA SpaceX Geological Meteorological Upper-Atmosphere Low-Orbit}
+useShipPostMods_Probe=1
+probShipPostMod_Probe=80
+ShipPostMods_Probe {Researcher Observer Probe}
+useShipNumberMods_Probe=1
+probShipNumberMod_Probe=10
 
 order=3
 wordVarience=7

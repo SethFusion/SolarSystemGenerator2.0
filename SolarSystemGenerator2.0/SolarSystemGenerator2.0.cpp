@@ -25,8 +25,11 @@ std::vector<NamePreset> npreset;
 std::mt19937 mt_star, mt_planet, mt_moon, mt_ship, mt_name;
 std::uniform_int_distribution<int> genpercent{ 0, 99 }; // Number to compare represents real % ex: genpercent() < 50 = 50%
 std::uniform_real_distribution<> gendegree{ 0, 360 };
-enum Object_Type {typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4, typeAsteroid = 5, typeComet = 6,
-	typeShipColony = 7, typeShipInstrument = 8, typeShipSatellite = 9, typeShipStation = 10};
+enum Object_Type 
+{
+	typeStar = 1, typePlanet = 2, typeMoon = 3, typeDwarfMoon = 4, typeAsteroid = 5, typeComet = 6,
+	typeShipStarship = 7, typeShipPlanetship = 8, typeShipStation = 9, typeShipSatellite = 10, typeShipProbe = 11
+};
 enum Screen {General = 1, System = 2, Planet = 3, Surface = 4, Special = 5, Advanced = 6};
 Screen lastScreen;
 
@@ -92,11 +95,12 @@ std::ofstream* DebugFileP;
 	void Load_Name_DwarfMoon();
 	void Load_Name_Asteroid();
 	void Load_Name_Comet();
-	void Load_Name_All_Ship();
-	void Load_Name_Colony_Ship();
-	void Load_Name_Instrument_Ship();
-	void Load_Name_Satellite_Ship();
-	void Load_Name_Station_Ship();	
+	void Load_Name_Ship_All();
+	void Load_Name_Ship_Starship();
+	void Load_Name_Ship_Planetship();
+	void Load_Name_Ship_Station();
+	void Load_Name_Ship_Satellite();	
+	void Load_Name_Ship_Probe();
 	void Load_Name_Simple();
 
 	void GetConfigData(HWND);
@@ -250,26 +254,32 @@ std::ofstream* DebugFileP;
 			case BUTTON_GENERAL:
 				Clear_Screen();
 				Load_Screen_General();
+				SetInfoBox(BUTTON_GENERAL);
 				break;
 			case BUTTON_SYSTEM:
 				Clear_Screen();
 				Load_Screen_System();
+				SetInfoBox(BUTTON_SYSTEM);
 				break;
 			case BUTTON_PLANET:
 				Clear_Screen();
 				Load_Screen_Planet();
+				SetInfoBox(BUTTON_PLANET);
 				break;
 			case BUTTON_SURFACE:
 				Clear_Screen();
 				Load_Screen_Surface();
+				SetInfoBox(BUTTON_SURFACE);
 				break;
 			case BUTTON_SPECIAL:
 				Clear_Screen();
 				Load_Screen_Special();
+				SetInfoBox(BUTTON_SPECIAL);
 				break;
 			case BUTTON_ADVANCED:
 				Clear_Screen();
 				Load_Screen_Advanced();
+				SetInfoBox(BUTTON_ADVANCED);
 				break;
 
 			case BUTTON_BROWSE_STAR_FOLDER:
@@ -677,23 +687,32 @@ std::ofstream* DebugFileP;
 			LoadVariableFromFile(Buffer, parse, temp.probShipPostMod_All);
 			LoadListFromFile(Buffer, parse, temp.ShipPostMods_All);
 
-			LoadVariableFromFile(Buffer, parse, temp.useShipPreMods_Colony);
-			LoadVariableFromFile(Buffer, parse, temp.probShipPreMod_Colony);
-			LoadListFromFile(Buffer, parse, temp.ShipPreMods_Colony);
-			LoadVariableFromFile(Buffer, parse, temp.useShipPostMods_Colony);
-			LoadVariableFromFile(Buffer, parse, temp.probShipPostMod_Colony);
-			LoadListFromFile(Buffer, parse, temp.ShipPostMods_Colony);
-			LoadVariableFromFile(Buffer, parse, temp.useShipNumberMods_Colony);
-			LoadVariableFromFile(Buffer, parse, temp.probShipNumberMod_Colony);
+			LoadVariableFromFile(Buffer, parse, temp.useShipPreMods_Starship);
+			LoadVariableFromFile(Buffer, parse, temp.probShipPreMod_Starship);
+			LoadListFromFile(Buffer, parse, temp.ShipPreMods_Starship);
+			LoadVariableFromFile(Buffer, parse, temp.useShipPostMods_Starship);
+			LoadVariableFromFile(Buffer, parse, temp.probShipPostMod_Starship);
+			LoadListFromFile(Buffer, parse, temp.ShipPostMods_Starship);
+			LoadVariableFromFile(Buffer, parse, temp.useShipNumberMods_Starship);
+			LoadVariableFromFile(Buffer, parse, temp.probShipNumberMod_Starship);
 
-			LoadVariableFromFile(Buffer, parse, temp.useShipPreMods_Instrument);
-			LoadVariableFromFile(Buffer, parse, temp.probShipPreMod_Instrument);
-			LoadListFromFile(Buffer, parse, temp.ShipPreMods_Instrument);
-			LoadVariableFromFile(Buffer, parse, temp.useShipPostMods_Instrument);
-			LoadVariableFromFile(Buffer, parse, temp.probShipPostMod_Instrument);
-			LoadListFromFile(Buffer, parse, temp.ShipPostMods_Instrument);
-			LoadVariableFromFile(Buffer, parse, temp.useShipNumberMods_Instrument);
-			LoadVariableFromFile(Buffer, parse, temp.probShipNumberMod_Instrument);
+			LoadVariableFromFile(Buffer, parse, temp.useShipPreMods_Planetship);
+			LoadVariableFromFile(Buffer, parse, temp.probShipPreMod_Planetship);
+			LoadListFromFile(Buffer, parse, temp.ShipPreMods_Planetship);
+			LoadVariableFromFile(Buffer, parse, temp.useShipPostMods_Planetship);
+			LoadVariableFromFile(Buffer, parse, temp.probShipPostMod_Planetship);
+			LoadListFromFile(Buffer, parse, temp.ShipPostMods_Planetship);
+			LoadVariableFromFile(Buffer, parse, temp.useShipNumberMods_Planetship);
+			LoadVariableFromFile(Buffer, parse, temp.probShipNumberMod_Planetship);
+
+			LoadVariableFromFile(Buffer, parse, temp.useShipPreMods_Station);
+			LoadVariableFromFile(Buffer, parse, temp.probShipPreMod_Station);
+			LoadListFromFile(Buffer, parse, temp.ShipPreMods_Station);
+			LoadVariableFromFile(Buffer, parse, temp.useShipPostMods_Station);
+			LoadVariableFromFile(Buffer, parse, temp.probShipPostMod_Station);
+			LoadListFromFile(Buffer, parse, temp.ShipPostMods_Station);
+			LoadVariableFromFile(Buffer, parse, temp.useShipNumberMods_Station);
+			LoadVariableFromFile(Buffer, parse, temp.probShipNumberMod_Station);
 
 			LoadVariableFromFile(Buffer, parse, temp.useShipPreMods_Satellite);
 			LoadVariableFromFile(Buffer, parse, temp.probShipPreMod_Satellite);
@@ -704,14 +723,14 @@ std::ofstream* DebugFileP;
 			LoadVariableFromFile(Buffer, parse, temp.useShipNumberMods_Satellite);
 			LoadVariableFromFile(Buffer, parse, temp.probShipNumberMod_Satellite);
 
-			LoadVariableFromFile(Buffer, parse, temp.useShipPreMods_Station);
-			LoadVariableFromFile(Buffer, parse, temp.probShipPreMod_Station);
-			LoadListFromFile(Buffer, parse, temp.ShipPreMods_Station);
-			LoadVariableFromFile(Buffer, parse, temp.useShipPostMods_Station);
-			LoadVariableFromFile(Buffer, parse, temp.probShipPostMod_Station);
-			LoadListFromFile(Buffer, parse, temp.ShipPostMods_Station);
-			LoadVariableFromFile(Buffer, parse, temp.useShipNumberMods_Station);
-			LoadVariableFromFile(Buffer, parse, temp.probShipNumberMod_Station);
+			LoadVariableFromFile(Buffer, parse, temp.useShipPreMods_Probe);
+			LoadVariableFromFile(Buffer, parse, temp.probShipPreMod_Probe);
+			LoadListFromFile(Buffer, parse, temp.ShipPreMods_Probe);
+			LoadVariableFromFile(Buffer, parse, temp.useShipPostMods_Probe);
+			LoadVariableFromFile(Buffer, parse, temp.probShipPostMod_Probe);
+			LoadListFromFile(Buffer, parse, temp.ShipPostMods_Probe);
+			LoadVariableFromFile(Buffer, parse, temp.useShipNumberMods_Probe);
+			LoadVariableFromFile(Buffer, parse, temp.probShipNumberMod_Probe);
 
 			LoadVariableFromFile(Buffer, parse, temp.order);
 			LoadVariableFromFile(Buffer, parse, temp.wordVarience);
@@ -822,7 +841,7 @@ std::ofstream* DebugFileP;
 			WS_VISIBLE | WS_CHILD,
 			150, 300, 40, 20,
 			hWnd, NULL, NULL, NULL);
-		CONFIG_H.INFO_BOX = CreateWindowW(L"static", L"Welcome to Seth Fusion's Solar System Generator! Navigate through variables using the tabs at the top of the screen, or hit the Generate button to get started right away!",
+		CONFIG_H.INFO_BOX = CreateWindowW(L"static", L"Welcome to Seth Fusion's Solar System Generator! Navigate through variables using the tabs at the top of the screen, or hit the Generate button to get started right away!\n\nFor more information about a specific variable, click on the small 'I' button to the left of it.",
 			WS_VISIBLE | WS_CHILD | WS_BORDER | ES_CENTER,
 			10, 330, 320, 250,
 			hWnd, NULL, NULL, NULL);
@@ -1609,21 +1628,23 @@ std::ofstream* DebugFileP;
 					hWnd, (HMENU)TABGROUP_SHIP_INNER, hInst, NULL);
 				// insert main tabs
 				TCHAR tab11[32] = L"All Ship Names";
-				TCHAR tab12[32] = L"Colony";
-				TCHAR tab13[32] = L"Instrument";
+				TCHAR tab12[32] = L"Starship";
+				TCHAR tab13[32] = L"Planetship";
 				TCHAR tab14[32] = L"Satellite";
 				TCHAR tab15[32] = L"Station";
+				TCHAR tab16[32] = L"Probe";
 				tab.pszText = tab11;
 				TabCtrl_InsertItem(NV.Tab_Ship_Inner, TAB_SHIP_ALL, &tab);
 				tab.pszText = tab12;
-				TabCtrl_InsertItem(NV.Tab_Ship_Inner, TAB_SHIP_COLONY, &tab);
+				TabCtrl_InsertItem(NV.Tab_Ship_Inner, TAB_SHIP_STARSHIP, &tab);
 				tab.pszText = tab13;
-				TabCtrl_InsertItem(NV.Tab_Ship_Inner, TAB_SHIP_INSTRUMENT, &tab);
+				TabCtrl_InsertItem(NV.Tab_Ship_Inner, TAB_SHIP_PLANETSHIP, &tab);
 				tab.pszText = tab14;
 				TabCtrl_InsertItem(NV.Tab_Ship_Inner, TAB_SHIP_SATELLITE, &tab);
 				tab.pszText = tab15;
 				TabCtrl_InsertItem(NV.Tab_Ship_Inner, TAB_SHIP_STATION, &tab);
-
+				tab.pszText = tab16;
+				TabCtrl_InsertItem(NV.Tab_Ship_Inner, TAB_SHIP_PROBE, &tab);
 
 				NV.Tab_Name_Inner = CreateWindowW(WC_TABCONTROL, L"",
 					WS_CHILD | TCS_MULTILINE,
@@ -2271,115 +2292,172 @@ std::ofstream* DebugFileP;
 							#pragma region Ship Types
 
 							//###############################################################################
-								#pragma region Ship_Colony Group
+								#pragma region Ship_Starship Group
 							//###############################################################################
 
-							NV.GROUP_SHIP_COLONY = CreateWindowW(L"button", L"Ship Name Variables:",
+							NV.GROUP_SHIP_STARSHIP = CreateWindowW(L"button", L"Ship Name Variables:",
 								WS_CHILD | WS_GROUP | BS_GROUPBOX,
 								370, 240, 620, 410,
 								hWnd, NULL, NULL, NULL);
 
 							// These handes are initialized as visible because they are
 							// shown/hiden with the group
-							NV.useShipMods_Colony_DESC = CreateWindowW(L"static", L"Use Colony Pre / Post Mods for Ships:",
+							NV.useShipMods_Starship_DESC = CreateWindowW(L"static", L"Use Starship Pre / Post Mods for Ships:",
 								WS_CHILD | WS_VISIBLE | WS_BORDER,
 								10, 38, 420, 22,
-								NV.GROUP_SHIP_COLONY, NULL, NULL, NULL);
-							NV.useShipPreMods_ColonyH = CreateWindowW(L"button", L"",
+								NV.GROUP_SHIP_STARSHIP, NULL, NULL, NULL);
+							NV.useShipPreMods_StarshipH = CreateWindowW(L"button", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
 								322, 39, 20, 20,
-								NV.GROUP_SHIP_COLONY, (HMENU)NVCB_SHIPCOLONYPREMOD, NULL, NULL);
-							NV.useShipPostMods_ColonyH = CreateWindowW(L"button", L"",
+								NV.GROUP_SHIP_STARSHIP, (HMENU)NVCB_SHIPSTARSHIPPREMOD, NULL, NULL);
+							NV.useShipPostMods_StarshipH = CreateWindowW(L"button", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
 								362, 39, 20, 20,
-								NV.GROUP_SHIP_COLONY, (HMENU)NVCB_SHIPCOLONYPOSTMOD, NULL, NULL);
-							NV.useShipNumberMods_ColonyH = CreateWindowW(L"button", L"",
+								NV.GROUP_SHIP_STARSHIP, (HMENU)NVCB_SHIPSTARSHIPPOSTMOD, NULL, NULL);
+							NV.useShipNumberMods_StarshipH = CreateWindowW(L"button", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
 								402, 39, 20, 20,
-								NV.GROUP_SHIP_COLONY, (HMENU)NVCB_SHIPCOLONYNUMBERMOD, NULL, NULL);
+								NV.GROUP_SHIP_STARSHIP, (HMENU)NVCB_SHIPSTARSHIPNUMBERMOD, NULL, NULL);
 
-							NV.shipModsProb_Colony_DESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+							NV.shipModsProb_Starship_DESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
 								WS_CHILD | WS_VISIBLE | WS_BORDER,
 								10, 60, 300, 20,
-								NV.GROUP_SHIP_COLONY, NULL, NULL, NULL);
-							NV.probShipPreMod_ColonyH = CreateWindowW(L"edit", L"",
+								NV.GROUP_SHIP_STARSHIP, NULL, NULL, NULL);
+							NV.probShipPreMod_StarshipH = CreateWindowW(L"edit", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
 								310, 60, 40, 20,
-								NV.GROUP_SHIP_COLONY, NULL, NULL, NULL);
-							NV.probShipPostMod_ColonyH = CreateWindowW(L"edit", L"",
+								NV.GROUP_SHIP_STARSHIP, NULL, NULL, NULL);
+							NV.probShipPostMod_StarshipH = CreateWindowW(L"edit", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
 								350, 60, 40, 20,
-								NV.GROUP_SHIP_COLONY, NULL, NULL, NULL);
-							NV.probShipNumberMod_ColonyH = CreateWindowW(L"edit", L"",
+								NV.GROUP_SHIP_STARSHIP, NULL, NULL, NULL);
+							NV.probShipNumberMod_StarshipH = CreateWindowW(L"edit", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
 								390, 60, 40, 20,
-								NV.GROUP_SHIP_COLONY, NULL, NULL, NULL);
+								NV.GROUP_SHIP_STARSHIP, NULL, NULL, NULL);
 
-							NV.shipPreModList_Colony = CreateWindowW(L"edit", L"",
+							NV.shipPreModList_Starship = CreateWindowW(L"edit", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 								12, 130, 296, 266,
-								NV.GROUP_SHIP_COLONY, NULL, NULL, NULL);
-							NV.shipPostModList_Colony = CreateWindowW(L"edit", L"",
+								NV.GROUP_SHIP_STARSHIP, NULL, NULL, NULL);
+							NV.shipPostModList_Starship = CreateWindowW(L"edit", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 								312, 130, 296, 266,
-								NV.GROUP_SHIP_COLONY, NULL, NULL, NULL);
+								NV.GROUP_SHIP_STARSHIP, NULL, NULL, NULL);
 
 								#pragma endregion
 							//###############################################################################
 
 							//###############################################################################
-								#pragma region Ship_Instrument Group
+								#pragma region Ship_Planetship Group
 							//###############################################################################
 
-							NV.GROUP_SHIP_INSTRUMENT = CreateWindowW(L"button", L"Ship Name Variables:",
+							NV.GROUP_SHIP_PLANETSHIP = CreateWindowW(L"button", L"Ship Name Variables:",
 								WS_CHILD | WS_GROUP | BS_GROUPBOX,
 								370, 240, 620, 410,
 								hWnd, NULL, NULL, NULL);
 
 							// These handes are initialized as visible because they are
 							// shown/hiden with the group
-							NV.useShipMods_Instrument_DESC = CreateWindowW(L"static", L"Use Instrument Pre / Post Mods for Ships:",
+							NV.useShipMods_Planetship_DESC = CreateWindowW(L"static", L"Use Planetship Pre / Post Mods for Ships:",
 								WS_CHILD | WS_VISIBLE | WS_BORDER,
 								10, 38, 420, 22,
-								NV.GROUP_SHIP_INSTRUMENT, NULL, NULL, NULL);
-							NV.useShipPreMods_InstrumentH = CreateWindowW(L"button", L"",
+								NV.GROUP_SHIP_PLANETSHIP, NULL, NULL, NULL);
+							NV.useShipPreMods_PlanetshipH = CreateWindowW(L"button", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
 								322, 39, 20, 20,
-								NV.GROUP_SHIP_INSTRUMENT, (HMENU)NVCB_SHIPINSTRUMENTPREMOD, NULL, NULL);
-							NV.useShipPostMods_InstrumentH = CreateWindowW(L"button", L"",
+								NV.GROUP_SHIP_PLANETSHIP, (HMENU)NVCB_SHIPPLANETSHIPPREMOD, NULL, NULL);
+							NV.useShipPostMods_PlanetshipH = CreateWindowW(L"button", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
 								362, 39, 20, 20,
-								NV.GROUP_SHIP_INSTRUMENT, (HMENU)NVCB_SHIPINSTRUMENTPOSTMOD, NULL, NULL);
-							NV.useShipNumberMods_InstrumentH = CreateWindowW(L"button", L"",
+								NV.GROUP_SHIP_PLANETSHIP, (HMENU)NVCB_SHIPPLANETSHIPPOSTMOD, NULL, NULL);
+							NV.useShipNumberMods_PlanetshipH = CreateWindowW(L"button", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
 								402, 39, 20, 20,
-								NV.GROUP_SHIP_INSTRUMENT, (HMENU)NVCB_SHIPINSTRUMENTNUMBERMOD, NULL, NULL);
+								NV.GROUP_SHIP_PLANETSHIP, (HMENU)NVCB_SHIPPLANETSHIPNUMBERMOD, NULL, NULL);
 
-							NV.shipModsProb_Instrument_DESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+							NV.shipModsProb_Planetship_DESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
 								WS_CHILD | WS_VISIBLE | WS_BORDER,
 								10, 60, 300, 20,
-								NV.GROUP_SHIP_INSTRUMENT, NULL, NULL, NULL);
-							NV.probShipPreMod_InstrumentH = CreateWindowW(L"edit", L"",
+								NV.GROUP_SHIP_PLANETSHIP, NULL, NULL, NULL);
+							NV.probShipPreMod_PlanetshipH = CreateWindowW(L"edit", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
 								310, 60, 40, 20,
-								NV.GROUP_SHIP_INSTRUMENT, NULL, NULL, NULL);
-							NV.probShipPostMod_InstrumentH = CreateWindowW(L"edit", L"",
+								NV.GROUP_SHIP_PLANETSHIP, NULL, NULL, NULL);
+							NV.probShipPostMod_PlanetshipH = CreateWindowW(L"edit", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
 								350, 60, 40, 20,
-								NV.GROUP_SHIP_INSTRUMENT, NULL, NULL, NULL);
-							NV.probShipNumberMod_InstrumentH = CreateWindowW(L"edit", L"",
+								NV.GROUP_SHIP_PLANETSHIP, NULL, NULL, NULL);
+							NV.probShipNumberMod_PlanetshipH = CreateWindowW(L"edit", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
 								390, 60, 40, 20,
-								NV.GROUP_SHIP_INSTRUMENT, NULL, NULL, NULL);
+								NV.GROUP_SHIP_PLANETSHIP, NULL, NULL, NULL);
 
-							NV.shipPreModList_Instrument = CreateWindowW(L"edit", L"",
+							NV.shipPreModList_Planetship = CreateWindowW(L"edit", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 								12, 130, 296, 266,
-								NV.GROUP_SHIP_INSTRUMENT, NULL, NULL, NULL);
-							NV.shipPostModList_Instrument = CreateWindowW(L"edit", L"",
+								NV.GROUP_SHIP_PLANETSHIP, NULL, NULL, NULL);
+							NV.shipPostModList_Planetship = CreateWindowW(L"edit", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 								312, 130, 296, 266,
-								NV.GROUP_SHIP_INSTRUMENT, NULL, NULL, NULL);
+								NV.GROUP_SHIP_PLANETSHIP, NULL, NULL, NULL);
+
+								#pragma endregion
+							//###############################################################################
+
+							// ###############################################################################
+								#pragma region Ship_Station Group
+							//###############################################################################
+
+								NV.GROUP_SHIP_STATION = CreateWindowW(L"button", L"Ship Name Variables:",
+									WS_CHILD | WS_GROUP | BS_GROUPBOX,
+									370, 240, 620, 410,
+									hWnd, NULL, NULL, NULL);
+
+							// These handes are initialized as visible because they are
+							// shown/hiden with the group
+							NV.useShipMods_Station_DESC = CreateWindowW(L"static", L"Use Station Pre / Post Mods for Ships:",
+								WS_CHILD | WS_VISIBLE | WS_BORDER,
+								10, 38, 420, 22,
+								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
+							NV.useShipPreMods_StationH = CreateWindowW(L"button", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+								322, 39, 20, 20,
+								NV.GROUP_SHIP_STATION, (HMENU)NVCB_SHIPSTATIONPREMOD, NULL, NULL);
+							NV.useShipPostMods_StationH = CreateWindowW(L"button", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+								362, 39, 20, 20,
+								NV.GROUP_SHIP_STATION, (HMENU)NVCB_SHIPSTATIONPOSTMOD, NULL, NULL);
+							NV.useShipNumberMods_StationH = CreateWindowW(L"button", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
+								402, 39, 20, 20,
+								NV.GROUP_SHIP_STATION, (HMENU)NVCB_SHIPSTATIONNUMBERMOD, NULL, NULL);
+
+							NV.shipModsProb_Station_DESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+								WS_CHILD | WS_VISIBLE | WS_BORDER,
+								10, 60, 300, 20,
+								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
+							NV.probShipPreMod_StationH = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+								310, 60, 40, 20,
+								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
+							NV.probShipPostMod_StationH = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+								350, 60, 40, 20,
+								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
+							NV.probShipNumberMod_StationH = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
+								390, 60, 40, 20,
+								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
+
+							NV.shipPreModList_Station = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+								12, 130, 296, 266,
+								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
+							NV.shipPostModList_Station = CreateWindowW(L"edit", L"",
+								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
+								312, 130, 296, 266,
+								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
 
 								#pragma endregion
 							//###############################################################################
@@ -2442,58 +2520,58 @@ std::ofstream* DebugFileP;
 							//###############################################################################
 
 							//###############################################################################
-								#pragma region Ship_Station Group
+								#pragma region Ship_Probe Group
 							//###############################################################################
 
-							NV.GROUP_SHIP_STATION = CreateWindowW(L"button", L"Ship Name Variables:",
+							NV.GROUP_SHIP_PROBE = CreateWindowW(L"button", L"Ship Name Variables:",
 								WS_CHILD | WS_GROUP | BS_GROUPBOX,
 								370, 240, 620, 410,
 								hWnd, NULL, NULL, NULL);
 
 							// These handes are initialized as visible because they are
 							// shown/hiden with the group
-							NV.useShipMods_Station_DESC = CreateWindowW(L"static", L"Use Station Pre / Post Mods for Ships:",
+							NV.useShipMods_Probe_DESC = CreateWindowW(L"static", L"Use Probe Pre / Post Mods for Ships:",
 								WS_CHILD | WS_VISIBLE | WS_BORDER,
 								10, 38, 420, 22,
-								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
-							NV.useShipPreMods_StationH = CreateWindowW(L"button", L"",
+								NV.GROUP_SHIP_PROBE, NULL, NULL, NULL);
+							NV.useShipPreMods_ProbeH = CreateWindowW(L"button", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
 								322, 39, 20, 20,
-								NV.GROUP_SHIP_STATION, (HMENU)NVCB_SHIPSTATIONPREMOD, NULL, NULL);
-							NV.useShipPostMods_StationH = CreateWindowW(L"button", L"",
+								NV.GROUP_SHIP_PROBE, (HMENU)NVCB_SHIPPROBEPREMOD, NULL, NULL);
+							NV.useShipPostMods_ProbeH = CreateWindowW(L"button", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
 								362, 39, 20, 20,
-								NV.GROUP_SHIP_STATION, (HMENU)NVCB_SHIPSTATIONPOSTMOD, NULL, NULL);
-							NV.useShipNumberMods_StationH = CreateWindowW(L"button", L"",
+								NV.GROUP_SHIP_PROBE, (HMENU)NVCB_SHIPPROBEPOSTMOD, NULL, NULL);
+							NV.useShipNumberMods_ProbeH = CreateWindowW(L"button", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | BS_AUTOCHECKBOX,
 								402, 39, 20, 20,
-								NV.GROUP_SHIP_STATION, (HMENU)NVCB_SHIPSTATIONNUMBERMOD, NULL, NULL);
+								NV.GROUP_SHIP_PROBE, (HMENU)NVCB_SHIPPROBENUMBERMOD, NULL, NULL);
 
-							NV.shipModsProb_Station_DESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
+							NV.shipModsProb_Probe_DESC = CreateWindowW(L"static", L"Probability for Pre / Post / Number Mods:",
 								WS_CHILD | WS_VISIBLE | WS_BORDER,
 								10, 60, 300, 20,
-								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
-							NV.probShipPreMod_StationH = CreateWindowW(L"edit", L"",
+								NV.GROUP_SHIP_PROBE, NULL, NULL, NULL);
+							NV.probShipPreMod_ProbeH = CreateWindowW(L"edit", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
 								310, 60, 40, 20,
-								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
-							NV.probShipPostMod_StationH = CreateWindowW(L"edit", L"",
+								NV.GROUP_SHIP_PROBE, NULL, NULL, NULL);
+							NV.probShipPostMod_ProbeH = CreateWindowW(L"edit", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
 								350, 60, 40, 20,
-								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
-							NV.probShipNumberMod_StationH = CreateWindowW(L"edit", L"",
+								NV.GROUP_SHIP_PROBE, NULL, NULL, NULL);
+							NV.probShipNumberMod_ProbeH = CreateWindowW(L"edit", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER,
 								390, 60, 40, 20,
-								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
+								NV.GROUP_SHIP_PROBE, NULL, NULL, NULL);
 
-							NV.shipPreModList_Station = CreateWindowW(L"edit", L"",
+							NV.shipPreModList_Probe = CreateWindowW(L"edit", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 								12, 130, 296, 266,
-								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
-							NV.shipPostModList_Station = CreateWindowW(L"edit", L"",
+								NV.GROUP_SHIP_PROBE, NULL, NULL, NULL);
+							NV.shipPostModList_Probe = CreateWindowW(L"edit", L"",
 								WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL,
 								312, 130, 296, 266,
-								NV.GROUP_SHIP_STATION, NULL, NULL, NULL);
+								NV.GROUP_SHIP_PROBE, NULL, NULL, NULL);
 
 								#pragma endregion
 							//###############################################################################
@@ -2733,23 +2811,32 @@ std::ofstream* DebugFileP;
 		SetVariableToWindow(NV.probShipPostMod_AllH, P.probShipPostMod_All);
 		SetWindowTextW(NV.shipPostModList_All, P.ShipPostMods_All);
 
-		CheckDlgButton(NV.GROUP_SHIP_COLONY, NVCB_SHIPCOLONYPREMOD, P.useShipPreMods_Colony);
-		SetVariableToWindow(NV.probShipPreMod_ColonyH, P.probShipPreMod_Colony);
-		SetWindowTextW(NV.shipPreModList_Colony, P.ShipPreMods_Colony);
-		CheckDlgButton(NV.GROUP_SHIP_COLONY, NVCB_SHIPCOLONYPOSTMOD, P.useShipPostMods_Colony);
-		SetVariableToWindow(NV.probShipPostMod_ColonyH, P.probShipPostMod_Colony);
-		SetWindowTextW(NV.shipPostModList_Colony, P.ShipPostMods_Colony);
-		CheckDlgButton(NV.GROUP_SHIP_COLONY, NVCB_SHIPCOLONYNUMBERMOD, P.useShipNumberMods_Colony);
-		SetVariableToWindow(NV.probShipNumberMod_ColonyH, P.probShipNumberMod_Colony);
+		CheckDlgButton(NV.GROUP_SHIP_STARSHIP, NVCB_SHIPSTARSHIPPREMOD, P.useShipPreMods_Starship);
+		SetVariableToWindow(NV.probShipPreMod_StarshipH, P.probShipPreMod_Starship);
+		SetWindowTextW(NV.shipPreModList_Starship, P.ShipPreMods_Starship);
+		CheckDlgButton(NV.GROUP_SHIP_STARSHIP, NVCB_SHIPSTARSHIPPOSTMOD, P.useShipPostMods_Starship);
+		SetVariableToWindow(NV.probShipPostMod_StarshipH, P.probShipPostMod_Starship);
+		SetWindowTextW(NV.shipPostModList_Starship, P.ShipPostMods_Starship);
+		CheckDlgButton(NV.GROUP_SHIP_STARSHIP, NVCB_SHIPSTARSHIPNUMBERMOD, P.useShipNumberMods_Starship);
+		SetVariableToWindow(NV.probShipNumberMod_StarshipH, P.probShipNumberMod_Starship);
 
-		CheckDlgButton(NV.GROUP_SHIP_INSTRUMENT, NVCB_SHIPINSTRUMENTPREMOD, P.useShipPreMods_Instrument);
-		SetVariableToWindow(NV.probShipPreMod_InstrumentH, P.probShipPreMod_Instrument);
-		SetWindowTextW(NV.shipPreModList_Instrument, P.ShipPreMods_Instrument);
-		CheckDlgButton(NV.GROUP_SHIP_INSTRUMENT, NVCB_SHIPINSTRUMENTPOSTMOD, P.useShipPostMods_Instrument);
-		SetVariableToWindow(NV.probShipPostMod_InstrumentH, P.probShipPostMod_Instrument);
-		SetWindowTextW(NV.shipPostModList_Instrument, P.ShipPostMods_Instrument);
-		CheckDlgButton(NV.GROUP_SHIP_INSTRUMENT, NVCB_SHIPINSTRUMENTNUMBERMOD, P.useShipNumberMods_Instrument);
-		SetVariableToWindow(NV.probShipNumberMod_InstrumentH, P.probShipNumberMod_Instrument);
+		CheckDlgButton(NV.GROUP_SHIP_PLANETSHIP, NVCB_SHIPPLANETSHIPPREMOD, P.useShipPreMods_Planetship);
+		SetVariableToWindow(NV.probShipPreMod_PlanetshipH, P.probShipPreMod_Planetship);
+		SetWindowTextW(NV.shipPreModList_Planetship, P.ShipPreMods_Planetship);
+		CheckDlgButton(NV.GROUP_SHIP_PLANETSHIP, NVCB_SHIPPLANETSHIPPOSTMOD, P.useShipPostMods_Planetship);
+		SetVariableToWindow(NV.probShipPostMod_PlanetshipH, P.probShipPostMod_Planetship);
+		SetWindowTextW(NV.shipPostModList_Planetship, P.ShipPostMods_Planetship);
+		CheckDlgButton(NV.GROUP_SHIP_PLANETSHIP, NVCB_SHIPPLANETSHIPNUMBERMOD, P.useShipNumberMods_Planetship);
+		SetVariableToWindow(NV.probShipNumberMod_PlanetshipH, P.probShipNumberMod_Planetship);
+
+		CheckDlgButton(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONPREMOD, P.useShipPreMods_Station);
+		SetVariableToWindow(NV.probShipPreMod_StationH, P.probShipPreMod_Station);
+		SetWindowTextW(NV.shipPreModList_Station, P.ShipPreMods_Station);
+		CheckDlgButton(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONPOSTMOD, P.useShipPostMods_Station);
+		SetVariableToWindow(NV.probShipPostMod_StationH, P.probShipPostMod_Station);
+		SetWindowTextW(NV.shipPostModList_Station, P.ShipPostMods_Station);
+		CheckDlgButton(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONNUMBERMOD, P.useShipNumberMods_Station);
+		SetVariableToWindow(NV.probShipNumberMod_StationH, P.probShipNumberMod_Station);
 
 		CheckDlgButton(NV.GROUP_SHIP_SATELLITE, NVCB_SHIPSATELLITEPREMOD, P.useShipPreMods_Satellite);
 		SetVariableToWindow(NV.probShipPreMod_SatelliteH, P.probShipPreMod_Satellite);
@@ -2760,14 +2847,14 @@ std::ofstream* DebugFileP;
 		CheckDlgButton(NV.GROUP_SHIP_SATELLITE, NVCB_SHIPSATELLITENUMBERMOD, P.useShipNumberMods_Satellite);
 		SetVariableToWindow(NV.probShipNumberMod_SatelliteH, P.probShipNumberMod_Satellite);
 
-		CheckDlgButton(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONPREMOD, P.useShipPreMods_Station);
-		SetVariableToWindow(NV.probShipPreMod_StationH, P.probShipPreMod_Station);
-		SetWindowTextW(NV.shipPreModList_Station, P.ShipPreMods_Station);
-		CheckDlgButton(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONPOSTMOD, P.useShipPostMods_Station);
-		SetVariableToWindow(NV.probShipPostMod_StationH, P.probShipPostMod_Station);
-		SetWindowTextW(NV.shipPostModList_Station, P.ShipPostMods_Station);
-		CheckDlgButton(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONNUMBERMOD, P.useShipNumberMods_Station);
-		SetVariableToWindow(NV.probShipNumberMod_StationH, P.probShipNumberMod_Station);
+		CheckDlgButton(NV.GROUP_SHIP_PROBE, NVCB_SHIPPROBEPREMOD, P.useShipPreMods_Probe);
+		SetVariableToWindow(NV.probShipPreMod_ProbeH, P.probShipPreMod_Probe);
+		SetWindowTextW(NV.shipPreModList_Probe, P.ShipPreMods_Probe);
+		CheckDlgButton(NV.GROUP_SHIP_PROBE, NVCB_SHIPPROBEPOSTMOD, P.useShipPostMods_Probe);
+		SetVariableToWindow(NV.probShipPostMod_ProbeH, P.probShipPostMod_Probe);
+		SetWindowTextW(NV.shipPostModList_Probe, P.ShipPostMods_Probe);
+		CheckDlgButton(NV.GROUP_SHIP_PROBE, NVCB_SHIPPROBENUMBERMOD, P.useShipNumberMods_Probe);
+		SetVariableToWindow(NV.probShipNumberMod_ProbeH, P.probShipNumberMod_Probe);
 
 		SetVariableToWindow(NV.orderH, P.order);
 		SetVariableToWindow(NV.wordVarienceH, P.wordVarience);
@@ -2860,6 +2947,7 @@ std::ofstream* DebugFileP;
 
 		outputFile << "PresetName=" << wstr_to_str(fileName) << "\n"
 			<< "WordPercent=" << NV.wordPercent << "\n"
+			<< "\n"
 			<< "useSimpleNameGenerator=" << NV.useSimpleGenerator << "\n"
 			<< "prefixList {" << wstr_to_str(NV.PrefixList) << "}\n"
 			<< "suffixList {" << wstr_to_str(NV.SuffixList) << "}\n"
@@ -2931,32 +3019,23 @@ std::ofstream* DebugFileP;
 			<< "probShipPostMod_All=" << NV.probShipPostMod_All << "\n"
 			<< "ShipPostMods_All {" << wstr_to_str(NV.ShipPostMods_All) << "}\n"
 			<< "\n"
-			<< "useShipPreMods_Colony=" << NV.useShipPreMods_Colony << "\n"
-			<< "probShipPreMod_Colony=" << NV.probShipPreMod_Colony << "\n"
-			<< "ShipPreMods_Colony {" << wstr_to_str(NV.ShipPreMods_Colony) << "}\n"
-			<< "useShipPostMods_Colony=" << NV.useShipPostMods_Colony << "\n"
-			<< "probShipPostMod_Colony=" << NV.probShipPostMod_Colony << "\n"
-			<< "ShipPostMods_Colony {" << wstr_to_str(NV.ShipPostMods_Colony) << "}\n"
-			<< "useShipNumberMods_Colony=" << NV.useShipNumberMods_Colony << "\n"
-			<< "probShipNumberMod_Colony=" << NV.probShipNumberMod_Colony << "\n"
+			<< "useShipPreMods_Starship=" << NV.useShipPreMods_Starship << "\n"
+			<< "probShipPreMod_Starship=" << NV.probShipPreMod_Starship << "\n"
+			<< "ShipPreMods_Starship {" << wstr_to_str(NV.ShipPreMods_Starship) << "}\n"
+			<< "useShipPostMods_Starship=" << NV.useShipPostMods_Starship << "\n"
+			<< "probShipPostMod_Starship=" << NV.probShipPostMod_Starship << "\n"
+			<< "ShipPostMods_Starship {" << wstr_to_str(NV.ShipPostMods_Starship) << "}\n"
+			<< "useShipNumberMods_Starship=" << NV.useShipNumberMods_Starship << "\n"
+			<< "probShipNumberMod_Starship=" << NV.probShipNumberMod_Starship << "\n"
 			<< "\n"
-			<< "useShipPreMods_Instrument=" << NV.useShipPreMods_Instrument << "\n"
-			<< "probShipPreMod_Instrument=" << NV.probShipPreMod_Instrument << "\n"
-			<< "ShipPreMods_Instrument {" << wstr_to_str(NV.ShipPreMods_Instrument) << "}\n"
-			<< "useShipPostMods_Instrument=" << NV.useShipPostMods_Instrument << "\n"
-			<< "probShipPostMod_Instrument=" << NV.probShipPostMod_Instrument << "\n"
-			<< "ShipPostMods_Instrument {" << wstr_to_str(NV.ShipPostMods_Instrument) << "}\n"
-			<< "useShipNumberMods_Instrument=" << NV.useShipNumberMods_Instrument << "\n"
-			<< "probShipNumberMod_Instrument=" << NV.probShipNumberMod_Instrument << "\n"
-			<< "\n"
-			<< "useShipPreMods_Satellite=" << NV.useShipPreMods_Satellite << "\n"
-			<< "probShipPreMod_Satellite=" << NV.probShipPreMod_Satellite << "\n"
-			<< "ShipPreMods_Satellite {" << wstr_to_str(NV.ShipPreMods_Satellite) << "}\n"
-			<< "useShipPostMods_Satellite=" << NV.useShipPostMods_Satellite << "\n"
-			<< "probShipPostMod_Satellite=" << NV.probShipPostMod_Satellite << "\n"
-			<< "ShipPostMods_Satellite {" << wstr_to_str(NV.ShipPostMods_Satellite) << "}\n"
-			<< "useShipNumberMods_Satellite=" << NV.useShipNumberMods_Satellite << "\n"
-			<< "probShipNumberMod_Satellite=" << NV.probShipNumberMod_Satellite << "\n"
+			<< "useShipPreMods_Planetship=" << NV.useShipPreMods_Planetship << "\n"
+			<< "probShipPreMod_Planetship=" << NV.probShipPreMod_Planetship << "\n"
+			<< "ShipPreMods_Planetship {" << wstr_to_str(NV.ShipPreMods_Planetship) << "}\n"
+			<< "useShipPostMods_Planetship=" << NV.useShipPostMods_Planetship << "\n"
+			<< "probShipPostMod_Planetship=" << NV.probShipPostMod_Planetship << "\n"
+			<< "ShipPostMods_Planetship {" << wstr_to_str(NV.ShipPostMods_Planetship) << "}\n"
+			<< "useShipNumberMods_Planetship=" << NV.useShipNumberMods_Planetship << "\n"
+			<< "probShipNumberMod_Planetship=" << NV.probShipNumberMod_Planetship << "\n"
 			<< "\n"
 			<< "useShipPreMods_Station=" << NV.useShipPreMods_Station << "\n"
 			<< "probShipPreMod_Station=" << NV.probShipPreMod_Station << "\n"
@@ -2967,6 +3046,24 @@ std::ofstream* DebugFileP;
 			<< "useShipNumberMods_Station=" << NV.useShipNumberMods_Station << "\n"
 			<< "probShipNumberMod_Station=" << NV.probShipNumberMod_Station << "\n"
 			<< "\n"
+			<< "useShipPreMods_Satellite=" << NV.useShipPreMods_Satellite << "\n"
+			<< "probShipPreMod_Satellite=" << NV.probShipPreMod_Satellite << "\n"
+			<< "ShipPreMods_Satellite {" << wstr_to_str(NV.ShipPreMods_Satellite) << "}\n"
+			<< "useShipPostMods_Satellite=" << NV.useShipPostMods_Satellite << "\n"
+			<< "probShipPostMod_Satellite=" << NV.probShipPostMod_Satellite << "\n"
+			<< "ShipPostMods_Satellite {" << wstr_to_str(NV.ShipPostMods_Satellite) << "}\n"
+			<< "useShipNumberMods_Satellite=" << NV.useShipNumberMods_Satellite << "\n"
+			<< "probShipNumberMod_Satellite=" << NV.probShipNumberMod_Satellite << "\n"
+			<< "\n"
+			<< "useShipPreMods_Probe=" << NV.useShipPreMods_Probe << "\n"
+			<< "probShipPreMod_Probe=" << NV.probShipPreMod_Probe << "\n"
+			<< "ShipPreMods_Probe {" << wstr_to_str(NV.ShipPreMods_Probe) << "}\n"
+			<< "useShipPostMods_Probe=" << NV.useShipPostMods_Probe << "\n"
+			<< "probShipPostMod_Probe=" << NV.probShipPostMod_Probe << "\n"
+			<< "ShipPostMods_Probe {" << wstr_to_str(NV.ShipPostMods_Probe) << "}\n"
+			<< "useShipNumberMods_Probe=" << NV.useShipNumberMods_Probe << "\n"
+			<< "probShipNumberMod_Probe=" << NV.probShipNumberMod_Probe << "\n"
+			<< "\n"			
 			<< "order=" << NV.order << "\n"
 			<< "wordVarience=" << NV.wordVarience << "\n"
 			<< "minLength=" << NV.min_length << "\n"
@@ -3443,10 +3540,11 @@ std::ofstream* DebugFileP;
 		ShowWindow(NV.GROUP_COMET, 0);
 		ShowWindow(NV.GROUP_DWARFMOON, 0);
 		ShowWindow(NV.GROUP_SHIP_ALL, 0);
-		ShowWindow(NV.GROUP_SHIP_COLONY, 0);
-		ShowWindow(NV.GROUP_SHIP_INSTRUMENT, 0);
-		ShowWindow(NV.GROUP_SHIP_SATELLITE, 0);
+		ShowWindow(NV.GROUP_SHIP_STARSHIP, 0);
+		ShowWindow(NV.GROUP_SHIP_PLANETSHIP, 0);
 		ShowWindow(NV.GROUP_SHIP_STATION, 0);
+		ShowWindow(NV.GROUP_SHIP_SATELLITE, 0);
+		ShowWindow(NV.GROUP_SHIP_PROBE, 0);
 		ShowWindow(NV.GROUP_DATASET, 0);
 		ShowWindow(NV.GROUP_SIMPLE, 0);
 
@@ -3522,22 +3620,26 @@ std::ofstream* DebugFileP;
 		switch (TabCtrl_GetCurSel(NV.Tab_Ship_Inner))
 		{
 		case TAB_SHIP_ALL:
-			Load_Name_All_Ship();
+			Load_Name_Ship_All();
 			break;
-		case TAB_SHIP_COLONY:
-			Load_Name_Colony_Ship();
+		case TAB_SHIP_STARSHIP:
+			Load_Name_Ship_Starship();
 			break;
-		case TAB_SHIP_INSTRUMENT:
-			Load_Name_Instrument_Ship();
-			break;
-		case TAB_SHIP_SATELLITE:
-			Load_Name_Satellite_Ship();
+		case TAB_SHIP_PLANETSHIP:
+			Load_Name_Ship_Planetship();
 			break;
 		case TAB_SHIP_STATION:
-			Load_Name_Station_Ship();
+			Load_Name_Ship_Station();
+			break;
+		case TAB_SHIP_SATELLITE:
+			Load_Name_Ship_Satellite();
+			break;
+		case TAB_SHIP_PROBE:
+			Load_Name_Ship_Probe();
 			break;
 		}
 	}
+
 	void Load_Name_Dataset()
 	{
 		ShowWindow(NV.Markov_INFO, 1);
@@ -3658,7 +3760,7 @@ std::ofstream* DebugFileP;
 
 		ShowWindow(NV.GROUP_COMET, 1);
 	}
-	void Load_Name_All_Ship()
+	void Load_Name_Ship_All()
 	{
 		ShowWindow(NV.PreMod_INFO.DESC, 1);
 		ShowWindow(NV.PostMod_INFO.DESC, 1);
@@ -3674,7 +3776,7 @@ std::ofstream* DebugFileP;
 
 		ShowWindow(NV.GROUP_SHIP_ALL, 1);
 	}
-	void Load_Name_Colony_Ship()
+	void Load_Name_Ship_Starship()
 	{
 		ShowWindow(NV.PreMod_INFO.DESC, 1);
 		ShowWindow(NV.PostMod_INFO.DESC, 1);
@@ -3688,9 +3790,9 @@ std::ofstream* DebugFileP;
 		ShowWindow(NV.PreMods_List.INFOBUTTON, 1);
 		ShowWindow(NV.PostMods_List.INFOBUTTON, 1);
 
-		ShowWindow(NV.GROUP_SHIP_COLONY, 1);
+		ShowWindow(NV.GROUP_SHIP_STARSHIP, 1);
 	}
-	void Load_Name_Instrument_Ship()
+	void Load_Name_Ship_Planetship()
 	{
 		ShowWindow(NV.PreMod_INFO.DESC, 1);
 		ShowWindow(NV.PostMod_INFO.DESC, 1);
@@ -3704,9 +3806,25 @@ std::ofstream* DebugFileP;
 		ShowWindow(NV.PreMods_List.INFOBUTTON, 1);
 		ShowWindow(NV.PostMods_List.INFOBUTTON, 1);
 
-		ShowWindow(NV.GROUP_SHIP_INSTRUMENT, 1);
+		ShowWindow(NV.GROUP_SHIP_PLANETSHIP, 1);
 	}
-	void Load_Name_Satellite_Ship()
+	void Load_Name_Ship_Station()
+	{
+		ShowWindow(NV.PreMod_INFO.DESC, 1);
+		ShowWindow(NV.PostMod_INFO.DESC, 1);
+		ShowWindow(NV.NumberMod_INFO.DESC, 1);
+		ShowWindow(NV.PreMod_INFO.INFOBUTTON, 1);
+		ShowWindow(NV.PostMod_INFO.INFOBUTTON, 1);
+		ShowWindow(NV.NumberMod_INFO.INFOBUTTON, 1);
+
+		ShowWindow(NV.PreMods_List.DESC, 1);
+		ShowWindow(NV.PostMods_List.DESC, 1);
+		ShowWindow(NV.PreMods_List.INFOBUTTON, 1);
+		ShowWindow(NV.PostMods_List.INFOBUTTON, 1);
+
+		ShowWindow(NV.GROUP_SHIP_STATION, 1);
+	}
+	void Load_Name_Ship_Satellite()
 	{
 		ShowWindow(NV.PreMod_INFO.DESC, 1);
 		ShowWindow(NV.PostMod_INFO.DESC, 1);
@@ -3722,7 +3840,7 @@ std::ofstream* DebugFileP;
 
 		ShowWindow(NV.GROUP_SHIP_SATELLITE, 1);
 	}
-	void Load_Name_Station_Ship()
+	void Load_Name_Ship_Probe()
 	{
 		ShowWindow(NV.PreMod_INFO.DESC, 1);
 		ShowWindow(NV.PostMod_INFO.DESC, 1);
@@ -3736,7 +3854,7 @@ std::ofstream* DebugFileP;
 		ShowWindow(NV.PreMods_List.INFOBUTTON, 1);
 		ShowWindow(NV.PostMods_List.INFOBUTTON, 1);
 
-		ShowWindow(NV.GROUP_SHIP_STATION, 1);
+		ShowWindow(NV.GROUP_SHIP_PROBE, 1);
 	}
 	void Load_Name_Simple()
 	{
@@ -3834,51 +3952,69 @@ std::ofstream* DebugFileP;
 		GetVariableFromWindow(CONFIG_H.modelsFolder.HANDLE, CONFIG.modelsFolder);
 		CONFIG.shipsNeedLife = (IsDlgButtonChecked(hWnd, CB_SHIPSNEEDLIFE) == BST_CHECKED) ? true : false;
 
-		int size = CONFIG.shipList_Colony.size();
+		int size = CONFIG.shipList_Starship.size();
 		for (int count = 0; count < size; count++)
-			CONFIG.shipList_Colony.pop_back();
-		size = CONFIG.shipList_Instrument.size();
+			CONFIG.shipList_Starship.pop_back();
+		size = CONFIG.shipList_Planetship.size();
 		for (int count = 0; count < size; count++)
-			CONFIG.shipList_Instrument.pop_back();
-		size = CONFIG.shipList_Satellite.size();
-		for (int count = 0; count < size; count++)
-			CONFIG.shipList_Satellite.pop_back();
+			CONFIG.shipList_Planetship.pop_back();
 		size = CONFIG.shipList_Station.size();
 		for (int count = 0; count < size; count++)
 			CONFIG.shipList_Station.pop_back();
+		size = CONFIG.shipList_Satellite.size();
+		for (int count = 0; count < size; count++)
+			CONFIG.shipList_Satellite.pop_back();
+		size = CONFIG.shipList_Probe.size();
+		for (int count = 0; count < size; count++)
+			CONFIG.shipList_Probe.pop_back();
 
 		int counter = 1;
 		std::ifstream ShipInputTest;
 		std::wstring shipFilePath, shipPrintHolder; // file path is used to open file, print is pushed onto vector
 
-		shipFilePath = L"Spacecraft\\SFSG_Ships\\Colony\\colony_" + std::to_wstring(counter) + L".sss";
+		shipFilePath = L"Spacecraft\\SFSG_Ships\\Starship\\starship_" + std::to_wstring(counter) + L".sss";
 		shipFilePath = CONFIG.modelsFolder + shipFilePath;
 		ShipInputTest.open(shipFilePath.c_str());
-
 		while (ShipInputTest)
 		{
-			shipPrintHolder = L"Spacecraft/SFSG_Ships/Colony/colony_" + std::to_wstring(counter) + L".sss"; //  this is different because of how SE handles slashes: '/'
-			CONFIG.shipList_Colony.push_back(shipPrintHolder);
+			shipPrintHolder = L"Spacecraft/SFSG_Ships/Starship/starship_" + std::to_wstring(counter) + L".sss"; //  this is different because of how SE handles slashes: '/'
+			CONFIG.shipList_Starship.push_back(shipPrintHolder);
 			ShipInputTest.close();
 
 			counter++;
-			shipFilePath = L"Spacecraft\\SFSG_Ships\\Colony\\colony_" + std::to_wstring(counter) + L".sss";
+			shipFilePath = L"Spacecraft\\SFSG_Ships\\Starship\\starship_" + std::to_wstring(counter) + L".sss";
 			shipFilePath = CONFIG.modelsFolder + shipFilePath;
 			ShipInputTest.open(shipFilePath.c_str());
 		}
 
 		counter = 1;
-		shipFilePath = L"Spacecraft\\SFSG_Ships\\Instrument\\instrument_" + std::to_wstring(counter) + L".sss";
+		shipFilePath = L"Spacecraft\\SFSG_Ships\\Planetship\\planetship_" + std::to_wstring(counter) + L".sss";
 		shipFilePath = CONFIG.modelsFolder + shipFilePath;
 		ShipInputTest.open(shipFilePath.c_str());
 		while (ShipInputTest)
 		{
-			shipPrintHolder = L"Spacecraft/SFSG_Ships/Instrument/instrument_" + std::to_wstring(counter) + L".sss";
-			CONFIG.shipList_Instrument.push_back(shipPrintHolder);
+			shipPrintHolder = L"Spacecraft/SFSG_Ships/Planetship/planetship_" + std::to_wstring(counter) + L".sss";
+			CONFIG.shipList_Planetship.push_back(shipPrintHolder);
 			ShipInputTest.close();
 
 			counter++;
-			shipFilePath = L"Spacecraft\\SFSG_Ships\\Instrument\\instrument_" + std::to_wstring(counter) + L".sss";
+			shipFilePath = L"Spacecraft\\SFSG_Ships\\Planetship\\planetship_" + std::to_wstring(counter) + L".sss";
+			shipFilePath = CONFIG.modelsFolder + shipFilePath;
+			ShipInputTest.open(shipFilePath.c_str());
+		}
+
+		counter = 1;
+		shipFilePath = L"Spacecraft\\SFSG_Ships\\Station\\station_" + std::to_wstring(counter) + L".sss";
+		shipFilePath = CONFIG.modelsFolder + shipFilePath;
+		ShipInputTest.open(shipFilePath.c_str());
+		while (ShipInputTest)
+		{
+			shipPrintHolder = L"Spacecraft/SFSG_Ships/Station/station_" + std::to_wstring(counter) + L".sss";
+			CONFIG.shipList_Station.push_back(shipPrintHolder);
+			ShipInputTest.close();
+
+			counter++;
+			shipFilePath = L"Spacecraft\\SFSG_Ships\\Station\\station_" + std::to_wstring(counter) + L".sss";
 			shipFilePath = CONFIG.modelsFolder + shipFilePath;
 			ShipInputTest.open(shipFilePath.c_str());
 		}
@@ -3900,17 +4036,17 @@ std::ofstream* DebugFileP;
 		}
 
 		counter = 1;
-		shipFilePath = L"Spacecraft\\SFSG_Ships\\Station\\station_" + std::to_wstring(counter) + L".sss";
+		shipFilePath = L"Spacecraft\\SFSG_Ships\\Probe\\probe_" + std::to_wstring(counter) + L".sss";
 		shipFilePath = CONFIG.modelsFolder + shipFilePath;
 		ShipInputTest.open(shipFilePath.c_str());
 		while (ShipInputTest)
 		{
-			shipPrintHolder = L"Spacecraft/SFSG_Ships/Station/station_" + std::to_wstring(counter) + L".sss";
-			CONFIG.shipList_Station.push_back(shipPrintHolder);
+			shipPrintHolder = L"Spacecraft/SFSG_Ships/Probe/probe_" + std::to_wstring(counter) + L".sss";
+			CONFIG.shipList_Probe.push_back(shipPrintHolder);
 			ShipInputTest.close();
 
 			counter++;
-			shipFilePath = L"Spacecraft\\SFSG_Ships\\Station\\station_" + std::to_wstring(counter) + L".sss";
+			shipFilePath = L"Spacecraft\\SFSG_Ships\\Probe\\probe_" + std::to_wstring(counter) + L".sss";
 			shipFilePath = CONFIG.modelsFolder + shipFilePath;
 			ShipInputTest.open(shipFilePath.c_str());
 		}
@@ -4170,47 +4306,68 @@ std::ofstream* DebugFileP;
 		GetVariableFromWindow(NV.probShipPostMod_AllH, NV.probShipPostMod_All);
 		FillModList(NV.shipPostModList_All, NV.ShipPostMods_All);
 
-		if (NV.ShipPreMods_Colony.size() > 0)
+		if (NV.ShipPreMods_Starship.size() > 0)
 		{
-			int size = NV.ShipPreMods_Colony.size();
+			int size = NV.ShipPreMods_Starship.size();
 			for (int i = 0; i < size; i++)
-				NV.ShipPreMods_Colony.pop_back();
+				NV.ShipPreMods_Starship.pop_back();
 		}
-		if (NV.ShipPostMods_Colony.size() > 0)
+		if (NV.ShipPostMods_Starship.size() > 0)
 		{
-			int size = NV.ShipPostMods_Colony.size();
+			int size = NV.ShipPostMods_Starship.size();
 			for (int i = 0; i < size; i++)
-				NV.ShipPostMods_Colony.pop_back();
+				NV.ShipPostMods_Starship.pop_back();
 		}
-		NV.useShipPreMods_Colony = (IsDlgButtonChecked(NV.GROUP_SHIP_COLONY, NVCB_SHIPCOLONYPREMOD) == BST_CHECKED) ? true : false;
-		GetVariableFromWindow(NV.probShipPreMod_ColonyH, NV.probShipPreMod_Colony);
-		FillModList(NV.shipPreModList_Colony, NV.ShipPreMods_Colony);
-		NV.useShipPostMods_Colony = (IsDlgButtonChecked(NV.GROUP_SHIP_COLONY, NVCB_SHIPCOLONYPOSTMOD) == BST_CHECKED) ? true : false;
-		GetVariableFromWindow(NV.probShipPostMod_ColonyH, NV.probShipPostMod_Colony);
-		FillModList(NV.shipPostModList_Colony, NV.ShipPostMods_Colony);
-		NV.useShipNumberMods_Colony = (IsDlgButtonChecked(NV.GROUP_SHIP_COLONY, NVCB_SHIPCOLONYNUMBERMOD) == BST_CHECKED) ? true : false;
-		GetVariableFromWindow(NV.probShipNumberMod_ColonyH, NV.probShipNumberMod_Colony);
+		NV.useShipPreMods_Starship = (IsDlgButtonChecked(NV.GROUP_SHIP_STARSHIP, NVCB_SHIPSTARSHIPPREMOD) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(NV.probShipPreMod_StarshipH, NV.probShipPreMod_Starship);
+		FillModList(NV.shipPreModList_Starship, NV.ShipPreMods_Starship);
+		NV.useShipPostMods_Starship = (IsDlgButtonChecked(NV.GROUP_SHIP_STARSHIP, NVCB_SHIPSTARSHIPPOSTMOD) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(NV.probShipPostMod_StarshipH, NV.probShipPostMod_Starship);
+		FillModList(NV.shipPostModList_Starship, NV.ShipPostMods_Starship);
+		NV.useShipNumberMods_Starship = (IsDlgButtonChecked(NV.GROUP_SHIP_STARSHIP, NVCB_SHIPSTARSHIPNUMBERMOD) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(NV.probShipNumberMod_StarshipH, NV.probShipNumberMod_Starship);
 
-		if (NV.ShipPreMods_Instrument.size() > 0)
+		if (NV.ShipPreMods_Planetship.size() > 0)
 		{
-			int size = NV.ShipPreMods_Instrument.size();
+			int size = NV.ShipPreMods_Planetship.size();
 			for (int i = 0; i < size; i++)
-				NV.ShipPreMods_Instrument.pop_back();
+				NV.ShipPreMods_Planetship.pop_back();
 		}
-		if (NV.ShipPostMods_Instrument.size() > 0)
+		if (NV.ShipPostMods_Planetship.size() > 0)
 		{
-			int size = NV.ShipPostMods_Instrument.size();
+			int size = NV.ShipPostMods_Planetship.size();
 			for (int i = 0; i < size; i++)
-				NV.ShipPostMods_Instrument.pop_back();
+				NV.ShipPostMods_Planetship.pop_back();
 		}
-		NV.useShipPreMods_Instrument = (IsDlgButtonChecked(NV.GROUP_SHIP_INSTRUMENT, NVCB_SHIPINSTRUMENTPREMOD) == BST_CHECKED) ? true : false;
-		GetVariableFromWindow(NV.probShipPreMod_InstrumentH, NV.probShipPreMod_Instrument);
-		FillModList(NV.shipPreModList_Instrument, NV.ShipPreMods_Instrument);
-		NV.useShipPostMods_Instrument = (IsDlgButtonChecked(NV.GROUP_SHIP_INSTRUMENT, NVCB_SHIPINSTRUMENTPOSTMOD) == BST_CHECKED) ? true : false;
-		GetVariableFromWindow(NV.probShipPostMod_InstrumentH, NV.probShipPostMod_Instrument);
-		FillModList(NV.shipPostModList_Instrument, NV.ShipPostMods_Instrument);
-		NV.useShipNumberMods_Instrument = (IsDlgButtonChecked(NV.GROUP_SHIP_INSTRUMENT, NVCB_SHIPINSTRUMENTNUMBERMOD) == BST_CHECKED) ? true : false;
-		GetVariableFromWindow(NV.probShipNumberMod_InstrumentH, NV.probShipNumberMod_Instrument);
+		NV.useShipPreMods_Planetship = (IsDlgButtonChecked(NV.GROUP_SHIP_PLANETSHIP, NVCB_SHIPPLANETSHIPPREMOD) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(NV.probShipPreMod_PlanetshipH, NV.probShipPreMod_Planetship);
+		FillModList(NV.shipPreModList_Planetship, NV.ShipPreMods_Planetship);
+		NV.useShipPostMods_Planetship = (IsDlgButtonChecked(NV.GROUP_SHIP_PLANETSHIP, NVCB_SHIPPLANETSHIPPOSTMOD) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(NV.probShipPostMod_PlanetshipH, NV.probShipPostMod_Planetship);
+		FillModList(NV.shipPostModList_Planetship, NV.ShipPostMods_Planetship);
+		NV.useShipNumberMods_Planetship = (IsDlgButtonChecked(NV.GROUP_SHIP_PLANETSHIP, NVCB_SHIPPLANETSHIPNUMBERMOD) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(NV.probShipNumberMod_PlanetshipH, NV.probShipNumberMod_Planetship);
+
+		if (NV.ShipPreMods_Station.size() > 0)
+		{
+			int size = NV.ShipPreMods_Station.size();
+			for (int i = 0; i < size; i++)
+				NV.ShipPreMods_Station.pop_back();
+		}
+		if (NV.ShipPostMods_Station.size() > 0)
+		{
+			int size = NV.ShipPostMods_Station.size();
+			for (int i = 0; i < size; i++)
+				NV.ShipPostMods_Station.pop_back();
+		}
+		NV.useShipPreMods_Station = (IsDlgButtonChecked(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONPREMOD) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(NV.probShipPreMod_StationH, NV.probShipPreMod_Station);
+		FillModList(NV.shipPreModList_Station, NV.ShipPreMods_Station);
+		NV.useShipPostMods_Station = (IsDlgButtonChecked(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONPOSTMOD) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(NV.probShipPostMod_StationH, NV.probShipPostMod_Station);
+		FillModList(NV.shipPostModList_Station, NV.ShipPostMods_Station);
+		NV.useShipNumberMods_Station = (IsDlgButtonChecked(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONNUMBERMOD) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(NV.probShipNumberMod_StationH, NV.probShipNumberMod_Station);
 
 		if (NV.ShipPreMods_Satellite.size() > 0)
 		{
@@ -4233,26 +4390,26 @@ std::ofstream* DebugFileP;
 		NV.useShipNumberMods_Satellite = (IsDlgButtonChecked(NV.GROUP_SHIP_SATELLITE, NVCB_SHIPSATELLITENUMBERMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipNumberMod_SatelliteH, NV.probShipNumberMod_Satellite);
 		
-		if (NV.ShipPreMods_Station.size() > 0)
+		if (NV.ShipPreMods_Probe.size() > 0)
 		{
-			int size = NV.ShipPreMods_Station.size();
+			int size = NV.ShipPreMods_Probe.size();
 			for (int i = 0; i < size; i++)
-				NV.ShipPreMods_Station.pop_back();
+				NV.ShipPreMods_Probe.pop_back();
 		}
-		if (NV.ShipPostMods_Station.size() > 0)
+		if (NV.ShipPostMods_Probe.size() > 0)
 		{
-			int size = NV.ShipPostMods_Station.size();
+			int size = NV.ShipPostMods_Probe.size();
 			for (int i = 0; i < size; i++)
-				NV.ShipPostMods_Station.pop_back();
+				NV.ShipPostMods_Probe.pop_back();
 		}
-		NV.useShipPreMods_Station = (IsDlgButtonChecked(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONPREMOD) == BST_CHECKED) ? true : false;
-		GetVariableFromWindow(NV.probShipPreMod_StationH, NV.probShipPreMod_Station);
-		FillModList(NV.shipPreModList_Station, NV.ShipPreMods_Station);
-		NV.useShipPostMods_Station = (IsDlgButtonChecked(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONPOSTMOD) == BST_CHECKED) ? true : false;
-		GetVariableFromWindow(NV.probShipPostMod_StationH, NV.probShipPostMod_Station);
-		FillModList(NV.shipPostModList_Station, NV.ShipPostMods_Station);
-		NV.useShipNumberMods_Station = (IsDlgButtonChecked(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONNUMBERMOD) == BST_CHECKED) ? true : false;
-		GetVariableFromWindow(NV.probShipNumberMod_StationH, NV.probShipNumberMod_Station);
+		NV.useShipPreMods_Probe = (IsDlgButtonChecked(NV.GROUP_SHIP_PROBE, NVCB_SHIPPROBEPREMOD) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(NV.probShipPreMod_ProbeH, NV.probShipPreMod_Probe);
+		FillModList(NV.shipPreModList_Probe, NV.ShipPreMods_Probe);
+		NV.useShipPostMods_Probe = (IsDlgButtonChecked(NV.GROUP_SHIP_PROBE, NVCB_SHIPPROBEPOSTMOD) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(NV.probShipPostMod_ProbeH, NV.probShipPostMod_Probe);
+		FillModList(NV.shipPostModList_Probe, NV.ShipPostMods_Probe);
+		NV.useShipNumberMods_Probe = (IsDlgButtonChecked(NV.GROUP_SHIP_PROBE, NVCB_SHIPPROBENUMBERMOD) == BST_CHECKED) ? true : false;
+		GetVariableFromWindow(NV.probShipNumberMod_ProbeH, NV.probShipNumberMod_Probe);		
 
 		if (NV.Markov_RawDataset.size() > 0)
 		{
@@ -4344,7 +4501,6 @@ std::ofstream* DebugFileP;
 					else
 						NV.twogram_list.nextCharList.push_back(L"");
 				}
-
 			}
 		}
 	}
@@ -4381,17 +4537,34 @@ std::ofstream* DebugFileP;
 	{
 		switch (command)
 		{
-//###############
-	#pragma region General
-//###############
+		case BUTTON_GENERAL:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"On this screen, you can set up file paths for the outputs, set how many systems to generate, and select presets for generation.");
+			break;
+		case BUTTON_SYSTEM:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"System variables let you change things about the solar system that is generated, such as what types of stars to create and how big the system should be.");
+			break;
+		case BUTTON_PLANET:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Planet variables change planet generation and the objects that might be found around them.");
+			break;
+		case BUTTON_SURFACE:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Surface variables affect the materials inside and around planets. These affect how planets generate and what you will find on planets.");
+			break;
+		case BUTTON_SPECIAL:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Special variables don't fit under another category but are still important features. For now, ships can be set up here.");
+			break;
+		case BUTTON_ADVANCED:
+			SetWindowTextW(CONFIG_H.INFO_BOX, L"Under the Name variables tab, you will find many options for setting, changing, or even disabling name generation for each type of object in the generator. The variables here are loaded only on startup, so if you make changes to any of these tabs, you MUST press the 'Update Names' button for changes to take affect.\nThe advanced tab is emty for now.");
+			break;
+
+
+		//###############
+			#pragma region General
+		//###############
 		case IB_SEED:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"The seed is the unique identifier of each system generated. Leave this at 0 for a random seed, or type in a value if you want to generate a system more than once.\n\nNote that a seed may not generate the exact same system if certain variables are changed.\n\nYou can also find the seed of any system by looking in the Star file.");
 			break;
 		case IB_NUMBEROFRUNS:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"This is how many systems the program will generate.");
-			break;
-		case IB_DEBUG:
-			SetWindowTextW(CONFIG_H.INFO_BOX, L"Enable debug mode.");
 			break;
 		case IB_STAROUTPUTFOLDER:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"The Star file will be placed in this folder after generation is finished.\n\nThe Star file should then be placed under \"addons\\catalogs\\stars\\\" in the Space Engine folder.");
@@ -4408,10 +4581,10 @@ std::ofstream* DebugFileP;
 		case IB_SELECTNAMEPRESET:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"Select a name preset from the drop down menu, then click update to apply the changes to the name generator. To save name presets, go to the \"advanced\" tab.");
 			break;
-	#pragma endregion
-//###############
-	#pragma region System
-//###############
+			#pragma endregion
+		//###############
+			#pragma region System
+		//###############
 		case IB_SMARTPLACEMENT:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"When smart placement is enabled, the generator will try to place planets in relatively realistic locations. So typically you will find gas giants beyond the frost limit and rocky planets closer to the star. If disabled, any planet type can spawn in any location.");
 			break;
@@ -4460,11 +4633,11 @@ std::ofstream* DebugFileP;
 		case IB_COMETCOUNT:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"comet min/max count");
 			break;
-		
-	#pragma endregion
-//###############
-	#pragma region Planet
-//###############
+
+			#pragma endregion
+		//###############
+			#pragma region Planet
+		//###############
 		case IB_WEIGHTEDMOONS:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"If enabled, moons will generate based on a new weight system, hopefully making generation more interesting and realistic.\n\nDisabled will use an older system with hard limits on how many moons an object can have.");
 			break;
@@ -4498,17 +4671,17 @@ std::ofstream* DebugFileP;
 		case IB_EXOTICCOMPANION:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"A comapnion orbit is an object with the same orbit as another object, but orbiting on the oposite side side of the orbit.");
 			break;
-	#pragma endregion
-//###############
-	#pragma region Surface
-//###############	
+			#pragma endregion
+		//###############
+			#pragma region Surface
+		//###############	
 		case IB_GENERATECOMPOSITION:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"Enables planet interior composition, which may affect planet generation.");
 			break;
-	#pragma endregion
-//###############
-	#pragma region Special
-//###############	
+			#pragma endregion
+		//###############
+			#pragma region Special
+		//###############	
 		case IB_SHIPCHANCE:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"Percent chance that ships will spawn somewhere in the system and continue spawning after the first. Zero by default because you must set up the models folder first. Everytime a ship is created, one percent is subtracted from the total.");
 			break;
@@ -4518,10 +4691,10 @@ std::ofstream* DebugFileP;
 		case IB_MODELSFOLDER:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"This is the folder the generator pulls ship models from. The models folder that came with this generator should be placed under \"addons\\models\\\" in your Space Engine folder, then make sure to copy/paste the full file (ending with \"models\\\" ) path in the text box here.\n\nYou can also add your own ship models to this folder and the generator will use them.");
 			break;
-	#pragma endregion
-//###############
-	#pragma region Advanced
-//###############
+			#pragma endregion
+		//###############
+			#pragma region Advanced
+		//###############
 		case IB_SAVENAMEPRESET:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"Save the current name variables as a new preset. Type the file name in the text box, then hit the \"save\" button.");
 			break;
@@ -4555,10 +4728,9 @@ std::ofstream* DebugFileP;
 		case IB_NAMEASTEROIDS:
 			SetWindowTextW(CONFIG_H.INFO_BOX, L"If disabled, asteroids/comets will not generate names, but will instead have a name counting up from 1. This will make the generator much faster since a lot of time could be spent generating asteroid/comet names if they are enabled.\n\nThis checkbox can be toggled for asteroids, comets, or both.");
 			break;
+			#pragma endregion
+		//###############
 		}
-	#pragma endregion
-//###############
-		
 	}
 	void SetCheckBoxText(HWND hWnd, int command)
 	{
@@ -4819,32 +4991,46 @@ std::ofstream* DebugFileP;
 					has_number_mod = (genpercent(mt_name) < NV.probPlanetNumberMod) ? true : false;
 			}
 				break;
-			case typeShipColony:
+			case typeShipStarship:
 			{
 				if (NV.useShipPreMods_All)
 					has_shipall_premod = (genpercent(mt_name) < NV.probShipPreMod_All) ? true : false;
 				if (NV.useShipPostMods_All)
 					has_shipall_postmod = (genpercent(mt_name) < NV.probShipPostMod_All) ? true : false;
-				if (NV.useShipPreMods_Colony)
-					has_prename_mod = (genpercent(mt_name) < NV.probShipPreMod_Colony) ? true : false;
-				if (NV.useShipPostMods_Colony)
-					has_postname_mod = (genpercent(mt_name) < NV.probShipPostMod_Colony) ? true : false;
-				if (NV.useShipNumberMods_Colony)
-					has_number_mod = (genpercent(mt_name) < NV.probShipNumberMod_Colony) ? true : false;
+				if (NV.useShipPreMods_Starship)
+					has_prename_mod = (genpercent(mt_name) < NV.probShipPreMod_Starship) ? true : false;
+				if (NV.useShipPostMods_Starship)
+					has_postname_mod = (genpercent(mt_name) < NV.probShipPostMod_Starship) ? true : false;
+				if (NV.useShipNumberMods_Starship)
+					has_number_mod = (genpercent(mt_name) < NV.probShipNumberMod_Starship) ? true : false;
 			}
 				break;
-			case typeShipInstrument:
+			case typeShipPlanetship:
 			{
 				if (NV.useShipPreMods_All)
 					has_shipall_premod = (genpercent(mt_name) < NV.probShipPreMod_All) ? true : false;
 				if (NV.useShipPostMods_All)
 					has_shipall_postmod = (genpercent(mt_name) < NV.probShipPostMod_All) ? true : false;
-				if (NV.useShipPreMods_Instrument)
-					has_prename_mod = (genpercent(mt_name) < NV.probShipPreMod_Instrument) ? true : false;
-				if (NV.useShipPostMods_Instrument)
-					has_postname_mod = (genpercent(mt_name) < NV.probShipPostMod_Instrument) ? true : false;
-				if (NV.useShipNumberMods_Instrument)
-					has_number_mod = (genpercent(mt_name) < NV.probShipNumberMod_Instrument) ? true : false;
+				if (NV.useShipPreMods_Planetship)
+					has_prename_mod = (genpercent(mt_name) < NV.probShipPreMod_Planetship) ? true : false;
+				if (NV.useShipPostMods_Planetship)
+					has_postname_mod = (genpercent(mt_name) < NV.probShipPostMod_Planetship) ? true : false;
+				if (NV.useShipNumberMods_Planetship)
+					has_number_mod = (genpercent(mt_name) < NV.probShipNumberMod_Planetship) ? true : false;
+			}
+				break;
+			case typeShipStation:
+			{
+				if (NV.useShipPreMods_All)
+					has_shipall_premod = (genpercent(mt_name) < NV.probShipPreMod_All) ? true : false;
+				if (NV.useShipPostMods_All)
+					has_shipall_postmod = (genpercent(mt_name) < NV.probShipPostMod_All) ? true : false;
+				if (NV.useShipPreMods_Station)
+					has_prename_mod = (genpercent(mt_name) < NV.probShipPreMod_Station) ? true : false;
+				if (NV.useShipPostMods_Station)
+					has_postname_mod = (genpercent(mt_name) < NV.probShipPostMod_Station) ? true : false;
+				if (NV.useShipNumberMods_Station)
+					has_number_mod = (genpercent(mt_name) < NV.probShipNumberMod_Station) ? true : false;
 			}
 				break;
 			case typeShipSatellite:
@@ -4861,18 +5047,18 @@ std::ofstream* DebugFileP;
 					has_number_mod = (genpercent(mt_name) < NV.probShipNumberMod_Satellite) ? true : false;
 			}
 				break;
-			case typeShipStation:
+			case typeShipProbe:
 			{
 				if (NV.useShipPreMods_All)
 					has_shipall_premod = (genpercent(mt_name) < NV.probShipPreMod_All) ? true : false;
 				if (NV.useShipPostMods_All)
 					has_shipall_postmod = (genpercent(mt_name) < NV.probShipPostMod_All) ? true : false;
-				if (NV.useShipPreMods_Station)
-					has_prename_mod = (genpercent(mt_name) < NV.probShipPreMod_Station) ? true : false;
-				if (NV.useShipPostMods_Station)
-					has_postname_mod = (genpercent(mt_name) < NV.probShipPostMod_Station) ? true : false;
-				if (NV.useShipNumberMods_Station)
-					has_number_mod = (genpercent(mt_name) < NV.probShipNumberMod_Station) ? true : false;
+				if (NV.useShipPreMods_Probe)
+					has_prename_mod = (genpercent(mt_name) < NV.probShipPreMod_Probe) ? true : false;
+				if (NV.useShipPostMods_Probe)
+					has_postname_mod = (genpercent(mt_name) < NV.probShipPostMod_Probe) ? true : false;
+				if (NV.useShipNumberMods_Probe)
+					has_number_mod = (genpercent(mt_name) < NV.probShipNumberMod_Probe) ? true : false;
 			}
 				break;
 			case typeStar:
@@ -4942,27 +5128,19 @@ std::ofstream* DebugFileP;
 					finalName += L" ";
 				}				
 					break;
-				case typeShipColony:
+				case typeShipStarship:
 				{
-					int listsize = NV.ShipPreMods_Colony.size() - 1;
+					int listsize = NV.ShipPreMods_Starship.size() - 1;
 					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
-					finalName += NV.ShipPreMods_Colony.at(gen_mod_position(mt_name));
+					finalName += NV.ShipPreMods_Starship.at(gen_mod_position(mt_name));
 					finalName += L" ";
 				}
 					break;
-				case typeShipInstrument:
+				case typeShipPlanetship:
 				{
-					int listsize = NV.ShipPreMods_Instrument.size() - 1;
+					int listsize = NV.ShipPreMods_Planetship.size() - 1;
 					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
-					finalName += NV.ShipPreMods_Instrument.at(gen_mod_position(mt_name));
-					finalName += L" ";
-				}
-					break;
-				case typeShipSatellite:
-				{
-					int listsize = NV.ShipPreMods_Satellite.size() - 1;
-					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
-					finalName += NV.ShipPreMods_Satellite.at(gen_mod_position(mt_name));
+					finalName += NV.ShipPreMods_Planetship.at(gen_mod_position(mt_name));
 					finalName += L" ";
 				}
 					break;
@@ -4973,7 +5151,23 @@ std::ofstream* DebugFileP;
 					finalName += NV.ShipPreMods_Station.at(gen_mod_position(mt_name));
 					finalName += L" ";
 				}
+				break;			
+				case typeShipSatellite:
+				{
+					int listsize = NV.ShipPreMods_Satellite.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName += NV.ShipPreMods_Satellite.at(gen_mod_position(mt_name));
+					finalName += L" ";
+				}
 					break;
+				case typeShipProbe:
+				{
+					int listsize = NV.ShipPreMods_Probe.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName += NV.ShipPreMods_Probe.at(gen_mod_position(mt_name));
+					finalName += L" ";
+				}
+				break;
 				case typeStar:
 				{
 					int listsize = NV.StarPreMods.size() - 1;
@@ -5154,21 +5348,30 @@ std::ofstream* DebugFileP;
 					finalName += NV.PlanetPostMods.at(gen_mod_position(mt_name));
 				}
 					break;
-				case typeShipColony:
+				case typeShipStarship:
 				{
-					int listsize = NV.ShipPostMods_Colony.size() - 1;
+					int listsize = NV.ShipPostMods_Starship.size() - 1;
 					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
 					finalName += L" ";
-					finalName += NV.ShipPostMods_Colony.at(gen_mod_position(mt_name));
+					finalName += NV.ShipPostMods_Starship.at(gen_mod_position(mt_name));
 					
 				}
 					break;
-				case typeShipInstrument:
+				case typeShipPlanetship:
 				{
-					int listsize = NV.ShipPostMods_Instrument.size() - 1;
+					int listsize = NV.ShipPostMods_Planetship.size() - 1;
 					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
 					finalName += L" ";
-					finalName += NV.ShipPostMods_Instrument.at(gen_mod_position(mt_name));
+					finalName += NV.ShipPostMods_Planetship.at(gen_mod_position(mt_name));
+
+				}
+					break;
+				case typeShipStation:
+				{
+					int listsize = NV.ShipPostMods_Station.size() - 1;
+					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
+					finalName += L" ";
+					finalName += NV.ShipPostMods_Station.at(gen_mod_position(mt_name));
 				}
 					break;
 				case typeShipSatellite:
@@ -5179,12 +5382,12 @@ std::ofstream* DebugFileP;
 					finalName += NV.ShipPostMods_Satellite.at(gen_mod_position(mt_name));
 				}
 					break;
-				case typeShipStation:
+				case typeShipProbe:
 				{
-					int listsize = NV.ShipPostMods_Station.size() - 1;
+					int listsize = NV.ShipPostMods_Probe.size() - 1;
 					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
 					finalName += L" ";
-					finalName += NV.ShipPostMods_Station.at(gen_mod_position(mt_name));
+					finalName += NV.ShipPostMods_Probe.at(gen_mod_position(mt_name));
 				}
 					break;
 				case typeStar:
@@ -5358,6 +5561,9 @@ std::ofstream* DebugFileP;
 		mt_moon.seed(CONFIG.seed + 3);
 		mt_ship.seed(CONFIG.seed + 4);
 		mt_name.seed(CONFIG.seed + 5);
+
+		if(NV.max_length < NV.min_length)
+			return (void)MessageBox(hWnd, L"Minimum character length for name generation is greater than maximum character length!\n\nFix this and press the 'Update Names' button before continuing.", L"Error", MB_ICONERROR);
 
 		/*###############################################################################
 				OUTER LOOP
@@ -5765,27 +5971,32 @@ std::ofstream* DebugFileP;
 			if ((CONFIG.shipsNeedLife && lifeTest) || !CONFIG.shipsNeedLife)
 			{
 				// this disables ships if their list is empty
-				bool enable_colony = true, enable_instrument = true, enable_satellite = true, enable_station = true;
-				if (CONFIG.shipList_Colony.size() == 0)
+				bool enable_starship = true, enable_planetship = true, enable_station = true, enable_satellite = true, enable_probe = true;
+				if (CONFIG.shipList_Starship.size() == 0)
 				{
-					enable_colony = false;
-					SendDebugMessage(L"Colony ship list was empty! No colony ships can be generated!", debug_WARNING);
-				}				
-				if (CONFIG.shipList_Instrument.size() == 0)
-				{
-					enable_instrument = false;
-					SendDebugMessage(L"Instrument ship list was empty! No instrument ships can be generated!", debug_WARNING);
+					enable_starship = false;
+					SendDebugMessage(L"Starship ship list was empty! No starships ships can be generated!", debug_WARNING);
 				}			
+				if (CONFIG.shipList_Planetship.size() == 0)
+				{
+					enable_planetship = false;
+					SendDebugMessage(L"Planetship ship list was empty! No planetships ships can be generated!", debug_WARNING);
+				}
+				if (CONFIG.shipList_Station.size() == 0)
+				{
+					enable_station = false;
+					SendDebugMessage(L"Station ship list was empty! No stations can be generated!", debug_WARNING);
+				}
 				if (CONFIG.shipList_Satellite.size() == 0)
 				{
 					enable_satellite = false;
 					SendDebugMessage(L"Satellite ship list was empty! No satellites can be generated!", debug_WARNING);
 				}			
-				if (CONFIG.shipList_Station.size() == 0)
+				if (CONFIG.shipList_Probe.size() == 0)
 				{
-					enable_station = false;
-					SendDebugMessage(L"Station ship list was empty! No stations can be generated!", debug_WARNING);
-				}					
+					enable_probe = false;
+					SendDebugMessage(L"Probe ship list was empty! No probes can be generated!", debug_WARNING);
+				}
 
 				while (genpercent(mt_ship) < CONFIG.exotic_ShipChance)
 				{
@@ -5802,34 +6013,34 @@ std::ofstream* DebugFileP;
 						ship.parentBody = &currentStar;
 
 						// final check before the ship type is generated
-						if (enable_colony || enable_instrument || enable_station)
+						if (enable_starship || enable_planetship || enable_station || enable_probe)
 						{
 							double min_dist = 0, max_dist = 0;
-							std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, 0, 0, (double)enable_colony, (double)enable_instrument, 0, (double)enable_station };
+							std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, 0, 0, (double)enable_starship, (double)enable_planetship, (double)enable_station, 0, (double)enable_probe };
 							Object_Type shipType = static_cast<Object_Type>(genshiptype(mt_ship));
 							ship.name = GenName(shipType);
 
 							// selects a model and creates the min & max orbit distances
 							switch (shipType)
 							{
-							case typeShipColony:
+							case typeShipStarship:
 							{
-								int listSize = CONFIG.shipList_Colony.size();
+								int listSize = CONFIG.shipList_Starship.size();
 								std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
-								ship.model = CONFIG.shipList_Colony.at(genmodel(mt_ship));
+								ship.model = CONFIG.shipList_Starship.at(genmodel(mt_ship));
 
 								min_dist = AU_to_km(currentStar.habitZoneInnerLimit / 2);
 								max_dist = AU_to_km(currentStar.habitZoneOuterLimit * 2);
 								break;
 							}
-							case typeShipInstrument:
+							case typeShipPlanetship:
 							{
-								int listSize = CONFIG.shipList_Instrument.size();
+								int listSize = CONFIG.shipList_Planetship.size();
 								std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
-								ship.model = CONFIG.shipList_Instrument.at(genmodel(mt_ship));
+								ship.model = CONFIG.shipList_Planetship.at(genmodel(mt_ship));
 
-								min_dist = currentStar.radius + 10000;
-								max_dist = currentStar.radius + 149598000;
+								min_dist = AU_to_km(currentStar.habitZoneInnerLimit / 2);
+								max_dist = AU_to_km(currentStar.habitZoneOuterLimit * 2);
 								break;
 							}
 							case typeShipStation:
@@ -5840,6 +6051,16 @@ std::ofstream* DebugFileP;
 
 								min_dist = AU_to_km(currentStar.habitZoneInnerLimit / 2);
 								max_dist = AU_to_km(currentStar.outerLimit);
+								break;
+							}
+							case typeShipProbe:
+							{
+								int listSize = CONFIG.shipList_Probe.size();
+								std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+								ship.model = CONFIG.shipList_Probe.at(genmodel(mt_ship));
+
+								min_dist = currentStar.radius + 10000;
+								max_dist = currentStar.radius + 149598000;
 								break;
 							}
 							}
@@ -5857,7 +6078,8 @@ std::ofstream* DebugFileP;
 						ship.parentBody = &planetList.at(parent);
 						if (planetList.at(parent).class_ == L"Jupiter" || planetList.at(parent).class_ == L"Neptune")
 						{
-							enable_colony = false;
+							enable_starship = false;
+							enable_planetship = false;
 							enable_satellite = false;
 						}
 						else if (!planetList.at(parent).life_exotic.haslife && !planetList.at(parent).life_organic.haslife)
@@ -5867,35 +6089,45 @@ std::ofstream* DebugFileP;
 
 
 						// final check before the ship type is generated
-						if (enable_colony || enable_instrument || enable_satellite || enable_station)
+						if (enable_starship || enable_planetship || enable_station || enable_satellite || enable_probe)
 						{
 							// seelctes the ship type
 							double min_dist = 0, max_dist = 0;
-							std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, 0, 0, (double)enable_colony, (double)enable_instrument, (double)enable_satellite, (double)enable_station };
+							std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, 0, 0, (double)enable_starship, (double)enable_planetship, (double)enable_station, (double)enable_satellite, (double)enable_probe };
 							Object_Type shipType = static_cast<Object_Type>(genshiptype(mt_ship));
 							ship.name = GenName(shipType);
 
 							// selects a model and creates the min & max orbit distances
 							switch (shipType)
 							{
-							case typeShipColony:
+							case typeShipStarship:
 							{
-								int listSize = CONFIG.shipList_Colony.size();
+								int listSize = CONFIG.shipList_Starship.size();
 								std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
-								ship.model = CONFIG.shipList_Colony.at(genmodel(mt_ship));
+								ship.model = CONFIG.shipList_Starship.at(genmodel(mt_ship));
 
 								min_dist = planetList.at(parent).radius + 300;
 								max_dist = planetList.at(parent).radius + 1000;
 								break;
 							}
-							case typeShipInstrument:
+							case typeShipPlanetship:
 							{
-								int listSize = CONFIG.shipList_Instrument.size();
+								int listSize = CONFIG.shipList_Planetship.size();
 								std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
-								ship.model = CONFIG.shipList_Instrument.at(genmodel(mt_ship));
+								ship.model = CONFIG.shipList_Planetship.at(genmodel(mt_ship));
 
 								min_dist = planetList.at(parent).radius + 300;
-								max_dist = planetList.at(parent).radius + 10000;
+								max_dist = planetList.at(parent).radius + 1000;
+								break;
+							}
+							case typeShipStation:
+							{
+								int listSize = CONFIG.shipList_Station.size();
+								std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
+								ship.model = CONFIG.shipList_Station.at(genmodel(mt_ship));
+
+								min_dist = planetList.at(parent).radius + 300;
+								max_dist = planetList.at(parent).radius + 1000;
 								break;
 							}
 							case typeShipSatellite:
@@ -5908,14 +6140,14 @@ std::ofstream* DebugFileP;
 								max_dist = planetList.at(parent).radius + 20000;
 								break;
 							}
-							case typeShipStation:
+							case typeShipProbe:
 							{
-								int listSize = CONFIG.shipList_Station.size();
+								int listSize = CONFIG.shipList_Probe.size();
 								std::uniform_int_distribution<int> genmodel{ 0, listSize - 1 };
-								ship.model = CONFIG.shipList_Station.at(genmodel(mt_ship));
+								ship.model = CONFIG.shipList_Probe.at(genmodel(mt_ship));
 
 								min_dist = planetList.at(parent).radius + 300;
-								max_dist = planetList.at(parent).radius + 1000;
+								max_dist = planetList.at(parent).radius + 10000;
 								break;
 							}
 							}

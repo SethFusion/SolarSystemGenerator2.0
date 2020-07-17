@@ -103,7 +103,7 @@ struct ConfigurationVariables
 	bool shipsNeedLife;
 	wchar_t modelsFolder[WSIZE];
 
-	std::vector<std::wstring> shipList_Colony, shipList_Instrument, shipList_Satellite, shipList_Station;
+	std::vector<std::wstring> shipList_Starship, shipList_Planetship, shipList_Station, shipList_Satellite, shipList_Probe;
 
 	/*#####################################################
 			ADVANCED
@@ -448,45 +448,67 @@ struct NameVariables
 	//#####################################################
 
 	//#####################################################
-		#pragma region Ship Colony Names
+		#pragma region Ship Starship Names
 		/*=====================================================
-			*/	HWND GROUP_SHIP_COLONY;	/*
+			*/	HWND GROUP_SHIP_STARSHIP;	/*
 				Groupbox holding all variables below, making
 			showing and hiding them all at once super easy
 		=====================================================*/
 
-		bool useShipPreMods_Colony, useShipPostMods_Colony, useShipNumberMods_Colony;
-		HWND useShipPreMods_ColonyH, useShipPostMods_ColonyH, useShipNumberMods_ColonyH;
-		HWND useShipMods_Colony_DESC;
+		bool useShipPreMods_Starship, useShipPostMods_Starship, useShipNumberMods_Starship;
+		HWND useShipPreMods_StarshipH, useShipPostMods_StarshipH, useShipNumberMods_StarshipH;
+		HWND useShipMods_Starship_DESC;
 
-		int probShipPreMod_Colony, probShipPostMod_Colony, probShipNumberMod_Colony;
-		HWND probShipPreMod_ColonyH, probShipPostMod_ColonyH, probShipNumberMod_ColonyH;
-		HWND shipModsProb_Colony_DESC;
+		int probShipPreMod_Starship, probShipPostMod_Starship, probShipNumberMod_Starship;
+		HWND probShipPreMod_StarshipH, probShipPostMod_StarshipH, probShipNumberMod_StarshipH;
+		HWND shipModsProb_Starship_DESC;
 
-		HWND shipPreModList_Colony, shipPostModList_Colony;
-		std::vector<std::wstring> ShipPreMods_Colony, ShipPostMods_Colony;
+		HWND shipPreModList_Starship, shipPostModList_Starship;
+		std::vector<std::wstring> ShipPreMods_Starship, ShipPostMods_Starship;
 
 		#pragma endregion
 	//#####################################################
 
 	//#####################################################
-		#pragma region Ship Instrument Names
+		#pragma region Ship Planetship Names
 		/*=====================================================
-		*/	HWND GROUP_SHIP_INSTRUMENT;	/*
-			Groupbox holding all variables below, making
-		showing and hiding them all at once super easy
+			*/	HWND GROUP_SHIP_PLANETSHIP;	/*
+				Groupbox holding all variables below, making
+			showing and hiding them all at once super easy
 		=====================================================*/
 
-		bool useShipPreMods_Instrument, useShipPostMods_Instrument, useShipNumberMods_Instrument;
-		HWND useShipPreMods_InstrumentH, useShipPostMods_InstrumentH, useShipNumberMods_InstrumentH;
-		HWND useShipMods_Instrument_DESC;
+		bool useShipPreMods_Planetship, useShipPostMods_Planetship, useShipNumberMods_Planetship;
+		HWND useShipPreMods_PlanetshipH, useShipPostMods_PlanetshipH, useShipNumberMods_PlanetshipH;
+		HWND useShipMods_Planetship_DESC;
 
-		int probShipPreMod_Instrument, probShipPostMod_Instrument, probShipNumberMod_Instrument;
-		HWND probShipPreMod_InstrumentH, probShipPostMod_InstrumentH, probShipNumberMod_InstrumentH;
-		HWND shipModsProb_Instrument_DESC;
+		int probShipPreMod_Planetship, probShipPostMod_Planetship, probShipNumberMod_Planetship;
+		HWND probShipPreMod_PlanetshipH, probShipPostMod_PlanetshipH, probShipNumberMod_PlanetshipH;
+		HWND shipModsProb_Planetship_DESC;
 
-		HWND shipPreModList_Instrument, shipPostModList_Instrument;
-		std::vector<std::wstring> ShipPreMods_Instrument, ShipPostMods_Instrument;
+		HWND shipPreModList_Planetship, shipPostModList_Planetship;
+		std::vector<std::wstring> ShipPreMods_Planetship, ShipPostMods_Planetship;
+
+		#pragma endregion
+	//#####################################################
+
+	//#####################################################
+		#pragma region Ship Station Names
+		/*=====================================================
+			*/	HWND GROUP_SHIP_STATION;	/*
+				Groupbox holding all variables below, making
+			showing and hiding them all at once super easy
+		=====================================================*/
+
+		bool useShipPreMods_Station, useShipPostMods_Station, useShipNumberMods_Station;
+		HWND useShipPreMods_StationH, useShipPostMods_StationH, useShipNumberMods_StationH;
+		HWND useShipMods_Station_DESC;
+
+		int probShipPreMod_Station, probShipPostMod_Station, probShipNumberMod_Station;
+		HWND probShipPreMod_StationH, probShipPostMod_StationH, probShipNumberMod_StationH;
+		HWND shipModsProb_Station_DESC;
+
+		HWND shipPreModList_Station, shipPostModList_Station;
+		std::vector<std::wstring> ShipPreMods_Station, ShipPostMods_Station;
 
 		#pragma endregion
 	//#####################################################
@@ -494,9 +516,9 @@ struct NameVariables
 	//#####################################################
 		#pragma region Ship Satellite Names
 		/*=====================================================
-		*/	HWND GROUP_SHIP_SATELLITE;	/*
-			Groupbox holding all variables below, making
-		showing and hiding them all at once super easy
+			*/	HWND GROUP_SHIP_SATELLITE;	/*
+				Groupbox holding all variables below, making
+			showing and hiding them all at once super easy
 		=====================================================*/
 
 		bool useShipPreMods_Satellite, useShipPostMods_Satellite, useShipNumberMods_Satellite;
@@ -514,23 +536,23 @@ struct NameVariables
 	//#####################################################
 
 	//#####################################################
-		#pragma region Ship Station Names
+		#pragma region Ship Probe Names
 		/*=====================================================
-		*/	HWND GROUP_SHIP_STATION;	/*
-			Groupbox holding all variables below, making
-		showing and hiding them all at once super easy
+			*/	HWND GROUP_SHIP_PROBE;	/*
+				Groupbox holding all variables below, making
+			showing and hiding them all at once super easy
 		=====================================================*/
 
-		bool useShipPreMods_Station, useShipPostMods_Station, useShipNumberMods_Station;
-		HWND useShipPreMods_StationH, useShipPostMods_StationH, useShipNumberMods_StationH;
-		HWND useShipMods_Station_DESC;
+		bool useShipPreMods_Probe, useShipPostMods_Probe, useShipNumberMods_Probe;
+		HWND useShipPreMods_ProbeH, useShipPostMods_ProbeH, useShipNumberMods_ProbeH;
+		HWND useShipMods_Probe_DESC;
 
-		int probShipPreMod_Station, probShipPostMod_Station, probShipNumberMod_Station;
-		HWND probShipPreMod_StationH, probShipPostMod_StationH, probShipNumberMod_StationH;
-		HWND shipModsProb_Station_DESC;
+		int probShipPreMod_Probe, probShipPostMod_Probe, probShipNumberMod_Probe;
+		HWND probShipPreMod_ProbeH, probShipPostMod_ProbeH, probShipNumberMod_ProbeH;
+		HWND shipModsProb_Probe_DESC;
 
-		HWND shipPreModList_Station, shipPostModList_Station;
-		std::vector<std::wstring> ShipPreMods_Station, ShipPostMods_Station;
+		HWND shipPreModList_Probe, shipPostModList_Probe;
+		std::vector<std::wstring> ShipPreMods_Probe, ShipPostMods_Probe;
 
 		#pragma endregion
 	//#####################################################
@@ -630,25 +652,30 @@ struct NamePreset
 	int probShipPreMod_All, probShipPostMod_All;
 	wchar_t ShipPreMods_All[MODLIST_SIZE], ShipPostMods_All[MODLIST_SIZE];
 
-	//Ship Colony
-	bool useShipPreMods_Colony, useShipPostMods_Colony, useShipNumberMods_Colony;
-	int probShipPreMod_Colony, probShipPostMod_Colony, probShipNumberMod_Colony;
-	wchar_t ShipPreMods_Colony[MODLIST_SIZE], ShipPostMods_Colony[MODLIST_SIZE];
+	//Ship Starship
+	bool useShipPreMods_Starship, useShipPostMods_Starship, useShipNumberMods_Starship;
+	int probShipPreMod_Starship, probShipPostMod_Starship, probShipNumberMod_Starship;
+	wchar_t ShipPreMods_Starship[MODLIST_SIZE], ShipPostMods_Starship[MODLIST_SIZE];
 
-	//Ship Instrument
-	bool useShipPreMods_Instrument, useShipPostMods_Instrument, useShipNumberMods_Instrument;
-	int probShipPreMod_Instrument, probShipPostMod_Instrument, probShipNumberMod_Instrument;
-	wchar_t ShipPreMods_Instrument[MODLIST_SIZE], ShipPostMods_Instrument[MODLIST_SIZE];
+	//Ship Planetship
+	bool useShipPreMods_Planetship, useShipPostMods_Planetship, useShipNumberMods_Planetship;
+	int probShipPreMod_Planetship, probShipPostMod_Planetship, probShipNumberMod_Planetship;
+	wchar_t ShipPreMods_Planetship[MODLIST_SIZE], ShipPostMods_Planetship[MODLIST_SIZE];
+
+	//Ship Station
+	bool useShipPreMods_Station, useShipPostMods_Station, useShipNumberMods_Station;
+	int probShipPreMod_Station, probShipPostMod_Station, probShipNumberMod_Station;
+	wchar_t ShipPreMods_Station[MODLIST_SIZE], ShipPostMods_Station[MODLIST_SIZE];
 
 	//Ship Satellite
 	bool useShipPreMods_Satellite, useShipPostMods_Satellite, useShipNumberMods_Satellite;
 	int probShipPreMod_Satellite, probShipPostMod_Satellite, probShipNumberMod_Satellite;
 	wchar_t ShipPreMods_Satellite[MODLIST_SIZE], ShipPostMods_Satellite[MODLIST_SIZE];
 
-	//Ship Station
-	bool useShipPreMods_Station, useShipPostMods_Station, useShipNumberMods_Station;
-	int probShipPreMod_Station, probShipPostMod_Station, probShipNumberMod_Station;
-	wchar_t ShipPreMods_Station[MODLIST_SIZE], ShipPostMods_Station[MODLIST_SIZE];
+	//Ship Probe
+	bool useShipPreMods_Probe, useShipPostMods_Probe, useShipNumberMods_Probe;
+	int probShipPreMod_Probe, probShipPostMod_Probe, probShipNumberMod_Probe;
+	wchar_t ShipPreMods_Probe[MODLIST_SIZE], ShipPostMods_Probe[MODLIST_SIZE];
 
 	//Dataset
 	int order, wordVarience, max_length, min_length;
