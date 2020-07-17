@@ -3952,21 +3952,11 @@ std::ofstream* DebugFileP;
 		GetVariableFromWindow(CONFIG_H.modelsFolder.HANDLE, CONFIG.modelsFolder);
 		CONFIG.shipsNeedLife = (IsDlgButtonChecked(hWnd, CB_SHIPSNEEDLIFE) == BST_CHECKED) ? true : false;
 
-		int size = CONFIG.shipList_Starship.size();
-		for (int count = 0; count < size; count++)
-			CONFIG.shipList_Starship.pop_back();
-		size = CONFIG.shipList_Planetship.size();
-		for (int count = 0; count < size; count++)
-			CONFIG.shipList_Planetship.pop_back();
-		size = CONFIG.shipList_Station.size();
-		for (int count = 0; count < size; count++)
-			CONFIG.shipList_Station.pop_back();
-		size = CONFIG.shipList_Satellite.size();
-		for (int count = 0; count < size; count++)
-			CONFIG.shipList_Satellite.pop_back();
-		size = CONFIG.shipList_Probe.size();
-		for (int count = 0; count < size; count++)
-			CONFIG.shipList_Probe.pop_back();
+		EmptyVector(CONFIG.shipList_Starship);
+		EmptyVector(CONFIG.shipList_Planetship);
+		EmptyVector(CONFIG.shipList_Station);
+		EmptyVector(CONFIG.shipList_Satellite);
+		EmptyVector(CONFIG.shipList_Probe);
 
 		int counter = 1;
 		std::ifstream ShipInputTest;
@@ -4132,41 +4122,16 @@ std::ofstream* DebugFileP;
 	}
 	void CreateNameVectors(HWND hWnd)
 	{	
-		if (NV.usedNames.size() > 0)
-		{
-			int size = NV.usedNames.size();
-			for (int i = 0; i < size; i++)
-				NV.usedNames.pop_back();
-		}
+		EmptyVector(NV.usedNames);
 
-		if (NV.PrefixList.size() > 0)
-		{
-			int size = NV.PrefixList.size();
-			for (int i = 0; i < size; i++)
-				NV.PrefixList.pop_back();
-		}
-		if (NV.SuffixList.size() > 0)
-		{
-			int size = NV.SuffixList.size();
-			for (int i = 0; i < size; i++)
-				NV.SuffixList.pop_back();
-		}
+		EmptyVector(NV.PrefixList);
+		EmptyVector(NV.SuffixList);
 		NV.useSimpleGenerator = (IsDlgButtonChecked(NV.GROUP_SIMPLE, NVCB_SIMPLEGENERATOR) == BST_CHECKED) ? true : false;
 		FillModList(NV.PrefixListH, NV.PrefixList);
 		FillModList(NV.SuffixListH, NV.SuffixList);
 
-		if (NV.StarPreMods.size() > 0)
-		{
-			int size = NV.StarPreMods.size();
-			for (int i = 0; i < size; i++)
-				NV.StarPreMods.pop_back();
-		}
-		if (NV.StarPostMods.size() > 0)
-		{
-			int size = NV.StarPostMods.size();
-			for (int i = 0; i < size; i++)
-				NV.StarPostMods.pop_back();
-		}
+		EmptyVector(NV.StarPreMods);
+		EmptyVector(NV.StarPostMods);
 		NV.useStarPreMods = (IsDlgButtonChecked(NV.GROUP_STAR, NVCB_STARPREMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probStarPreModH, NV.probStarPreMod);
 		FillModList(NV.starPreModList, NV.StarPreMods);
@@ -4176,18 +4141,8 @@ std::ofstream* DebugFileP;
 		NV.useStarNumberMods = (IsDlgButtonChecked(NV.GROUP_STAR, NVCB_STARNUMBERMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probStarNumberModH, NV.probStarNumberMod);
 
-		if (NV.PlanetPreMods.size() > 0)
-		{
-			int size = NV.PlanetPreMods.size();
-			for (int i = 0; i < size; i++)
-				NV.PlanetPreMods.pop_back();
-		}
-		if (NV.PlanetPostMods.size() > 0)
-		{
-			int size = NV.PlanetPostMods.size();
-			for (int i = 0; i < size; i++)
-				NV.PlanetPostMods.pop_back();
-		}
+		EmptyVector(NV.PlanetPreMods);
+		EmptyVector(NV.PlanetPostMods);
 		NV.usePlanetPreMods = (IsDlgButtonChecked(NV.GROUP_PLANET, NVCB_PLANETPREMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probPlanetPreModH, NV.probPlanetPreMod);
 		FillModList(NV.planetPreModList, NV.PlanetPreMods);
@@ -4197,18 +4152,8 @@ std::ofstream* DebugFileP;
 		NV.usePlanetNumberMods = (IsDlgButtonChecked(NV.GROUP_PLANET, NVCB_PLANETNUMBERMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probPlanetNumberModH, NV.probPlanetNumberMod);
 
-		if (NV.MoonPreMods.size() > 0)
-		{
-			int size = NV.MoonPreMods.size();
-			for (int i = 0; i < size; i++)
-				NV.MoonPreMods.pop_back();
-		}
-		if (NV.MoonPostMods.size() > 0)
-		{
-			int size = NV.MoonPostMods.size();
-			for (int i = 0; i < size; i++)
-				NV.MoonPostMods.pop_back();
-		}
+		EmptyVector(NV.MoonPreMods);
+		EmptyVector(NV.MoonPostMods);
 		NV.nameTerraMoons = (IsDlgButtonChecked(NV.GROUP_MOON, NVCB_NAMETERRAMOONS) == BST_CHECKED) ? true : false;
 		NV.nameGasMoons = (IsDlgButtonChecked(NV.GROUP_MOON, NVCB_NAMEGASMOONS) == BST_CHECKED) ? true : false;
 		NV.useMoonPreMods = (IsDlgButtonChecked(NV.GROUP_MOON, NVCB_MOONPREMOD) == BST_CHECKED) ? true : false;
@@ -4220,18 +4165,8 @@ std::ofstream* DebugFileP;
 		NV.useMoonNumberMods = (IsDlgButtonChecked(NV.GROUP_MOON, NVCB_MOONNUMBERMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probMoonNumberModH, NV.probMoonNumberMod);
 
-		if (NV.AsteroidPreMods.size() > 0)
-		{
-			int size = NV.AsteroidPreMods.size();
-			for (int i = 0; i < size; i++)
-				NV.AsteroidPreMods.pop_back();
-		}
-		if (NV.AsteroidPostMods.size() > 0)
-		{
-			int size = NV.AsteroidPostMods.size();
-			for (int i = 0; i < size; i++)
-				NV.AsteroidPostMods.pop_back();
-		}
+		EmptyVector(NV.AsteroidPreMods);
+		EmptyVector(NV.AsteroidPostMods);
 		NV.nameAsteroids = (IsDlgButtonChecked(NV.GROUP_ASTEROID, NVCB_NAMEASTEROIDS) == BST_CHECKED) ? true : false;
 		NV.useAsteroidPreMods = (IsDlgButtonChecked(NV.GROUP_ASTEROID, NVCB_ASTEROIDPREMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probAsteroidPreModH, NV.probAsteroidPreMod);
@@ -4242,18 +4177,8 @@ std::ofstream* DebugFileP;
 		NV.useAsteroidNumberMods = (IsDlgButtonChecked(NV.GROUP_ASTEROID, NVCB_ASTEROIDNUMBERMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probAsteroidNumberModH, NV.probAsteroidNumberMod);
 
-		if (NV.CometPreMods.size() > 0)
-		{
-			int size = NV.CometPreMods.size();
-			for (int i = 0; i < size; i++)
-				NV.CometPreMods.pop_back();
-		}
-		if (NV.CometPostMods.size() > 0)
-		{
-			int size = NV.CometPostMods.size();
-			for (int i = 0; i < size; i++)
-				NV.CometPostMods.pop_back();
-		}
+		EmptyVector(NV.CometPreMods);
+		EmptyVector(NV.CometPostMods);
 		NV.nameComets = (IsDlgButtonChecked(NV.GROUP_COMET, NVCB_NAMECOMETS) == BST_CHECKED) ? true : false;
 		NV.useCometPreMods = (IsDlgButtonChecked(NV.GROUP_COMET, NVCB_COMETPREMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probCometPreModH, NV.probCometPreMod);
@@ -4264,18 +4189,8 @@ std::ofstream* DebugFileP;
 		NV.useCometNumberMods = (IsDlgButtonChecked(NV.GROUP_COMET, NVCB_COMETNUMBERMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probCometNumberModH, NV.probCometNumberMod);
 
-		if (NV.DwarfMoonPreMods.size() > 0)
-		{
-			int size = NV.DwarfMoonPreMods.size();
-			for (int i = 0; i < size; i++)
-				NV.DwarfMoonPreMods.pop_back();
-		}
-		if (NV.DwarfMoonPostMods.size() > 0)
-		{
-			int size = NV.DwarfMoonPostMods.size();
-			for (int i = 0; i < size; i++)
-				NV.DwarfMoonPostMods.pop_back();
-		}
+		EmptyVector(NV.DwarfMoonPreMods);
+		EmptyVector(NV.DwarfMoonPostMods);
 		NV.nameTerraDwarfMoons = (IsDlgButtonChecked(NV.GROUP_DWARFMOON, NVCB_NAMETERRADWARFMOONS) == BST_CHECKED) ? true : false;
 		NV.nameGasDwarfMoons = (IsDlgButtonChecked(NV.GROUP_DWARFMOON, NVCB_NAMEGASDWARFMOONS) == BST_CHECKED) ? true : false;
 		NV.useDwarfMoonPreMods = (IsDlgButtonChecked(NV.GROUP_DWARFMOON, NVCB_DWARFMOONPREMOD) == BST_CHECKED) ? true : false;
@@ -4287,18 +4202,8 @@ std::ofstream* DebugFileP;
 		NV.useDwarfMoonNumberMods = (IsDlgButtonChecked(NV.GROUP_DWARFMOON, NVCB_DWARFMOONNUMBERMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probDwarfMoonNumberModH, NV.probDwarfMoonNumberMod);
 
-		if (NV.ShipPreMods_All.size() > 0)
-		{
-			int size = NV.ShipPreMods_All.size();
-			for (int i = 0; i < size; i++)
-				NV.ShipPreMods_All.pop_back();
-		}
-		if (NV.ShipPostMods_All.size() > 0)
-		{
-			int size = NV.ShipPostMods_All.size();
-			for (int i = 0; i < size; i++)
-				NV.ShipPostMods_All.pop_back();
-		}
+		EmptyVector(NV.ShipPreMods_All);
+		EmptyVector(NV.ShipPostMods_All);
 		NV.useShipPreMods_All = (IsDlgButtonChecked(NV.GROUP_SHIP_ALL, NVCB_SHIPALLPREMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipPreMod_AllH, NV.probShipPreMod_All);
 		FillModList(NV.shipPreModList_All, NV.ShipPreMods_All);
@@ -4306,18 +4211,8 @@ std::ofstream* DebugFileP;
 		GetVariableFromWindow(NV.probShipPostMod_AllH, NV.probShipPostMod_All);
 		FillModList(NV.shipPostModList_All, NV.ShipPostMods_All);
 
-		if (NV.ShipPreMods_Starship.size() > 0)
-		{
-			int size = NV.ShipPreMods_Starship.size();
-			for (int i = 0; i < size; i++)
-				NV.ShipPreMods_Starship.pop_back();
-		}
-		if (NV.ShipPostMods_Starship.size() > 0)
-		{
-			int size = NV.ShipPostMods_Starship.size();
-			for (int i = 0; i < size; i++)
-				NV.ShipPostMods_Starship.pop_back();
-		}
+		EmptyVector(NV.ShipPreMods_Starship);
+		EmptyVector(NV.ShipPostMods_Starship);
 		NV.useShipPreMods_Starship = (IsDlgButtonChecked(NV.GROUP_SHIP_STARSHIP, NVCB_SHIPSTARSHIPPREMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipPreMod_StarshipH, NV.probShipPreMod_Starship);
 		FillModList(NV.shipPreModList_Starship, NV.ShipPreMods_Starship);
@@ -4327,18 +4222,8 @@ std::ofstream* DebugFileP;
 		NV.useShipNumberMods_Starship = (IsDlgButtonChecked(NV.GROUP_SHIP_STARSHIP, NVCB_SHIPSTARSHIPNUMBERMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipNumberMod_StarshipH, NV.probShipNumberMod_Starship);
 
-		if (NV.ShipPreMods_Planetship.size() > 0)
-		{
-			int size = NV.ShipPreMods_Planetship.size();
-			for (int i = 0; i < size; i++)
-				NV.ShipPreMods_Planetship.pop_back();
-		}
-		if (NV.ShipPostMods_Planetship.size() > 0)
-		{
-			int size = NV.ShipPostMods_Planetship.size();
-			for (int i = 0; i < size; i++)
-				NV.ShipPostMods_Planetship.pop_back();
-		}
+		EmptyVector(NV.ShipPreMods_Planetship);
+		EmptyVector(NV.ShipPostMods_Planetship);
 		NV.useShipPreMods_Planetship = (IsDlgButtonChecked(NV.GROUP_SHIP_PLANETSHIP, NVCB_SHIPPLANETSHIPPREMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipPreMod_PlanetshipH, NV.probShipPreMod_Planetship);
 		FillModList(NV.shipPreModList_Planetship, NV.ShipPreMods_Planetship);
@@ -4348,18 +4233,8 @@ std::ofstream* DebugFileP;
 		NV.useShipNumberMods_Planetship = (IsDlgButtonChecked(NV.GROUP_SHIP_PLANETSHIP, NVCB_SHIPPLANETSHIPNUMBERMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipNumberMod_PlanetshipH, NV.probShipNumberMod_Planetship);
 
-		if (NV.ShipPreMods_Station.size() > 0)
-		{
-			int size = NV.ShipPreMods_Station.size();
-			for (int i = 0; i < size; i++)
-				NV.ShipPreMods_Station.pop_back();
-		}
-		if (NV.ShipPostMods_Station.size() > 0)
-		{
-			int size = NV.ShipPostMods_Station.size();
-			for (int i = 0; i < size; i++)
-				NV.ShipPostMods_Station.pop_back();
-		}
+		EmptyVector(NV.ShipPreMods_Station);
+		EmptyVector(NV.ShipPostMods_Station);
 		NV.useShipPreMods_Station = (IsDlgButtonChecked(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONPREMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipPreMod_StationH, NV.probShipPreMod_Station);
 		FillModList(NV.shipPreModList_Station, NV.ShipPreMods_Station);
@@ -4369,18 +4244,8 @@ std::ofstream* DebugFileP;
 		NV.useShipNumberMods_Station = (IsDlgButtonChecked(NV.GROUP_SHIP_STATION, NVCB_SHIPSTATIONNUMBERMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipNumberMod_StationH, NV.probShipNumberMod_Station);
 
-		if (NV.ShipPreMods_Satellite.size() > 0)
-		{
-			int size = NV.ShipPreMods_Satellite.size();
-			for (int i = 0; i < size; i++)
-				NV.ShipPreMods_Satellite.pop_back();
-		}
-		if (NV.ShipPostMods_Satellite.size() > 0)
-		{
-			int size = NV.ShipPostMods_Satellite.size();
-			for (int i = 0; i < size; i++)
-				NV.ShipPostMods_Satellite.pop_back();
-		}
+		EmptyVector(NV.ShipPreMods_Satellite);
+		EmptyVector(NV.ShipPostMods_Satellite);
 		NV.useShipPreMods_Satellite = (IsDlgButtonChecked(NV.GROUP_SHIP_SATELLITE, NVCB_SHIPSATELLITEPREMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipPreMod_SatelliteH, NV.probShipPreMod_Satellite);
 		FillModList(NV.shipPreModList_Satellite, NV.ShipPreMods_Satellite);
@@ -4390,18 +4255,8 @@ std::ofstream* DebugFileP;
 		NV.useShipNumberMods_Satellite = (IsDlgButtonChecked(NV.GROUP_SHIP_SATELLITE, NVCB_SHIPSATELLITENUMBERMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipNumberMod_SatelliteH, NV.probShipNumberMod_Satellite);
 		
-		if (NV.ShipPreMods_Probe.size() > 0)
-		{
-			int size = NV.ShipPreMods_Probe.size();
-			for (int i = 0; i < size; i++)
-				NV.ShipPreMods_Probe.pop_back();
-		}
-		if (NV.ShipPostMods_Probe.size() > 0)
-		{
-			int size = NV.ShipPostMods_Probe.size();
-			for (int i = 0; i < size; i++)
-				NV.ShipPostMods_Probe.pop_back();
-		}
+		EmptyVector(NV.ShipPreMods_Probe);
+		EmptyVector(NV.ShipPostMods_Probe);
 		NV.useShipPreMods_Probe = (IsDlgButtonChecked(NV.GROUP_SHIP_PROBE, NVCB_SHIPPROBEPREMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipPreMod_ProbeH, NV.probShipPreMod_Probe);
 		FillModList(NV.shipPreModList_Probe, NV.ShipPreMods_Probe);
@@ -4411,27 +4266,11 @@ std::ofstream* DebugFileP;
 		NV.useShipNumberMods_Probe = (IsDlgButtonChecked(NV.GROUP_SHIP_PROBE, NVCB_SHIPPROBENUMBERMOD) == BST_CHECKED) ? true : false;
 		GetVariableFromWindow(NV.probShipNumberMod_ProbeH, NV.probShipNumberMod_Probe);		
 
-		if (NV.Markov_RawDataset.size() > 0)
-		{
-			int size = NV.Markov_RawDataset.size();
-			for (int i = 0; i < size; i++)
-				NV.Markov_RawDataset.pop_back();
-		}
-		if (NV.main_ngrams.ngrams.size() > 0)
-		{
-			int size = NV.main_ngrams.ngrams.size();
-			for (int i = 0; i < size; i++)
-			{
-				NV.main_ngrams.ngrams.pop_back();
-				NV.main_ngrams.nextCharList.pop_back();
-			}
-			size = NV.twogram_list.ngrams.size();
-			for (int i = 0; i < size; i++)
-			{
-				NV.twogram_list.ngrams.pop_back();
-				NV.twogram_list.nextCharList.pop_back();
-			}
-		}
+		EmptyVector(NV.Markov_RawDataset);
+		EmptyVector(NV.main_ngrams.ngrams);
+		EmptyVector(NV.main_ngrams.nextCharList);
+		EmptyVector(NV.twogram_list.ngrams);
+		EmptyVector(NV.twogram_list.nextCharList);
 		GetVariableFromWindow(NV.orderH, NV.order);
 		GetVariableFromWindow(NV.wordVarienceH, NV.wordVarience);
 		GetVariableFromWindow(NV.min_lengthH, NV.min_length);
