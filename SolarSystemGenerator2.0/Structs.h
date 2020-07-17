@@ -56,7 +56,7 @@ public:
 	std::wstring name, class_;
 
 	SEObject* parentBody;
-	double mass, radius, semimajorAxis, eccentricity, inclination,
+	double mass, radius, semimajorAxis, period, eccentricity, inclination,
 		ascendingNode, argofPericenter, meanAnomaly, obliquity;
 	double earthRadius, gravity, density;
 
@@ -64,7 +64,7 @@ public:
 	{
 		name = class_ = L"-empty-";
 		parentBody = NULL;
-		mass = radius = semimajorAxis = eccentricity = inclination =
+		mass = radius = semimajorAxis = period = eccentricity = inclination =
 			ascendingNode = argofPericenter = meanAnomaly = obliquity = -1;
 		earthRadius = gravity = density = -1;
 	}

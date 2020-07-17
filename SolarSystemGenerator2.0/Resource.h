@@ -17,8 +17,6 @@
 #define color_HALFRED			"(1.0, 0.5, 0.5)"
 #define color_RED				"(1.0, 0.0, 0.0)"
 
-
-
 /*---------------------------------------------
 		Button Commands
 ---------------------------------------------*/
@@ -73,9 +71,6 @@
 	#pragma region Under Advanced Variables
 
 	#pragma endregion
-
-
-
 
 //#define BUTTON_ADV_
 

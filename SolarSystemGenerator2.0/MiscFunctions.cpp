@@ -38,6 +38,10 @@ static double km_to_radsol(double km)
 {
 	return (km / 696340);
 }
+static double earthMass_to_solMass(double mass)
+{
+	return (mass / 332946);
+}
 
 static void FindNextEntry(char* Buffer, int& parse)
 {

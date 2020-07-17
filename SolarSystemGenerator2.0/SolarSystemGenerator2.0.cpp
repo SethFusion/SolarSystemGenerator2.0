@@ -5410,6 +5410,10 @@ std::ofstream* DebugFileP;
 			int planetNumber = genplanetnum(mt_planet);
 			std::vector<SEPlanet> planetList;
 
+			if (currentStar.frostLine > currentStar.outerLimit)
+				SendDebugMessage(L"Star's frost limit is larger than the outer limit.", debug_WARNING);
+			else if (currentStar.frostLine < currentStar.innerLimit)
+				SendDebugMessage(L"Star's frost limit is smaller than the inner limit.", debug_WARNING);
 			SendDebugMessage( (std::to_wstring(planetNumber) + L" semimajors used out of " + std::to_wstring(currentStar.maxPlanetNumber) + L" possible"), debug_INFO);
 
 			/*###############################################################################
@@ -5470,6 +5474,7 @@ std::ofstream* DebugFileP;
 					if (!planetList.at(i - 1).hasCompanionOrbit)
 					{
 						planetList.at(i).semimajorAxis = planetList.at(i - 1).semimajorAxis;
+						planetList.at(i).period = planetList.at(i - 1).period;
 						planetList.at(i).inclination = planetList.at(i - 1).inclination;
 						planetList.at(i).eccentricity = planetList.at(i - 1).eccentricity;
 						planetList.at(i).ascendingNode = planetList.at(i - 1).ascendingNode;
@@ -5518,7 +5523,7 @@ std::ofstream* DebugFileP;
 			}
 
 			/*###############################################################################
-					MOON GENERATOR PER SEPlanet
+					MOON GENERATOR PER PLANET
 			###############################################################################*/
 			for (int currentPlanet = 0; currentPlanet < planetList.size(); currentPlanet++)
 			{
@@ -5589,6 +5594,7 @@ std::ofstream* DebugFileP;
 							if (!majorMoon.at(i - 1).hasCompanionOrbit)
 							{
 								majorMoon.at(i).semimajorAxis = majorMoon.at(i - 1).semimajorAxis;
+								majorMoon.at(i).period = majorMoon.at(i - 1).period;
 								majorMoon.at(i).inclination = majorMoon.at(i - 1).inclination;
 								majorMoon.at(i).eccentricity = majorMoon.at(i - 1).eccentricity;
 								majorMoon.at(i).ascendingNode = majorMoon.at(i - 1).ascendingNode;
@@ -5611,6 +5617,7 @@ std::ofstream* DebugFileP;
 							if (!minorMoon.at(i - 1).hasCompanionOrbit)
 							{
 								minorMoon.at(i).semimajorAxis = minorMoon.at(i - 1).semimajorAxis;
+								minorMoon.at(i).period = minorMoon.at(i - 1).period;
 								minorMoon.at(i).inclination = minorMoon.at(i - 1).inclination;
 								minorMoon.at(i).eccentricity = minorMoon.at(i - 1).eccentricity;
 								minorMoon.at(i).ascendingNode = minorMoon.at(i - 1).ascendingNode;
@@ -5744,6 +5751,7 @@ std::ofstream* DebugFileP;
 						for (int count = 0; count < planetList.at(currentPlanet).debrisCount; count++)
 						{
 							ExoticDebrisRing(planetList.at(currentPlanet), debrisMoon, inclinationCenter, inclinationSD, DebrisSpread, SMCenterPoint);
+							debrisMoon.name += std::to_wstring(count + 1);
 							PrintPlanet(debrisMoon, planetFile);
 						}
 					}
@@ -6001,7 +6009,7 @@ std::ofstream* DebugFileP;
 
 							if (AU_to_km(currentStar.innerLimit / 5) < radsol_to_km(currentStar.radius))
 							{
-								SendDebugMessage(L"Inner limit / 5 was inside the star's radius. No asteroid belt created.", debug_ERROR);
+								SendDebugMessage(L"Inner limit over 5 was inside the star's radius. No asteroid belt created.", debug_ERROR);
 								goto NoBelt;
 							}
 								
@@ -6148,7 +6156,8 @@ std::ofstream* DebugFileP;
 			file << "\n\t\tSemiMajorAxis\t\t" << km_to_AU(planet.semimajorAxis);
 		else
 			file << "\n\t\tSemiMajorAxis\t\t" << planet.semimajorAxis;
-		file << "\n\t\tEccentricity\t\t" << planet.eccentricity
+		file << "\n\t\tPeriod\t\t\t\t" << planet.period
+			<< "\n\t\tEccentricity\t\t" << planet.eccentricity
 			<< "\n\t\tInclination\t\t\t" << planet.inclination
 			<< "\n\t\tAscendingNode\t\t" << planet.ascendingNode
 			<< "\n\t\tArgOfPericenter\t\t" << planet.argofPericenter
@@ -6388,9 +6397,6 @@ std::ofstream* DebugFileP;
 			
 		star.semimajorStaticList = star.semimajorList; // keeps a copy of the original semimajor points
 		star.maxPlanetNumber = star.semimajorList.size();
-
-		if (star.frostLine > star.outerLimit)
-			SendDebugMessage(L"Star's frost limit is larger than the outer limit.", debug_WARNING);
 	}
 	void GeneratePlanet(SEStar& star, SEPlanet& planet)
 	{
@@ -6898,6 +6904,7 @@ std::ofstream* DebugFileP;
 		//######################################################################################################
 			//	ORBIT GENERATION
 
+		planet.period = ( sqrt(pow(planet.semimajorAxis, 3) / planet.parentBody->mass) );
 		planet.obliquity = genobliquity(mt_planet);
 		do planet.eccentricity = geneccentricity(mt_planet);
 		while (planet.eccentricity <= 0 || planet.eccentricity >= 1);
@@ -7339,6 +7346,7 @@ std::ofstream* DebugFileP;
 			planet.inclination = geninclination(mt_planet);
 		}
 
+		planet.period = (sqrt(pow(planet.semimajorAxis, 3) / planet.parentBody->mass));
 		planet.obliquity = genobliquity(mt_planet);
 		planet.ascendingNode = gendegree(mt_planet);
 		planet.argofPericenter = gendegree(mt_planet);
@@ -7747,6 +7755,7 @@ std::ofstream* DebugFileP;
 			}
 		}
 
+		moon.period = (sqrt(pow(km_to_AU(moon.semimajorAxis), 3) / earthMass_to_solMass(moon.parentBody->mass)));
 		moon.ascendingNode = gendegree(mt_moon);
 		moon.argofPericenter = gendegree(mt_moon);
 		moon.meanAnomaly = gendegree(mt_moon);
@@ -7964,6 +7973,7 @@ std::ofstream* DebugFileP;
 			}
 		}
 
+		moon.period = (sqrt(pow(km_to_AU(moon.semimajorAxis), 3) / earthMass_to_solMass(moon.parentBody->mass)));
 		moon.ascendingNode = gendegree(mt_moon);
 		moon.argofPericenter = gendegree(mt_moon);
 		moon.meanAnomaly = gendegree(mt_moon);
@@ -8003,6 +8013,7 @@ std::ofstream* DebugFileP;
 		std::normal_distribution<> geninclination{ CONFIG.avgInclination, 20 };
 		asteroid.inclination = geninclination(mt_star);
 		
+		asteroid.period = (sqrt(pow(asteroid.semimajorAxis, 3) / asteroid.parentBody->mass));
 		asteroid.obliquity = gendegree(mt_star);
 		asteroid.ascendingNode = gendegree(mt_star);
 		asteroid.argofPericenter = gendegree(mt_star);
@@ -8030,6 +8041,7 @@ std::ofstream* DebugFileP;
 		while (comet.eccentricity <= 0 || comet.eccentricity >= 1);
 		comet.inclination = geninclination(mt_star);
 
+		comet.period = (sqrt(pow(comet.semimajorAxis, 3) / comet.parentBody->mass));
 		comet.ascendingNode = gendegree(mt_star);
 		comet.argofPericenter = gendegree(mt_star);
 		comet.meanAnomaly = gendegree(mt_star);
@@ -8065,7 +8077,7 @@ std::ofstream* DebugFileP;
 	}
 	void ExoticDebrisRing(SEPlanet& parent, SEPlanet& debris, double inclinationationCenter, double inclinationationSD, double DebrisSpread, double SMCenterPoint)
 	{
-		debris.name = L"Debris Moon";
+		debris.name = L"Debris ";
 
 		//######################################################################################################
 			//	RADIUS GENERATION
@@ -8099,6 +8111,7 @@ std::ofstream* DebugFileP;
 		while (debris.eccentricity <= 0 || debris.eccentricity >= 1);
 		debris.inclination = geninclination(mt_moon);
 
+		debris.period = (sqrt(pow(km_to_AU(debris.semimajorAxis), 3) / earthMass_to_solMass(debris.parentBody->mass)));
 		debris.ascendingNode = gendegree(mt_moon);
 		debris.argofPericenter = gendegree(mt_moon);
 		debris.meanAnomaly = gendegree(mt_moon);
@@ -8190,6 +8203,7 @@ std::ofstream* DebugFileP;
 			<< "\n\tOrbit\n\t{\n\t\t"
 			<< "RefPlane\t\t\t\"Equator\""
 			<< "\n\t\tSemiMajorAxisKm\t\t" << Debug.semimajorAxis
+			<< "\n\t\tPeriod\t\t\t\t" << Debug.period
 			<< "\n\t\tEccentricity\t\t" << Debug.eccentricity
 			<< "\n\t\tInclination\t\t\t" << Debug.inclination
 			<< "\n\t\tAscendingNode\t\t" << Debug.ascendingNode

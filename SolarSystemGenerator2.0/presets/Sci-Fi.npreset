@@ -45,8 +45,8 @@ useDwarfMoonNumberMods=1
 probDwarfMoonNumberMod=10
 
 nameAsteroids=1
-useAsteroidPreMods=1
-probAsteroidPreMod=2
+useAsteroidPreMods=0
+probAsteroidPreMod=0
 asteroidPreMods {ast}
 useAsteroidPostMods=0
 probAsteroidPostMod=0
@@ -55,9 +55,9 @@ useAsteroidNumberMods=0
 probAsteroidNumberMod=0
 
 nameComets=1
-useCometPreMods=1
-probCometPreMod=2
-cometPreMods {com}
+useCometPreMods=0
+probCometPreMod=0
+cometPreMods {}
 useCometPostMods=0
 probCometPostMod=0
 cometPostMods {}
