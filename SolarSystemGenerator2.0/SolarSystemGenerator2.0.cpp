@@ -135,7 +135,7 @@ std::ofstream* DebugFileP;
 
 	void ExoticGenerateLife(SEPlanet&);
 	void ExoticDebrisRing(SEPlanet&, SEPlanet&, double, double, double, double);
-	void GenerateShip(SEShip&, double, double, double, double, double, double);
+	void GenerateShip(SEShip&, double, double, double, double, double, double, double, double);
 
 	void DebugMessage(std::wstring, int, SEObject & = SystemDebug, double = (++SystemDebugCounter * 10000.0));
 	void PrintDebug(SEPlanet&, std::string);
@@ -5854,7 +5854,7 @@ std::ofstream* DebugFileP;
 						// final check before the ship type is generated
 						if (enable_starship || enable_planetship || enable_station || enable_probe)
 						{
-							double min_dist = 0, max_dist = 0;
+							double min_dist = 0, max_dist = 0, rotOff_avg = 0, rotOff_sd = 0;
 							std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, 0, 0, (double)enable_starship, (double)enable_planetship, (double)enable_station, 0, (double)enable_probe };
 							Object_Type shipType = static_cast<Object_Type>(genshiptype(mt_ship));
 							ship.name = GenName(shipType);
@@ -5870,6 +5870,8 @@ std::ofstream* DebugFileP;
 
 								min_dist = AU_to_km(currentStar.habitZoneInnerLimit / 2);
 								max_dist = AU_to_km(currentStar.habitZoneOuterLimit * 2);
+								rotOff_avg = 90;
+								rotOff_sd = 10;
 								break;
 							}
 							case typeShipPlanetship:
@@ -5880,6 +5882,8 @@ std::ofstream* DebugFileP;
 
 								min_dist = AU_to_km(currentStar.habitZoneInnerLimit / 2);
 								max_dist = AU_to_km(currentStar.habitZoneOuterLimit * 2);
+								rotOff_avg = 90;
+								rotOff_sd = 10;
 								break;
 							}
 							case typeShipStation:
@@ -5890,6 +5894,8 @@ std::ofstream* DebugFileP;
 
 								min_dist = AU_to_km(currentStar.habitZoneInnerLimit / 2);
 								max_dist = AU_to_km(currentStar.outerLimit);
+								rotOff_avg = 0;
+								rotOff_sd = 30;
 								break;
 							}
 							case typeShipProbe:
@@ -5900,11 +5906,13 @@ std::ofstream* DebugFileP;
 
 								min_dist = currentStar.radius + 10000;
 								max_dist = currentStar.radius + 149598000;
+								rotOff_avg = 0;
+								rotOff_sd = 0.1;
 								break;
 							}
 							}
 
-							GenerateShip(ship, min_dist, max_dist, CONFIG.avgEccentricity, CONFIG.SDEccentricity, CONFIG.avgInclination, CONFIG.SDInclination);
+							GenerateShip(ship, min_dist, max_dist, CONFIG.avgEccentricity, CONFIG.SDEccentricity, CONFIG.avgInclination, CONFIG.SDInclination, rotOff_avg, rotOff_sd);
 							PrintShip(ship, planetFile);
 						}
 						else
@@ -5931,7 +5939,7 @@ std::ofstream* DebugFileP;
 						if (enable_starship || enable_planetship || enable_station || enable_satellite || enable_probe)
 						{
 							// seelctes the ship type
-							double min_dist = 0, max_dist = 0;
+							double min_dist = 0, max_dist = 0, rotOff_avg = 0, rotOff_sd = 0;
 							std::discrete_distribution<int> genshiptype{ 0, 0, 0, 0, 0, 0, 0, (double)enable_starship, (double)enable_planetship, (double)enable_station, (double)enable_satellite, (double)enable_probe };
 							Object_Type shipType = static_cast<Object_Type>(genshiptype(mt_ship));
 							ship.name = GenName(shipType);
@@ -5947,6 +5955,8 @@ std::ofstream* DebugFileP;
 
 								min_dist = planetList.at(parent).radius + 300;
 								max_dist = planetList.at(parent).radius + 1000;
+								rotOff_avg = 90;
+								rotOff_sd = 10;
 								break;
 							}
 							case typeShipPlanetship:
@@ -5957,6 +5967,8 @@ std::ofstream* DebugFileP;
 
 								min_dist = planetList.at(parent).radius + 300;
 								max_dist = planetList.at(parent).radius + 1000;
+								rotOff_avg = 90;
+								rotOff_sd = 10;
 								break;
 							}
 							case typeShipStation:
@@ -5967,6 +5979,8 @@ std::ofstream* DebugFileP;
 
 								min_dist = planetList.at(parent).radius + 300;
 								max_dist = planetList.at(parent).radius + 1000;
+								rotOff_avg = 0;
+								rotOff_sd = 30;
 								break;
 							}
 							case typeShipSatellite:
@@ -5977,6 +5991,8 @@ std::ofstream* DebugFileP;
 
 								min_dist = planetList.at(parent).radius + 2000;
 								max_dist = planetList.at(parent).radius + 20000;
+								rotOff_avg = 0;
+								rotOff_sd = 0.1;
 								break;
 							}
 							case typeShipProbe:
@@ -5987,11 +6003,13 @@ std::ofstream* DebugFileP;
 
 								min_dist = planetList.at(parent).radius + 300;
 								max_dist = planetList.at(parent).radius + 10000;
+								rotOff_avg = 0;
+								rotOff_sd = 0.1;
 								break;
 							}
 							}
 
-							GenerateShip(ship, min_dist, max_dist, 0.0, 0.001, 0.0, 90.0);
+							GenerateShip(ship, min_dist, max_dist, 0.0, 0.001, 0.0, 90.0, rotOff_avg, rotOff_sd);
 							PrintShip(ship, planetFile);
 						}
 						else
@@ -6240,7 +6258,7 @@ std::ofstream* DebugFileP;
 		planetFile << wstr_to_str(ship.type) << "\t\t\t\t\t\t\"" << wstr_to_str(ship.name) << "\"\n{"
 			<< "\n\tModel\t\t\"" << wstr_to_str(ship.model) << "\""
 			<< "\n\tParentBody\t\t\t\t\"" << wstr_to_str(ship.parentBody->name) << "\""
-			<< "\n\tObliquity\t\t\t\t" << ship.obliquity << "\n"
+			<< "\n\tRotationOffset\t\t\t\t" << ship.rotationOffset << "\n"
 			<< "\n\tOrbit\n\t{"
 			<< "\n\t\tRefPlane\t\t\t\"Equator\""
 			<< "\n\t\tSemiMajorAxisKm\t\t" << ship.semimajorAxis
@@ -8187,16 +8205,16 @@ std::ofstream* DebugFileP;
 		debris.argofPericenter = gendegree(mt_moon);
 		debris.meanAnomaly = gendegree(mt_moon);
 	}
-	void GenerateShip(SEShip& ship, double min_dist, double max_dist, double eccent_avg, double eccent_sd, double inclin_avg, double inclin_sd)
+	void GenerateShip(SEShip& ship, double min_dist, double max_dist, double eccent_avg, double eccent_sd, double inclin_avg, double inclin_sd, double rotOff_avg, double rotOff_sd)
 	{
 		std::uniform_real_distribution<> gensemi{ min_dist, max_dist };
 		ship.semimajorAxis = gensemi(mt_ship);
 
-		std::normal_distribution<> genobliquity{ CONFIG.avgObliquity, CONFIG.SDObliquity };
+		std::normal_distribution<> genrotationoffset{ rotOff_avg, rotOff_sd };
 		std::normal_distribution<> geneccentricity{ eccent_avg, eccent_sd };
 		std::normal_distribution<> geninclinationtion{ inclin_avg, inclin_sd };
 
-		ship.obliquity = genobliquity(mt_ship);
+		ship.rotationOffset = genrotationoffset(mt_ship);
 		do ship.eccentricity = geneccentricity(mt_ship);
 		while (ship.eccentricity <= 0 || ship.eccentricity >= 1);
 		ship.inclination = geninclinationtion(mt_ship);

@@ -131,9 +131,11 @@ class SEShip : public SEObject
 {
 public:
 	std::wstring type, model;
+	double rotationOffset;
 
 	SEShip()
 	{
 		type = model = L"-empty-";
+		rotationOffset = -1;
 	}
 };
