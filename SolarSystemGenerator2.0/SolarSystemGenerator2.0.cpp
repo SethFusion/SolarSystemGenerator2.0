@@ -4140,7 +4140,7 @@ std::ofstream* DebugFileP;
 	}
 	void CreateNameVectors(HWND hWnd)
 	{	
-		EmptyVector(NV.usedNames);
+		NV.usedNames.clear();
 
 		EmptyVector(NV.PrefixList);
 		EmptyVector(NV.SuffixList);
@@ -5280,22 +5280,20 @@ std::ofstream* DebugFileP;
 			//######################################################################################################
 				// USED NAME CHECKER
 
-			for (int count = 0; count < NV.usedNames.size(); count++)
+			std::unordered_set<std::wstring>::const_iterator search = NV.usedNames.find(finalName);
+			if (search == NV.usedNames.end()) // name not found
+				NV.usedNames.insert(finalName);
+			else
 			{
-				if (finalName == NV.usedNames.at(count))
-				{
-					testName = true;
-					if (type != typeStar)
-						SendDebugMessage((L"Name Warning: " + NV.usedNames.at(count) + L" used twice!"), debug_WARNING);
-					count = NV.usedNames.size();
-				}
+				testName = true; // name already used
+				if (type != typeStar)
+					SendDebugMessage((L"Name Warning: " + finalName + L" used twice!"), debug_WARNING);
 			}
 		} while (testName);
 
 		//######################################################################################################
 			// FINAL NAME OUTPUT
 
-		NV.usedNames.push_back(finalName);
 		return finalName;
 	}
 	std::wstring GenNumberModifier()
@@ -6104,15 +6102,20 @@ std::ofstream* DebugFileP;
 						}
 						if (minSemimajor < 0)
 						{
-							if (((avgSemimajor - currentStar.innerLimit) / currentStar.totalDist) < 0.5)
+							if (avgSemimajor == currentStar.semimajorStaticList.at(0))
 							{
 								minSemimajor = currentStar.innerLimit;
 								maxSemimajor = currentStar.semimajorStaticList.at(1);
 							}
-							else
+							else if (avgSemimajor == currentStar.semimajorStaticList.at(currentStar.semimajorStaticList.size() - 1))
 							{
 								minSemimajor = currentStar.semimajorStaticList.at(currentStar.semimajorStaticList.size() - 2);
 								maxSemimajor = currentStar.outerLimit;
+							}
+							else
+							{
+								SendDebugMessage(L"Couldn't find suitable semi major axis for asteroid belt!", debug_ERROR);
+								goto NoBelt;
 							}
 						}
 

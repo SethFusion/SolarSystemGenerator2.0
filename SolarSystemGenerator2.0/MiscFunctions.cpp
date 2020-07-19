@@ -255,7 +255,7 @@ static void FillModList(HWND &listH, std::vector<std::wstring> &list)
 		i++;
 	}
 }
-static void FillDataset(HWND& dataH, std::vector<std::wstring> &list, std::vector<std::wstring> &usedNames)
+static void FillDataset(HWND& dataH, std::vector<std::wstring> &list, std::unordered_set<std::wstring> &usedNames)
 {
 	wchar_t dataHolder[DATASET_SIZE];
 	GetWindowTextW(dataH, dataHolder, DATASET_SIZE);
@@ -273,7 +273,7 @@ static void FillDataset(HWND& dataH, std::vector<std::wstring> &list, std::vecto
 		}
 		list.push_back(strholder);
 		strholder.at(0) = toupper(strholder.at(0));
-		usedNames.push_back(strholder);
+		usedNames.insert(strholder);
 		i++;
 	}
 }

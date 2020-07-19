@@ -270,12 +270,10 @@ struct NameVariables
 	=====================================================*/
 	
 	/*=====================================================
-		*/	std::vector<std::wstring> usedNames;	/*
-			This vector fills up with names as the program
-		generates them. Every time a new name is
-		generated, it checks the vector to see if that
-		name has already been used. This ensures every
-		name is unique.
+		*/	std::unordered_set<std::wstring> usedNames;	/*
+			This map ensures every name is unique. 
+		The wstring is the key, which is hashed into
+		a long long. 
 	=====================================================*/
 
 	/*=====================================================
