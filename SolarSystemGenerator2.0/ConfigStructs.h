@@ -133,6 +133,15 @@ struct ConfigurationHWNDs
 	#####################################################*/
 
 	/*#####################################################
+		*/	HWND PROGRESS_BAR; /*
+		This handles the leftside info panel on the
+		screen. When an info button is pressed, it
+		re-drawns the info box with new text describing
+		what variable the button corresponds to.
+
+#####################################################*/
+
+	/*#####################################################
 		*/	HWND HEADER_GENERAL; /*
 	#####################################################*/
 

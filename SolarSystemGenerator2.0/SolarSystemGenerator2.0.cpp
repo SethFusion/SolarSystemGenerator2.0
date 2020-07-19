@@ -232,13 +232,13 @@ std::ofstream* DebugFileP;
 		case WM_COMMAND:
 		{
 			//First half looks through all of the Hiword commands
-			int wmId = HIWORD(wParam);
+			/*int wmId = HIWORD(wParam);
 			switch (wmId)
 			{
-			}
+			}*/
 
 			//Second half looks through all of the Loword commands
-			wmId = LOWORD(wParam);
+			int wmId = LOWORD(wParam);
 			if (wmId >= 1500) //edits text for checkboxes
 			{
 				SetCheckBoxText(hWnd, wmId);
@@ -251,6 +251,15 @@ std::ofstream* DebugFileP;
 			}
 			switch (wmId) //Specific Commands
 			{
+			case BUTTON_GENERATE:
+				GetConfigData(hWnd);
+				if (!CheckConfigData(hWnd))
+				{
+					BeginGenerate(hWnd);
+					SetProgress(L"Generation Complete! Look in the designated output folders to find your new files.");
+				}
+				ShowWindow(CONFIG_H.PROGRESS_BAR, 0);
+				break;
 			case BUTTON_GENERAL:
 				Clear_Screen();
 				Load_Screen_General();
@@ -301,11 +310,7 @@ std::ofstream* DebugFileP;
 				wmId = SendMessage(CONFIG_H.presetDropDown.HANDLE, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
 				UpdatePreset(preset.at(wmId), hWnd);
 				break;
-			case BUTTON_GENERATE:
-				GetConfigData(hWnd);
-				if (!CheckConfigData(hWnd))
-					BeginGenerate(hWnd);
-				break;
+			
 			case BUTTON_NAME_SAVEPRESET:
 				CreateNameVectors(hWnd);
 				SaveNamePreset();
@@ -849,6 +854,11 @@ std::ofstream* DebugFileP;
 			WS_VISIBLE | WS_CHILD | WS_BORDER,
 			50, 600, 240, 50,
 			hWnd, (HMENU)BUTTON_GENERATE, NULL, NULL);
+
+		CONFIG_H.PROGRESS_BAR = CreateWindowW(PROGRESS_CLASS, NULL,
+			WS_CHILD | WS_BORDER | PBS_SMOOTH,
+			50, 600, 240, 50,
+			hWnd, NULL, NULL, NULL);
 
 		#pragma endregion
 		//###############################################################################
@@ -3873,6 +3883,14 @@ std::ofstream* DebugFileP;
 	
 	void GetConfigData(HWND hWnd)
 	{
+		GetVariableFromWindow(CONFIG_H.numberOfRuns.HANDLE, CONFIG.numberOfRuns);
+
+		//progress bar stuff
+		SendMessageW(CONFIG_H.PROGRESS_BAR, PBM_SETPOS, 0, 0);
+		ShowWindow(CONFIG_H.PROGRESS_BAR, 1);
+		SendMessageW(CONFIG_H.PROGRESS_BAR, PBM_SETRANGE, 0, MAKELPARAM(0, ((6 * CONFIG.numberOfRuns) + 1))); // 6 = number of steps per run
+		SetWindowText(CONFIG_H.INFO_BOX, L"Getting user input...");
+
 		GetVariableFromWindow(CONFIG_H.starOutputFolder.HANDLE, CONFIG.starOutputFolder);
 		GetVariableFromWindow(CONFIG_H.planetOutputFolder.HANDLE, CONFIG.planetOutputFolder);
 
@@ -3901,8 +3919,7 @@ std::ofstream* DebugFileP;
 				CONFIG.seed *= -1;
 		}
 		CONFIG.debug = (IsDlgButtonChecked(hWnd, CB_DEBUG) == BST_CHECKED) ? true : false;
-
-		GetVariableFromWindow(CONFIG_H.numberOfRuns.HANDLE, CONFIG.numberOfRuns);
+		
 		CONFIG.smartPlacement = (IsDlgButtonChecked(hWnd, CB_SMARTPLACEMENT) == BST_CHECKED) ? true : false;
 
 		GetVariableFromWindow(CONFIG_H.systemRadiusModifier.HANDLE, CONFIG.systemRadiusModifier);
@@ -4045,6 +4062,7 @@ std::ofstream* DebugFileP;
 		GetVariableFromWindow(CONFIG_H.exotic_AxialTiltChance.HANDLE, CONFIG.exotic_AxialTiltChance);
 		GetVariableFromWindow(CONFIG_H.exotic_DebrisRingChance.HANDLE, CONFIG.exotic_DebrisRingChance);
 		GetVariableFromWindow(CONFIG_H.exotic_CompanionOrbitChance.HANDLE, CONFIG.exotic_CompanionOrbitChance);
+		UpdateProgress;
 	}
 	bool CheckConfigData(HWND hWnd)
 	{
@@ -5267,7 +5285,8 @@ std::ofstream* DebugFileP;
 				if (finalName == NV.usedNames.at(count))
 				{
 					testName = true;
-					//SendDebugMessage((L"Name Warning: " + NV.usedNames.at(count) + L" used twice!"), debug_WARNING);
+					if (type != typeStar)
+						SendDebugMessage((L"Name Warning: " + NV.usedNames.at(count) + L" used twice!"), debug_WARNING);
 					count = NV.usedNames.size();
 				}
 			}
@@ -5409,8 +5428,11 @@ std::ofstream* DebugFileP;
 		###############################################################################*/
 		for (int run = 0; run < CONFIG.numberOfRuns; run++)
 		{
+			SetProgress(L"Generating system star...");
+
 			SEStar currentStar;
 			GenerateStar(currentStar);
+			UpdateProgress;
 
 			std::wstring starFileName = CONFIG.starOutputFolder;	//Creates the star file
 			//starFileName += currentStar.name;
@@ -5464,6 +5486,7 @@ std::ofstream* DebugFileP;
 			/*###############################################################################
 					PLANET GENERATOR
 			###############################################################################*/
+			SetProgress(L"Generating system's planets...");
 
 			for (int planetCounter = 0; planetCounter < planetNumber; planetCounter++)
 			{
@@ -5567,9 +5590,11 @@ std::ofstream* DebugFileP;
 				
 			}
 
+			UpdateProgress;
 			/*###############################################################################
 					MOON GENERATOR PER PLANET
 			###############################################################################*/
+			SetProgress(L"Generating system's moons...");
 			for (int currentPlanet = 0; currentPlanet < planetList.size(); currentPlanet++)
 			{
 				std::vector<SEPlanet> majorMoon, minorMoon;
@@ -5804,9 +5829,11 @@ std::ofstream* DebugFileP;
 
 				// end of every planet generated
 			}
+			UpdateProgress;
 			
 			// This says if the system has life AND ships need it, we run the following code,
 			// otherwise run it anyway
+			SetProgress(L"Generating ships...");
 			if ((CONFIG.shipsNeedLife && lifeTest) || !CONFIG.shipsNeedLife)
 			{
 				// this disables ships if their list is empty
@@ -6020,10 +6047,12 @@ std::ofstream* DebugFileP;
 			}
 			else
 				SendDebugMessage(L"No ships can spawn.", debug_INFO);
+			UpdateProgress;
 
 			// Asteroid Belt Generator
 			if (CONFIG.generateAsteroidBelt)
 			{
+				SetProgress(L"Generating system's asteroids...");
 				SEPlanet asteroid;
 				asteroid.type = asteroid.class_ = L"Asteroid";
 				asteroid.parentBody = &currentStar;
@@ -6132,10 +6161,12 @@ std::ofstream* DebugFileP;
 				NoBelt:;
 				}	
 			}
+			UpdateProgress;
 
 			// comet generator
 			if (CONFIG.generateComets)
 			{
+				SetProgress(L"Generating system's comets...");
 				SEPlanet comet;
 				comet.type = L"Comet";
 				comet.class_ = L"Asteroid";
@@ -6152,6 +6183,7 @@ std::ofstream* DebugFileP;
 					PrintPlanet(comet, planetFile);
 				}
 			}
+			UpdateProgress;
 
 			// Debug star Orbits
 			if (CONFIG.debug)

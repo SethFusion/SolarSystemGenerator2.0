@@ -17,6 +17,11 @@
 #define color_HALFRED			"(1.0, 0.5, 0.5)"
 #define color_RED				"(1.0, 0.0, 0.0)"
 
+#define UpdateProgress			SendMessageW(CONFIG_H.PROGRESS_BAR, PBM_DELTAPOS, 1, 0)
+#define SetProgress(str)		SetWindowText(CONFIG_H.INFO_BOX, str)
+
+
+
 /*---------------------------------------------
 		Button Commands
 ---------------------------------------------*/
