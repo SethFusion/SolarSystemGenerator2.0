@@ -53,7 +53,7 @@ struct Life
 class SEObject
 {
 public:
-	std::wstring name, class_;
+	std::wstring  type, name, class_;
 
 	SEObject* parentBody;
 	double mass, radius, semimajorAxis, period, eccentricity, inclination,
@@ -84,11 +84,15 @@ public:
 	//for weighted moons
 	double totalDist;
 
+	//for barycenters
+	double minSeperation, maxSeperation, innerNoGoZone, outerNoGoZone;
+
 	SEStar()
 	{
 		temperatureK = maxPlanetNumber = -1;
 		RA[0] = RA[1] = RA[2] = DEC[0] = DEC[1] = DEC[2] = distance = -1;
 		luminosity = innerLimit = outerLimit = frostLine = habitZoneInnerLimit = habitZoneOuterLimit =  totalDist = -1;
+		minSeperation = maxSeperation = -1;
 	}
 };
 
@@ -96,7 +100,6 @@ class SEPlanet : public SEObject
 {
 public:
 	//generated for planets/moons
-	std::wstring type;
 	std::vector<double> usedSemimajor_moon, usedRadius_moon; //Lists used to check the spacing of moons
 
 	//generated for planets
@@ -130,7 +133,7 @@ public:
 class SEShip : public SEObject
 {
 public:
-	std::wstring type, model;
+	std::wstring model;
 	double rotationOffset;
 
 	SEShip()
