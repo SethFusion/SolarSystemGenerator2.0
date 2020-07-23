@@ -122,6 +122,7 @@ std::ofstream* DebugFileP;
 	void BeginGenerate(HWND);
 	template <typename vect, typename type> void SortVector(vect&, int, int);
 	template <typename vect, typename type> int Partition(vect&, int, int);
+	void GenerateSystemLocation(SEStar&);
 	void GenerateStar(SEStar&);
 	void PrintStarFile(SEStar&, std::ofstream&);
 	void PrintStar(SEStar&, std::ofstream&);
@@ -5567,45 +5568,41 @@ std::ofstream* DebugFileP;
 					topKey.erase(topKey.begin() + pos2);
 					topKey.erase(topKey.begin() + pos1);
 				}	
+				starKeys.push_back(newBarycenter.name);
 			}
 			for (int i = 0; i < starKeys.size(); i++)
-				if (starKeys.at(i) == topKey.at(0))
+				if (starKeys.at(i) == topKey.at(0) && numberOfStars > 1)
 				{
 					starKeys.erase(starKeys.begin() + i);
 					i = starKeys.size();
-				}
-					
+				}					
 
 			UpdateProgress;
 
 			std::wstring starFileName = CONFIG.starOutputFolder;	//Creates the star file
-			//starFileName += currentStar.name;
-			//starFileName += L" Star.sc";
-			starFileName += L"Test Star.sc";
+			starFileName += starList.at(topKey.at(0)).name;
+			starFileName += L" Star.sc";
+			//starFileName += L"Test Star.sc";
 			std::ofstream starFile(starFileName.c_str());
 			if (!starFile)
 			{
 				MessageBox(hWnd, L"Problem with star output folder!", L"Error", MB_ICONERROR);
 				return;
 			}
+			GenerateSystemLocation(starList.at(topKey.at(0)));
 			PrintStarFile(starList.at(topKey.at(0)), starFile);
-
+			
 			std::wstring planetFileName = CONFIG.planetOutputFolder;	//Creates the planet file
-			//planetFileName += currentStar.name;
-			//planetFileName += L" System.sc";
-			planetFileName += L"Test System.sc";
+			planetFileName += starList.at(topKey.at(0)).name;
+			planetFileName += L" System.sc";
+			//planetFileName += L"Test System.sc";
 			std::ofstream planetFile(planetFileName.c_str());
 			if (!planetFile)
 			{
 				MessageBox(hWnd, L"Problem with planet output folder!", L"Error", MB_ICONERROR);
 				return;
 			}
-
-			// FOR TEST
-			if (numberOfStars > 1)
-				for (int i = 0; i < starKeys.size(); i++)
-					PrintStar(starList.at(starKeys.at(i)), planetFile);
-
+		
 		#pragma region Debug Setup
 
 			SystemDebugCounter = 0;
@@ -5614,7 +5611,7 @@ std::ofstream* DebugFileP;
 			SystemDebug.class_ = L"Terra";
 			SystemDebug.name = L"System Debug Holder";
 			SystemDebug.parentBody = &starList.at(starKeys.at(0));
-			SystemDebug.semimajorAxis = AU_to_km(starList.at(starKeys.at(0)).outerLimit * 6);
+			SystemDebug.semimajorAxis = AU_to_km(starList.at(topKey.at(0)).outerLimit * 6);
 			SystemDebug.mass = 1;
 			SystemDebug.radius = 5000;
 			SystemDebug.eccentricity = SystemDebug.inclination = SystemDebug.ascendingNode = SystemDebug.argofPericenter = SystemDebug.meanAnomaly = SystemDebug.obliquity = 0;
@@ -5622,9 +5619,42 @@ std::ofstream* DebugFileP;
 				PrintDebug(SystemDebug, color_NORMAL);
 		#pragma endregion
 
+			// FOR TEST
+			if (numberOfStars > 1)
+				for (int i = 0; i < starKeys.size(); i++)
+				{
+					PrintStar(starList.at(starKeys.at(i)), planetFile);
+					// Debug star Orbits
+					if (CONFIG.debug)
+					{
+						DebugMessage(L"Inner Limit", debug_STAR_LIMITS, starList.at(starKeys.at(i)), AU_to_km(starList.at(starKeys.at(i)).innerLimit));
+						DebugMessage(L"Outer Limit", debug_STAR_LIMITS, starList.at(starKeys.at(i)), AU_to_km(starList.at(starKeys.at(i)).outerLimit));
+						DebugMessage(L"Frost Limit", debug_STAR_LIMITS, starList.at(starKeys.at(i)), AU_to_km(starList.at(starKeys.at(i)).frostLine));
+						DebugMessage(L"HZ Inner Limit", debug_STAR_LIMITS, starList.at(starKeys.at(i)), AU_to_km(starList.at(starKeys.at(i)).habitZoneInnerLimit));
+						DebugMessage(L"HZ Outer Limit", debug_STAR_LIMITS, starList.at(starKeys.at(i)), AU_to_km(starList.at(starKeys.at(i)).habitZoneOuterLimit));
+						DebugMessage(L"Minimum Seperation", debug_STAR_LIMITS, starList.at(starKeys.at(i)), AU_to_km(starList.at(starKeys.at(i)).minSeperation));
+						DebugMessage(L"Maximum Seperation", debug_STAR_LIMITS, starList.at(starKeys.at(i)), AU_to_km(starList.at(starKeys.at(i)).maxSeperation));
+						DebugMessage(L"Inner No-Go", debug_STAR_LIMITS, starList.at(starKeys.at(i)), AU_to_km(starList.at(starKeys.at(i)).innerNoGoZone));
+						DebugMessage(L"Outer No-Go", debug_STAR_LIMITS, starList.at(starKeys.at(i)), AU_to_km(starList.at(starKeys.at(i)).outerNoGoZone));
+						for (int ii = 0; ii < starList.at(starKeys.at(i)).semimajorList.size(); ii++)
+							DebugMessage(L"SM Point " + std::to_wstring(ii), debug_PLANET_LIMITS, starList.at(starKeys.at(i)), AU_to_km(starList.at(starKeys.at(i)).semimajorList.at(ii)));
+					}	
+				}
+			if (CONFIG.debug)
+			{
+				DebugMessage(L"Inner Limit", debug_STAR_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).innerLimit));
+				DebugMessage(L"Outer Limit", debug_STAR_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).outerLimit));
+				DebugMessage(L"Frost Limit", debug_STAR_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).frostLine));
+				DebugMessage(L"HZ Inner Limit", debug_STAR_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).habitZoneInnerLimit));
+				DebugMessage(L"HZ Outer Limit", debug_STAR_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).habitZoneOuterLimit));
+				DebugMessage(L"Minimum Seperation", debug_STAR_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).minSeperation));
+				DebugMessage(L"Maximum Seperation", debug_STAR_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).maxSeperation));
+				DebugMessage(L"Inner No-Go", debug_STAR_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).innerNoGoZone));
+				DebugMessage(L"Outer No-Go", debug_STAR_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).outerNoGoZone));
+				for (int ii = 0; ii < starList.at(topKey.at(0)).semimajorList.size(); ii++)
+					DebugMessage(L"SM Point " + std::to_wstring(ii), debug_PLANET_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).semimajorList.at(ii)));
+			}
 
-			starFile.close();
-			planetFile.close();
 
 		//	std::uniform_int_distribution<int> genplanetnum{ (int)ceil(((CONFIG.minPlanetNumber / 100) * currentStar.maxPlanetNumber)), currentStar.maxPlanetNumber };
 		//	int planetNumber = genplanetnum(mt_planet);
@@ -6343,22 +6373,14 @@ std::ofstream* DebugFileP;
 		//	}
 		//	UpdateProgress;
 
-		//	// Debug star Orbits
-		//	if (CONFIG.debug)
-		//	{
-		//		DebugMessage(L"Inner Limit", debug_STAR_LIMITS, currentStar, AU_to_km(currentStar.innerLimit));
-		//		DebugMessage(L"Outer Limit", debug_STAR_LIMITS, currentStar, AU_to_km(currentStar.outerLimit));
-		//		DebugMessage(L"Frost Limit", debug_STAR_LIMITS, currentStar, AU_to_km(currentStar.frostLine));
-		//		DebugMessage(L"HZ Inner Limit", debug_STAR_LIMITS, currentStar, AU_to_km(currentStar.habitZoneInnerLimit));
-		//		DebugMessage(L"HZ Outer Limit", debug_STAR_LIMITS, currentStar, AU_to_km(currentStar.habitZoneOuterLimit));
-		//	}
+			
 
-		//	//end of every star generated
-		//	currentStar.maxPlanetNumber = 0;
-		//	currentStar.semimajorList.clear();
-		//	starFile.close();
-		//	planetFile.close();
-		//	DebugFileP = NULL;
+			//end of every star generated
+			//currentStar.maxPlanetNumber = 0;
+			//currentStar.semimajorList.clear();
+			starFile.close();
+			planetFile.close();
+			DebugFileP = NULL;
 
 		}
 		return;
@@ -6366,7 +6388,8 @@ std::ofstream* DebugFileP;
 
 	void PrintStarFile(SEStar& star, std::ofstream& file)
 	{
-
+		if (star.type == L"Barycenter")
+			file << "Star";
 		file << wstr_to_str(star.type) << "\t\t\t\"" << wstr_to_str(star.name) << "\"\n{"
 			<< "\n\tRA\t\t\t" << star.RA[0] << " " << star.RA[1] << " " << star.RA[2]
 			<< "\n\tDec\t\t\t" << star.DEC[0] << " " << star.DEC[1] << " " << star.DEC[2]
@@ -6389,16 +6412,18 @@ std::ofstream* DebugFileP;
 	void PrintStar(SEStar& star, std::ofstream& file)
 	{
 		file << wstr_to_str(star.type) << "\t\t\t\"" << wstr_to_str(star.name) << "\"\n{"
-			<< "\n\tParentBody\t\t\t\t\"" << wstr_to_str(star.parentBody->name) << "\""
-			<< "\n\tClass\t\t\"" << wstr_to_str(star.class_) << "\""
-			<< "\n\tMassSol\t\t" << star.mass
-			<< "\n\tRadSol\t\t" << star.radius
-			<< "\n\tLum\t\t\t" << star.luminosity
-			<< "\n\tTeff\t\t" << star.temperatureK
-			<< "\n\tOrbit\n\t{"
+			<< "\n\tParentBody\t\t\t\t\"" << wstr_to_str(star.parentBody->name) << "\"";
+		if (star.type != L"Barycenter")
+			file << "\n\tClass\t\t\"" << wstr_to_str(star.class_) << "\""
+			<< "\n\tMassSol\t\t\t\t" << star.mass
+			<< "\n\tRadSol\t\t\t\t" << star.radius
+			<< "\n\tLum\t\t\t\t\t" << star.luminosity
+			<< "\n\tTeff\t\t\t\t" << star.temperatureK
+			<< "\n\tObliquity\t\t\t\t" << star.obliquity;
+			file << "\n\tOrbit\n\t{"
 			<< "\n\t\tRefPlane\t\t\t\"Equator\""
 			<< "\n\t\tSemiMajorAxis\t\t" << star.semimajorAxis
-			//<< "\n\t\tPeriod\t\t\t\t" << star.period
+			<< "\n\t\tPeriod\t\t\t\t" << star.period
 			<< "\n\t\tEccentricity\t\t" << star.eccentricity
 			<< "\n\t\tInclination\t\t\t" << star.inclination
 			<< "\n\t\tAscendingNode\t\t" << star.ascendingNode
@@ -6483,16 +6508,28 @@ std::ofstream* DebugFileP;
 			<< "\n\t}\n}\n\n";
 	}
 
-	void GenerateStar(SEStar& star)
+	void GenerateSystemLocation(SEStar& star)
 	{
-		double tempSol;
-
 		std::uniform_int_distribution<int> genhour{ 0, 23 };
 		std::uniform_int_distribution<int> genminute{ 0, 59 };
 		std::uniform_real_distribution<> gensec{ 0, 60 };
 		std::uniform_int_distribution<int> gendecl{ -90, 90 };
 		std::uniform_real_distribution<> gendistance{ CONFIG.minDistance, CONFIG.maxDistance };
-		std::normal_distribution<> genSM{ CONFIG.planetSpaceAvg, CONFIG.planetSpaceSD };
+
+		star.RA[0] = genhour(mt_star);
+		star.RA[1] = genminute(mt_star);
+		star.RA[2] = gensec(mt_star);
+
+		star.DEC[0] = gendecl(mt_star);
+		star.DEC[1] = genminute(mt_star);
+		star.DEC[2] = gensec(mt_star);
+
+		star.distance = gendistance(mt_star);
+	}
+
+	void GenerateStar(SEStar& star)
+	{
+		double tempSol;	
 		star.type = L"Star";
 		star.name = GenName(typeStar);
 
@@ -6676,16 +6713,7 @@ std::ofstream* DebugFileP;
 		star.habitZoneOuterLimit = sqrt(star.luminosity / 0.53);
 		star.totalDist = star.outerLimit - star.innerLimit;
 
-		star.RA[0] = genhour(mt_star);
-		star.RA[1] = genminute(mt_star);
-		star.RA[2] = gensec(mt_star);
-
-		star.DEC[0] = gendecl(mt_star);
-		star.DEC[1] = genminute(mt_star);
-		star.DEC[2] = gensec(mt_star);
-
-		star.distance = gendistance(mt_star);
-
+		std::normal_distribution<> genSM{ CONFIG.planetSpaceAvg, CONFIG.planetSpaceSD };
 		double SMmod = 0.0;
 		double SMpoint = star.innerLimit;
 
@@ -8365,22 +8393,32 @@ std::ofstream* DebugFileP;
 			secondary = &star1;
 		}
 
-		barycenter.name = (primary->name + L"-" + secondary->name + L" Barycenter");
-		barycenter.type = L"StarBarycenter";
+		barycenter.name = (primary->name + L"-" + secondary->name);
+		barycenter.type = L"Barycenter";
 
 		barycenter.mass = primary->mass + secondary->mass;
 		std::uniform_real_distribution<> gendistance{ 0.15, (primary->mass * 10) };
 		avgdistance = gendistance(mt_star);
 		primary->semimajorAxis = (avgdistance * (secondary->mass / barycenter.mass) );
 		secondary->semimajorAxis = (avgdistance - primary->semimajorAxis);
+		primary->period = secondary->period = (sqrt(pow(avgdistance, 3) / barycenter.mass));
 
-		std::normal_distribution<> geneccentricity{ 0.5, 0.2 };
-		do primary->eccentricity = secondary->eccentricity = geneccentricity(mt_star);
-		while (primary->eccentricity <= 0 || primary->eccentricity >= 1);
-		primary->inclination = secondary->inclination = gendegree(mt_star);
+		if (genpercent(mt_star) < 50)
+		{
+			std::normal_distribution<> geneccentricity{ 0.5, 0.2 };
+			do primary->eccentricity = secondary->eccentricity = geneccentricity(mt_star);
+			while (primary->eccentricity <= 0 || primary->eccentricity >= 1);
+		}
+		else
+		{
+			std::normal_distribution<> geneccentricity{ 0.2, 0.1 };
+			do primary->eccentricity = secondary->eccentricity = geneccentricity(mt_star);
+			while (primary->eccentricity <= 0 || primary->eccentricity >= 1);
+		}
+		primary->inclination = secondary->inclination = 0;
 		primary->ascendingNode = secondary->ascendingNode = gendegree(mt_star);
 		primary->argofPericenter = gendegree(mt_star);
-		primary->argofPericenter = secondary->argofPericenter + 180;
+		secondary->argofPericenter = primary->argofPericenter + 180;
 		primary->meanAnomaly = secondary->meanAnomaly = gendegree(mt_star);
 		primary->obliquity = secondary->obliquity = 0;
 
@@ -8410,7 +8448,7 @@ std::ofstream* DebugFileP;
 			do SMmod = genSM(mt_star);
 			while (SMmod < 1);
 			SMpoint *= SMmod;
-			if (SMpoint > barycenter.innerLimit && SMpoint < barycenter.outerLimit && (SMpoint < barycenter.innerNoGoZone || SMpoint > barycenter.outerNoGoZone))
+			if (SMpoint > barycenter.innerLimit && SMpoint < barycenter.outerLimit && SMpoint > barycenter.outerNoGoZone)
 				barycenter.semimajorList.push_back(SMpoint);
 		}
 
@@ -8439,24 +8477,34 @@ std::ofstream* DebugFileP;
 			secondary = &star1;
 		}
 
-		barycenter.name = (primary->name + L"-" + secondary->name + L" Barycenter");
-		barycenter.type = L"StarBarycenter";
+		barycenter.name = (primary->name + L"-" + secondary->name);
+		barycenter.type = L"Barycenter";
 
 		barycenter.mass = primary->mass + secondary->mass;
-		std::uniform_real_distribution<> gendistance{ (primary->mass * 120), (primary->mass * 600) };
+		std::uniform_real_distribution<> gendistance{ (primary->mass * 200), (primary->mass * 800) };
 		avgdistance = gendistance(mt_star);
 		primary->semimajorAxis = (avgdistance * (secondary->mass / barycenter.mass));
 		secondary->semimajorAxis = (avgdistance - primary->semimajorAxis);
+		primary->period = secondary->period = (sqrt(pow(avgdistance, 3) / barycenter.mass));
 
-		std::normal_distribution<> geneccentricity{ 0.5, 0.2 };
-		do primary->eccentricity = secondary->eccentricity = geneccentricity(mt_star);
-		while (primary->eccentricity <= 0 || primary->eccentricity >= 1);
-		primary->inclination = secondary->inclination = gendegree(mt_star);
+		if (genpercent(mt_star) < 70)
+		{
+			std::normal_distribution<> geneccentricity{ 0.5, 0.2 };
+			do primary->eccentricity = secondary->eccentricity = geneccentricity(mt_star);
+			while (primary->eccentricity <= 0 || primary->eccentricity >= 1);
+		}
+		else
+		{
+			std::normal_distribution<> geneccentricity{ 0.2, 0.1 };
+			do primary->eccentricity = secondary->eccentricity = geneccentricity(mt_star);
+			while (primary->eccentricity <= 0 || primary->eccentricity >= 1);
+		}	
+		primary->inclination = secondary->inclination = 0;
 		primary->ascendingNode = secondary->ascendingNode = gendegree(mt_star);
-		primary->argofPericenter = secondary->argofPericenter = gendegree(mt_star);
-		primary->meanAnomaly = gendegree(mt_star);
-		secondary->meanAnomaly = primary->meanAnomaly + 180;
-		primary->obliquity = secondary->obliquity = 0;
+		primary->argofPericenter = gendegree(mt_star);
+		secondary->argofPericenter = primary->argofPericenter + 180;
+		primary->meanAnomaly = secondary->meanAnomaly = gendegree(mt_star);
+		primary->obliquity = secondary->obliquity = gendegree(mt_star);
 
 		primary->maxSeperation = ((1 + primary->eccentricity) * primary->semimajorAxis);
 		primary->minSeperation = ((1 - primary->eccentricity) * primary->semimajorAxis);
