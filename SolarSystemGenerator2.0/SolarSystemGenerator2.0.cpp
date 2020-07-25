@@ -136,7 +136,7 @@ std::ofstream* DebugFileP;
 	void GenerateComet(SEStar&, SEPlanet&);
 
 	SEStar CreatePTypeStarBarycenter(SEStar&, SEStar&);
-	SEStar CreateSTypeStarBarycenter(SEStar&, SEStar&);
+	SEStar CreateSTypeStarBarycenter(SEStar&, SEStar&, int);
 
 	void ExoticGenerateLife(SEPlanet&);
 	void ExoticDebrisRing(SEPlanet&, SEPlanet&, double, double, double, double);
@@ -5522,7 +5522,7 @@ std::ofstream* DebugFileP;
 			}
 			std::unordered_map< std::wstring, SEStar> starListCopy = starList; // will empty stars as barycenters are created
 
-			int size = starList.size() - 1;
+			int size = starList.size() - 1, level = 1;
 			std::vector<std::wstring> starKeys, topKey;
 			for (auto i = starList.begin(); i != starList.end(); i++)
 				starKeys.push_back(i->first);
@@ -5541,10 +5541,10 @@ std::ofstream* DebugFileP;
 					if (genpercent(mt_star) < 70)
 						newBarycenter = CreatePTypeStarBarycenter(starListCopy.at((topKey.at(pos1))), starListCopy.at(topKey.at(pos2)));
 					else
-						newBarycenter = CreateSTypeStarBarycenter(starListCopy.at((topKey.at(pos1))), starListCopy.at(topKey.at(pos2)));
+						newBarycenter = CreateSTypeStarBarycenter(starListCopy.at((topKey.at(pos1))), starListCopy.at(topKey.at(pos2)), (level++ * level));
 				}
 				else
-					newBarycenter = CreateSTypeStarBarycenter(starListCopy.at((topKey.at(pos1))), starListCopy.at(topKey.at(pos2)));
+					newBarycenter = CreateSTypeStarBarycenter(starListCopy.at((topKey.at(pos1))), starListCopy.at(topKey.at(pos2)), (level++ * level));
 
 				starListCopy.insert(std::make_pair(newBarycenter.name, newBarycenter));
 				starList.insert(std::make_pair(newBarycenter.name, newBarycenter));
@@ -5580,9 +5580,9 @@ std::ofstream* DebugFileP;
 			UpdateProgress;
 
 			std::wstring starFileName = CONFIG.starOutputFolder;	//Creates the star file
-			starFileName += starList.at(topKey.at(0)).name;
-			starFileName += L" Star.sc";
-			//starFileName += L"Test Star.sc";
+			//starFileName += starList.at(topKey.at(0)).name;
+			//starFileName += L" Star.sc";
+			starFileName += L"Test Star.sc";
 			std::ofstream starFile(starFileName.c_str());
 			if (!starFile)
 			{
@@ -5593,9 +5593,9 @@ std::ofstream* DebugFileP;
 			PrintStarFile(starList.at(topKey.at(0)), starFile);
 			
 			std::wstring planetFileName = CONFIG.planetOutputFolder;	//Creates the planet file
-			planetFileName += starList.at(topKey.at(0)).name;
-			planetFileName += L" System.sc";
-			//planetFileName += L"Test System.sc";
+			//planetFileName += starList.at(topKey.at(0)).name;
+			//planetFileName += L" System.sc";
+			planetFileName += L"Test System.sc";
 			std::ofstream planetFile(planetFileName.c_str());
 			if (!planetFile)
 			{
@@ -8397,7 +8397,7 @@ std::ofstream* DebugFileP;
 		barycenter.type = L"Barycenter";
 
 		barycenter.mass = primary->mass + secondary->mass;
-		std::uniform_real_distribution<> gendistance{ 0.15, (primary->mass * 10) };
+		std::uniform_real_distribution<> gendistance{ primary->mass, (primary->mass * 5) };
 		avgdistance = gendistance(mt_star);
 		primary->semimajorAxis = (avgdistance * (secondary->mass / barycenter.mass) );
 		secondary->semimajorAxis = (avgdistance - primary->semimajorAxis);
@@ -8455,14 +8455,20 @@ std::ofstream* DebugFileP;
 		barycenter.semimajorStaticList = barycenter.semimajorList; // keeps a copy of the original semimajor points
 		barycenter.maxPlanetNumber = barycenter.semimajorList.size();
 
-		primary->semimajorList.clear();
-		primary->maxPlanetNumber = 0;
-		secondary->semimajorList.clear();
-		secondary->maxPlanetNumber = 0;
+		for (int i = 0; i < primary->semimajorList.size(); i++)
+			if (primary->semimajorList.at(i) > barycenter.innerNoGoZone)
+				primary->semimajorList.erase(primary->semimajorList.begin() + i--);
+		primary->maxPlanetNumber = primary->semimajorList.size();
+
+		for (int i = 0; i < secondary->semimajorList.size(); i++)
+			if (secondary->semimajorList.at(i) > barycenter.innerNoGoZone)
+				secondary->semimajorList.erase(secondary->semimajorList.begin() + i--);
+		secondary->maxPlanetNumber = secondary->semimajorList.size();
+
 		return barycenter;
 	}
 
-	SEStar CreateSTypeStarBarycenter(SEStar& star1, SEStar& star2)
+	SEStar CreateSTypeStarBarycenter(SEStar& star1, SEStar& star2, int level = 1)
 	{
 		SEStar barycenter, *primary = NULL, *secondary = NULL;
 		double avgdistance;
@@ -8481,7 +8487,7 @@ std::ofstream* DebugFileP;
 		barycenter.type = L"Barycenter";
 
 		barycenter.mass = primary->mass + secondary->mass;
-		std::uniform_real_distribution<> gendistance{ (primary->mass * 200), (primary->mass * 800) };
+		std::uniform_real_distribution<> gendistance{ (primary->mass * 50 * level), (primary->mass * 150 * level) };
 		avgdistance = gendistance(mt_star);
 		primary->semimajorAxis = (avgdistance * (secondary->mass / barycenter.mass));
 		secondary->semimajorAxis = (avgdistance - primary->semimajorAxis);
@@ -8538,16 +8544,14 @@ std::ofstream* DebugFileP;
 		barycenter.semimajorStaticList = barycenter.semimajorList; // keeps a copy of the original semimajor points
 		barycenter.maxPlanetNumber = barycenter.semimajorList.size();
 
-		int size = primary->semimajorList.size();
-		for (int i = 0; i < size; i++)
+		for (int i = 0; i < primary->semimajorList.size(); i++)
 			if (primary->semimajorList.at(i) > barycenter.innerNoGoZone)
-				primary->semimajorList.erase(primary->semimajorList.begin() + i);
+				primary->semimajorList.erase(primary->semimajorList.begin() + i--);
 		primary->maxPlanetNumber = primary->semimajorList.size();
 
-		size = secondary->semimajorList.size();
-		for (int i = 0; i < size; i++)
+		for (int i = 0; i < secondary->semimajorList.size(); i++)
 			if (secondary->semimajorList.at(i) > barycenter.innerNoGoZone)
-				secondary->semimajorList.erase(secondary->semimajorList.begin() + i);
+				secondary->semimajorList.erase(secondary->semimajorList.begin() + i--);
 		secondary->maxPlanetNumber = secondary->semimajorList.size();
 
 		return barycenter;
