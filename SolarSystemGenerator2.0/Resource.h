@@ -19,6 +19,7 @@
 
 #define UpdateProgress			SendMessageW(CONFIG_H.PROGRESS_BAR, PBM_DELTAPOS, 1, 0)
 #define SetProgress(str)		SetWindowText(CONFIG_H.INFO_BOX, str)
+#define currentStar				starList.at(starKeys.at(currentstar))
 
 
 
