@@ -5521,61 +5521,62 @@ std::ofstream* DebugFileP;
 				starList.insert(std::make_pair(currentStar.name, currentStar));
 			}
 			std::unordered_map< std::wstring, SEStar> starListCopy = starList; // will empty stars as barycenters are created
-
-			int size = starList.size() - 1, level = 1;
-			std::vector<std::wstring> starKeys, topKey;
+			std::vector<std::wstring> starKeys;				
 			for (auto i = starList.begin(); i != starList.end(); i++)
 				starKeys.push_back(i->first);
-			topKey = starKeys;
+			std::vector<std::wstring> starKeysCopy = starKeys;
+
+			int size = starList.size() - 1, level = 1;
 			for (int i = 0; i < size; i++)
 			{
-				int newSize = topKey.size() - 1, pos1, pos2;
+				int newSize = starKeysCopy.size() - 1, pos1, pos2;
 				std::uniform_int_distribution<> genpos{ 0, newSize };
 				pos1 = genpos(mt_star);
 				do pos2 = genpos(mt_star);
 				while (pos1 == pos2);
 
 				SEStar newBarycenter;
-				if (starListCopy.at(topKey.at(pos1)).type == L"Star" && starListCopy.at(topKey.at(pos2)).type == L"Star")
+				if (starListCopy.at(starKeysCopy.at(pos1)).type == L"Star" && starListCopy.at(starKeysCopy.at(pos2)).type == L"Star")
 				{
 					if (genpercent(mt_star) < 70)
-						newBarycenter = CreatePTypeStarBarycenter(starListCopy.at((topKey.at(pos1))), starListCopy.at(topKey.at(pos2)));
+						newBarycenter = CreatePTypeStarBarycenter(starListCopy.at((starKeysCopy.at(pos1))), starListCopy.at(starKeysCopy.at(pos2)));
 					else
-						newBarycenter = CreateSTypeStarBarycenter(starListCopy.at((topKey.at(pos1))), starListCopy.at(topKey.at(pos2)), (level++ * level));
+						newBarycenter = CreateSTypeStarBarycenter(starListCopy.at((starKeysCopy.at(pos1))), starListCopy.at(starKeysCopy.at(pos2)), (level++ * level));
 				}
 				else
-					newBarycenter = CreateSTypeStarBarycenter(starListCopy.at((topKey.at(pos1))), starListCopy.at(topKey.at(pos2)), (level++ * level));
+					newBarycenter = CreateSTypeStarBarycenter(starListCopy.at((starKeysCopy.at(pos1))), starListCopy.at(starKeysCopy.at(pos2)), (level++ * level));
 
 				starListCopy.insert(std::make_pair(newBarycenter.name, newBarycenter));
 				starList.insert(std::make_pair(newBarycenter.name, newBarycenter));
-				starListCopy.at(topKey.at(pos1)).parentBody = &starList.at(newBarycenter.name);
-				starListCopy.at(topKey.at(pos2)).parentBody = &starList.at(newBarycenter.name);
-				topKey.push_back(newBarycenter.name);
+				starListCopy.at(starKeysCopy.at(pos1)).parentBody = &starList.at(newBarycenter.name);
+				starListCopy.at(starKeysCopy.at(pos2)).parentBody = &starList.at(newBarycenter.name);
+				starKeysCopy.push_back(newBarycenter.name);
 
-				starList.at(topKey.at(pos1)) = starListCopy.at(topKey.at(pos1));
-				starList.at(topKey.at(pos2)) = starListCopy.at(topKey.at(pos2));
-				starListCopy.erase(topKey.at(pos1));
-				starListCopy.erase(topKey.at(pos2));
-
-				
+				starList.at(starKeysCopy.at(pos1)) = starListCopy.at(starKeysCopy.at(pos1));
+				starList.at(starKeysCopy.at(pos2)) = starListCopy.at(starKeysCopy.at(pos2));
+				starListCopy.erase(starKeysCopy.at(pos1));
+				starListCopy.erase(starKeysCopy.at(pos2));
+			
 				if (pos1 > pos2)
 				{
-					topKey.erase(topKey.begin() + pos1);
-					topKey.erase(topKey.begin() + pos2);
+					starKeysCopy.erase(starKeysCopy.begin() + pos1);
+					starKeysCopy.erase(starKeysCopy.begin() + pos2);
 				}
 				else
 				{
-					topKey.erase(topKey.begin() + pos2);
-					topKey.erase(topKey.begin() + pos1);
+					starKeysCopy.erase(starKeysCopy.begin() + pos2);
+					starKeysCopy.erase(starKeysCopy.begin() + pos1);
 				}	
 				starKeys.push_back(newBarycenter.name);
 			}
+			std::wstring topKey = starKeysCopy.at(0);
 			for (int i = 0; i < starKeys.size(); i++)
-				if (starKeys.at(i) == topKey.at(0) && numberOfStars > 1)
+				if (starKeys.at(i) == topKey && numberOfStars > 1)
 				{
 					starKeys.erase(starKeys.begin() + i);
 					i = starKeys.size();
-				}					
+				}
+
 
 			UpdateProgress;
 
@@ -5589,8 +5590,8 @@ std::ofstream* DebugFileP;
 				MessageBox(hWnd, L"Problem with star output folder!", L"Error", MB_ICONERROR);
 				return;
 			}
-			GenerateSystemLocation(starList.at(topKey.at(0)));
-			PrintStarFile(starList.at(topKey.at(0)), starFile);
+			GenerateSystemLocation(starList.at(topKey));
+			PrintStarFile(starList.at(topKey), starFile);
 			
 			std::wstring planetFileName = CONFIG.planetOutputFolder;	//Creates the planet file
 			//planetFileName += starList.at(topKey.at(0)).name;
@@ -5610,8 +5611,8 @@ std::ofstream* DebugFileP;
 			SystemDebug.type = L"Planet";
 			SystemDebug.class_ = L"Terra";
 			SystemDebug.name = L"System Debug Holder";
-			SystemDebug.parentBody = &starList.at(starKeys.at(0));
-			SystemDebug.semimajorAxis = AU_to_km(starList.at(topKey.at(0)).outerLimit * 6);
+			SystemDebug.parentBody = &starList.at(topKey);
+			SystemDebug.semimajorAxis = AU_to_km(starList.at(topKey).outerLimit * 6);
 			SystemDebug.mass = 1;
 			SystemDebug.radius = 5000;
 			SystemDebug.eccentricity = SystemDebug.inclination = SystemDebug.ascendingNode = SystemDebug.argofPericenter = SystemDebug.meanAnomaly = SystemDebug.obliquity = 0;
@@ -5642,17 +5643,17 @@ std::ofstream* DebugFileP;
 				}
 			if (CONFIG.debug)
 			{
-				DebugMessage(L"Inner Limit", debug_STAR_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).innerLimit));
-				DebugMessage(L"Outer Limit", debug_STAR_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).outerLimit));
-				DebugMessage(L"Frost Limit", debug_STAR_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).frostLine));
-				DebugMessage(L"HZ Inner Limit", debug_STAR_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).habitZoneInnerLimit));
-				DebugMessage(L"HZ Outer Limit", debug_STAR_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).habitZoneOuterLimit));
-				DebugMessage(L"Minimum Seperation", debug_STAR_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).minSeperation));
-				DebugMessage(L"Maximum Seperation", debug_STAR_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).maxSeperation));
-				DebugMessage(L"Inner No-Go", debug_STAR_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).innerNoGoZone));
-				DebugMessage(L"Outer No-Go", debug_STAR_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).outerNoGoZone));
-				for (int ii = 0; ii < starList.at(topKey.at(0)).semimajorList.size(); ii++)
-					DebugMessage(L"SM Point " + std::to_wstring(ii), debug_PLANET_LIMITS, starList.at(topKey.at(0)), AU_to_km(starList.at(topKey.at(0)).semimajorList.at(ii)));
+				DebugMessage(L"Inner Limit", debug_STAR_LIMITS, starList.at(topKey), AU_to_km(starList.at(topKey).innerLimit));
+				DebugMessage(L"Outer Limit", debug_STAR_LIMITS, starList.at(topKey), AU_to_km(starList.at(topKey).outerLimit));
+				DebugMessage(L"Frost Limit", debug_STAR_LIMITS, starList.at(topKey), AU_to_km(starList.at(topKey).frostLine));
+				DebugMessage(L"HZ Inner Limit", debug_STAR_LIMITS, starList.at(topKey), AU_to_km(starList.at(topKey).habitZoneInnerLimit));
+				DebugMessage(L"HZ Outer Limit", debug_STAR_LIMITS, starList.at(topKey), AU_to_km(starList.at(topKey).habitZoneOuterLimit));
+				DebugMessage(L"Minimum Seperation", debug_STAR_LIMITS, starList.at(topKey), AU_to_km(starList.at(topKey).minSeperation));
+				DebugMessage(L"Maximum Seperation", debug_STAR_LIMITS, starList.at(topKey), AU_to_km(starList.at(topKey).maxSeperation));
+				DebugMessage(L"Inner No-Go", debug_STAR_LIMITS, starList.at(topKey), AU_to_km(starList.at(topKey).innerNoGoZone));
+				DebugMessage(L"Outer No-Go", debug_STAR_LIMITS, starList.at(topKey), AU_to_km(starList.at(topKey).outerNoGoZone));
+				for (int ii = 0; ii < starList.at(topKey).semimajorList.size(); ii++)
+					DebugMessage(L"SM Point " + std::to_wstring(ii), debug_PLANET_LIMITS, starList.at(topKey), AU_to_km(starList.at(topKey).semimajorList.at(ii)));
 			}
 
 
