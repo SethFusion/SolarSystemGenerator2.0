@@ -6033,6 +6033,9 @@ std::ofstream* DebugFileP;
 						// the star is the parent
 						if (parent == planetList.size())
 						{
+							if (currentStar.type == L"Barycenter")
+								continue;
+
 							ship.parentBody = &currentStar;
 
 							// final check before the ship type is generated
@@ -6199,143 +6202,12 @@ std::ofstream* DebugFileP;
 							else
 								SendDebugMessage(L"Tried to generate a ship around a planet, but there were no available ship types!", debug_WARNING);
 						}
+
 						CONFIG.exotic_ShipChance--;
 					}
 				}
 				else
 					SendDebugMessage(L"No ships can spawn.", debug_INFO);
-				UpdateProgress;
-
-				// Asteroid Belt Generator
-				if (CONFIG.generateAsteroidBelt)
-				{
-					SetProgress(L"Generating system's asteroids...");
-					SEPlanet asteroid;
-					asteroid.type = asteroid.class_ = L"Asteroid";
-					asteroid.parentBody = &currentStar;
-					bool usedInner = false, usedOuter = false;
-					int totalAsteroids = 0;
-
-					std::uniform_int_distribution<> genruns{ 1, CONFIG.maxAsteroidBelts };
-					int numberofBelts = genruns(mt_star);
-
-					for (int currentBelt = 0; currentBelt < numberofBelts; currentBelt++)
-					{
-						/*--------------------------------------------------------------#
-						|																|
-						|	Basically what this does:									|
-						|																|
-						|	First we chose a random Semimajor from the leftover list	|
-						|	of points IF there are still points left. Otherwise,		|
-						|	our asteroid belt will be before the inner limit or			|
-						|	beyond the outer limit.										|
-						|																|
-						|	Next, we detmine where that semimajor was in the original	|
-						|	list. The points before and after it are our boundaries		|
-						|	for the asteroid belt. If it was the first or last point	|
-						|	in the list, we use the inner/outer limits as our			|
-						|	boundaries.													|
-						|																|
-						#--------------------------------------------------------------*/
-
-						double minSemimajor = -1, maxSemimajor = -1, avgSemimajor, sdSemimajor;
-						std::uniform_int_distribution<> gennum{ CONFIG.minAsteroidCount, CONFIG.maxAsteroidCount };
-						int asteroidCount = gennum(mt_star);
-
-						if (currentStar.type == L"Star" && currentStar.parentBody == NULL) //single star system
-						{
-							if (currentStar.semimajorList.size() > 0 && genpercent(mt_star) < 33)
-							{
-								if (!CreateSMAsteroidBelt(currentStar, minSemimajor, maxSemimajor, avgSemimajor, sdSemimajor))
-									goto NoBelt;
-							}
-							else
-							{
-								// 50% for asteroid belt before inner limit, 50% for after outer limit
-								if ((!usedInner && usedOuter) || (!usedInner && genpercent(mt_star) < 50))
-								{
-									usedInner = true;
-									if (!CreateInnerAsteroidBelt(currentStar, minSemimajor, maxSemimajor, avgSemimajor, sdSemimajor))
-										goto NoBelt;
-								}
-								else if (!usedOuter)
-								{
-									usedOuter = true;
-									if (!CreateOuterAsteroidBelt(currentStar, minSemimajor, maxSemimajor, avgSemimajor, sdSemimajor))
-										goto NoBelt;
-								}
-								else
-								{
-									SendDebugMessage(L"Inner limit and outer limit asteroid belts already created. Skipping asteroid belt...", debug_WARNING);
-									goto NoBelt;
-								}
-							}
-						}
-						else if (currentStar.type == L"Star") // star has a parent barycenter
-						{
-							if (currentStar.semimajorList.size() > 0 && genpercent(mt_star) < 33)
-							{
-								if (!CreateSMAsteroidBelt(currentStar, minSemimajor, maxSemimajor, avgSemimajor, sdSemimajor))
-									goto NoBelt;
-							}								
-							else
-							{
-								if (!usedInner && genpercent(mt_star) < 50)
-								{
-									usedInner = true;
-									if (!CreateInnerAsteroidBelt(currentStar, minSemimajor, maxSemimajor, avgSemimajor, sdSemimajor))
-										goto NoBelt;
-								}
-								else
-								{
-									SendDebugMessage(L"Inner limit and outer limit asteroid belts already created. Skipping asteroid belt...", debug_WARNING);
-									goto NoBelt;
-								}
-							}
-						}
-						else // star is barycenter
-						{
-							if (currentStar.semimajorList.size() > 0)
-							{
-								if (!CreateSMAsteroidBelt(currentStar, minSemimajor, maxSemimajor, avgSemimajor, sdSemimajor))
-									goto NoBelt;
-							}			
-							else
-								goto NoBelt;
-						}
-
-						for (int currentAsteroid = 0; currentAsteroid < asteroidCount; currentAsteroid++)
-						{
-							GenerateAsteroid(currentStar, asteroid, minSemimajor, maxSemimajor, avgSemimajor, sdSemimajor);
-							if (!NV.nameAsteroids)
-								asteroid.name += std::to_wstring(++totalAsteroids);
-							PrintPlanet(asteroid, planetFile);
-						}
-					NoBelt:;
-					}
-				}
-				UpdateProgress;
-
-				// comet generator
-				if (CONFIG.generateComets)
-				{
-					SetProgress(L"Generating system's comets...");
-					SEPlanet comet;
-					comet.type = L"Comet";
-					comet.class_ = L"Asteroid";
-					comet.parentBody = &currentStar;
-
-					std::uniform_int_distribution<> gennum{ CONFIG.minCometCount, CONFIG.maxCometCount };
-					int cometCount = gennum(mt_star);
-
-					for (int currentComet = 0; currentComet < cometCount; currentComet++)
-					{
-						GenerateComet(currentStar, comet);
-						if (!NV.nameComets)
-							comet.name += std::to_wstring(currentComet + 1);
-						PrintPlanet(comet, planetFile);
-					}
-				}
 				UpdateProgress;
 
 				// Debug star Orbits
@@ -6356,6 +6228,148 @@ std::ofstream* DebugFileP;
 
 				// end of every star's stuff
 			}
+
+			// Asteroid Belt Generator
+			if (CONFIG.generateAsteroidBelt)
+			{
+				SetProgress(L"Generating system's asteroids...");
+				SEPlanet asteroid;
+				asteroid.type = asteroid.class_ = L"Asteroid";
+
+				std::uniform_int_distribution<> genruns{ 1, CONFIG.maxAsteroidBelts };
+				int numberofBelts = genruns(mt_star);
+
+				for (int currentBelt = 0; currentBelt < numberofBelts; currentBelt++)
+				{
+					SEStar* star;
+					int listsize = starKeys.size() - 1;
+					std::uniform_int_distribution<> genpos{ 0 , listsize };
+					asteroid.parentBody = star = &starList.at(starKeys.at(genpos(mt_star)));
+					int totalAsteroids = 0;
+
+					/*--------------------------------------------------------------#
+					|																|
+					|	Basically what this does:									|
+					|																|
+					|	First we chose a random Semimajor from the leftover list	|
+					|	of points IF there are still points left. Otherwise,		|
+					|	our asteroid belt will be before the inner limit or			|
+					|	beyond the outer limit.										|
+					|																|
+					|	Next, we detmine where that semimajor was in the original	|
+					|	list. The points before and after it are our boundaries		|
+					|	for the asteroid belt. If it was the first or last point	|
+					|	in the list, we use the inner/outer limits as our			|
+					|	boundaries.													|
+					|																|
+					#--------------------------------------------------------------*/
+
+					double minSemimajor = -1, maxSemimajor = -1, avgSemimajor, sdSemimajor;
+					std::uniform_int_distribution<> gennum{ CONFIG.minAsteroidCount, CONFIG.maxAsteroidCount };
+					int asteroidCount = gennum(mt_star);
+
+					if (star->type == L"Star" && star->parentBody == NULL) //single star system
+					{
+						if (star->semimajorList.size() > 0 && genpercent(mt_star) < 33)
+						{
+							if (!CreateSMAsteroidBelt(*star, minSemimajor, maxSemimajor, avgSemimajor, sdSemimajor))
+								goto NoBelt;
+						}
+						else
+						{
+							// 50% for asteroid belt before inner limit, 50% for after outer limit
+							if ((!star->innerAsteroidBelt && star->outerAsteroidBelt) || (!star->innerAsteroidBelt && genpercent(mt_star) < 50))
+							{
+								star->innerAsteroidBelt = true;
+								if (!CreateInnerAsteroidBelt(*star, minSemimajor, maxSemimajor, avgSemimajor, sdSemimajor))
+									goto NoBelt;
+							}
+							else if (!star->outerAsteroidBelt)
+							{
+								star->outerAsteroidBelt = true;
+								if (!CreateOuterAsteroidBelt(*star, minSemimajor, maxSemimajor, avgSemimajor, sdSemimajor))
+									goto NoBelt;
+							}
+							else
+							{
+								SendDebugMessage(L"Inner limit and outer limit asteroid belts already created. Skipping asteroid belt...", debug_WARNING);
+								goto NoBelt;
+							}
+						}
+					}
+					else if (star->type == L"Star") // star has a parent barycenter
+					{
+						if (star->semimajorList.size() > 0 && genpercent(mt_star) < 33)
+						{
+							if (!CreateSMAsteroidBelt(*star, minSemimajor, maxSemimajor, avgSemimajor, sdSemimajor))
+								goto NoBelt;
+						}
+						else
+						{
+							if (!star->innerAsteroidBelt)
+							{
+								star->innerAsteroidBelt = true;
+								if (!CreateInnerAsteroidBelt(*star, minSemimajor, maxSemimajor, avgSemimajor, sdSemimajor))
+									goto NoBelt;
+							}
+							else
+							{
+								SendDebugMessage(L"Inner limit and outer limit asteroid belts already created. Skipping asteroid belt...", debug_WARNING);
+								goto NoBelt;
+							}
+						}
+					}
+					else // star is barycenter
+					{
+						if (star->semimajorList.size() > 0)
+						{
+							if (!CreateSMAsteroidBelt(*star, minSemimajor, maxSemimajor, avgSemimajor, sdSemimajor))
+								goto NoBelt;
+						}
+						else
+							goto NoBelt;
+					}
+
+					for (int currentAsteroid = 0; currentAsteroid < asteroidCount; currentAsteroid++)
+					{
+						GenerateAsteroid(*star, asteroid, minSemimajor, maxSemimajor, avgSemimajor, sdSemimajor);
+						if (!NV.nameAsteroids)
+							asteroid.name += std::to_wstring(++totalAsteroids);
+						PrintPlanet(asteroid, planetFile);
+					}
+				NoBelt:;
+				}
+			}
+			UpdateProgress;
+		
+			// comet generator
+			if (CONFIG.generateComets)
+			{
+				SetProgress(L"Generating system's comets...");
+				SEPlanet comet;
+				comet.type = L"Comet";
+				comet.class_ = L"Asteroid";
+
+				for (int currentstar = 0; currentstar < starKeys.size(); currentstar++)
+				{
+					if (currentStar.type == L"Barycenter")
+						continue;
+
+					comet.parentBody = &currentStar;
+
+					std::uniform_int_distribution<> gennum{ CONFIG.minCometCount, CONFIG.maxCometCount };
+					int cometCount = gennum(mt_star);
+
+					for (int currentComet = 0; currentComet < cometCount; currentComet++)
+					{
+						GenerateComet(currentStar, comet);
+						if (!NV.nameComets)
+							comet.name += std::to_wstring(currentComet + 1);
+						PrintPlanet(comet, planetFile);
+					}
+				}	
+			}
+			UpdateProgress;
 
 			//end of every system generated
 			starFile.close();
@@ -8378,7 +8392,6 @@ std::ofstream* DebugFileP;
 		sdSemimajor = ((maxSemimajor - minSemimajor) / 9);
 		return true;
 	}
-
 	bool CreateOuterAsteroidBelt(SEStar& star, double& minSemimajor, double& maxSemimajor, double& avgSemimajor, double& sdSemimajor)
 	{
 		avgSemimajor = (star.outerLimit * 2);
@@ -8387,7 +8400,6 @@ std::ofstream* DebugFileP;
 		sdSemimajor = ((maxSemimajor - minSemimajor) / 9);
 		return true;
 	}
-
 	bool CreateSMAsteroidBelt(SEStar& star, double& minSemimajor, double& maxSemimajor, double& avgSemimajor, double& sdSemimajor)
 	{
 		int pos, listSize = star.semimajorList.size() - 1;
@@ -8471,6 +8483,7 @@ std::ofstream* DebugFileP;
 		secondary->argofPericenter = primary->argofPericenter + 180;
 		primary->meanAnomaly = secondary->meanAnomaly = gendegree(mt_star);
 		primary->obliquity = secondary->obliquity = 0;
+		barycenter.obliquity = gendegree(mt_star);
 
 		primary->maxSeperation = ((1 + primary->eccentricity) * primary->semimajorAxis);
 		primary->minSeperation = ((1 - primary->eccentricity) * primary->semimajorAxis);
@@ -8517,8 +8530,7 @@ std::ofstream* DebugFileP;
 
 		return barycenter;
 	}
-
-	SEStar CreateSTypeStarBarycenter(SEStar& star1, SEStar& star2, int level = 1)
+	SEStar CreateSTypeStarBarycenter(SEStar& star1, SEStar& star2, int level)
 	{
 		SEStar barycenter, *primary = NULL, *secondary = NULL;
 		double avgdistance;
@@ -8560,7 +8572,9 @@ std::ofstream* DebugFileP;
 		primary->argofPericenter = gendegree(mt_star);
 		secondary->argofPericenter = primary->argofPericenter + 180;
 		primary->meanAnomaly = secondary->meanAnomaly = gendegree(mt_star);
-		primary->obliquity = secondary->obliquity = gendegree(mt_star);
+		primary->obliquity = gendegree(mt_star);
+		secondary->obliquity = gendegree(mt_star);
+		barycenter.obliquity = gendegree(mt_star);
 
 		primary->maxSeperation = ((1 + primary->eccentricity) * primary->semimajorAxis);
 		primary->minSeperation = ((1 - primary->eccentricity) * primary->semimajorAxis);
@@ -8703,6 +8717,8 @@ std::ofstream* DebugFileP;
 			SEPlanet Debug;
 			Debug.type = L"Star";
 			Debug.class_ = L"Z";
+			Debug.mass = 0.1;
+			Debug.radius = 1;
 			Debug.name = message;
 			Debug.parentBody = &parent;
 			Debug.semimajorAxis = km_to_AU(semimajorKm);

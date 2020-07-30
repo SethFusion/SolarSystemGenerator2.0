@@ -76,6 +76,7 @@ public:
 	//generated
 	int temperatureK, maxPlanetNumber;
 	double RA[3], DEC[3], distance;
+	bool innerAsteroidBelt, outerAsteroidBelt;
 
 	//calculated
 	double luminosity, innerLimit, outerLimit, frostLine, habitZoneInnerLimit, habitZoneOuterLimit;
@@ -91,8 +92,9 @@ public:
 	{
 		temperatureK = maxPlanetNumber = -1;
 		RA[0] = RA[1] = RA[2] = DEC[0] = DEC[1] = DEC[2] = distance = -1;
+		innerAsteroidBelt = outerAsteroidBelt = false;
 		luminosity = innerLimit = outerLimit = frostLine = habitZoneInnerLimit = habitZoneOuterLimit =  totalDist = -1;
-		minSeperation = maxSeperation = -1;
+		minSeperation = maxSeperation = innerNoGoZone = outerNoGoZone = -1;
 	}
 };
 
