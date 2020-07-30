@@ -19,6 +19,7 @@
 
 #define UpdateProgress			SendMessageW(CONFIG_H.PROGRESS_BAR, PBM_DELTAPOS, 1, 0)
 #define SetProgress(str)		SetWindowText(CONFIG_H.INFO_BOX, str)
+#define currentStar				starList.at(starKeys.at(currentstar))
 
 
 
@@ -109,6 +110,7 @@
 #define IB_ASTEROIDCOUNT		1021
 #define IB_GENERATECOMETS		1022
 #define IB_COMETCOUNT			1023
+#define IB_MULTISTARS			1049
 
 #define IB_WEIGHTEDMOONS		1024
 #define IB_MOONDISTANCEBOUNDARY 1025
@@ -150,6 +152,7 @@
 #define CB_WEIGHTEDMOONS		1503
 #define CB_GENERATEASTEROIDS	1508
 #define CB_GENERATECOMETS		1509
+#define CB_MULTISTARS			1510
 
 #define CB_TRADITIONALLIFE		1504
 #define CB_FORCELIFE			1505

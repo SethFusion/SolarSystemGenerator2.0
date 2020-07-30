@@ -70,9 +70,11 @@ struct ConfigurationVariables
 			SYSTEM
 	#####################################################*/
 
-	bool smartPlacement, generateDwarfPlanets, generateAsteroidBelt, generateComets;
+	bool multiStars, smartPlacement, generateDwarfPlanets, generateAsteroidBelt, generateComets;
 	int	dwarfPlanetChance, maxAsteroidBelts, minAsteroidCount, maxAsteroidCount, minCometCount, maxCometCount;
-	double minDistance, maxDistance, minPlanetNumber, systemRadiusModifier,
+	double minDistance, maxDistance, 
+		multiStarsAvg, multiStarsSD,
+		minPlanetNumber, systemRadiusModifier,
 		planetSpaceAvg, planetSpaceSD,
 		avgEccentricity, SDEccentricity, 
 		avgInclination, SDInclination, 
@@ -158,9 +160,11 @@ struct ConfigurationHWNDs
 		*/	HWND HEADER_SYSTEM; /*
 	#####################################################*/
 	
-	var smartPlacement, generateDwarfPlanets, generateAsteroidBelt, generateComets;
+	var multiStars, smartPlacement, generateDwarfPlanets, generateAsteroidBelt, generateComets;
 	var dwarfPlanetChance, maxAsteroidBelts, minAsteroidCount, maxAsteroidCount, minCometCount, maxCometCount;
-	var minDistance, maxDistance, minPlanetNumber, systemRadiusModifier,
+	var minDistance, maxDistance, 
+		multiStarsAvg, multiStarsSD,
+		minPlanetNumber, systemRadiusModifier,
 		planetSpaceAvg, planetSpaceSD,
 		avgEccentricity, SDEccentricity, 
 		avgInclination, SDInclination, 
@@ -218,10 +222,12 @@ struct Preset
 		System
 	#####################################################*/
 
-	bool smartPlacement, generateDwarfPlanets, generateAsteroidBelt, generateComets;
-	wchar_t const* smartPlacementState, * generateDwarfPlanetsState, * generateAsteroidBeltState, * generateCometsState;
+	bool multiStars, smartPlacement, generateDwarfPlanets, generateAsteroidBelt, generateComets;
+	wchar_t const* multiStarsState, * smartPlacementState, * generateDwarfPlanetsState, * generateAsteroidBeltState, * generateCometsState;
 	int	dwarfPlanetChance, maxAsteroidBelts, minAsteroidCount, maxAsteroidCount, minCometCount, maxCometCount;
-	double minDistance, maxDistance, minPlanetNumber, systemRadiusModifier,
+	double minDistance, maxDistance, 
+		multiStarsAvg, multiStarsSD,
+		minPlanetNumber, systemRadiusModifier,
 		planetSpaceAvg, planetSpaceSD,
 		avgEccentricity, SDEccentricity, 
 		avgInclination, SDInclination, 
