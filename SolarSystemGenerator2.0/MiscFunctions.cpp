@@ -91,7 +91,7 @@ static void LoadVariableFromFile(char* Buffer, int& parse, int& store)
 static void LoadVariableFromFile(char* Buffer, int& parse, long long& store) // only used for seed
 {
 	FindNextEntry(Buffer, parse);
-	wchar_t holder, numholder[20];
+	wchar_t holder, numholder[64];
 	int i = 0;
 	do
 	{

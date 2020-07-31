@@ -5291,8 +5291,7 @@ std::ofstream* DebugFileP;
 					int listsize = NV.ShipPostMods_Starship.size() - 1;
 					std::uniform_int_distribution<int> gen_mod_position{ 0, listsize };
 					finalName += L" ";
-					finalName += NV.ShipPostMods_Starship.at(gen_mod_position(mt_name));
-					
+					finalName += NV.ShipPostMods_Starship.at(gen_mod_position(mt_name));				
 				}
 					break;
 				case typeShipPlanetship:
@@ -5512,6 +5511,7 @@ std::ofstream* DebugFileP;
 			###############################################################################*/
 			SetProgress(L"Generating system star...");
 
+			// Number of stars is always se to 1. If multistars is enabled, more can generate
 			int numberOfStars = 1;
 			if (CONFIG.multiStars)
 			{
@@ -5520,14 +5520,14 @@ std::ofstream* DebugFileP;
 				while (numberOfStars < 1);
 			}
 
-			std::unordered_map< std::wstring, SEStar> starList; // will include all individual stars and barycenters
+			std::unordered_map<std::wstring, SEStar> starList; // includes all individual stars and barycenters
 			for (int i = 0; i < numberOfStars; i++)
 			{
 				SEStar star;
 				GenerateStar(star);
 				starList.insert(std::make_pair(star.name, star));
 			}
-			std::unordered_map< std::wstring, SEStar> starListCopy = starList; // will empty stars as barycenters are created
+			std::unordered_map<std::wstring, SEStar> starListCopy = starList; // will empty stars as barycenters are created
 			std::vector<std::wstring> starKeys;				
 			for (auto i = starList.begin(); i != starList.end(); i++)
 				starKeys.push_back(i->first);
@@ -5541,29 +5541,36 @@ std::ofstream* DebugFileP;
 				pos1 = genpos(mt_star);
 				do pos2 = genpos(mt_star);
 				while (pos1 == pos2);
+				SEStar* star1 = &starListCopy.at(starKeysCopy.at(pos1)), * star2 = &starListCopy.at(starKeysCopy.at(pos2));
 
 				SEStar newBarycenter;
-				if (starListCopy.at(starKeysCopy.at(pos1)).type == L"Star" && starListCopy.at(starKeysCopy.at(pos2)).type == L"Star")
+				if (star1->type == L"Star" && star2->type == L"Star") // both are stars
 				{
 					if (genpercent(mt_star) < 70)
-						newBarycenter = CreatePTypeStarBarycenter(starListCopy.at((starKeysCopy.at(pos1))), starListCopy.at(starKeysCopy.at(pos2)));
+						newBarycenter = CreatePTypeStarBarycenter(*star1, *star2);
 					else
-						newBarycenter = CreateSTypeStarBarycenter(starListCopy.at((starKeysCopy.at(pos1))), starListCopy.at(starKeysCopy.at(pos2)), (level++ * level));
+						newBarycenter = CreateSTypeStarBarycenter(*star1, *star2, (level++));
 				}
 				else
-					newBarycenter = CreateSTypeStarBarycenter(starListCopy.at((starKeysCopy.at(pos1))), starListCopy.at(starKeysCopy.at(pos2)), (level++ * level));
+					newBarycenter = CreateSTypeStarBarycenter(*star1, *star2, pow(level++, level));
 
+				// puts the new barycenter in both star lists to be used
+				// then sets parentbodies of both stars used
 				starListCopy.insert(std::make_pair(newBarycenter.name, newBarycenter));
 				starList.insert(std::make_pair(newBarycenter.name, newBarycenter));
-				starListCopy.at(starKeysCopy.at(pos1)).parentBody = &starList.at(newBarycenter.name);
-				starListCopy.at(starKeysCopy.at(pos2)).parentBody = &starList.at(newBarycenter.name);
+				star1->parentBody = &starList.at(newBarycenter.name);
+				star2->parentBody = &starList.at(newBarycenter.name);
 				starKeysCopy.push_back(newBarycenter.name);
 
-				starList.at(starKeysCopy.at(pos1)) = starListCopy.at(starKeysCopy.at(pos1));
-				starList.at(starKeysCopy.at(pos2)) = starListCopy.at(starKeysCopy.at(pos2));
-				starListCopy.erase(starKeysCopy.at(pos1));
-				starListCopy.erase(starKeysCopy.at(pos2));
+				// overrides used stars with new orbit data,
+				// then deletes them from the available stars list
+				starList.at(star1->name) = *star1;
+				starList.at(star2->name) = *star2;
+				starListCopy.erase(star1->name);
+				starListCopy.erase(star2->name);
 			
+				// deltes the keys from the keys copy
+				// adds barycenter key
 				if (pos1 > pos2)
 				{
 					starKeysCopy.erase(starKeysCopy.begin() + pos1);
@@ -5584,9 +5591,9 @@ std::ofstream* DebugFileP;
 			###############################################################################*/
 
 			std::wstring starFileName = CONFIG.starOutputFolder;	//Creates the star file
-			//starFileName += starList.at(topKey.at(0)).name;
-			//starFileName += L" Star.sc";
-			starFileName += L"Test Star.sc";
+			starFileName += topKey;
+			starFileName += L" Star.sc";
+			//starFileName += L"Test Star.sc";
 			std::ofstream starFile(starFileName.c_str());
 			if (!starFile)
 			{
@@ -5597,9 +5604,9 @@ std::ofstream* DebugFileP;
 			PrintStarFile(starList.at(topKey), starFile);
 			
 			std::wstring planetFileName = CONFIG.planetOutputFolder;	//Creates the planet file
-			//planetFileName += starList.at(topKey.at(0)).name;
-			//planetFileName += L" System.sc";
-			planetFileName += L"Test System.sc";
+			planetFileName += topKey;
+			planetFileName += L" System.sc";
+			//planetFileName += L"Test System.sc";
 			std::ofstream planetFile(planetFileName.c_str());
 			if (!planetFile)
 			{
@@ -5613,7 +5620,7 @@ std::ofstream* DebugFileP;
 			DebugFileP = &planetFile;
 			SystemDebug.type = L"Planet";
 			SystemDebug.class_ = L"Terra";
-			SystemDebug.name = L"System Debug Holder";
+			SystemDebug.name = L"System " + std::to_wstring(run + 1) + L" Debug Holder";
 			SystemDebug.parentBody = &starList.at(topKey);
 			SystemDebug.semimajorAxis = AU_to_km(starList.at(topKey).outerLimit * 6);
 			SystemDebug.mass = 1;
@@ -5628,6 +5635,7 @@ std::ofstream* DebugFileP;
 				for (int i = 0; i < starKeys.size() - 1; i++)
 					PrintStar(starList.at(starKeys.at(i)), planetFile);
 
+			// All planet stuff
 			for (int currentstar = 0; currentstar < starKeys.size(); currentstar++)
 			{
 				std::uniform_int_distribution<int> genplanetnum{ (int)ceil(((CONFIG.minPlanetNumber / 100) * currentStar.maxPlanetNumber)), currentStar.maxPlanetNumber };
